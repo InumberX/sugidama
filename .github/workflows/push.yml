@@ -54,7 +54,7 @@ jobs:
 
       - run: npm ci
       - run: npm run format
-      - run: npm run eslint-quiet
+      - run: npm run lint-quiet
       - run: npm run typecheck
 
   test:

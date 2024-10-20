@@ -15,8 +15,6 @@ type Props = {
   next?: string
 }
 
-export const siteName = 'Sugidama'
-export const baseTitle = `${siteName} | お酒の銘柄、製造元、味わいを紹介`
 export const baseDescription =
   'このサイトでは、管理人がこれまで飲んできた美味しいお酒を独断と偏見で記録しています。銘柄、製造元、味わいの特徴を紹介し、気になるお酒があれば販売サイトもご覧いただけます。'
 
@@ -37,8 +35,9 @@ export const getMetadata = ({
     return match.id === 'root'
   })?.data as SerializeFrom<typeof rootLoader>
   const env = matchData.env
-  const { NO_INDEX, SITE_URL } = env
-  const titleText = title ? `${title} | ${siteName}` : baseTitle
+  const { NO_INDEX, SITE_URL, SITE_NAME } = env
+  const baseTitle = `${SITE_NAME} | お酒の銘柄、製造元、味わいを紹介`
+  const titleText = title ? `${title} | ${SITE_NAME}` : baseTitle
   const canonicalUrl = canonical ?? `${SITE_URL}${location.pathname}`
   const ogImageUrl = ogImage ?? `${SITE_URL}/assets/img/img-ogp.jpg`
 
@@ -69,7 +68,7 @@ export const getMetadata = ({
     },
     {
       property: 'og:site_name',
-      content: siteName,
+      content: SITE_NAME,
     },
     {
       property: 'og:image',

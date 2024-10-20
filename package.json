@@ -7,6 +7,7 @@
     "build": "remix vite:build",
     "dev": "remix vite:dev",
     "start": "remix-serve ./build/server/index.js",
+    "postbuild": "chmod +x bin/postbuild.sh && ./bin/postbuild.sh",
     "typecheck": "tsc -b",
     "format": "prettier --check \"./{app,tests,stories}/**/*.{ts,tsx}\"",
     "format-fix": "prettier --write \"./{app,tests,stories}/**/*.{ts,tsx}\"",
@@ -17,10 +18,13 @@
     "storybook": "storybook dev --no-open -p 6006 -c .storybook"
   },
   "dependencies": {
+    "@remix-run/express": "^2.13.1",
     "@remix-run/node": "^2.13.1",
     "@remix-run/react": "^2.13.1",
     "@remix-run/serve": "^2.13.1",
+    "cross-env": "^7.0.3",
     "date-fns": "^4.1.0",
+    "express": "^4.21.1",
     "framer-motion": "^11.11.9",
     "isbot": "^5.1.17",
     "react": "^18.3.1",

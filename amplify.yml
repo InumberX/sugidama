@@ -1,0 +1,28 @@
+version: 1
+frontend:
+  phases:
+    preTest:
+      commands:
+        - nvm use 18
+        - node -v
+        - npm ci
+      test:
+        commands:
+          - npm run format
+          - npm run lint:quiet
+          - npm run typecheck
+          - npm run test
+    preBuild:
+      commands:
+        - nvm use 18
+        - npm ci
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: .amplify-hosting
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*

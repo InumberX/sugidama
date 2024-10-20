@@ -88,3 +88,5 @@ web_modules/
 
 # Windows
 .Thumbs.db
+
+.amplify-hosting

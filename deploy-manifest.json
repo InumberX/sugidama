@@ -1,25 +1,10 @@
 {
   "version": 1,
   "framework": {
-    "name": "express",
-    "version": "4.21.1"
-  },
-  "imageSettings": {
-    "sizes": [100, 200, 1920],
-    "domains": [],
-    "remotePatterns": [],
-    "formats": [],
-    "minimumCacheTTL": 60,
-    "dangerouslyAllowSVG": false
+    "name": "remix",
+    "version": "2.13.1"
   },
   "routes": [
-    {
-      "path": "/_amplify/image",
-      "target": {
-        "kind": "ImageOptimization",
-        "cacheControl": "public, max-age=3600, immutable"
-      }
-    },
     {
       "path": "/*.*",
       "target": {

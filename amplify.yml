@@ -18,6 +18,8 @@ frontend:
         - npm ci
     build:
       commands:
+        - echo "SITE_URL=$SITE_URL" >> .env
+        - echo "SITE_NAME=$SITE_NAME" >> .env
         - npm run build
         - mv build .amplify-hosting
         - mv .amplify-hosting/client .amplify-hosting/static

@@ -3,12 +3,14 @@ import { Links, Meta, Outlet, ScrollRestoration, Scripts } from '@remix-run/reac
 import { AppProvider } from '~/providers/AppProvider'
 import { LayoutPortal } from '~/components/common/LayoutPortal'
 import * as styles from './root.css'
+import 'dotenv/config'
 
 export async function loader() {
   return json({
     env: {
       NO_INDEX: process.env.NO_INDEX || '',
       SITE_URL: process.env.SITE_URL || 'http://localhost:5173',
+      SITE_NAME: process.env.SITE_NAME || 'Sugidama(development)',
     },
   })
 }

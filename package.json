@@ -7,7 +7,6 @@
     "build": "remix vite:build",
     "dev": "remix vite:dev",
     "start": "remix-serve ./build/server/index.js",
-    "postbuild": "chmod +x bin/postbuild.sh && ./bin/postbuild.sh",
     "typecheck": "tsc -b",
     "format": "prettier --check \"./{app,tests,stories}/**/*.{ts,tsx}\"",
     "format-fix": "prettier --write \"./{app,tests,stories}/**/*.{ts,tsx}\"",

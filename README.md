@@ -75,12 +75,12 @@ npm run test
 #### Check
 
 ```shell
-npx npm-check-updates
+npm run upgrade-check
 ```
 
 #### Upgrade
 
 ```shell
-npx npm-check-updates -u
+npm run upgrade
 npm install
 ```

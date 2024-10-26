@@ -6,19 +6,20 @@ import * as styles from './root.css'
 import 'dotenv/config'
 import { useChangeLanguage } from 'remix-i18next/react'
 import { useTranslation } from 'react-i18next'
-import i18next from '~/i18next.server'
+import { getLang } from '~/utils/locale'
 
 export const handle = {
   i18n: 'common',
 }
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const locale = await i18next.getLocale(request)
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const lang = getLang(params)
   const url = new URL(request.url)
   const paths = url.pathname.split('/').splice(1)
 
-  if (locale === 'ja' && paths.length > 0 && paths[0] === 'ja') {
-    return redirect(`${url.pathname.replace(/^\/ja/, '/')}${url.search}${url.hash}`)
+  if (lang === 'ja' && paths.length > 0 && paths[0] === 'ja') {
+    const redirectUrl = `${url.pathname.replace(/^\/ja/, '/').replace(/\/\//g, '/')}${url.search}${url.hash}`
+    return redirect(redirectUrl)
   }
 
   return json({
@@ -27,18 +28,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
       SITE_URL: process.env.SITE_URL || 'http://localhost:5173',
       SITE_NAME: process.env.SITE_NAME || 'Sugidama(development)',
     },
-    locale,
+    lang,
   })
 }
 
 export default function App() {
-  const { locale } = useLoaderData<typeof loader>()
+  const { lang } = useLoaderData<typeof loader>()
   const { i18n } = useTranslation()
-  useChangeLanguage(locale)
+  useChangeLanguage(lang)
 
   return (
     <AppProvider>
-      <html lang={locale} dir={i18n.dir()}>
+      <html lang={lang} dir={i18n.dir()}>
         <head>
           <meta charSet="utf-8" />
           <meta

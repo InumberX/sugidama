@@ -10,14 +10,20 @@ import { getInitialNamespaces } from 'remix-i18next/client'
 
 async function hydrate() {
   await i18next
-    .use(initReactI18next) // Tell i18next to use the react-i18next plugin
-    .use(LanguageDetector) // Setup a client-side language detector
-    .use(Backend) // Setup your backend
+    // Tell i18next to use the react-i18next plugin
+    .use(initReactI18next)
+    // Setup a client-side language detector
+    .use(LanguageDetector)
+    // Setup your backend
+    .use(Backend)
     .init({
-      ...i18n, // spread the configuration
+      // spread the configuration
+      ...i18n,
       // This function detects the namespaces your routes rendered while SSR use
       ns: getInitialNamespaces(),
-      backend: { loadPath: '/locales/{{lng}}/{{ns}}.json' },
+      backend: {
+        loadPath: '/assets/locales/{{lng}}/{{ns}}.json',
+      },
       detection: {
         // Here only enable htmlTag detection, we'll detect the language only
         // server-side with remix-i18next, by using the `<html lang>` attribute

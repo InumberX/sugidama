@@ -1,24 +1,45 @@
-import { json } from '@remix-run/node'
-import { Links, Meta, Outlet, ScrollRestoration, Scripts } from '@remix-run/react'
+import { json, type LoaderFunctionArgs, redirect } from '@remix-run/node'
+import { Links, Meta, Outlet, ScrollRestoration, Scripts, useLoaderData } from '@remix-run/react'
 import { AppProvider } from '~/providers/AppProvider'
 import { LayoutPortal } from '~/components/common/LayoutPortal'
 import * as styles from './root.css'
 import 'dotenv/config'
+import { useChangeLanguage } from 'remix-i18next/react'
+import { useTranslation } from 'react-i18next'
+import { getLang } from '~/utils/locale'
 
-export async function loader() {
+export const handle = {
+  i18n: 'common',
+}
+
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const lang = getLang(params)
+  const url = new URL(request.url)
+  const paths = url.pathname.split('/').splice(1)
+
+  if (lang === 'ja' && paths.length > 0 && paths[0] === 'ja') {
+    const redirectUrl = `${url.pathname.replace(/^\/ja/, '/').replace(/\/\//g, '/')}${url.search}${url.hash}`
+    return redirect(redirectUrl)
+  }
+
   return json({
     env: {
       NO_INDEX: process.env.NO_INDEX || '',
       SITE_URL: process.env.SITE_URL || 'http://localhost:5173',
       SITE_NAME: process.env.SITE_NAME || 'Sugidama(development)',
     },
+    lang,
   })
 }
 
 export default function App() {
+  const { lang } = useLoaderData<typeof loader>()
+  const { i18n } = useTranslation()
+  useChangeLanguage(lang)
+
   return (
     <AppProvider>
-      <html lang="ja">
+      <html lang={lang} dir={i18n.dir()}>
         <head>
           <meta charSet="utf-8" />
           <meta

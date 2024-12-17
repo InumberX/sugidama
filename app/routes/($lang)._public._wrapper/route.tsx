@@ -1,4 +1,4 @@
-import { Outlet } from '@remix-run/react'
+import { Outlet } from 'react-router'
 import { LayoutWrapper } from '~/components/ui/layouts/LayoutWrapper'
 import { LayoutHeader } from '~/components/common/LayoutHeader'
 import { LayoutFooter } from '~/components/common/LayoutFooter'

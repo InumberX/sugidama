@@ -1,5 +1,14 @@
 {
-  "include": ["env.d.ts", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "./.storybook/*.ts", "./.storybook/*.tsx"],
+  "include": [
+    "env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
+    "./.storybook/*.ts",
+    "./.storybook/*.tsx",
+    ".react-router/types/**/*"
+  ],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "skipLibCheck": true,
@@ -15,9 +24,17 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./app/*"]
+      "~/*": ["./app/*"],
+      "~/+types/*": ["./.react-router/types/app/+types/*"]
     },
     // Remix takes care of building everything in `remix build`.
-    "noEmit": true
+    "noEmit": true,
+    "types": ["@react-router/node", "vite/client"],
+    "rootDirs": [".", "./.react-router/types"],
+    "plugins": [
+      {
+        "name": "@react-router/dev"
+      }
+    ]
   }
 }

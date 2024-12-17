@@ -1,4 +1,4 @@
-import remix from '@remix-run/express'
+import remix from '@react-router/express';
 import express from 'express'
 import * as build from './index.js'
 

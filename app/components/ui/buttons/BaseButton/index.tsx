@@ -1,5 +1,5 @@
 import { type ReactNode, useMemo } from 'react'
-import { Link } from '@remix-run/react'
+import { Link } from 'react-router'
 import type { ButtonType, AnchorTarget, AnchorRel } from '~/types/html'
 import type { EventTypes } from '~/types/event'
 import * as styles from './style.css'

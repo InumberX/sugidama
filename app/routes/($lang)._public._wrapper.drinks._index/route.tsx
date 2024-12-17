@@ -1,9 +1,10 @@
-import { type MetaFunction, type LoaderFunctionArgs, json } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { type MetaFunction } from 'react-router'
+import { useLoaderData } from 'react-router'
 import { LayoutPageWrapper } from '~/components/ui/layouts/LayoutPageWrapper'
 import { getMetadata } from '~/utils/meta'
 import { getLang } from '~/utils/locale'
 import { useTranslation } from 'react-i18next'
+import type { Route } from './+types/route'
 
 export const meta: MetaFunction = (args) => {
   return getMetadata({
@@ -12,12 +13,12 @@ export const meta: MetaFunction = (args) => {
   })
 }
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ params }: Route.LoaderArgs) {
   const lang = getLang(params)
 
-  return json({
+  return {
     lang,
-  })
+  }
 }
 
 export default function DrinksPage() {

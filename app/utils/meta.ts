@@ -1,9 +1,9 @@
-import type { MetaDescriptor } from '@remix-run/node'
-import type { ServerRuntimeMetaArgs, SerializeFrom } from '@remix-run/server-runtime'
-import type { loader as rootLoader } from '~/root'
+import type { MetaDescriptor } from 'react-router'
+import type { MetaArgs } from 'react-router'
+import type { Route } from '~/+types/root'
 
 type Props = {
-  args: ServerRuntimeMetaArgs
+  args: MetaArgs
   title?: string
   description?: string
   ogImage?: string
@@ -33,7 +33,7 @@ export const getMetadata = ({
   const { matches, location } = args
   const matchData = matches.find((match) => {
     return match.id === 'root'
-  })?.data as SerializeFrom<typeof rootLoader>
+  })?.data as Route.ComponentProps['loaderData']
   const env = matchData.env
   const { NO_INDEX, SITE_URL, SITE_NAME } = env
   const baseTitle = `${SITE_NAME} | お酒の銘柄、製造元、味わいを紹介`

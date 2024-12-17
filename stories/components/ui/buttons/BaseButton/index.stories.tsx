@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { createRemixStub } from '@remix-run/testing'
+import { createRoutesStub } from 'react-router'
 import { BaseButton } from '~/components/ui/buttons/BaseButton'
 
 const meta: Meta<typeof BaseButton> = {
@@ -7,7 +7,7 @@ const meta: Meta<typeof BaseButton> = {
   component: BaseButton,
   decorators: [
     (Story) => {
-      const RemixStub = createRemixStub([
+      const RemixStub = createRoutesStub([
         {
           path: '/*',
           Component() {

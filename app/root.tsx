@@ -1,5 +1,5 @@
-import { json, type LoaderFunctionArgs, redirect } from '@remix-run/node'
-import { Links, Meta, Outlet, ScrollRestoration, Scripts, useLoaderData } from '@remix-run/react'
+import { redirect } from 'react-router'
+import { Links, Meta, Outlet, ScrollRestoration, Scripts } from 'react-router'
 import { AppProvider } from '~/providers/AppProvider'
 import { LayoutPortal } from '~/components/common/LayoutPortal'
 import * as styles from './root.css'
@@ -7,33 +7,34 @@ import 'dotenv/config'
 import { useChangeLanguage } from 'remix-i18next/react'
 import { useTranslation } from 'react-i18next'
 import { getLang } from '~/utils/locale'
+import type { Route } from './+types/root'
 
 export const handle = {
   i18n: 'common',
 }
 
-export async function loader({ request, params }: LoaderFunctionArgs) {
+export async function loader({ request, params }: Route.LoaderArgs) {
   const lang = getLang(params)
   const url = new URL(request.url)
   const paths = url.pathname.split('/').splice(1)
 
   if (lang === 'ja' && paths.length > 0 && paths[0] === 'ja') {
     const redirectUrl = `${url.pathname.replace(/^\/ja/, '/').replace(/\/\//g, '/')}${url.search}${url.hash}`
-    return redirect(redirectUrl)
+    redirect(redirectUrl)
   }
 
-  return json({
+  return {
     env: {
       NO_INDEX: process.env.NO_INDEX || '',
       SITE_URL: process.env.SITE_URL || 'http://localhost:5173',
       SITE_NAME: process.env.SITE_NAME || 'Sugidama(development)',
     },
     lang,
-  })
+  }
 }
 
-export default function App() {
-  const { lang } = useLoaderData<typeof loader>()
+export default function App({ loaderData }: Route.ComponentProps) {
+  const { lang } = loaderData
   const { i18n } = useTranslation()
   useChangeLanguage(lang)
 

@@ -90,3 +90,5 @@ web_modules/
 .Thumbs.db
 
 .amplify-hosting
+
+.react-router

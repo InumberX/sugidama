@@ -1,4 +1,4 @@
-import { Params } from '@remix-run/react'
+import { Params } from 'react-router'
 
 export const getLang = (params: Params<string>) => {
   const lang = params.lang ?? 'ja'

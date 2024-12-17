@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { createRemixStub } from '@remix-run/testing'
+import { createRoutesStub } from 'react-router'
 import { LayoutFooter } from '~/components/common/LayoutFooter'
 
 const meta: Meta<typeof LayoutFooter> = {
@@ -7,7 +7,7 @@ const meta: Meta<typeof LayoutFooter> = {
   component: LayoutFooter,
   decorators: [
     (Story) => {
-      const RemixStub = createRemixStub([
+      const RemixStub = createRoutesStub([
         {
           path: '/*',
           Component() {

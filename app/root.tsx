@@ -32,7 +32,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   })
 }
 
-export default function App() {
+export default function RootRoute() {
   const { lang } = useLoaderData<typeof loader>()
   const { i18n } = useTranslation()
   useChangeLanguage(lang)

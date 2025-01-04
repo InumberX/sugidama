@@ -15,13 +15,28 @@ type Props = {
   next?: string
 }
 
-export const baseDescription =
-  'このサイトでは、管理人がこれまで飲んできた美味しいお酒を独断と偏見で記録しています。銘柄、製造元、味わいの特徴を紹介し、気になるお酒があれば販売サイトもご覧いただけます。'
+const baseSettings: {
+  [key: string]: {
+    description: string
+    titleNote: string
+  }
+} = {
+  ja: {
+    description:
+      'このサイトでは、管理人がこれまで飲んできた美味しいお酒を独断と偏見で記録しています。銘柄、製造元、味わいの特徴を紹介し、気になるお酒があれば販売サイトもご覧いただけます。',
+    titleNote: 'お酒の銘柄、製造元、味わいを紹介',
+  },
+  en: {
+    description:
+      'This site records the delicious sake I have drunk so far, based on my own judgment and prejudice. It introduces brands, manufacturers, and characteristics of sake, and if you are interested in a particular sake, you can also view the sales site.',
+    titleNote: 'Brand, Manufacturer, and Taste of Sake',
+  },
+}
 
 export const getMetadata = ({
   args,
   title,
-  description = baseDescription,
+  description,
   ogImage,
   ogType = 'website',
   twitterCard = 'summary_large_image',
@@ -36,8 +51,11 @@ export const getMetadata = ({
   })?.data as SerializeFrom<typeof rootLoader>
   const env = matchData.env
   const { NO_INDEX, SITE_URL, SITE_NAME } = env
-  const baseTitle = `${SITE_NAME} | お酒の銘柄、製造元、味わいを紹介`
+  const lang = matchData.lang
+  const baseSetting = baseSettings[lang]
+  const baseTitle = `${SITE_NAME} | ${baseSetting.titleNote}`
   const titleText = title ? `${title} | ${SITE_NAME}` : baseTitle
+  const outputDescription = description ?? baseSetting.description
   const canonicalUrl = canonical ?? `${SITE_URL}${location.pathname}`
   const ogImageUrl = ogImage ?? `${SITE_URL}/assets/img/img-ogp.jpg`
 
@@ -47,7 +65,7 @@ export const getMetadata = ({
     },
     {
       name: 'description',
-      content: description,
+      content: outputDescription,
     },
     {
       tagName: 'link',
@@ -60,7 +78,7 @@ export const getMetadata = ({
     },
     {
       property: 'og:description',
-      content: description,
+      content: outputDescription,
     },
     {
       property: 'og:url',
@@ -88,7 +106,7 @@ export const getMetadata = ({
     },
     {
       name: 'twitter:description',
-      content: description,
+      content: outputDescription,
     },
     {
       name: 'twitter:image',

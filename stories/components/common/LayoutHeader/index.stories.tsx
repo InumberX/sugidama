@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { createRemixStub } from '@remix-run/testing'
+import { createRoutesStub } from 'react-router'
 import { LayoutHeader } from '~/components/common/LayoutHeader'
 
 const meta: Meta<typeof LayoutHeader> = {
@@ -7,7 +7,7 @@ const meta: Meta<typeof LayoutHeader> = {
   component: LayoutHeader,
   decorators: [
     (Story) => {
-      const RemixStub = createRemixStub([
+      const RemixStub = createRoutesStub([
         {
           path: '/*',
           Component() {

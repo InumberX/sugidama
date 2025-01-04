@@ -1,9 +1,6 @@
-import { type MetaFunction, type LoaderFunctionArgs, json } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { type MetaFunction, json } from '@remix-run/node'
 import { LayoutPageWrapper } from '~/components/ui/layouts/LayoutPageWrapper'
 import { getMetadata } from '~/utils/meta'
-import { getLang } from '~/utils/locale'
-import { useTranslation } from 'react-i18next'
 
 export const meta: MetaFunction = (args) => {
   return getMetadata({
@@ -12,23 +9,14 @@ export const meta: MetaFunction = (args) => {
   })
 }
 
-export async function loader({ params }: LoaderFunctionArgs) {
-  const lang = getLang(params)
-
-  return json({
-    lang,
-  })
+export async function loader() {
+  return json({})
 }
 
 export default function DrinksPage() {
-  const { lang } = useLoaderData<typeof loader>()
-  const { t } = useTranslation()
-
   return (
     <LayoutPageWrapper>
       <h1>お酒一覧ページ</h1>
-      <p>{lang}</p>
-      <p>{t('greeting')}</p>
     </LayoutPageWrapper>
   )
 }

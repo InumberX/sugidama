@@ -1,13 +1,12 @@
-import { type LoaderFunctionArgs, json } from '@remix-run/node'
-import { Outlet } from '@remix-run/react'
+import { type LoaderFunctionArgs, Outlet } from 'react-router'
 import { getLang } from '~/utils/locale'
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const lang = getLang(params)
 
-  return json({
+  return {
     lang,
-  })
+  }
 }
 
 export default function PublicLayout() {

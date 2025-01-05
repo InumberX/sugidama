@@ -1,4 +1,4 @@
-import { Outlet, useRouteLoaderData } from '@remix-run/react'
+import { Outlet, useRouteLoaderData } from 'react-router'
 import { type loader as publicLoader } from '~/routes/($lang)._public/route'
 import { LayoutWrapper } from '~/components/ui/layouts/LayoutWrapper'
 import { LayoutHeader } from '~/components/common/LayoutHeader'

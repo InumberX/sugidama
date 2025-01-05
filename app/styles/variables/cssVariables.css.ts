@@ -133,5 +133,11 @@ export const cssVariables = createGlobalTheme(':root', {
     hover: '1.16',
   },
   leadingTrim: 'calc((1em - 1lh) / 2)',
-  zIndex: {},
+  zIndex: {
+    header: {
+      wrapper: '10000',
+      menu: '10100',
+      global: '10200',
+    },
+  },
 })

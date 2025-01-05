@@ -26,7 +26,7 @@ const i18next = new RemixI18Next({
   i18next: {
     ...i18n,
     backend: {
-      loadPath: resolve('./public/locales/{{lng}}/{{ns}}.json'),
+      loadPath: resolve('./public/assets/locales/{{lng}}/{{ns}}.json'),
     },
   },
   backend: Backend,

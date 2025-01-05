@@ -8,7 +8,6 @@ import { useChangeLanguage } from 'remix-i18next/react'
 import { useTranslation } from 'react-i18next'
 import { getLang } from '~/utils/locale'
 import type { Route } from './+types/root'
-import { I18nextProvider } from 'react-i18next'
 
 export const handle = {
   i18n: 'common',
@@ -58,10 +57,8 @@ export default function RootRoute({ loaderData }: Route.ComponentProps) {
         </head>
         <body>
           <div className={styles.layoutRoot}>
-            <I18nextProvider i18n={i18n}>
-              <Outlet />
-              <LayoutPortal />
-            </I18nextProvider>
+            <Outlet />
+            <LayoutPortal />
           </div>
           <ScrollRestoration />
           <Scripts />

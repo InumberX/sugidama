@@ -1,3 +1,15 @@
 {
-  "greeting": "こんにちは"
+  "header": {
+    "menu": {
+      "home": {
+        "title": "ホーム"
+      },
+      "drinks": {
+        "title": "お酒一覧"
+      },
+      "search": {
+        "title": "検索"
+      }
+    }
+  }
 }

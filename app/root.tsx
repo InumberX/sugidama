@@ -33,7 +33,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   }
 }
 
-export default function App({ loaderData }: Route.ComponentProps) {
+export default function RootRoute({ loaderData }: Route.ComponentProps) {
   const { lang } = loaderData
   const { i18n } = useTranslation()
   useChangeLanguage(lang)

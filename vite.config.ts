@@ -5,4 +5,7 @@ import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin'
 
 export default defineConfig({
   plugins: [reactRouter(), tsconfigPaths(), vanillaExtractPlugin()],
+  build: {
+    assetsInlineLimit: 0,
+  },
 })

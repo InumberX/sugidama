@@ -1,9 +1,7 @@
 import Backend from 'i18next-fs-backend'
-// import { resolve } from 'node:path'
+import { resolve } from 'node:path'
 import { RemixI18Next } from 'remix-i18next/server'
 import { i18n } from '~/i18n'
-import jaCommon from '../public/assets/locales/ja/common.json'
-import enCommon from '../public/assets/locales/en/common.json'
 
 const i18next = new RemixI18Next({
   detection: {
@@ -27,18 +25,8 @@ const i18next = new RemixI18Next({
   },
   i18next: {
     ...i18n,
-    /*
     backend: {
-      loadPath: resolve('./locales/{{lng}}/{{ns}}.json'),
-    },
-    */
-    resources: {
-      ja: {
-        common: jaCommon,
-      },
-      en: {
-        common: enCommon,
-      },
+      loadPath: resolve('./public/locales/{{lng}}/{{ns}}.json'),
     },
   },
   backend: Backend,

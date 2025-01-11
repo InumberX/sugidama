@@ -9,7 +9,7 @@ import i18next from './i18next.server'
 import { I18nextProvider, initReactI18next } from 'react-i18next'
 import Backend from 'i18next-fs-backend'
 import { i18n } from '~/i18n'
-import { resolve } from 'node:path'
+// import { resolve } from 'node:path'
 
 const ABORT_DELAY = 5000
 
@@ -37,9 +37,11 @@ export default async function handleRequest(
       lng,
       // The namespaces the routes about to render wants to use
       ns,
+      /*
       backend: {
         loadPath: resolve('./public/assets/locales/{{lng}}/{{ns}}.json'),
       },
+      */
     })
 
   return new Promise((resolve, reject) => {

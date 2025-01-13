@@ -192,7 +192,7 @@ export const layoutHeaderMenuGlobal_link = style({
       alignItems: 'center',
       justifyContent: 'center',
       flexDirection: 'column',
-      gap: 4,
+      gap: 2,
       ...fontSmallBold,
       color: cssVariables.color.font.base.hex,
       textDecoration: 'none',
@@ -209,14 +209,22 @@ export const layoutHeaderMenuGlobal_link = style({
         },
 
         [getMediaQuery('sm')]: {
-          paddingInline: 24,
+          paddingInline: 20,
         },
 
         [getMediaQuery('md')]: {
-          paddingInline: 32,
+          paddingInline: 26,
         },
 
         [getMediaQuery('lg')]: {
+          paddingInline: 32,
+        },
+
+        [getMediaQuery('xl')]: {
+          paddingInline: 36,
+        },
+
+        [getMediaQuery('xxl')]: {
           paddingInline: 40,
         },
       },
@@ -228,6 +236,7 @@ export const layoutHeaderMenuGlobal_icon = style({
   '@layer': {
     [cssLayerComponentCommon]: {
       backgroundColor: cssVariables.color.font.base.hex,
+      inlineSize: getClampPx(20, 24),
 
       '@media': {
         [getMediaQuery('hover')]: {

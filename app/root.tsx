@@ -1,5 +1,6 @@
+import { useEffect } from 'react'
 import { redirect } from 'react-router'
-import { Links, Meta, Outlet, ScrollRestoration, Scripts } from 'react-router'
+import { Links, Meta, Outlet, ScrollRestoration, Scripts, useLocation } from 'react-router'
 import { AppProvider } from '~/providers/AppProvider'
 import { LayoutPortal } from '~/components/common/LayoutPortal'
 import * as styles from './root.css'
@@ -7,6 +8,7 @@ import 'dotenv/config'
 import { useChangeLanguage } from 'remix-i18next/react'
 import { useTranslation } from 'react-i18next'
 import { getLang } from '~/utils/locale'
+import * as gtag from '~/utils/gtags.client'
 import type { Route } from './+types/root'
 
 export const handle = {
@@ -28,15 +30,29 @@ export async function loader({ request, params }: Route.LoaderArgs) {
       NO_INDEX: process.env.NO_INDEX || '',
       SITE_URL: process.env.SITE_URL || 'http://localhost:5173',
       SITE_NAME: process.env.SITE_NAME || 'Sugidama(development)',
+      GOOGLE_ANALYTICS_ID: process.env.GOOGLE_ANALYTICS_ID || 'G-P7SXGX2CCT',
     },
     lang,
   }
 }
 
 export default function RootRoute({ loaderData }: Route.ComponentProps) {
-  const { lang } = loaderData
+  const {
+    lang,
+    env: { GOOGLE_ANALYTICS_ID },
+  } = loaderData
   const { i18n } = useTranslation()
   useChangeLanguage(lang)
+
+  const location = useLocation()
+
+  useEffect(() => {
+    if (!GOOGLE_ANALYTICS_ID) {
+      return
+    }
+
+    gtag.pageview(location.pathname, GOOGLE_ANALYTICS_ID)
+  }, [location, GOOGLE_ANALYTICS_ID])
 
   return (
     <AppProvider>
@@ -54,6 +70,25 @@ export default function RootRoute({ loaderData }: Route.ComponentProps) {
           <link rel="apple-touch-icon" href="/apple-icon.png" type="image/png" sizes="180x180" />
           <Meta />
           <Links />
+          {GOOGLE_ANALYTICS_ID && (
+            <>
+              <script async src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`} />
+              <script
+                async
+                id="gtag-init"
+                dangerouslySetInnerHTML={{
+                  __html: `
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){dataLayer.push(arguments);}
+                    gtag('js', new Date());
+                    gtag('config', '${GOOGLE_ANALYTICS_ID}', {
+                      page_path: window.location.pathname,
+                    });
+                  `,
+                }}
+              />
+            </>
+          )}
         </head>
         <body>
           <div className={styles.layoutRoot}>

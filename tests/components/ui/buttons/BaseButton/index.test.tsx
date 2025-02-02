@@ -16,7 +16,11 @@ describe('BaseButton', () => {
   describe('標準ボタン', () => {
     // テスト開始前の処理
     beforeEach(() => {
-      result = render(<BaseButton text={<span className="TestText">test</span>} onClick={() => handleClick()} />)
+      result = render(
+        <BaseButton onClick={() => handleClick()}>
+          <span className="TestText">test</span>
+        </BaseButton>
+      )
     })
 
     test('テキストが正常に出力されている', () => {
@@ -47,7 +51,9 @@ describe('BaseButton', () => {
     // テスト開始前の処理
     beforeEach(() => {
       result = render(
-        <BaseButton text={<span className="TestText">test</span>} onClick={() => handleClick()} isDisabled />
+        <BaseButton onClick={() => handleClick()} isDisabled>
+          <span className="TestText">test</span>
+        </BaseButton>
       )
     })
 
@@ -60,7 +66,11 @@ describe('BaseButton', () => {
   describe('リンクボタン', () => {
     // テスト開始前の処理
     beforeEach(() => {
-      result = render(<BaseButton text={<span className="TestText">test</span>} url="https://test.com/" />)
+      result = render(
+        <BaseButton url="https://test.com/">
+          <span className="TestText">test</span>
+        </BaseButton>
+      )
     })
 
     test('遷移先が正常に設定されている', () => {
@@ -73,12 +83,9 @@ describe('BaseButton', () => {
     // テスト開始前の処理
     beforeEach(() => {
       result = render(
-        <BaseButton
-          text={<span className="TestText">test</span>}
-          url="https://test.com/"
-          target="_blank"
-          rel="noopener"
-        />
+        <BaseButton url="https://test.com/" target="_blank" rel="noopener">
+          <span className="TestText">test</span>
+        </BaseButton>
       )
     })
 
@@ -93,11 +100,9 @@ describe('BaseButton', () => {
     // テスト開始前の処理
     beforeEach(() => {
       result = render(
-        <BaseButton
-          text={<span className="TestText">test</span>}
-          onClick={() => handleClick()}
-          leftElm={<span className="TestLeft">testLeft</span>}
-        />
+        <BaseButton onClick={() => handleClick()} leftElm={<span className="TestLeft">testLeft</span>}>
+          <span className="TestText">test</span>
+        </BaseButton>
       )
     })
 
@@ -111,11 +116,9 @@ describe('BaseButton', () => {
     // テスト開始前の処理
     beforeEach(() => {
       result = render(
-        <BaseButton
-          text={<span className="TestText">test</span>}
-          onClick={() => handleClick()}
-          rightElm={<span className="TestRight">testRight</span>}
-        />
+        <BaseButton onClick={() => handleClick()} rightElm={<span className="TestRight">testRight</span>}>
+          <span className="TestText">test</span>
+        </BaseButton>
       )
     })
 

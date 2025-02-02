@@ -26,7 +26,36 @@ type Story = StoryObj<typeof BaseButton>
 
 export const Large: Story = {
   args: {
-    text: 'LARGE',
+    children: 'LARGE',
+    size: 'large',
+    onClick: () => {
+      alert('onClick')
+    },
+  },
+}
+
+export const Medium: Story = {
+  args: {
+    children: 'MEDIUM',
+    size: 'medium',
+    url: 'https://www.google.com',
+    target: '_blank',
+  },
+}
+
+export const Small: Story = {
+  args: {
+    children: 'SMALL',
+    size: 'small',
+    url: '/',
+  },
+}
+
+export const Disabled: Story = {
+  args: {
+    children: 'DISABLED',
+    size: 'large',
+    isDisabled: true,
     onClick: () => {
       alert('onClick')
     },

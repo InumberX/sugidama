@@ -83,8 +83,8 @@ export const cssVariables = createGlobalTheme(':root', {
       },
     },
     gradation: {
-      primary: 'oklch(74.9% 0.118 183.4) 0, oklch(78.5% 0.175 155.1) 100%',
-      primaryDark: 'oklch(67.2% 0.101 184.2) 0, oklch(70% 0.147 156.6) 100%',
+      primary: 'oklch(80.6% 0.071 260.6) 0, oklch(87.7% 0.084 336.7) 100%',
+      primaryDark: 'oklch(76.3% 0.11 260.1) 0, oklch(80.7% 0.153 338.2) 100%',
     },
     // Please use the following sites for key names
     // https://chir.ag/projects/name-that-color/

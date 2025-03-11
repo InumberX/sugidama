@@ -17,4 +17,7 @@ export default VitestConfig.defineConfig({
     },
   },
   plugins: [react(), vanillaExtractPlugin()],
+  build: {
+    assetsInlineLimit: 0,
+  },
 })

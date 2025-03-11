@@ -13,7 +13,7 @@ jobs:
       TZ: 'Asia/Tokyo'
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       # 前回のりリースタグを取得する
       - name: Get previous tag

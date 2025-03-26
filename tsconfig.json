@@ -9,6 +9,7 @@
     "./.storybook/*.tsx",
     ".react-router/types/**/*"
   ],
+  "exclude": ["node_modules", "build"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "skipLibCheck": true,

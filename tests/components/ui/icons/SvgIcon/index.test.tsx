@@ -19,8 +19,7 @@ describe('SvgIcon', () => {
 
     test('アイコンが正常に出力されている', () => {
       const icon = result.container.querySelector('i')
-      expect(icon?.style.maskImage).toContain('icon-home.svg')
-      expect(icon?.style.backgroundImage).toBe('')
+      expect(icon?.className).toContain('home')
     })
   })
 })

@@ -4,8 +4,6 @@ import { LayoutInner } from '~/components/ui/layouts/LayoutInner'
 import { useTranslation } from 'react-i18next'
 import { SvgIcon, type SvgIconVariant } from '~/components/ui/icons/SvgIcon'
 
-import imgLogo from '~/assets/img/img-logo.webp'
-
 type Props = {
   className?: string
   isLogoTitle?: boolean
@@ -46,7 +44,13 @@ export const LayoutHeader = ({ className, isLogoTitle, lang }: Props) => {
             <div className={styles.layoutHeaderLogo}>
               <LogoTitle className={styles.layoutHeaderLogo_title}>
                 <Link to={lang === 'ja' ? '/' : `/${lang}`} className={styles.layoutHeaderLogo_link}>
-                  <img src={imgLogo} alt="AUBA" className={styles.layoutHeaderLogo_image} width={160} height={41} />
+                  <img
+                    src="/assets/img/img-logo.webp"
+                    alt="Sugidama"
+                    className={styles.layoutHeaderLogo_image}
+                    width={160}
+                    height={41}
+                  />
                 </Link>
               </LogoTitle>
             </div>

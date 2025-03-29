@@ -33,54 +33,81 @@ export const svgIcon = style({
 
 export const svgIcon__home = style({
   '@layer': {
-    [cssLayerComponentUiLow]: {},
+    [cssLayerComponentUiLow]: {
+      WebkitMaskImage: 'url(/assets/img/icon-home.svg)',
+      maskImage: 'url(/assets/img/icon-home.svg)',
+    },
   },
 })
 
 export const svgIcon__search = style({
   '@layer': {
-    [cssLayerComponentUiLow]: {},
+    [cssLayerComponentUiLow]: {
+      WebkitMaskImage: 'url(/assets/img/icon-search.svg)',
+      maskImage: 'url(/assets/img/icon-search.svg)',
+    },
   },
 })
 
 export const svgIcon__mail = style({
   '@layer': {
-    [cssLayerComponentUiLow]: {},
+    [cssLayerComponentUiLow]: {
+      WebkitMaskImage: 'url(/assets/img/icon-mail.svg)',
+      maskImage: 'url(/assets/img/icon-mail.svg)',
+    },
   },
 })
 
 export const svgIcon__liquor = style({
   '@layer': {
-    [cssLayerComponentUiLow]: {},
+    [cssLayerComponentUiLow]: {
+      WebkitMaskImage: 'url(/assets/img/icon-liquor.svg)',
+      maskImage: 'url(/assets/img/icon-liquor.svg)',
+    },
   },
 })
 
 export const svgIcon__translate = style({
   '@layer': {
-    [cssLayerComponentUiLow]: {},
+    [cssLayerComponentUiLow]: {
+      WebkitMaskImage: 'url(/assets/img/icon-translate.svg)',
+      maskImage: 'url(/assets/img/icon-translate.svg)',
+    },
   },
 })
 
 export const svgIcon__keyboardArrowDown = style({
   '@layer': {
-    [cssLayerComponentUiLow]: {},
+    [cssLayerComponentUiLow]: {
+      WebkitMaskImage: 'url(/assets/img/icon-keyboard-arrow-down.svg)',
+      maskImage: 'url(/assets/img/icon-keyboard-arrow-down.svg)',
+    },
   },
 })
 
 export const svgIcon__keyboardArrowLeft = style({
   '@layer': {
-    [cssLayerComponentUiLow]: {},
+    [cssLayerComponentUiLow]: {
+      WebkitMaskImage: 'url(/assets/img/icon-keyboard-arrow-left.svg)',
+      maskImage: 'url(/assets/img/icon-keyboard-arrow-left.svg)',
+    },
   },
 })
 
 export const svgIcon__keyboardArrowRight = style({
   '@layer': {
-    [cssLayerComponentUiLow]: {},
+    [cssLayerComponentUiLow]: {
+      WebkitMaskImage: 'url(/assets/img/icon-keyboard-arrow-right.svg)',
+      maskImage: 'url(/assets/img/icon-keyboard-arrow-right.svg)',
+    },
   },
 })
 
 export const svgIcon__keyboardArrowUp = style({
   '@layer': {
-    [cssLayerComponentUiLow]: {},
+    [cssLayerComponentUiLow]: {
+      WebkitMaskImage: 'url(/assets/img/icon-keyboard-arrow-up.svg)',
+      maskImage: 'url(/assets/img/icon-keyboard-arrow-up.svg)',
+    },
   },
 })

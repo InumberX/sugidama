@@ -1,15 +1,45 @@
 import { globalLayer } from '@vanilla-extract/css'
 
-export const cssLayerReset = globalLayer('reset')
-
-export const cssLayerComponentUiLow = globalLayer('componentUiLow')
-
-export const cssLayerComponentUiMiddle = globalLayer('componentUiMiddle')
-
-export const cssLayerComponentUiHigh = globalLayer('componentUiHigh')
-
-export const cssLayerComponentCommon = globalLayer('componentCommon')
-
-export const cssLayerComponentPage = globalLayer('componentPage')
-
 export const cssLayerUtils = globalLayer('utils')
+
+export const cssLayerComponentPage = globalLayer(
+  {
+    parent: cssLayerUtils,
+  },
+  'componentPage'
+)
+
+export const cssLayerComponentCommon = globalLayer(
+  {
+    parent: cssLayerComponentPage,
+  },
+  'componentCommon'
+)
+
+export const cssLayerComponentUiHigh = globalLayer(
+  {
+    parent: cssLayerComponentCommon,
+  },
+  'componentUiHigh'
+)
+
+export const cssLayerComponentUiMiddle = globalLayer(
+  {
+    parent: cssLayerComponentUiHigh,
+  },
+  'componentUiMiddle'
+)
+
+export const cssLayerComponentUiLow = globalLayer(
+  {
+    parent: cssLayerComponentUiMiddle,
+  },
+  'componentUiLow'
+)
+
+export const cssLayerReset = globalLayer(
+  {
+    parent: cssLayerComponentUiLow,
+  },
+  'reset'
+)

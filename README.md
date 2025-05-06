@@ -2,6 +2,12 @@
 
 ![GitHub release (with filter)](https://img.shields.io/github/v/release/InumberX/sugidama) ![GitHub Release Date - Published_At](https://img.shields.io/github/release-date/InumberX/sugidama) ![GitHub last commit (by committer)](https://img.shields.io/github/last-commit/InumberX/sugidama) ![GitHub issues](https://img.shields.io/github/issues/InumberX/sugidama) ![GitHub closed issues](https://img.shields.io/github/issues-closed/InumberX/sugidama) ![GitHub pull requests](https://img.shields.io/github/issues-pr/InumberX/sugidama) ![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/InumberX/sugidama)
 
+## Overview
+
+This is the repository for my personal development project, 'Sugidama'.
+
+- [Project documentation on DeepWiki](https://deepwiki.com/InumberX/sugidama)
+
 ## Development
 
 ### Installing packages

@@ -123,11 +123,8 @@ export const baseButton = style({
       display: 'inline-flex',
       inlineSize: 'auto',
       justifyContent: 'center',
-      marginBlock: 0,
-      marginInline: 0,
       position: 'relative',
       textAlign: 'start',
-      textDecoration: 'none',
       transition: getTransition([
         {
           property: 'opacity',

@@ -37,9 +37,16 @@ export const cssLayerComponentUiLow = globalLayer(
   'componentUiLow'
 )
 
-export const cssLayerReset = globalLayer(
+export const cssLayerComponentUiPrimitive = globalLayer(
   {
     parent: cssLayerComponentUiLow,
+  },
+  'componentUiPrimitive'
+)
+
+export const cssLayerReset = globalLayer(
+  {
+    parent: cssLayerComponentUiPrimitive,
   },
   'reset'
 )

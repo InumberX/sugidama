@@ -1,6 +1,7 @@
 import type { MetaDescriptor } from 'react-router'
 import type { MetaArgs } from 'react-router'
 import type { Route } from '~/+types/root'
+import { NO_INDEX, SITE_URL, SITE_NAME } from '~/config/env'
 
 type Props = {
   args: MetaArgs
@@ -49,8 +50,6 @@ export const getMetadata = ({
   const matchData = matches.find((match) => {
     return match.id === 'root'
   })?.data as Route.ComponentProps['loaderData']
-  const env = matchData.env
-  const { NO_INDEX, SITE_URL, SITE_NAME } = env
   const lang = matchData.lang
   const baseSetting = baseSettings[lang]
   const baseTitle = `${SITE_NAME} | ${baseSetting.titleNote}`

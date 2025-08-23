@@ -3,6 +3,7 @@ import * as styles from './style.css'
 import { LayoutInner } from '~/components/ui/layouts/LayoutInner'
 import { useTranslation } from 'react-i18next'
 import { SvgIcon, type SvgIconVariant } from '~/components/ui/icons/SvgIcon'
+import { CACHE_BUSTER } from '~/config/env'
 
 type Props = {
   className?: string
@@ -45,7 +46,7 @@ export const LayoutHeader = ({ className, isLogoTitle, lang }: Props) => {
               <LogoTitle className={styles.layoutHeaderLogo_title}>
                 <Link to={lang === 'ja' ? '/' : `/${lang}`} className={styles.layoutHeaderLogo_link}>
                   <img
-                    src="/assets/img/img-logo.webp"
+                    src={`/assets/img/img-logo.webp?${CACHE_BUSTER}`}
                     alt="Sugidama"
                     className={styles.layoutHeaderLogo_image}
                     width={160}

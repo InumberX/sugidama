@@ -4,12 +4,12 @@ import { Links, Meta, Outlet, ScrollRestoration, Scripts, useLocation } from 're
 import { AppProvider } from '~/providers/AppProvider'
 import { LayoutPortal } from '~/components/common/LayoutPortal'
 import * as styles from './root.css'
-import 'dotenv/config'
 import { useChangeLanguage } from 'remix-i18next/react'
 import { useTranslation } from 'react-i18next'
 import { getLang } from '~/utils/locale'
 import * as gtag from '~/utils/gtags.client'
 import type { Route } from './+types/root'
+import { GOOGLE_ANALYTICS_ID } from '~/config/env'
 
 export const handle = {
   i18n: 'common',
@@ -26,21 +26,12 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   }
 
   return {
-    env: {
-      NO_INDEX: process.env.NO_INDEX || '',
-      SITE_URL: process.env.SITE_URL || 'http://localhost:5173',
-      SITE_NAME: process.env.SITE_NAME || 'Sugidama(development)',
-      GOOGLE_ANALYTICS_ID: process.env.GOOGLE_ANALYTICS_ID || 'G-P7SXGX2CCT',
-    },
     lang,
   }
 }
 
 export default function RootRoute({ loaderData }: Route.ComponentProps) {
-  const {
-    lang,
-    env: { GOOGLE_ANALYTICS_ID },
-  } = loaderData
+  const { lang } = loaderData
   const { i18n } = useTranslation()
   useChangeLanguage(lang)
 
@@ -52,7 +43,7 @@ export default function RootRoute({ loaderData }: Route.ComponentProps) {
     }
 
     gtag.pageview(location.pathname, GOOGLE_ANALYTICS_ID)
-  }, [location, GOOGLE_ANALYTICS_ID])
+  }, [location])
 
   return (
     <AppProvider>

@@ -1,4 +1,4 @@
-import remix from '@react-router/express'
+import { createRequestHandler } from '@react-router/express'
 import express from 'express'
 import * as build from './index.js'
 
@@ -8,11 +8,11 @@ const port = process.env.PORT || 3000
 
 app.all(
   '/*splat',
-  remix.createRequestHandler({
+  createRequestHandler({
     build,
   })
 )
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log(`[server] listening on :${port}`)
 })

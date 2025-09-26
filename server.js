@@ -1,5 +1,4 @@
 import { createRequestHandler } from '@react-router/express'
-import { createRequestHandler } from '@react-router/express'
 import express from 'express'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'

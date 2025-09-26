@@ -7,7 +7,7 @@ const app = express()
 const port = process.env.PORT || 3000
 
 app.all(
-  '/*splat',
+  '*splat',
   createRequestHandler({
     build,
   })

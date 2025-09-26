@@ -1,4 +1,4 @@
-import remix from '@react-router/express';
+import { createRequestHandler } from '@react-router/express'
 import express from 'express'
 import * as build from './index.js'
 
@@ -7,7 +7,7 @@ const port = 3000
 
 app.all(
   '*',
-  remix.createRequestHandler({
+  createRequestHandler({
     build,
   })
 )

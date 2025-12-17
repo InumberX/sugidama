@@ -1,4 +1,4 @@
-import { type ReactNode, useMemo } from 'react'
+import { type AriaRole, type AriaAttributes, type ReactNode, useMemo } from 'react'
 import { Link } from 'react-router'
 
 import * as styles from './style.css'
@@ -17,47 +17,108 @@ export type PrimitiveButtonProps = {
   onClick?: EventTypes['onClickButton']
   name?: string
   value?: string
+  title?: string
+  role?: AriaRole
+  tabIndex?: number
+  ariaLabel?: AriaAttributes['aria-label']
+  ariaControls?: AriaAttributes['aria-controls']
+  ariaSelected?: AriaAttributes['aria-selected']
 }
 
 export const PrimitiveButton = ({
   url,
   target,
   rel,
-  buttonType = 'button',
+  buttonType,
   isDisabled,
   className,
   children,
   onClick,
   name,
   value,
+  title,
+  role,
+  tabIndex,
+  ariaLabel,
+  ariaControls,
+  ariaSelected,
 }: PrimitiveButtonProps) => {
   // 外部リンク判定
   const isExternal: boolean = useMemo(() => {
     return url ? url.startsWith('http://') || url.startsWith('https://') : false
   }, [url])
 
+  // 内部リンク判定
+  const isInternalLink: boolean = useMemo(() => {
+    return url ? url.startsWith('#') : false
+  }, [url])
+
   const primitiveButtonClassName = useMemo(() => {
     return [styles.primitiveButton, isDisabled && styles.primitiveButton__disabled, className].filter(Boolean).join(' ')
   }, [isDisabled, className])
 
-  return isExternal ? (
-    <a href={url} target={target} rel={rel} className={primitiveButtonClassName} onClick={onClick}>
+  // Button type
+  const type = buttonType || 'button'
+
+  return isExternal || isInternalLink ? (
+    <a
+      href={url}
+      target={target}
+      rel={rel}
+      className={primitiveButtonClassName}
+      onClick={onClick}
+      title={title}
+      role={role}
+      tabIndex={tabIndex}
+      aria-label={ariaLabel}
+      aria-controls={ariaControls}
+      aria-selected={ariaSelected}
+    >
       {children}
     </a>
   ) : url ? (
-    <Link to={url} target={target} rel={rel} className={primitiveButtonClassName} onClick={onClick}>
+    <Link
+      to={url}
+      target={target}
+      rel={rel}
+      className={primitiveButtonClassName}
+      onClick={onClick}
+      title={title}
+      role={role}
+      tabIndex={tabIndex}
+      aria-label={ariaLabel}
+      aria-controls={ariaControls}
+      aria-selected={ariaSelected}
+    >
       {children}
     </Link>
-  ) : (
+  ) : onClick || buttonType ? (
     <button
-      type={buttonType}
+      type={type}
       onClick={onClick}
       disabled={isDisabled}
       className={primitiveButtonClassName}
       name={name}
       value={value}
+      title={title}
+      role={role}
+      tabIndex={tabIndex}
+      aria-label={ariaLabel}
+      aria-controls={ariaControls}
+      aria-selected={ariaSelected}
     >
       {children}
     </button>
+  ) : (
+    <span
+      className={primitiveButtonClassName}
+      title={title}
+      role={role}
+      aria-controls={ariaControls}
+      aria-selected={ariaSelected}
+      aria-label={ariaLabel}
+    >
+      {children}
+    </span>
   )
 }

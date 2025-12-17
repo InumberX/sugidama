@@ -1,8 +1,24 @@
 import path from 'path'
+import { fileURLToPath } from 'url'
 // const toPath = (filePath) => path.join(process.cwd(), filePath)
 import { StorybookConfig } from '@storybook/react-vite'
-import { loadConfigFromFile, mergeConfig } from 'vite'
+import { loadConfigFromFile, mergeConfig, type ConfigEnv } from 'vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
+
+const __sbFilename = fileURLToPath(import.meta.url)
+const __sbDirname = path.dirname(__sbFilename)
+
+const configEnvServe: ConfigEnv = {
+  mode: 'development',
+  command: 'serve',
+  isSsrBuild: false,
+}
+
+const configEnvBuild: ConfigEnv = {
+  mode: 'production',
+  command: 'build',
+  isSsrBuild: false,
+}
 
 const config: StorybookConfig = {
   stories: ['../**/*.stories.@(ts|tsx)'],
@@ -22,19 +38,18 @@ const config: StorybookConfig = {
 
     // Add your configuration here
     const configFromFile = await loadConfigFromFile(
-      {
-        command: isProduction ? 'build' : 'serve',
-        mode: isProduction ? 'production' : 'development',
-      },
-      path.resolve(__dirname, '../vite-storybook.config.ts')
+      isProduction ? configEnvBuild : configEnvServe,
+      path.resolve(__sbDirname, '../vite-storybook.config.ts')
     )
-
-    const userConfig = configFromFile?.config
 
     // tsconfigの情報をマージし、pathaliasを有効にする
     return mergeConfig(config, {
-      ...userConfig,
+      ...configFromFile?.config,
       plugins: [tsconfigPaths()],
+      define: {
+        ...configFromFile?.config.define,
+        'process.env.NODE_DEBUG': false,
+      },
     })
   },
 }

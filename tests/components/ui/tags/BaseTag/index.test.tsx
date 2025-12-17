@@ -2,9 +2,9 @@ import { render, type RenderResult, cleanup, fireEvent } from '@testing-library/
 import { MemoryRouter } from 'react-router'
 import { describe, vi, beforeEach, afterEach, test, expect } from 'vitest'
 
-import { BaseButton } from '~/components/ui/buttons/BaseButton'
+import { BaseTag } from '~/components/ui/tags/BaseTag'
 
-describe('BaseButton', () => {
+describe('BaseTag', () => {
   let result: RenderResult
   const handleClick: () => void = vi.fn()
 
@@ -17,48 +17,24 @@ describe('BaseButton', () => {
   // 1. Input/Output
   //============================================================================
   describe('Input/Output', () => {
-    describe('標準ボタン', () => {
+    describe('基本的なタグ', () => {
       beforeEach(() => {
-        result = render(<BaseButton onClick={() => handleClick()}>test</BaseButton>)
+        result = render(<BaseTag>test</BaseTag>)
       })
 
       test('children が正常に出力されている', () => {
-        const button = result.container.querySelector('button')
-        expect(button).not.toBe(null)
-        expect(button?.textContent).toBe('test')
-      })
-
-      test('type が正常に付与されている', () => {
-        const button = result.container.querySelector('button')
-        expect(button?.getAttribute('type')).toEqual('button')
-      })
-    })
-
-    describe('submitボタン', () => {
-      beforeEach(() => {
-        result = render(
-          <BaseButton buttonType="submit" onClick={() => handleClick()}>
-            test
-          </BaseButton>
-        )
-      })
-
-      test('type が正常に付与されている', () => {
-        const button = result.container.querySelector('button')
-        expect(button?.getAttribute('type')).toEqual('submit')
+        const span = result.container.querySelector('span')
+        expect(span).not.toBe(null)
+        expect(span?.textContent).toBe('test')
       })
     })
 
     describe('leftElm と rightElm', () => {
       beforeEach(() => {
         result = render(
-          <BaseButton
-            onClick={() => handleClick()}
-            leftElm={<span data-testid="left">Left</span>}
-            rightElm={<span data-testid="right">Right</span>}
-          >
+          <BaseTag leftElm={<span data-testid="left">Left</span>} rightElm={<span data-testid="right">Right</span>}>
             Center
-          </BaseButton>
+          </BaseTag>
         )
       })
 
@@ -75,18 +51,14 @@ describe('BaseButton', () => {
       })
 
       test('children が正常に出力されている', () => {
-        const button = result.container.querySelector('button')
-        expect(button?.textContent).toContain('Center')
+        const text = result.container.querySelector('span[class*="baseTag_text"]')
+        expect(text?.textContent).toBe('Center')
       })
     })
 
     describe('leftElm のみ', () => {
       beforeEach(() => {
-        result = render(
-          <BaseButton onClick={() => handleClick()} leftElm={<span data-testid="left">Icon</span>}>
-            Button
-          </BaseButton>
-        )
+        result = render(<BaseTag leftElm={<span data-testid="left">Icon</span>}>Tag</BaseTag>)
       })
 
       test('leftElm が正常に出力されている', () => {
@@ -102,11 +74,7 @@ describe('BaseButton', () => {
 
     describe('rightElm のみ', () => {
       beforeEach(() => {
-        result = render(
-          <BaseButton onClick={() => handleClick()} rightElm={<span data-testid="right">Arrow</span>}>
-            Button
-          </BaseButton>
-        )
+        result = render(<BaseTag rightElm={<span data-testid="right">X</span>}>Tag</BaseTag>)
       })
 
       test('rightElm が正常に出力されている', () => {
@@ -120,33 +88,13 @@ describe('BaseButton', () => {
       })
     })
 
-    describe('ARIA 属性', () => {
-      beforeEach(() => {
-        result = render(
-          <BaseButton onClick={() => handleClick()} ariaLabel="保存ボタン" role="button">
-            保存
-          </BaseButton>
-        )
-      })
-
-      test('aria-label が正常に付与されている', () => {
-        const button = result.container.querySelector('button')
-        expect(button?.getAttribute('aria-label')).toEqual('保存ボタン')
-      })
-
-      test('role が正常に付与されている', () => {
-        const button = result.container.querySelector('button')
-        expect(button?.getAttribute('role')).toEqual('button')
-      })
-    })
-
     describe('children なしの場合', () => {
       beforeEach(() => {
-        result = render(<BaseButton onClick={() => handleClick()} />)
+        result = render(<BaseTag />)
       })
 
       test('text 要素は空で出力される', () => {
-        const text = result.container.querySelector('span[class*="baseButton_text"]')
+        const text = result.container.querySelector('span[class*="baseTag_text"]')
         expect(text).not.toBe(null)
         expect(text?.textContent).toBe('')
       })
@@ -157,75 +105,93 @@ describe('BaseButton', () => {
   // 2. Display
   //============================================================================
   describe('Display', () => {
-    describe('デフォルトサイズ（medium）', () => {
+    describe('ベーススタイル', () => {
       beforeEach(() => {
-        result = render(<BaseButton onClick={() => handleClick()}>test</BaseButton>)
+        result = render(<BaseTag>test</BaseTag>)
       })
 
-      test('medium サイズスタイルが適用されている', () => {
-        const button = result.container.querySelector('button')
-        expect(button?.className).toContain('baseButton__medium')
-      })
-    })
-
-    describe('large サイズ', () => {
-      beforeEach(() => {
-        result = render(
-          <BaseButton onClick={() => handleClick()} size="large">
-            test
-          </BaseButton>
-        )
-      })
-
-      test('large サイズスタイルが適用されている', () => {
-        const button = result.container.querySelector('button')
-        expect(button?.className).toContain('baseButton__large')
-      })
-    })
-
-    describe('small サイズ', () => {
-      beforeEach(() => {
-        result = render(
-          <BaseButton onClick={() => handleClick()} size="small">
-            test
-          </BaseButton>
-        )
-      })
-
-      test('small サイズスタイルが適用されている', () => {
-        const button = result.container.querySelector('button')
-        expect(button?.className).toContain('baseButton__small')
+      test('baseTag クラスが適用されている', () => {
+        const tag = result.container.querySelector('span[class*="baseTag"]')
+        expect(tag?.className).toContain('baseTag')
       })
     })
 
     describe('デフォルトバリアント（contained）', () => {
       beforeEach(() => {
-        result = render(<BaseButton onClick={() => handleClick()}>test</BaseButton>)
+        result = render(<BaseTag>test</BaseTag>)
       })
 
       test('contained バリアントスタイルが適用されている', () => {
-        const button = result.container.querySelector('button')
-        expect(button?.className).toContain('baseButton__contained')
+        const tag = result.container.querySelector('span[class*="baseTag"]')
+        expect(tag?.className).toContain('baseTag__contained')
       })
     })
 
-    describe('デフォルトカラー（primary）', () => {
+    describe('outlined バリアント', () => {
       beforeEach(() => {
-        result = render(<BaseButton onClick={() => handleClick()}>test</BaseButton>)
+        result = render(<BaseTag variant="outlined">test</BaseTag>)
       })
 
-      test('primary カラースタイルが適用されている', () => {
-        const button = result.container.querySelector('button')
-        expect(button?.className).toContain('baseButton__primary')
+      test('outlined バリアントスタイルが適用されている', () => {
+        const tag = result.container.querySelector('span[class*="baseTag"]')
+        expect(tag?.className).toContain('baseTag__outlined')
       })
     })
 
-    describe('非活性ボタン', () => {
+    describe('デフォルトカラー（sub）', () => {
+      beforeEach(() => {
+        result = render(<BaseTag>test</BaseTag>)
+      })
+
+      test('sub カラースタイルが適用されている', () => {
+        const tag = result.container.querySelector('span[class*="baseTag"]')
+        expect(tag?.className).toContain('baseTag__sub')
+      })
+    })
+
+    describe('onClick がある場合', () => {
+      beforeEach(() => {
+        result = render(<BaseTag onClick={() => handleClick()}>test</BaseTag>)
+      })
+
+      test('baseTag__button スタイルが適用されている', () => {
+        const button = result.container.querySelector('button')
+        expect(button?.className).toContain('baseTag__button')
+      })
+    })
+
+    describe('url がある場合', () => {
       beforeEach(() => {
         result = render(
-          <BaseButton onClick={() => handleClick()} isDisabled>
+          <MemoryRouter>
+            <BaseTag url="/path">test</BaseTag>
+          </MemoryRouter>
+        )
+      })
+
+      test('baseTag__button スタイルが適用されている', () => {
+        const link = result.container.querySelector('a')
+        expect(link?.className).toContain('baseTag__button')
+      })
+    })
+
+    describe('onClick も url もない場合', () => {
+      beforeEach(() => {
+        result = render(<BaseTag>test</BaseTag>)
+      })
+
+      test('baseTag__button スタイルは適用されない', () => {
+        const tag = result.container.querySelector('span[class*="baseTag"]')
+        expect(tag?.className).not.toContain('baseTag__button')
+      })
+    })
+
+    describe('非活性タグ', () => {
+      beforeEach(() => {
+        result = render(
+          <BaseTag onClick={() => handleClick()} isDisabled>
             test
-          </BaseButton>
+          </BaseTag>
         )
       })
 
@@ -236,80 +202,71 @@ describe('BaseButton', () => {
 
       test('非活性スタイルが適用されている', () => {
         const button = result.container.querySelector('button')
-        expect(button?.className).toContain('baseButton__disabled')
+        expect(button?.className).toContain('baseTag__disabled')
       })
     })
 
     describe('カスタムクラス名', () => {
       beforeEach(() => {
-        result = render(
-          <BaseButton className="custom-class" onClick={() => handleClick()}>
-            test
-          </BaseButton>
-        )
+        result = render(<BaseTag className="custom-class">test</BaseTag>)
       })
 
       test('カスタムクラス名が正常に付与されている', () => {
-        const button = result.container.querySelector('button')
-        expect(button?.classList.contains('custom-class')).toBe(true)
+        const tag = result.container.querySelector('span[class*="baseTag"]')
+        expect(tag?.classList.contains('custom-class')).toBe(true)
       })
     })
 
     describe('複数のスタイルプロパティ', () => {
       beforeEach(() => {
         result = render(
-          <BaseButton onClick={() => handleClick()} size="large" variant="contained" color="primary">
+          <BaseTag variant="outlined" color="sub" onClick={() => handleClick()}>
             test
-          </BaseButton>
+          </BaseTag>
         )
       })
 
       test('すべてのスタイルプロパティが同時に適用される', () => {
         const button = result.container.querySelector('button')
-        expect(button?.className).toContain('baseButton__large')
-        expect(button?.className).toContain('baseButton__contained')
-        expect(button?.className).toContain('baseButton__primary')
+        expect(button?.className).toContain('baseTag__outlined')
+        expect(button?.className).toContain('baseTag__sub')
+        expect(button?.className).toContain('baseTag__button')
       })
     })
 
     describe('内部構造', () => {
       beforeEach(() => {
-        result = render(<BaseButton onClick={() => handleClick()}>test</BaseButton>)
-      })
-
-      test('baseButton クラスが適用されている', () => {
-        const button = result.container.querySelector('button')
-        expect(button?.className).toContain('baseButton')
+        result = render(<BaseTag>test</BaseTag>)
       })
 
       test('container クラスを持つ span 要素が存在する', () => {
-        const container = result.container.querySelector('span[class*="baseButton_container"]')
+        const container = result.container.querySelector('span[class*="baseTag_container"]')
         expect(container).not.toBe(null)
       })
 
       test('text クラスを持つ span 要素が存在する', () => {
-        const text = result.container.querySelector('span[class*="baseButton_text"]')
+        const text = result.container.querySelector('span[class*="baseTag_text"]')
         expect(text).not.toBe(null)
         expect(text?.textContent).toBe('test')
       })
     })
 
-    describe('リンクボタンのスタイル', () => {
+    describe('リンクタグのスタイル', () => {
       beforeEach(() => {
         result = render(
           <MemoryRouter>
-            <BaseButton url="/internal/path" size="large" color="primary">
+            <BaseTag url="/path" variant="outlined">
               test
-            </BaseButton>
+            </BaseTag>
           </MemoryRouter>
         )
       })
 
-      test('リンク要素にも BaseButton のスタイルが適用されている', () => {
+      test('リンク要素にも BaseTag のスタイルが適用されている', () => {
         const link = result.container.querySelector('a')
-        expect(link?.className).toContain('baseButton')
-        expect(link?.className).toContain('baseButton__large')
-        expect(link?.className).toContain('baseButton__primary')
+        expect(link?.className).toContain('baseTag')
+        expect(link?.className).toContain('baseTag__outlined')
+        expect(link?.className).toContain('baseTag__button')
       })
     })
   })
@@ -320,7 +277,7 @@ describe('BaseButton', () => {
   describe('Operation', () => {
     describe('クリックイベント', () => {
       beforeEach(() => {
-        result = render(<BaseButton onClick={() => handleClick()}>test</BaseButton>)
+        result = render(<BaseTag onClick={() => handleClick()}>test</BaseTag>)
       })
 
       test('クリックイベントが正常に動作している', () => {
@@ -335,11 +292,11 @@ describe('BaseButton', () => {
       })
     })
 
-    describe('内部リンクボタン', () => {
+    describe('内部リンクタグ', () => {
       beforeEach(() => {
         result = render(
           <MemoryRouter>
-            <BaseButton url="/internal/path">test</BaseButton>
+            <BaseTag url="/internal/path">test</BaseTag>
           </MemoryRouter>
         )
       })
@@ -351,9 +308,9 @@ describe('BaseButton', () => {
       })
     })
 
-    describe('外部リンクボタン', () => {
+    describe('外部リンクタグ', () => {
       beforeEach(() => {
-        result = render(<BaseButton url="https://example.com">test</BaseButton>)
+        result = render(<BaseTag url="https://example.com">test</BaseTag>)
       })
 
       test('a タグが使用されている', () => {
@@ -363,28 +320,12 @@ describe('BaseButton', () => {
       })
     })
 
-    describe('別タブで開く外部リンクボタン', () => {
+    describe('非活性タグのクリック', () => {
       beforeEach(() => {
         result = render(
-          <BaseButton url="https://example.com" target="_blank" rel="noopener">
+          <BaseTag onClick={() => handleClick()} isDisabled>
             test
-          </BaseButton>
-        )
-      })
-
-      test('target と rel 属性が正常に付与されている', () => {
-        const link = result.container.querySelector('a')
-        expect(link?.getAttribute('target')).toEqual('_blank')
-        expect(link?.getAttribute('rel')).toEqual('noopener')
-      })
-    })
-
-    describe('非活性ボタンのクリック', () => {
-      beforeEach(() => {
-        result = render(
-          <BaseButton onClick={() => handleClick()} isDisabled>
-            test
-          </BaseButton>
+          </BaseTag>
         )
       })
 
@@ -404,9 +345,9 @@ describe('BaseButton', () => {
       beforeEach(() => {
         result = render(
           <MemoryRouter>
-            <BaseButton url="/path" onClick={() => handleClick()}>
+            <BaseTag url="/path" onClick={() => handleClick()}>
               test
-            </BaseButton>
+            </BaseTag>
           </MemoryRouter>
         )
       })

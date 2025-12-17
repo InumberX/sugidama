@@ -36,15 +36,11 @@ export const BaseButton = ({
   }, [isDisabled, className, size, variant, color])
 
   return (
-    <PrimitiveButton
-      {...props}
-      className={[baseButtonClassName, className].filter(Boolean).join(' ')}
-      isDisabled={isDisabled}
-    >
+    <PrimitiveButton {...props} className={baseButtonClassName} isDisabled={isDisabled}>
       <span className={styles.baseButton_container}>
-        {leftElm && leftElm}
+        {leftElm}
         <span className={styles.baseButton_text}>{children}</span>
-        {rightElm && rightElm}
+        {rightElm}
       </span>
     </PrimitiveButton>
   )

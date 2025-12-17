@@ -40,9 +40,9 @@ export const BaseTag = ({
   return (
     <PrimitiveButton {...props} className={baseTagClassName} isDisabled={isDisabled} onClick={onClick} url={url}>
       <span className={styles.baseTag_container}>
-        {leftElm && leftElm}
+        {leftElm}
         <span className={styles.baseTag_text}>{children}</span>
-        {rightElm && rightElm}
+        {rightElm}
       </span>
     </PrimitiveButton>
   )

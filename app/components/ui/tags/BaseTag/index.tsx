@@ -39,7 +39,14 @@ export const BaseTag = ({
   }, [variant, color, url, onClick, buttonType, isDisabled, className])
 
   return (
-    <PrimitiveButton {...props} className={baseTagClassName} isDisabled={isDisabled} onClick={onClick} url={url} buttonType={buttonType}>
+    <PrimitiveButton
+      {...props}
+      className={baseTagClassName}
+      isDisabled={isDisabled}
+      onClick={onClick}
+      url={url}
+      buttonType={buttonType}
+    >
       <span className={styles.baseTag_container}>
         {leftElm}
         <span className={styles.baseTag_text}>{children}</span>

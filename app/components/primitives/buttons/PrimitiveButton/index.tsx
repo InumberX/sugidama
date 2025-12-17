@@ -114,6 +114,7 @@ export const PrimitiveButton = ({
       className={primitiveButtonClassName}
       title={title}
       role={role}
+      tabIndex={tabIndex}
       aria-controls={ariaControls}
       aria-selected={ariaSelected}
       aria-label={ariaLabel}

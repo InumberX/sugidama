@@ -22,6 +22,7 @@ export const BaseTag = ({
   color = 'sub',
   onClick,
   url,
+  buttonType,
   ...props
 }: BaseTagProps) => {
   const baseTagClassName = useMemo(() => {
@@ -29,16 +30,16 @@ export const BaseTag = ({
       styles.baseTag,
       styles[`baseTag__${variant}`],
       styles[`baseTag__${color}`],
-      (url || onClick) && styles.baseTag__button,
+      (url || onClick || buttonType) && styles.baseTag__button,
       isDisabled && styles.baseTag__disabled,
       className,
     ]
       .filter(Boolean)
       .join(' ')
-  }, [variant, color, url, onClick, isDisabled, className])
+  }, [variant, color, url, onClick, buttonType, isDisabled, className])
 
   return (
-    <PrimitiveButton {...props} className={baseTagClassName} isDisabled={isDisabled} onClick={onClick} url={url}>
+    <PrimitiveButton {...props} className={baseTagClassName} isDisabled={isDisabled} onClick={onClick} url={url} buttonType={buttonType}>
       <span className={styles.baseTag_container}>
         {leftElm}
         <span className={styles.baseTag_text}>{children}</span>

@@ -38,9 +38,9 @@ export const BaseButton = ({
   return (
     <PrimitiveButton {...props} className={baseButtonClassName} isDisabled={isDisabled}>
       <span className={styles.baseButton_container}>
-        {leftElm && leftElm}
+        {leftElm}
         <span className={styles.baseButton_text}>{children}</span>
-        {rightElm && rightElm}
+        {rightElm}
       </span>
     </PrimitiveButton>
   )

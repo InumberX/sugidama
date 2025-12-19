@@ -3,7 +3,7 @@ frontend:
   phases:
     preTest:
       commands:
-        - nvm use 22
+        - nvm use 24
         - node -v
         - npm ci
       test:
@@ -14,7 +14,7 @@ frontend:
           - npm run test
     preBuild:
       commands:
-        - nvm use 22
+        - nvm use 24
         - npm ci
     build:
       commands:

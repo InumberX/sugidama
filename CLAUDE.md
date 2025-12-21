@@ -27,7 +27,10 @@ npm run pre-commit               # Run all checks and fixes (typecheck + lint-fi
 
 ### Testing & Development Tools
 ```bash
-npm test                         # Run Vitest tests
+npm test                         # Run Vitest tests (watch mode)
+npm test -- --run                # Run tests once without watch
+npm test -- path/to/file.test.ts # Run specific test file
+npm test -- -t "test name"       # Run tests matching pattern
 npm run storybook                # Start Storybook on port 6006
 ```
 
@@ -115,7 +118,9 @@ Accessed in app via `app/config/env.ts` and Vite's `import.meta.env.VITE_*` patt
 
 ### Special Considerations
 
-- **Node version**: Requires Node.js >=22.0.0 (Volta pinned to 22.20.0)
+- **Node version**: Requires Node.js >=24.0.0 (Volta pinned to 24.5.0)
 - **Git Worktree**: Special handling in `vite.config.ts` to skip warmup and relax strict FS mode
 - **Bot handling**: Server entry uses `isbot` to optimize rendering strategy (`onAllReady` vs `onShellReady`)
 - **Google Analytics**: Conditionally loaded in `app/root.tsx` based on `GOOGLE_ANALYTICS_ID`, tracked via `app/utils/gtags.client.ts`
+- **Import ordering**: ESLint enforces import ordering via `eslint-plugin-import-x` with alphabetical sorting and newlines between groups
+- **API types**: Generated using [quicktype](https://app.quicktype.io) from Kuroco CMS JSON responses, saved to `app/types/`

@@ -1,15 +1,17 @@
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { redirect } from 'react-router'
 import { Links, Meta, Outlet, ScrollRestoration, Scripts, useLocation } from 'react-router'
-import { AppProvider } from '~/providers/AppProvider'
-import { LayoutPortal } from '~/components/common/LayoutPortal'
-import * as styles from './root.css'
 import { useChangeLanguage } from 'remix-i18next/react'
-import { useTranslation } from 'react-i18next'
-import { getLang } from '~/utils/locale'
-import * as gtag from '~/utils/gtags.client'
+
 import type { Route } from './+types/root'
+import * as styles from './root.css'
+
+import { LayoutPortal } from '~/components/common/LayoutPortal'
 import { GOOGLE_ANALYTICS_ID } from '~/config/env'
+import { AppProvider } from '~/providers/AppProvider'
+import * as gtag from '~/utils/gtags.client'
+import { getLang } from '~/utils/locale'
 
 export const handle = {
   i18n: 'common',

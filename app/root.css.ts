@@ -1,9 +1,10 @@
 import { style, globalStyle } from '@vanilla-extract/css'
-import { cssVariables } from '~/styles/variables/cssVariables.css'
+
 import { getFontSize } from '~/styles/mixins/font.css'
-import { getTransition } from '~/styles/mixins/transition.css'
 import { getMediaQuery, getContainerQuery } from '~/styles/mixins/mediaQuery.css'
 import { getClampRem } from '~/styles/mixins/size.css'
+import { getTransition } from '~/styles/mixins/transition.css'
+import { cssVariables } from '~/styles/variables/cssVariables.css'
 import { cssLayerReset, cssLayerComponentPage, cssLayerUtils } from '~/styles/variables/layers.css'
 
 /* Common ========== */

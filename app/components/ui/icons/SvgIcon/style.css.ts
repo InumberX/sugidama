@@ -1,4 +1,5 @@
 import { style } from '@vanilla-extract/css'
+
 import { getTransition } from '~/styles/mixins/transition.css'
 import { cssVariables } from '~/styles/variables/cssVariables.css'
 import { cssLayerComponentUiLow } from '~/styles/variables/layers.css'

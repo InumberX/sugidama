@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+
 import { LayoutInner } from '~/components/ui/layouts/LayoutInner'
 
 const meta: Meta<typeof LayoutInner> = {

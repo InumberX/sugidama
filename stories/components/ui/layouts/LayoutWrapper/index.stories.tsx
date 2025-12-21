@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+
 import { LayoutWrapper } from '~/components/ui/layouts/LayoutWrapper'
 
 const meta: Meta<typeof LayoutWrapper> = {

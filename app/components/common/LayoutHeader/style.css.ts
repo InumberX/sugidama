@@ -1,11 +1,12 @@
 import { style } from '@vanilla-extract/css'
-import { getClampPx } from '~/styles/mixins/size.css'
-import { cssLayerComponentCommon } from '~/styles/variables/layers.css'
-import { cssVariables } from '~/styles/variables/cssVariables.css'
-import { getMediaQuery, getMediaQueryReverse } from '~/styles/mixins/mediaQuery.css'
-import { getTransition } from '~/styles/mixins/transition.css'
-import { fontSmallBold } from '~/styles/variables/font.css'
+
 import { getRgba } from '~/styles/mixins/color.css'
+import { getMediaQuery, getMediaQueryReverse } from '~/styles/mixins/mediaQuery.css'
+import { getClampPx } from '~/styles/mixins/size.css'
+import { getTransition } from '~/styles/mixins/transition.css'
+import { cssVariables } from '~/styles/variables/cssVariables.css'
+import { fontSmallBold } from '~/styles/variables/font.css'
+import { cssLayerComponentCommon } from '~/styles/variables/layers.css'
 
 export const layoutHeaderHeight = {
   minimum: 56,

@@ -1,5 +1,6 @@
 import type { MetaDescriptor } from 'react-router'
 import type { MetaArgs } from 'react-router'
+
 import type { Route } from '~/+types/root'
 import { NO_INDEX, SITE_URL, SITE_NAME } from '~/config/env'
 

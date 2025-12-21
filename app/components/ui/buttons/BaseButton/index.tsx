@@ -1,6 +1,8 @@
 import { type ReactNode, useMemo } from 'react'
-import { PrimitiveButton, type PrimitiveButtonProps } from '~/components/primitives/buttons/PrimitiveButton'
+
 import * as styles from './style.css'
+
+import { PrimitiveButton, type PrimitiveButtonProps } from '~/components/primitives/buttons/PrimitiveButton'
 
 export type BaseButtonProps = PrimitiveButtonProps & {
   size?: 'large' | 'medium' | 'small'

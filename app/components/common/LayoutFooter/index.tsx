@@ -1,5 +1,6 @@
-import { LayoutInner } from '~/components/ui/layouts/LayoutInner'
 import * as styles from './style.css'
+
+import { LayoutInner } from '~/components/ui/layouts/LayoutInner'
 
 type Props = {
   className?: string

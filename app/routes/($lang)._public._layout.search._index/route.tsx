@@ -1,4 +1,5 @@
 import { type MetaFunction } from 'react-router'
+
 import { LayoutPageWrapper } from '~/components/ui/layouts/LayoutPageWrapper'
 import { getMetadata } from '~/utils/meta'
 

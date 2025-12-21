@@ -3,6 +3,7 @@ import eslint from '@eslint/js'
 import tseslint from 'typescript-eslint'
 import pluginReact from 'eslint-plugin-react'
 import pluginReactHooks from 'eslint-plugin-react-hooks'
+import { importX } from 'eslint-plugin-import-x'
 import { fixupPluginRules } from '@eslint/compat'
 
 export default tseslint.config(
@@ -35,11 +36,23 @@ export default tseslint.config(
     plugins: {
       react: pluginReact,
       'react-hooks': fixupPluginRules(pluginReactHooks),
+      'import-x': importX,
     },
     rules: {
       ...pluginReact.configs.recommended.rules,
       ...pluginReact.configs['jsx-runtime'].rules,
       ...pluginReactHooks.configs.recommended.rules,
+      'import-x/no-extraneous-dependencies': ['error', { includeTypes: true }],
+      'import-x/order': [
+        'error',
+        {
+          'newlines-between': 'always',
+          alphabetize: {
+            order: 'asc',
+            caseInsensitive: true,
+          },
+        },
+      ],
     },
     settings: {
       react: {

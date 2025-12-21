@@ -1,4 +1,5 @@
 import { style } from '@vanilla-extract/css'
+
 import { getMediaQuery } from '~/styles/mixins/mediaQuery.css'
 import { getClampPx } from '~/styles/mixins/size.css'
 import { getTransition } from '~/styles/mixins/transition.css'

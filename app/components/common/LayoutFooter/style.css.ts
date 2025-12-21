@@ -1,10 +1,11 @@
 import { style } from '@vanilla-extract/css'
+
+import { layoutHeaderHeight } from '~/components/common/LayoutHeader/style.css'
+import { getMediaQuery } from '~/styles/mixins/mediaQuery.css'
+import { getClampPx } from '~/styles/mixins/size.css'
 import { cssVariables } from '~/styles/variables/cssVariables.css'
 import { fontCaptionBold } from '~/styles/variables/font.css'
 import { cssLayerComponentCommon } from '~/styles/variables/layers.css'
-import { layoutHeaderHeight } from '~/components/common/LayoutHeader/style.css'
-import { getClampPx } from '~/styles/mixins/size.css'
-import { getMediaQuery } from '~/styles/mixins/mediaQuery.css'
 
 export const layoutFooter = style({
   '@layer': {

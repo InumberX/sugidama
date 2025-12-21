@@ -1,8 +1,10 @@
-import { Link } from 'react-router'
-import * as styles from './style.css'
-import { LayoutInner } from '~/components/ui/layouts/LayoutInner'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
+
+import * as styles from './style.css'
+
 import { SvgIcon, type SvgIconVariant } from '~/components/ui/icons/SvgIcon'
+import { LayoutInner } from '~/components/ui/layouts/LayoutInner'
 import { CACHE_BUSTER } from '~/config/env'
 
 type Props = {

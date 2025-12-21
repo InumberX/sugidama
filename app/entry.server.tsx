@@ -1,13 +1,16 @@
 import { PassThrough } from 'stream'
+
 import { createReadableStreamFromReadable } from '@react-router/node'
-import { type EntryContext } from 'react-router'
-import { ServerRouter } from 'react-router'
+import { createInstance } from 'i18next'
+import Backend from 'i18next-fs-backend'
 import { isbot } from 'isbot'
 import { renderToPipeableStream } from 'react-dom/server'
-import { createInstance } from 'i18next'
-import i18next from './i18next.server'
 import { I18nextProvider, initReactI18next } from 'react-i18next'
-import Backend from 'i18next-fs-backend'
+import { type EntryContext } from 'react-router'
+import { ServerRouter } from 'react-router'
+
+import i18next from './i18next.server'
+
 import { i18n } from '~/i18n'
 // import { resolve } from 'node:path'
 

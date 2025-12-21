@@ -1,8 +1,10 @@
 import { type MetaFunction } from 'react-router'
-import { LayoutPageWrapper } from '~/components/ui/layouts/LayoutPageWrapper'
-import { getMetadata } from '~/utils/meta'
-import { getLang } from '~/utils/locale'
+
 import type { Route } from './+types/route'
+
+import { LayoutPageWrapper } from '~/components/ui/layouts/LayoutPageWrapper'
+import { getLang } from '~/utils/locale'
+import { getMetadata } from '~/utils/meta'
 
 export const meta: MetaFunction = (args) => {
   return getMetadata({

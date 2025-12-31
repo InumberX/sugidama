@@ -1,5 +1,6 @@
 import { style } from '@vanilla-extract/css'
 
+import { CACHE_BUSTER } from '~/config/env'
 import { getTransition } from '~/styles/mixins/transition.css'
 import { cssVariables } from '~/styles/variables/cssVariables.css'
 import { cssLayerComponentUiLow } from '~/styles/variables/layers.css'
@@ -35,8 +36,8 @@ export const svgIcon = style({
 export const svgIcon__home = style({
   '@layer': {
     [cssLayerComponentUiLow]: {
-      WebkitMaskImage: 'url(/assets/img/icon-home.svg)',
-      maskImage: 'url(/assets/img/icon-home.svg)',
+      WebkitMaskImage: `url(/assets/img/icon-home.svg?${CACHE_BUSTER})`,
+      maskImage: `url(/assets/img/icon-home.svg?${CACHE_BUSTER})`,
     },
   },
 })
@@ -44,8 +45,8 @@ export const svgIcon__home = style({
 export const svgIcon__search = style({
   '@layer': {
     [cssLayerComponentUiLow]: {
-      WebkitMaskImage: 'url(/assets/img/icon-search.svg)',
-      maskImage: 'url(/assets/img/icon-search.svg)',
+      WebkitMaskImage: `url(/assets/img/icon-search.svg?${CACHE_BUSTER})`,
+      maskImage: `url(/assets/img/icon-search.svg?${CACHE_BUSTER})`,
     },
   },
 })
@@ -53,8 +54,8 @@ export const svgIcon__search = style({
 export const svgIcon__mail = style({
   '@layer': {
     [cssLayerComponentUiLow]: {
-      WebkitMaskImage: 'url(/assets/img/icon-mail.svg)',
-      maskImage: 'url(/assets/img/icon-mail.svg)',
+      WebkitMaskImage: `url(/assets/img/icon-mail.svg?${CACHE_BUSTER})`,
+      maskImage: `url(/assets/img/icon-mail.svg?${CACHE_BUSTER})`,
     },
   },
 })
@@ -62,8 +63,8 @@ export const svgIcon__mail = style({
 export const svgIcon__liquor = style({
   '@layer': {
     [cssLayerComponentUiLow]: {
-      WebkitMaskImage: 'url(/assets/img/icon-liquor.svg)',
-      maskImage: 'url(/assets/img/icon-liquor.svg)',
+      WebkitMaskImage: `url(/assets/img/icon-liquor.svg?${CACHE_BUSTER})`,
+      maskImage: `url(/assets/img/icon-liquor.svg?${CACHE_BUSTER})`,
     },
   },
 })
@@ -71,8 +72,8 @@ export const svgIcon__liquor = style({
 export const svgIcon__translate = style({
   '@layer': {
     [cssLayerComponentUiLow]: {
-      WebkitMaskImage: 'url(/assets/img/icon-translate.svg)',
-      maskImage: 'url(/assets/img/icon-translate.svg)',
+      WebkitMaskImage: `url(/assets/img/icon-translate.svg?${CACHE_BUSTER})`,
+      maskImage: `url(/assets/img/icon-translate.svg?${CACHE_BUSTER})`,
     },
   },
 })
@@ -80,8 +81,8 @@ export const svgIcon__translate = style({
 export const svgIcon__keyboardArrowDown = style({
   '@layer': {
     [cssLayerComponentUiLow]: {
-      WebkitMaskImage: 'url(/assets/img/icon-keyboard-arrow-down.svg)',
-      maskImage: 'url(/assets/img/icon-keyboard-arrow-down.svg)',
+      WebkitMaskImage: `url(/assets/img/icon-keyboard-arrow-down.svg?${CACHE_BUSTER})`,
+      maskImage: `url(/assets/img/icon-keyboard-arrow-down.svg?${CACHE_BUSTER})`,
     },
   },
 })
@@ -89,8 +90,8 @@ export const svgIcon__keyboardArrowDown = style({
 export const svgIcon__keyboardArrowLeft = style({
   '@layer': {
     [cssLayerComponentUiLow]: {
-      WebkitMaskImage: 'url(/assets/img/icon-keyboard-arrow-left.svg)',
-      maskImage: 'url(/assets/img/icon-keyboard-arrow-left.svg)',
+      WebkitMaskImage: `url(/assets/img/icon-keyboard-arrow-left.svg?${CACHE_BUSTER})`,
+      maskImage: `url(/assets/img/icon-keyboard-arrow-left.svg?${CACHE_BUSTER})`,
     },
   },
 })
@@ -98,8 +99,8 @@ export const svgIcon__keyboardArrowLeft = style({
 export const svgIcon__keyboardArrowRight = style({
   '@layer': {
     [cssLayerComponentUiLow]: {
-      WebkitMaskImage: 'url(/assets/img/icon-keyboard-arrow-right.svg)',
-      maskImage: 'url(/assets/img/icon-keyboard-arrow-right.svg)',
+      WebkitMaskImage: `url(/assets/img/icon-keyboard-arrow-right.svg?${CACHE_BUSTER})`,
+      maskImage: `url(/assets/img/icon-keyboard-arrow-right.svg?${CACHE_BUSTER})`,
     },
   },
 })
@@ -107,8 +108,17 @@ export const svgIcon__keyboardArrowRight = style({
 export const svgIcon__keyboardArrowUp = style({
   '@layer': {
     [cssLayerComponentUiLow]: {
-      WebkitMaskImage: 'url(/assets/img/icon-keyboard-arrow-up.svg)',
-      maskImage: 'url(/assets/img/icon-keyboard-arrow-up.svg)',
+      WebkitMaskImage: `url(/assets/img/icon-keyboard-arrow-up.svg?${CACHE_BUSTER})`,
+      maskImage: `url(/assets/img/icon-keyboard-arrow-up.svg?${CACHE_BUSTER})`,
+    },
+  },
+})
+
+export const svgIcon__moreHoriz = style({
+  '@layer': {
+    [cssLayerComponentUiLow]: {
+      WebkitMaskImage: `url(/assets/img/icon-more-horiz.svg?${CACHE_BUSTER})`,
+      maskImage: `url(/assets/img/icon-more-horiz.svg?${CACHE_BUSTER})`,
     },
   },
 })

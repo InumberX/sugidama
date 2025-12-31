@@ -10,6 +10,7 @@ export type SvgIconVariant =
   | 'keyboardArrowLeft'
   | 'keyboardArrowRight'
   | 'keyboardArrowUp'
+  | 'moreHoriz'
 
 type Props = {
   className?: string

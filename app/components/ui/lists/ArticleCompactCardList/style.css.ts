@@ -2,7 +2,7 @@ import { style } from '@vanilla-extract/css'
 
 import { cssLayerComponentUiMiddle } from '~/styles/variables/layers.css'
 
-export const articleCardList = style({
+export const articleCompactCardList = style({
   '@layer': {
     [cssLayerComponentUiMiddle]: {
       display: 'block',
@@ -11,17 +11,17 @@ export const articleCardList = style({
   },
 })
 
-export const articleCardList_items = style({
+export const articleCompactCardList_items = style({
   '@layer': {
     [cssLayerComponentUiMiddle]: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))',
+      gridTemplateColumns: '1fr',
       gap: 24,
     },
   },
 })
 
-export const articleCardList_item = style({
+export const articleCompactCardList_item = style({
   '@layer': {
     [cssLayerComponentUiMiddle]: {},
   },

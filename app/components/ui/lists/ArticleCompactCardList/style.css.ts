@@ -23,8 +23,6 @@ export const articleCompactCardList_items = style({
 
 export const articleCompactCardList_item = style({
   '@layer': {
-    [cssLayerComponentUiMiddle]: {
-      selectors: {},
-    },
+    [cssLayerComponentUiMiddle]: {},
   },
 })

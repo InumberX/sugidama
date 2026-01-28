@@ -1,15 +1,1 @@
-{
-  "header": {
-    "menu": {
-      "home": {
-        "title": "Home"
-      },
-      "drinks": {
-        "title": "Drinks"
-      },
-      "search": {
-        "title": "Search"
-      }
-    }
-  }
-}
+{}

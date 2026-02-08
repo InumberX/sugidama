@@ -2,7 +2,6 @@ import { PassThrough } from 'stream'
 
 import { createReadableStreamFromReadable } from '@react-router/node'
 import { createInstance } from 'i18next'
-import Backend from 'i18next-fs-backend'
 import { isbot } from 'isbot'
 import { renderToPipeableStream } from 'react-dom/server'
 import { I18nextProvider, initReactI18next } from 'react-i18next'
@@ -28,24 +27,11 @@ export default async function handleRequest(
   const lng = await i18next.getLocale(request)
   const ns = i18next.getRouteNamespaces(reactRouterContext)
 
-  await instance
-    // Tell our instance to use react-i18next
-    .use(initReactI18next)
-    // Setup our backend
-    .use(Backend)
-    .init({
-      // spread the configuration
-      ...i18n,
-      // The locale we detected above
-      lng,
-      // The namespaces the routes about to render wants to use
-      ns,
-      /*
-      backend: {
-        loadPath: resolve('./public/assets/locales/{{lng}}/{{ns}}.json'),
-      },
-      */
-    })
+  await instance.use(initReactI18next).init({
+    ...i18n,
+    lng,
+    ns,
+  })
 
   return new Promise((resolve, reject) => {
     let didError = false

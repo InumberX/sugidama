@@ -1,5 +1,6 @@
 import { RemixI18Next } from 'remix-i18next/server'
 
+import { LANG } from '~/config/consts'
 import { i18n } from '~/i18n'
 
 const i18next = new RemixI18Next({
@@ -11,14 +12,14 @@ const i18next = new RemixI18Next({
       const paths = url.pathname.split('/').splice(1)
 
       if (paths.length === 0) {
-        return 'ja'
+        return LANG.JA
       }
 
       switch (paths[0]) {
-        case 'en':
-          return 'en'
+        case LANG.EN:
+          return LANG.EN
         default:
-          return 'ja'
+          return LANG.JA
       }
     },
   },

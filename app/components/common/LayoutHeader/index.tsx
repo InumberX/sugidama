@@ -4,6 +4,7 @@ import * as styles from './style.css'
 
 import { SvgIcon, type SvgIconVariant } from '~/components/ui/icons/SvgIcon'
 import { LayoutInner } from '~/components/ui/layouts/LayoutInner'
+import { LANG } from '~/config/consts'
 import { CACHE_BUSTER } from '~/config/env'
 import { PAGES } from '~/config/paths'
 
@@ -47,7 +48,7 @@ export const LayoutHeader = ({ className, isLogoTitle, lang }: Props) => {
           <div className={styles.layoutHeader_container}>
             <div className={styles.layoutHeaderLogo}>
               <LogoTitle className={styles.layoutHeaderLogo_title}>
-                <Link to={lang === 'ja' ? '/' : `/${lang}`} className={styles.layoutHeaderLogo_link}>
+                <Link to={lang === LANG.JA ? '/' : `/${lang}`} className={styles.layoutHeaderLogo_link}>
                   <img
                     src={`/assets/img/img-logo.webp?${CACHE_BUSTER}`}
                     alt="Sugidama"

@@ -8,6 +8,7 @@ import type { Route } from './+types/root'
 import * as styles from './root.css'
 
 import { LayoutPortal } from '~/components/common/LayoutPortal'
+import { LANG } from '~/config/consts'
 import { GOOGLE_ANALYTICS_ID } from '~/config/env'
 import { AppProvider } from '~/providers/AppProvider'
 import * as gtag from '~/utils/gtags.client'
@@ -22,8 +23,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const url = new URL(request.url)
   const paths = url.pathname.split('/').splice(1)
 
-  if (lang === 'ja' && paths.length > 0 && paths[0] === 'ja') {
-    const redirectUrl = `${url.pathname.replace(/^\/ja/, '/').replace(/\/\//g, '/')}${url.search}${url.hash}`
+  if (lang === LANG.JA && paths.length > 0 && paths[0] === LANG.JA) {
+    const redirectUrl = `${url.pathname.replace(`/${LANG.JA}`, '').replace(/\/\//g, '/')}${url.search}${url.hash}`
     redirect(redirectUrl)
   }
 

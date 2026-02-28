@@ -6,9 +6,5 @@ export const getDrinksDetail = async ({ id }: { id: string | number }): Promise<
     path: `/drinks/${id}`,
   })
 
-  if (!result.success) {
-    return result
-  }
-
   return result
 }

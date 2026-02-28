@@ -27,7 +27,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     const redirectUrl = `${
       url.pathname.replace(new RegExp(`^/${LANG.JA}`), '/').replace(/\/\//g, '/') || '/'
     }${url.search}${url.hash}`
-    redirect(redirectUrl)
+    throw redirect(redirectUrl)
   }
 
   return {

@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import * as styles from './style.css'
@@ -6,6 +5,7 @@ import * as styles from './style.css'
 import { SvgIcon, type SvgIconVariant } from '~/components/ui/icons/SvgIcon'
 import { LayoutInner } from '~/components/ui/layouts/LayoutInner'
 import { CACHE_BUSTER } from '~/config/env'
+import { PAGES } from '~/config/paths'
 
 type Props = {
   className?: string
@@ -15,27 +15,28 @@ type Props = {
 
 export const LayoutHeader = ({ className, isLogoTitle, lang }: Props) => {
   const LogoTitle = isLogoTitle ? 'h1' : 'div'
-  const urlLang = lang === 'ja' ? '' : `/${lang}`
-  const { t } = useTranslation()
   const globalMenuInfos: {
     title: string
     url: string
     icon: SvgIconVariant
   }[] = [
     {
-      title: t('header.menu.home.title'),
-      url: `${urlLang}/`,
+      title: PAGES.SG10_100.getName({
+        lang,
+      }),
+      url: PAGES.SG10_100.getUrl({
+        lang,
+      }),
       icon: 'home',
     },
     {
-      title: t('header.menu.drinks.title'),
-      url: `${urlLang}/drinks`,
+      title: PAGES.SG20_100.getName({
+        lang,
+      }),
+      url: PAGES.SG20_100.getUrl({
+        lang,
+      }),
       icon: 'liquor',
-    },
-    {
-      title: t('header.menu.search.title'),
-      url: `${urlLang}/search`,
-      icon: 'search',
     },
   ]
 
@@ -46,7 +47,12 @@ export const LayoutHeader = ({ className, isLogoTitle, lang }: Props) => {
           <div className={styles.layoutHeader_container}>
             <div className={styles.layoutHeaderLogo}>
               <LogoTitle className={styles.layoutHeaderLogo_title}>
-                <Link to={lang === 'ja' ? '/' : `/${lang}`} className={styles.layoutHeaderLogo_link}>
+                <Link
+                  to={PAGES.SG10_100.getUrl({
+                    lang,
+                  })}
+                  className={styles.layoutHeaderLogo_link}
+                >
                   <img
                     src={`/assets/img/img-logo.webp?${CACHE_BUSTER}`}
                     alt="Sugidama"

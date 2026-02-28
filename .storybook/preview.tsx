@@ -1,9 +1,13 @@
+import { Preview } from '@storybook/react-vite'
 import { useEffect } from 'react'
-import { Preview } from '@storybook/react'
+import { I18nextProvider } from 'react-i18next'
+
 import { LayoutPortal } from '../app/components/common/LayoutPortal'
 import * as styles from '../app/root.css'
+
 import i18n from './i18n'
-import { I18nextProvider } from 'react-i18next'
+
+import { LANG } from '~/config/consts'
 
 export const handle = {
   i18n: 'common',
@@ -13,7 +17,7 @@ const WithI18next: Preview['decorators'] = (Story, context) => {
   const { locale } = context.globals
 
   useEffect(() => {
-    i18n.changeLanguage(locale ?? 'ja')
+    i18n.changeLanguage(locale ?? LANG.JA)
   }, [locale])
 
   return (
@@ -34,11 +38,11 @@ export const globalTypes = {
       icon: 'globe',
       items: [
         {
-          value: 'ja',
+          value: LANG.JA,
           title: '日本語',
         },
         {
-          value: 'en',
+          value: LANG.EN,
           title: 'English',
         },
       ],

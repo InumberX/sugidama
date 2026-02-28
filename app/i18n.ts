@@ -1,9 +1,10 @@
+import { LANG } from '~/config/consts'
 import enCommon from '~/locales/en/common.json'
 import jaCommon from '~/locales/ja/common.json'
 
 export const i18n = {
-  supportedLngs: ['en', 'ja'],
-  fallbackLng: 'ja',
+  supportedLngs: [LANG.EN, LANG.JA],
+  fallbackLng: LANG.JA,
   defaultNS: 'common',
   react: {
     useSuspense: false,

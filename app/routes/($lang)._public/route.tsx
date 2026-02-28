@@ -2,7 +2,8 @@ import { type LoaderFunctionArgs, Outlet } from 'react-router'
 
 import { getLang } from '~/utils/locale'
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader(args: LoaderFunctionArgs) {
+  const { params } = args
   const lang = getLang(params)
 
   return {
@@ -10,6 +11,6 @@ export async function loader({ params }: LoaderFunctionArgs) {
   }
 }
 
-export default function PublicLayout() {
+export default function LayoutPublic() {
   return <Outlet />
 }

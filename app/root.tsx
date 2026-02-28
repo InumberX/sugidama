@@ -24,7 +24,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const paths = url.pathname.split('/').splice(1)
 
   if (lang === LANG.JA && paths.length > 0 && paths[0] === LANG.JA) {
-    const redirectUrl = `${url.pathname.replace(`/${LANG.JA}`, '').replace(/\/\//g, '/')}${url.search}${url.hash}`
+    const redirectUrl = `${
+      url.pathname.replace(new RegExp(`^/${LANG.JA}`), '/').replace(/\/\//g, '/') || '/'
+    }${url.search}${url.hash}`
     redirect(redirectUrl)
   }
 

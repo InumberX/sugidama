@@ -16,13 +16,19 @@ type ApiError = {
 
 export type ApiResult<T> = ApiSuccess<T> | ApiError
 
-export const apiClient = async <T>({ path, init }: { path: string; init?: RequestInit }): Promise<ApiResult<T>> => {
+export const apiClient = async <T>({
+  path,
+  options,
+}: {
+  path: string
+  options?: RequestInit
+}): Promise<ApiResult<T>> => {
   let response: Response
 
   try {
     response = await fetch(`${API_URL}${path}`, {
       cache: 'no-store',
-      ...init,
+      ...options,
     })
   } catch (error) {
     console.error(`[API] Network error: ${path}`, error)

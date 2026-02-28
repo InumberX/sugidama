@@ -11,7 +11,7 @@ export async function loader(args: Route.LoaderArgs) {
 
   if (!drink.success) {
     throw new Response('', {
-      status: 404,
+      status: drink.status ?? 500,
     })
   }
 

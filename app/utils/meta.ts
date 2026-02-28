@@ -34,8 +34,8 @@ export const getMetadata = ({
   const { matches, location } = args
   const matchData = matches.find((match) => {
     return match.id === 'root'
-  })?.loaderData as Route.ComponentProps['loaderData']
-  const lang = matchData.lang ?? LANG.JA
+  })?.loaderData as Route.ComponentProps['loaderData'] | undefined
+  const lang = matchData?.lang ?? LANG.JA
   const siteInfo = getSiteInfo({ lang })
   const { SITE_NAME, BASE_TITLE_NOTE, BASE_DESCRIPTION } = siteInfo
   const baseTitle = `${SITE_NAME} | ${BASE_TITLE_NOTE}`

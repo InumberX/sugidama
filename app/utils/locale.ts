@@ -19,7 +19,8 @@ export const getLang = (params: Params<string>) => {
 }
 
 export const getLangRoute = ({ lang }: { lang?: string }) => {
-  return lang === LANG.JA ? '' : `/${lang}`
+  const effectiveLang = lang ?? LANG.JA
+  return effectiveLang === LANG.JA ? '' : `/${effectiveLang}`
 }
 
 export const getPageInfo = ({ lang }: { lang?: string }) => {

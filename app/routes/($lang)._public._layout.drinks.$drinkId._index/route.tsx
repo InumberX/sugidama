@@ -1,28 +1,35 @@
-import { type MetaFunction } from 'react-router'
+import { type MetaFunction, useRouteLoaderData } from 'react-router'
 
 import type { Route } from './+types/route'
 
 import { LayoutPageWrapper } from '~/components/ui/layouts/LayoutPageWrapper'
 import { PAGES } from '~/config/paths'
-import { getDrinksDetail } from '~/server/api/drinks.server'
+import { loader as drinkDetailLoader } from '~/routes/($lang)._public._layout.drinks.$drinkId/route'
 import { getLang } from '~/utils/locale'
 import { getMetadata } from '~/utils/meta'
 
 const page = PAGES.SG20_101
 
-export const meta: MetaFunction = (args) => {
+export const meta: MetaFunction<{
+  'routes/($lang)._public._layout.drinks.$drinkId': typeof drinkDetailLoader
+}> = (args) => {
+  const { matches } = args
+  const matchData = matches.find((match) => {
+    return match.id === 'routes/($lang)._public._layout.drinks.$drinkId'
+  })?.loaderData as ReturnType<typeof useRouteLoaderData<typeof drinkDetailLoader>>
+
   const { params } = args
-  const { drinkId } = params
   const lang = getLang({
     lang: params.lang,
   })
+  const drink = matchData?.drink
 
   return getMetadata({
     args,
     title: page.getName({
       lang,
       params: {
-        drinkName: String(drinkId),
+        drinkName: drink?.subject ?? '',
       },
     }),
   })
@@ -30,30 +37,24 @@ export const meta: MetaFunction = (args) => {
 
 export async function loader(args: Route.LoaderArgs) {
   const { params } = args
-  const { drinkId } = params
   const lang = getLang(params)
-
-  const drink = await getDrinksDetail({ id: drinkId })
-
-  if (!drink) {
-    throw new Response('', {
-      status: 404,
-    })
-  }
 
   return {
     lang,
-    drink,
   }
 }
 
 export default function PageSG20_101({ loaderData }: Route.ComponentProps) {
-  const { lang, drink } = loaderData
+  const { lang } = loaderData
+  const drinkDetailLoaderData = useRouteLoaderData<typeof drinkDetailLoader>(
+    'routes/($lang)._public._layout.drinks.$drinkId'
+  )
+  const drink = drinkDetailLoaderData?.drink
 
   const pageName = page.getName({
     lang,
     params: {
-      drinkName: drink.subject,
+      drinkName: drink?.subject ?? '',
     },
   })
 

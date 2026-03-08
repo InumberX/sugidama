@@ -14,7 +14,7 @@ function isSameOrigin(input: RequestInfo | URL): boolean {
     const url = input instanceof Request ? new URL(input.url) : new URL(input.toString(), window.location.origin)
     return url.origin === window.location.origin
   } catch {
-    // Relative URLs are same-originï
+    // Relative URLs are same-origin
     return true
   }
 }

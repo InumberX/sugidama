@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { afterEach, describe, it, expect, vi } from 'vitest'
 
 import {
   generateCsrfToken,
@@ -8,6 +8,10 @@ import {
 } from '~/server/csrf.server'
 
 describe('csrf.server', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
   describe('generateCsrfToken', () => {
     it('returns a 64-character hex string', () => {
       const token = generateCsrfToken()
@@ -42,14 +46,9 @@ describe('csrf.server', () => {
     })
 
     it('sets Secure flag in production', () => {
-      const originalEnv = process.env.NODE_ENV
-      process.env.NODE_ENV = 'production'
-      try {
-        const header = createCsrfCookieHeader('token')
-        expect(header).toContain('Secure')
-      } finally {
-        process.env.NODE_ENV = originalEnv
-      }
+      vi.stubEnv('NODE_ENV', 'production')
+      const header = createCsrfCookieHeader('token')
+      expect(header).toContain('Secure')
     })
   })
 

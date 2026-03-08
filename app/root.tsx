@@ -1,8 +1,7 @@
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { redirect } from 'react-router'
+import { redirect, data } from 'react-router'
 import { Links, Meta, Outlet, ScrollRestoration, Scripts, useLocation } from 'react-router'
-import { useChangeLanguage } from 'remix-i18next/react'
 
 import type { Route } from './+types/root'
 import * as styles from './root.css'
@@ -11,12 +10,28 @@ import { LayoutPortal } from '~/components/common/LayoutPortal'
 import { LANG } from '~/config/consts'
 import { GOOGLE_ANALYTICS_ID } from '~/config/env'
 import { AppProvider } from '~/providers/AppProvider'
+import { useNonce } from '~/providers/NonceProvider'
+import {
+  createCsrfCookieHeader,
+  generateCsrfToken,
+  getCsrfTokenFromCookie,
+  validateCsrfRequest,
+} from '~/server/csrf.server'
 import * as gtag from '~/utils/gtags.client'
 import { getLang } from '~/utils/locale'
 
 export const handle = {
   i18n: 'common',
 }
+
+export const middleware: Route.MiddlewareFunction[] = [
+  async ({ request }, next) => {
+    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(request.method)) {
+      await validateCsrfRequest(request)
+    }
+    return next()
+  },
+]
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const lang = getLang(params)
@@ -30,17 +45,37 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     throw redirect(redirectUrl)
   }
 
-  return {
-    lang,
+  const existingCsrfToken = getCsrfTokenFromCookie(request)
+  const csrfToken = existingCsrfToken || generateCsrfToken()
+
+  const headers = new Headers()
+  if (!existingCsrfToken) {
+    headers.append('Set-Cookie', createCsrfCookieHeader(csrfToken))
   }
+
+  return data(
+    {
+      lang,
+      csrfToken,
+    },
+    {
+      headers,
+    }
+  )
 }
 
 export default function RootRoute({ loaderData }: Route.ComponentProps) {
   const { lang } = loaderData
   const { i18n } = useTranslation()
-  useChangeLanguage(lang)
+  const nonce = useNonce()
 
   const location = useLocation()
+
+  useEffect(() => {
+    if (i18n.language !== lang) {
+      i18n.changeLanguage(lang)
+    }
+  }, [lang, i18n])
 
   useEffect(() => {
     if (!GOOGLE_ANALYTICS_ID) {
@@ -68,10 +103,15 @@ export default function RootRoute({ loaderData }: Route.ComponentProps) {
           <Links />
           {GOOGLE_ANALYTICS_ID && (
             <>
-              <script async src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`} />
+              <script
+                async
+                nonce={nonce || undefined}
+                src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`}
+              />
               <script
                 async
                 id="gtag-init"
+                nonce={nonce || undefined}
                 dangerouslySetInnerHTML={{
                   __html: `
                     window.dataLayer = window.dataLayer || [];
@@ -91,9 +131,10 @@ export default function RootRoute({ loaderData }: Route.ComponentProps) {
             <Outlet />
             <LayoutPortal />
           </div>
-          <ScrollRestoration />
-          <Scripts />
+          <ScrollRestoration nonce={nonce || undefined} />
+          <Scripts nonce={nonce || undefined} />
           <script
+            nonce={nonce || undefined}
             dangerouslySetInnerHTML={{
               __html: `window.env = ${JSON.stringify({})}`,
             }}

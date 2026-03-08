@@ -58,6 +58,7 @@ export default defineConfig({
     'import.meta.env.VITE_GOOGLE_ANALYTICS_ID': `"${process.env.GOOGLE_ANALYTICS_ID || 'G-P7SXGX2CCT'}"`,
     'import.meta.env.VITE_CACHE_BUSTER': `"${CACHE_BUSTER}"`,
     'import.meta.env.VITE_LASTMOD': `"${LASTMOD}"`,
+    'import.meta.env.VITE_API_URL': `"${process.env.API_URL || 'https://afterworks.g.kuroco.app/rcms-api/7'}"`,
   },
   plugins: [reactRouter(), tsconfigPaths(), vanillaExtractPlugin(), devtoolsJson()],
 })

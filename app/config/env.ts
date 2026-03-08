@@ -4,3 +4,4 @@ export const SITE_NAME = import.meta.env.VITE_SITE_NAME
 export const GOOGLE_ANALYTICS_ID = import.meta.env.VITE_GOOGLE_ANALYTICS_ID
 export const CACHE_BUSTER = import.meta.env.VITE_CACHE_BUSTER
 export const LASTMOD = import.meta.env.VITE_LASTMOD
+export const API_URL = import.meta.env.VITE_API_URL

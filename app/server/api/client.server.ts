@@ -1,6 +1,5 @@
+import { API_URL } from '~/config/env'
 import { getErrorMessage } from '~/utils/error'
-
-const API_URL = process.env.API_URL || 'https://afterworks.g.kuroco.app/rcms-api/7'
 
 type ApiSuccess<T> = {
   success: true

@@ -1,7 +1,8 @@
+import { randomBytes } from 'node:crypto'
 import { PassThrough } from 'stream'
 
 import { createReadableStreamFromReadable } from '@react-router/node'
-import { createInstance } from 'i18next'
+import { createInstance, type i18n as i18nType } from 'i18next'
 import { isbot } from 'isbot'
 import { renderToPipeableStream } from 'react-dom/server'
 import { I18nextProvider, initReactI18next } from 'react-i18next'
@@ -11,9 +12,13 @@ import { ServerRouter } from 'react-router'
 import i18next from './i18next.server'
 
 import { i18n } from '~/i18n'
+import { NonceProvider } from '~/providers/NonceProvider'
+import { buildCspDirective } from '~/server/csp.server'
+
 // import { resolve } from 'node:path'
 
 const ABORT_DELAY = 5000
+const isDevelopment = process.env.NODE_ENV !== 'production'
 
 export default async function handleRequest(
   request: Request,
@@ -21,8 +26,6 @@ export default async function handleRequest(
   responseHeaders: Headers,
   reactRouterContext: EntryContext
 ) {
-  const callbackName = isbot(request.headers.get('user-agent')) ? 'onAllReady' : 'onShellReady'
-
   const instance = createInstance()
   const lng = await i18next.getLocale(request)
   const ns = i18next.getRouteNamespaces(reactRouterContext)
@@ -33,23 +36,51 @@ export default async function handleRequest(
     ns,
   })
 
-  return new Promise((resolve, reject) => {
-    let didError = false
+  // Security headers
+  responseHeaders.set('X-Content-Type-Options', 'nosniff')
+  responseHeaders.set('X-Frame-Options', 'DENY')
 
+  // HSTS and CSP are production-only (skip in development to avoid localhost issues and Vite HMR issues)
+  const nonce = randomBytes(16).toString('base64')
+  if (!isDevelopment) {
+    responseHeaders.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload')
+    responseHeaders.set('Content-Security-Policy', buildCspDirective(nonce))
+  }
+
+  return isbot(request.headers.get('user-agent'))
+    ? handleBotRequest(request, responseStatusCode, responseHeaders, reactRouterContext, instance, nonce)
+    : handleBrowserRequest(request, responseStatusCode, responseHeaders, reactRouterContext, instance, nonce)
+}
+
+function handleBotRequest(
+  request: Request,
+  responseStatusCode: number,
+  responseHeaders: Headers,
+  reactRouterContext: EntryContext,
+  i18n: i18nType,
+  nonce: string
+) {
+  return new Promise((resolve, reject) => {
+    let shellRendered = false
     const { pipe, abort } = renderToPipeableStream(
-      <I18nextProvider i18n={instance}>
-        <ServerRouter context={reactRouterContext} url={request.url} />
+      <I18nextProvider i18n={i18n}>
+        <NonceProvider nonce={nonce}>
+          <ServerRouter context={reactRouterContext} url={request.url} nonce={nonce} />
+        </NonceProvider>
       </I18nextProvider>,
       {
-        [callbackName]: () => {
+        nonce,
+        onAllReady() {
+          shellRendered = true
           const body = new PassThrough()
           const stream = createReadableStreamFromReadable(body)
+
           responseHeaders.set('Content-Type', 'text/html')
 
           resolve(
             new Response(stream, {
               headers: responseHeaders,
-              status: didError ? 500 : responseStatusCode,
+              status: responseStatusCode,
             })
           )
 
@@ -59,9 +90,60 @@ export default async function handleRequest(
           reject(error)
         },
         onError(error: unknown) {
-          didError = true
+          responseStatusCode = 500
+          if (shellRendered) {
+            console.error(error)
+          }
+        },
+      }
+    )
 
-          console.error(error)
+    setTimeout(abort, ABORT_DELAY)
+  })
+}
+
+function handleBrowserRequest(
+  request: Request,
+  responseStatusCode: number,
+  responseHeaders: Headers,
+  reactRouterContext: EntryContext,
+  i18n: i18nType,
+  nonce: string
+) {
+  return new Promise((resolve, reject) => {
+    let shellRendered = false
+    const { pipe, abort } = renderToPipeableStream(
+      <I18nextProvider i18n={i18n}>
+        <NonceProvider nonce={nonce}>
+          <ServerRouter context={reactRouterContext} url={request.url} nonce={nonce} />
+        </NonceProvider>
+      </I18nextProvider>,
+      {
+        nonce,
+        onShellReady() {
+          shellRendered = true
+          const body = new PassThrough()
+          const stream = createReadableStreamFromReadable(body)
+
+          responseHeaders.set('Content-Type', 'text/html')
+
+          resolve(
+            new Response(stream, {
+              headers: responseHeaders,
+              status: responseStatusCode,
+            })
+          )
+
+          pipe(body)
+        },
+        onShellError(error: unknown) {
+          reject(error)
+        },
+        onError(error: unknown) {
+          responseStatusCode = 500
+          if (shellRendered) {
+            console.error(error)
+          }
         },
       }
     )

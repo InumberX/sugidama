@@ -63,3 +63,9 @@ export const KeyboardArrowUp: Story = {
     variant: 'keyboardArrowUp',
   },
 }
+
+export const Error: Story = {
+  args: {
+    variant: 'error',
+  },
+}

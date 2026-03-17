@@ -8,6 +8,7 @@ import { BaseAlert } from '~/components/ui/alerts/BaseAlert'
 import { ArticleCardList, type ArticleCardListProps } from '~/components/ui/lists/ArticleCardList'
 import { BasePagination, type BasePaginationProps } from '~/components/ui/paginations/BasePagination'
 import { ArticleCardListSkeleton } from '~/components/ui/skeletons/ArticleCardListSkeleton'
+import { ReplaceNewLineText } from '~/components/ui/typographies/ReplaceNewLineText/index'
 import { DRINKS_PAGE_SIZE } from '~/config/consts'
 import { usePaginationScroll } from '~/hooks/usePaginationScroll'
 
@@ -79,7 +80,7 @@ export const SearchDrinksResult = ({
                           <p className={styles.searchDrinksResultNoResult_title}>
                             {tPage('searchDrinksResult.noResult.title')}
                             <br />
-                            {tPage('searchDrinksResult.noResult.description')}
+                            <ReplaceNewLineText text={tPage('searchDrinksResult.noResult.description')} />
                           </p>
                         </div>
                       </div>

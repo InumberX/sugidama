@@ -46,7 +46,7 @@ export const SearchDrinksResult = ({
             return (
               <BaseAlert
                 color="error"
-                title={tPage('error.getSearchResult')}
+                title={tPage('error.getSearchDrinksResult')}
                 description={`${tCommon('error.errorMessageTitle')}${data?.error}`}
               />
             )

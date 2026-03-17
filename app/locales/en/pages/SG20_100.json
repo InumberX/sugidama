@@ -1,11 +1,11 @@
 {
-  "searchResult": {
+  "searchDrinksResult": {
     "noResult": {
       "title": "No search results.",
       "description": "No search results.\nPlease set the conditions again and search again."
     }
   },
   "error": {
-    "getSearchResult": "Failed to get search results"
+    "getSearchDrinksResult": "Failed to get search results"
   }
 }

@@ -1,0 +1,11 @@
+{
+  "searchResult": {
+    "noResult": {
+      "title": "検索結果がありません。",
+      "description": "検索結果は0件です。\n条件を再度設定して検索してください。"
+    }
+  },
+  "error": {
+    "getSearchResult": "検索結果の取得に失敗しました"
+  }
+}

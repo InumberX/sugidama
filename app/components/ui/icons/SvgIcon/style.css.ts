@@ -122,3 +122,12 @@ export const svgIcon__moreHoriz = style({
     },
   },
 })
+
+export const svgIcon__error = style({
+  '@layer': {
+    [cssLayerComponentUiLow]: {
+      WebkitMaskImage: `url(/assets/img/icon-error.svg?${CACHE_BUSTER})`,
+      maskImage: `url(/assets/img/icon-error.svg?${CACHE_BUSTER})`,
+    },
+  },
+})

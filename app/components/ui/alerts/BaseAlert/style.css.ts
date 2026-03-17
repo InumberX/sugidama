@@ -97,25 +97,6 @@ export const baseAlertIcon_icon = style({
   },
 })
 
-export const baseAlert_contents = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: {
-      gridArea: 'contents',
-      marginBlockStart: getClampPx(8, 16),
-      display: 'grid',
-      gridTemplateColumns: 'repeat(1, 1fr)',
-      gap: getClampPx(4, 8),
-
-      '@container': {
-        [getContainerQuery('sm')]: {
-          marginBlockStart: getClampPx(2, 3),
-          marginInlineStart: getClampPx(8, 16),
-        },
-      },
-    },
-  },
-})
-
 export const baseAlert_title = style({
   '@layer': {
     [cssLayerComponentUiLow]: {

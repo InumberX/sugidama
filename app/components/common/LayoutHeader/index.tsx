@@ -41,7 +41,7 @@ export const LayoutHeader = ({ className, isLogoTitle, lang }: Props) => {
   ]
 
   return (
-    <header className={[styles.layoutHeader, className].filter(Boolean).join(' ')}>
+    <header className={[styles.layoutHeader, 'JsHeader', className].filter(Boolean).join(' ')}>
       <div className={styles.layoutHeader_wrapper}>
         <LayoutInner>
           <div className={styles.layoutHeader_container}>

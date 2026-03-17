@@ -17,84 +17,108 @@ const changeColorHexToRgb = (hex: string) => {
     .join(', ')
 }
 
-export const cssVariables = createGlobalTheme(':root', {
-  // Define colors to be used
-  color: {
-    font: {
-      base: {
-        hex: '#2c2c2c',
-        rgb: changeColorHexToRgb('#2c2c2c'),
-      },
-      light: {
-        hex: '#fff',
-        rgb: changeColorHexToRgb('#fff'),
-      },
-      primary: {
-        hex: '#a2beed',
-        rgb: changeColorHexToRgb('#a2beed'),
-      },
-      primaryDark: {
-        hex: '#76a3ed',
-        rgb: changeColorHexToRgb('#76a3ed'),
-      },
-      subDark: {
-        hex: '#858585',
-        rgb: changeColorHexToRgb('#858585'),
-      },
-      mark: {
-        hex: '#fff',
-        rgb: changeColorHexToRgb('#fff'),
-      },
-      placeholder: {
-        hex: '#bebebe',
-        rgb: changeColorHexToRgb('#bebebe'),
-      },
+export const cssVariableColors = {
+  font: {
+    base: {
+      hex: '#2c2c2c',
+      rgb: changeColorHexToRgb('#2c2c2c'),
     },
-    background: {
-      body: {
-        hex: '#fff',
-        rgb: changeColorHexToRgb('#fff'),
-      },
-      light: {
-        hex: '#fff',
-        rgb: changeColorHexToRgb('#fff'),
-      },
-      subDark: {
-        hex: '#858585',
-        rgb: changeColorHexToRgb('#858585'),
-      },
-      subLight: {
-        hex: '#efefef',
-        rgb: changeColorHexToRgb('#efefef'),
-      },
-      mark: {
-        hex: '#000',
-        rgb: changeColorHexToRgb('#000'),
-      },
+    light: {
+      hex: '#fff',
+      rgb: changeColorHexToRgb('#fff'),
     },
-    border: {
-      sub: {
-        hex: '#bebebe',
-        rgb: changeColorHexToRgb('#bebebe'),
-      },
-      subDark: {
-        hex: '#858585',
-        rgb: changeColorHexToRgb('#858585'),
-      },
+    primary: {
+      hex: '#a2beed',
+      rgb: changeColorHexToRgb('#a2beed'),
     },
-    gradation: {
-      primary: 'oklch(80.6% 0.071 260.6) 0, oklch(87.7% 0.084 336.7) 100%',
-      primaryDark: 'oklch(76.3% 0.11 260.1) 0, oklch(80.7% 0.153 338.2) 100%',
+    primaryDark: {
+      hex: '#76a3ed',
+      rgb: changeColorHexToRgb('#76a3ed'),
     },
-    // Please use the following sites for key names
-    // https://chir.ag/projects/name-that-color/
-    util: {
-      black: {
-        hex: '#000',
-        rgb: changeColorHexToRgb('#000'),
-      },
+    subDark: {
+      hex: '#858585',
+      rgb: changeColorHexToRgb('#858585'),
+    },
+    mark: {
+      hex: '#fff',
+      rgb: changeColorHexToRgb('#fff'),
+    },
+    placeholder: {
+      hex: '#bebebe',
+      rgb: changeColorHexToRgb('#bebebe'),
     },
   },
+  background: {
+    body: {
+      hex: '#fff',
+      rgb: changeColorHexToRgb('#fff'),
+    },
+    light: {
+      hex: '#fff',
+      rgb: changeColorHexToRgb('#fff'),
+    },
+    subDark: {
+      hex: '#858585',
+      rgb: changeColorHexToRgb('#858585'),
+    },
+    subLight: {
+      hex: '#efefef',
+      rgb: changeColorHexToRgb('#efefef'),
+    },
+    mark: {
+      hex: '#000',
+      rgb: changeColorHexToRgb('#000'),
+    },
+    success: {
+      hex: '#35c379',
+      rgb: changeColorHexToRgb('#35c379'),
+    },
+    successLight: {
+      hex: '#e3f9ed',
+      rgb: changeColorHexToRgb('#e3f9ed'),
+    },
+    error: {
+      hex: '#f44336',
+      rgb: changeColorHexToRgb('#f44336'),
+    },
+    errorLight: {
+      hex: '#f7e3e1',
+      rgb: changeColorHexToRgb('#f7e3e1'),
+    },
+  },
+  border: {
+    sub: {
+      hex: '#bebebe',
+      rgb: changeColorHexToRgb('#bebebe'),
+    },
+    subDark: {
+      hex: '#858585',
+      rgb: changeColorHexToRgb('#858585'),
+    },
+  },
+  gradation: {
+    primary: 'oklch(80.6% 0.071 260.6) 0, oklch(87.7% 0.084 336.7) 100%',
+    primaryDark: 'oklch(76.3% 0.11 260.1) 0, oklch(80.7% 0.153 338.2) 100%',
+  },
+  // Please use the following sites for key names
+  // https://chir.ag/projects/name-that-color/
+  util: {
+    black: {
+      hex: '#000',
+      rgb: changeColorHexToRgb('#000'),
+    },
+  },
+  skeleton: {
+    sub: {
+      hex: '#e7e7e7',
+      rgb: changeColorHexToRgb('#e7e7e7'),
+    },
+  },
+} as const
+
+export const cssVariables = createGlobalTheme(':root', {
+  // Define colors to be used
+  color: cssVariableColors,
   shadow: {},
   font: {
     family: {

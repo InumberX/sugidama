@@ -1,4 +1,4 @@
-type List = {
+export type Drink = {
   topics_id: number
   ymd: Date
   contents_type: number
@@ -96,6 +96,6 @@ type PageInfo = {
 export type Drinks = {
   errors: string[]
   messages: string[]
-  list: List[]
+  list: Drink[]
   pageInfo: PageInfo
 }

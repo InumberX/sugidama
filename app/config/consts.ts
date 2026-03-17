@@ -10,6 +10,11 @@ export const BASE_DESCRIPTION_EN =
   'This site records the delicious sake I have drunk so far, based on my own judgment and prejudice. It introduces brands, manufacturers, and characteristics of sake, and if you are interested in a particular sake, you can also view the sales site.'
 export const BASE_TITLE_NOTE_EN = 'Brand, Manufacturer, and Taste of Sake'
 
+// Timezone constant for Japan Standard Time (JST)
+export const JST_TIMEZONE_OFFSET = '+09:00'
+
+export const DRINKS_PAGE_SIZE = 12
+
 export const LANG = {
   JA: 'ja',
   EN: 'en',

@@ -12,9 +12,9 @@ export const ArticleCardList = ({ className, items }: ArticleCardListProps) => {
     <div className={[styles.articleCardList, className].filter(Boolean).join(' ')}>
       <div className={styles.articleCardList_items}>
         {items.map((item, i) => (
-          <article key={i} className={styles.articleCardList_item}>
+          <div key={i} className={styles.articleCardList_item}>
             <ArticleCard {...item} />
-          </article>
+          </div>
         ))}
       </div>
     </div>

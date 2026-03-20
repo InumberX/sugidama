@@ -1,7 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react-vite'
 import { createRoutesStub } from 'react-router'
 
 import { LayoutFooter } from '~/components/common/LayoutFooter'
+
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta<typeof LayoutFooter> = {
   title: 'components/common/LayoutFooter',

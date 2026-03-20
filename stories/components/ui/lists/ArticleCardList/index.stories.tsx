@@ -1,7 +1,8 @@
+import { ArticleCardList } from '~/components/ui/lists/ArticleCardList'
+
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import type { ArticleCardProps } from '~/components/ui/cards/ArticleCard'
-import { ArticleCardList } from '~/components/ui/lists/ArticleCardList'
 
 const meta: Meta<typeof ArticleCardList> = {
   title: 'components/ui/lists/ArticleCardList',

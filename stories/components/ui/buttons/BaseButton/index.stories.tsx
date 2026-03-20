@@ -1,7 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react-vite'
 import { createRoutesStub } from 'react-router'
 
 import { BaseButton } from '~/components/ui/buttons/BaseButton'
+
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta<typeof BaseButton> = {
   title: 'components/ui/buttons/BaseButton',

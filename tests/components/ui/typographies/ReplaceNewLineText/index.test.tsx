@@ -1,8 +1,9 @@
-import type { RenderResult } from '@testing-library/react'
 import { render, cleanup } from '@testing-library/react'
 import { describe, afterEach, beforeEach, test, expect } from 'vitest'
 
 import { ReplaceNewLineText } from '~/components/ui/typographies/ReplaceNewLineText'
+
+import type { RenderResult } from '@testing-library/react'
 
 describe('ReplaceNewLineText', () => {
   let result: RenderResult

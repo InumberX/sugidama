@@ -2,8 +2,9 @@ import { render, type RenderResult, cleanup, fireEvent } from '@testing-library/
 import { MemoryRouter } from 'react-router'
 import { describe, vi, beforeEach, afterEach, test, expect } from 'vitest'
 
-import type { ArticleCardProps } from '~/components/ui/cards/ArticleCard'
 import { ArticleCardList } from '~/components/ui/lists/ArticleCardList'
+
+import type { ArticleCardProps } from '~/components/ui/cards/ArticleCard'
 
 describe('ArticleCardList', () => {
   let result: RenderResult

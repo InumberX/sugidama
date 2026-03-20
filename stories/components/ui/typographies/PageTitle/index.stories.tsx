@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react-vite'
-
 import { PageTitle } from '~/components/ui/typographies/PageTitle'
+
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta<typeof PageTitle> = {
   title: 'components/ui/typographies/PageTitle',

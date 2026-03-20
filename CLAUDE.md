@@ -122,5 +122,7 @@ Accessed in app via `app/config/env.ts` and Vite's `import.meta.env.VITE_*` patt
 - **Git Worktree**: Special handling in `vite.config.ts` to skip warmup and relax strict FS mode
 - **Bot handling**: Server entry uses `isbot` to optimize rendering strategy (`onAllReady` vs `onShellReady`)
 - **Google Analytics**: Conditionally loaded in `app/root.tsx` based on `GOOGLE_ANALYTICS_ID`, tracked via `app/utils/gtags.client.ts`
-- **Import ordering**: ESLint enforces import ordering via `eslint-plugin-import-x` with alphabetical sorting and newlines between groups
+- **Linter**: Uses oxlint (Rust-based, config in `.oxlintrc.json`) instead of ESLint
+- **Formatter**: Uses oxfmt (Rust-based, config in `.oxfmtrc.json`) instead of Prettier
+- **Import ordering**: oxfmt enforces import ordering via `sortImports` with newlines between groups
 - **API types**: Generated using [quicktype](https://app.quicktype.io) from Kuroco CMS JSON responses, saved to `app/types/`

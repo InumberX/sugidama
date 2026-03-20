@@ -1,7 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react-vite'
 import { createRoutesStub } from 'react-router'
 
 import { ArticleCard, type ArticleCardProps } from '~/components/ui/cards/ArticleCard'
+
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta<typeof ArticleCard> = {
   title: 'components/ui/cards/ArticleCard',

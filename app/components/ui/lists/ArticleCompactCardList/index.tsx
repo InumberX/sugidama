@@ -1,6 +1,6 @@
-import * as styles from './style.css'
-
 import { ArticleCompactCard, type ArticleCompactCardProps } from '~/components/ui/cards/ArticleCompactCard'
+
+import * as styles from './style.css'
 
 type Props = {
   className?: string

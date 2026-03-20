@@ -1,8 +1,8 @@
 import { Outlet } from 'react-router'
 
-import type { Route } from './+types/route'
-
 import { getDrinksDetail } from '~/server/api/drinks.server'
+
+import type { Route } from './+types/route'
 
 export async function loader(args: Route.LoaderArgs) {
   const { params } = args

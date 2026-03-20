@@ -3,9 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { redirect, data } from 'react-router'
 import { Links, Meta, Outlet, ScrollRestoration, Scripts, useLocation } from 'react-router'
 
-import type { Route } from './+types/root'
-import * as styles from './root.css'
-
 import { LayoutPortal } from '~/components/common/LayoutPortal'
 import { LANG } from '~/config/consts'
 import { GOOGLE_ANALYTICS_ID } from '~/config/env'
@@ -19,6 +16,10 @@ import {
 } from '~/server/csrf.server'
 import * as gtag from '~/utils/gtags.client'
 import { getLang } from '~/utils/locale'
+
+import * as styles from './root.css'
+
+import type { Route } from './+types/root'
 
 export const handle = {
   i18n: 'common',

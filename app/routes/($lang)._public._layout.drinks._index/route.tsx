@@ -4,10 +4,6 @@ import { useRef } from 'react'
 import { type MetaFunction, useNavigation, useSearchParams, Form } from 'react-router'
 import { z } from 'zod'
 
-import type { Route } from './+types/route'
-import { SearchDrinksResult, type SearchDrinksResultData } from './_components/SearchDrinksResult'
-import * as styles from './style.css'
-
 import { LayoutInner } from '~/components/ui/layouts/LayoutInner'
 import { LayoutPageWrapper } from '~/components/ui/layouts/LayoutPageWrapper'
 import { PageTitle } from '~/components/ui/typographies/PageTitle'
@@ -17,6 +13,11 @@ import { convertDrinksToArticleCardProps } from '~/utils/article'
 import { parseNumberParam } from '~/utils/loader-guards.server'
 import { getLang } from '~/utils/locale'
 import { getMetadata } from '~/utils/meta'
+
+import { SearchDrinksResult, type SearchDrinksResultData } from './_components/SearchDrinksResult'
+import * as styles from './style.css'
+
+import type { Route } from './+types/route'
 
 const page = PAGES.SG20_100
 

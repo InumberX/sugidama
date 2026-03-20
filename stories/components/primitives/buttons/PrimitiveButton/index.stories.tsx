@@ -1,7 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react-vite'
 import { createRoutesStub } from 'react-router'
 
 import { PrimitiveButton } from '~/components/primitives/buttons/PrimitiveButton'
+
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta<typeof PrimitiveButton> = {
   title: 'components/primitives/buttons/PrimitiveButton',

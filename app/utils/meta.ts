@@ -1,10 +1,11 @@
+import { LANG } from '~/config/consts'
+import { NO_INDEX, SITE_URL } from '~/config/env'
+import { getSiteInfo } from '~/utils/locale'
+
 import type { MetaDescriptor } from 'react-router'
 import type { MetaArgs } from 'react-router'
 
 import type { Route } from '~/+types/root'
-import { LANG } from '~/config/consts'
-import { NO_INDEX, SITE_URL } from '~/config/env'
-import { getSiteInfo } from '~/utils/locale'
 
 type Props = {
   args: MetaArgs

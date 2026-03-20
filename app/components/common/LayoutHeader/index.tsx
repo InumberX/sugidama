@@ -1,11 +1,11 @@
 import { Link } from 'react-router'
 
-import * as styles from './style.css'
-
 import { SvgIcon, type SvgIconVariant } from '~/components/ui/icons/SvgIcon'
 import { LayoutInner } from '~/components/ui/layouts/LayoutInner'
 import { CACHE_BUSTER } from '~/config/env'
 import { PAGES } from '~/config/paths'
+
+import * as styles from './style.css'
 
 type Props = {
   className?: string

@@ -1,6 +1,6 @@
-import * as styles from './style.css'
-
 import { BaseTag, type BaseTagProps } from '~/components/ui/tags/BaseTag'
+
+import * as styles from './style.css'
 
 type BaseTagListProps = {
   className?: string

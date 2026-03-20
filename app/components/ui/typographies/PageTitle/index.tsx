@@ -1,8 +1,8 @@
 import { type ReactNode, type JSX } from 'react'
 
-import * as styles from './style.css'
-
 import { LayoutInner, type LayoutInnerProps } from '~/components/ui/layouts/LayoutInner'
+
+import * as styles from './style.css'
 
 type PageTitleContentsProps = {
   title: ReactNode

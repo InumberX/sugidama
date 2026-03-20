@@ -1,19 +1,18 @@
-import { randomBytes } from 'node:crypto'
-import { PassThrough } from 'stream'
-
 import { createReadableStreamFromReadable } from '@react-router/node'
 import { createInstance, type i18n as i18nType } from 'i18next'
 import { isbot } from 'isbot'
+import { randomBytes } from 'node:crypto'
 import { renderToPipeableStream } from 'react-dom/server'
 import { I18nextProvider, initReactI18next } from 'react-i18next'
 import { type EntryContext } from 'react-router'
 import { ServerRouter } from 'react-router'
-
-import i18next from './i18next.server'
+import { PassThrough } from 'stream'
 
 import { i18n } from '~/i18n'
 import { NonceProvider } from '~/providers/NonceProvider'
 import { buildCspDirective } from '~/server/csp.server'
+
+import i18next from './i18next.server'
 
 // import { resolve } from 'node:path'
 

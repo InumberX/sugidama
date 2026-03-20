@@ -2,8 +2,6 @@ import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Await } from 'react-router'
 
-import * as styles from './style.css'
-
 import { BaseAlert } from '~/components/ui/alerts/BaseAlert'
 import { ArticleCardList, type ArticleCardListProps } from '~/components/ui/lists/ArticleCardList'
 import { BasePagination, type BasePaginationProps } from '~/components/ui/paginations/BasePagination'
@@ -11,6 +9,8 @@ import { ArticleCardListSkeleton } from '~/components/ui/skeletons/ArticleCardLi
 import { ReplaceNewLineText } from '~/components/ui/typographies/ReplaceNewLineText/index'
 import { DRINKS_PAGE_SIZE } from '~/config/consts'
 import { usePaginationScroll } from '~/hooks/usePaginationScroll'
+
+import * as styles from './style.css'
 
 export type SearchDrinksResultData = {
   success: boolean

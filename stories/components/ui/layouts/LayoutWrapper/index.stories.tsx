@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react-vite'
-
 import { LayoutWrapper } from '~/components/ui/layouts/LayoutWrapper'
+
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta<typeof LayoutWrapper> = {
   title: 'components/ui/layouts/LayoutWrapper',

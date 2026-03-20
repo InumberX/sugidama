@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react-vite'
-
 import { BaseTag } from '~/components/ui/tags/BaseTag'
+
+import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta<typeof BaseTag> = {
   title: 'components/ui/tags/BaseTag',

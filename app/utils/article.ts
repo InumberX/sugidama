@@ -1,8 +1,9 @@
 import { type ArticleCardProps } from '~/components/ui/cards/ArticleCard'
 import { LANG } from '~/config/consts'
 import { PAGES } from '~/config/paths'
-import type { Drink } from '~/types/api/drinks'
 import { format } from '~/utils/date'
+
+import type { Drink } from '~/types/api/drinks'
 
 export const convertDrinksToArticleCardProps = ({ lang, drink }: { lang: string; drink: Drink }): ArticleCardProps => {
   return {

@@ -2,12 +2,11 @@ import { Preview } from '@storybook/react-vite'
 import { useEffect } from 'react'
 import { I18nextProvider } from 'react-i18next'
 
+import { LANG } from '~/config/consts'
+
 import { LayoutPortal } from '../app/components/common/LayoutPortal'
 import * as styles from '../app/root.css'
-
 import i18n from './i18n'
-
-import { LANG } from '~/config/consts'
 
 export const handle = {
   i18n: 'common',

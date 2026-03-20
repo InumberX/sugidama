@@ -1,11 +1,11 @@
 import { type MetaFunction } from 'react-router'
 
-import type { Route } from './+types/route'
-
 import { LayoutPageWrapper } from '~/components/ui/layouts/LayoutPageWrapper'
 import { PAGES } from '~/config/paths'
 import { getLang } from '~/utils/locale'
 import { getMetadata } from '~/utils/meta'
+
+import type { Route } from './+types/route'
 
 const page = PAGES.SG10_100
 

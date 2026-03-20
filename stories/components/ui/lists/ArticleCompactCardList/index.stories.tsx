@@ -1,7 +1,8 @@
+import { ArticleCompactCardList } from '~/components/ui/lists/ArticleCompactCardList'
+
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 import type { ArticleCompactCardProps } from '~/components/ui/cards/ArticleCompactCard'
-import { ArticleCompactCardList } from '~/components/ui/lists/ArticleCompactCardList'
 
 const meta: Meta<typeof ArticleCompactCardList> = {
   title: 'components/ui/lists/ArticleCompactCardList',

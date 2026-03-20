@@ -1,12 +1,12 @@
 import { type MetaFunction, useRouteLoaderData } from 'react-router'
 
-import type { Route } from './+types/route'
-
 import { LayoutPageWrapper } from '~/components/ui/layouts/LayoutPageWrapper'
 import { PAGES } from '~/config/paths'
 import { loader as drinkDetailLoader } from '~/routes/($lang)._public._layout.drinks.$drinkId/route'
 import { getLang } from '~/utils/locale'
 import { getMetadata } from '~/utils/meta'
+
+import type { Route } from './+types/route'
 
 const page = PAGES.SG20_101
 

@@ -62,7 +62,7 @@ export const InputText = ({
             <input
               {...inputProps}
               type={type}
-              name={name}
+              name={name ?? inputProps?.name}
               id={id ?? inputProps?.id}
               value={value}
               onChange={(event) => {

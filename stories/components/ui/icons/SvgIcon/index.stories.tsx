@@ -69,3 +69,9 @@ export const Error: Story = {
     variant: 'error',
   },
 }
+
+export const Replay: Story = {
+  args: {
+    variant: 'replay',
+  },
+}

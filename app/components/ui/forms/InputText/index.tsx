@@ -77,6 +77,7 @@ export const InputText = ({
               autoComplete={autoComplete}
               {...inputProps}
               key={id ?? inputProps?.key}
+              id={id ?? inputProps?.id}
               placeholder={placeholder}
               className={[styles.inputText_input, (!!errors || isError) && styles.inputText_input__error]
                 .filter(Boolean)

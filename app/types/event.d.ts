@@ -15,8 +15,10 @@ export type EventTypes = {
   onChangeTextarea: (event: React.ChangeEvent<HTMLTextAreaElement>, newValue: string) => void
   // input[type="checkbox"]のEvent型定義
   onChangeCheckbox: (event: React.ChangeEvent<HTMLInputElement>, newValue: string[]) => void
+  onClickCheckbox: (event: React.MouseEvent<HTMLInputElement, MouseEvent>, isChecked: boolean) => void
   // input[type="radio"]のEvent型定義
   onChangeRadio: (event: React.ChangeEvent<HTMLInputElement>, newValue: string) => void
+  onClickRadio: (event: React.MouseEvent<HTMLInputElement, MouseEvent>, isChecked: boolean) => void
   // selectのEvent型定義
   onChangeSelect: (event: React.ChangeEvent<HTMLSelectElement>, newValue: string) => void
   // editorのEvent型定義
@@ -31,6 +33,8 @@ export type EventTypes = {
   onkeypress: (event: React.KeyboardEvent<HTMLInputElement>) => void
   // FocusのEvent型定義
   onFocus: (event: React.FocusEvent<HTMLInputElement>) => void
+  // BlurのEvent型定義
+  onBlur: (event: React.FocusEvent<HTMLInputElement>) => void
   // SubmitのEvent型定義
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void
   // タブボタンのEvent型定義

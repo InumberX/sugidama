@@ -1,3 +1,4 @@
+import { forwardRef } from 'react'
 import { Form as ReactRouterForm, useRouteLoaderData } from 'react-router'
 
 import type { ComponentProps } from 'react'
@@ -21,14 +22,16 @@ export const CsrfHiddenInput = () => {
  * When JS is enabled, the fetch interceptor in entry.client.tsx handles CSRF headers.
  * When JS is disabled, native form submissions include the token via this hidden input.
  */
-export const Form = ({ children, ...props }: FormProps) => {
+export const Form = forwardRef<HTMLFormElement, FormProps>(({ children, ...props }, ref) => {
   const method = (props.method ?? 'GET').toUpperCase()
   const isNeedsCsrf = method !== 'GET'
 
   return (
-    <ReactRouterForm {...props}>
+    <ReactRouterForm {...props} ref={ref}>
       {isNeedsCsrf && <CsrfHiddenInput />}
       {children}
     </ReactRouterForm>
   )
-}
+})
+
+Form.displayName = 'Form'

@@ -45,7 +45,7 @@ export default defineConfig({
   },
   server: {
     // ホットリロードを有効したい時はコメントアウト
-    hmr: false,
+    // hmr: false,
     warmup: warmupConfig(),
     fs: {
       strict: !process.env.GIT_WORKTREE,

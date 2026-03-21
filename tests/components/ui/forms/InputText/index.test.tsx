@@ -2,7 +2,7 @@ import { render, type RenderResult, cleanup, fireEvent } from '@testing-library/
 import { MemoryRouter } from 'react-router'
 import { describe, vi, beforeEach, afterEach, test, expect } from 'vitest'
 
-import { InputText } from '~/components/ui/forms/InputText'
+import { InputText, type InputTextProps } from '~/components/ui/forms/InputText'
 
 describe('InputText', () => {
   let result: RenderResult
@@ -169,6 +169,86 @@ describe('InputText', () => {
       test('unit が出力されていない', () => {
         const unit = result.container.querySelector('[class*="inputText_unit"]')
         expect(unit).toBe(null)
+      })
+    })
+
+    describe('inputProps から name/id が引き継がれる場合', () => {
+      test('name 未指定時に inputProps の name が保持される', () => {
+        result = render(
+          <MemoryRouter>
+            <InputText
+              inputProps={
+                {
+                  key: 'test-key',
+                  id: 'test-id',
+                  name: 'conform-name',
+                  form: 'test-form',
+                } as InputTextProps['inputProps']
+              }
+            />
+          </MemoryRouter>
+        )
+        const input = result.container.querySelector('input')
+        expect(input?.name).toBe('conform-name')
+      })
+
+      test('name 指定時は inputProps の name より優先される', () => {
+        result = render(
+          <MemoryRouter>
+            <InputText
+              name="explicit-name"
+              inputProps={
+                {
+                  key: 'test-key',
+                  id: 'test-id',
+                  name: 'conform-name',
+                  form: 'test-form',
+                } as InputTextProps['inputProps']
+              }
+            />
+          </MemoryRouter>
+        )
+        const input = result.container.querySelector('input')
+        expect(input?.name).toBe('explicit-name')
+      })
+
+      test('id 未指定時に inputProps の id が保持される', () => {
+        result = render(
+          <MemoryRouter>
+            <InputText
+              inputProps={
+                {
+                  key: 'test-key',
+                  id: 'conform-id',
+                  name: 'test-name',
+                  form: 'test-form',
+                } as InputTextProps['inputProps']
+              }
+            />
+          </MemoryRouter>
+        )
+        const input = result.container.querySelector('input')
+        expect(input?.id).toBe('conform-id')
+      })
+
+      test('id 指定時は inputProps の id より優先される', () => {
+        result = render(
+          <MemoryRouter>
+            <InputText
+              id="explicit-id"
+              inputProps={
+                {
+                  key: 'test-key',
+                  id: 'conform-id',
+                  name: 'test-name',
+                  form: 'test-form',
+                } as InputTextProps['inputProps']
+              }
+            />
+          </MemoryRouter>
+        )
+        const input = result.container.querySelector('input')
+        expect(input?.id).toBe('explicit-id')
       })
     })
 

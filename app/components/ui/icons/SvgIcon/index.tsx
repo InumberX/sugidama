@@ -13,6 +13,7 @@ export type SvgIconVariant =
   | 'moreHoriz'
   | 'error'
   | 'replay'
+  | 'check'
 
 type Props = {
   className?: string

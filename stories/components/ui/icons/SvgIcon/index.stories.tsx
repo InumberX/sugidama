@@ -75,3 +75,9 @@ export const Replay: Story = {
     variant: 'replay',
   },
 }
+
+export const Check: Story = {
+  args: {
+    variant: 'check',
+  },
+}

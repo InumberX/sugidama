@@ -8,7 +8,7 @@ type FormProps = ComponentProps<typeof ReactRouterForm>
 
 /**
  * Hidden input that includes the CSRF token for native form submissions (JS-disabled).
- * Use inside fetcher.Form with method="post". The custom Form component includes this automatically.
+ * Use inside fetcher.Form with method="post". The custom Form component below includes this automatically for non-GET methods.
  */
 export const CsrfHiddenInput = () => {
   const rootData = useRouteLoaderData<typeof rootLoader>('root')

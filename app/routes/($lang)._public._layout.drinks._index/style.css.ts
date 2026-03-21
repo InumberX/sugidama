@@ -43,6 +43,7 @@ export const drinks_side = style({
       '@container': {
         [getContainerQuery('md')]: {
           borderInlineEnd: `1px solid ${cssVariables.color.border.sub.hex}`,
+          paddingInlineEnd: getClampPx(24, 40),
         },
       },
     },
@@ -53,6 +54,13 @@ export const drinks_result = style({
   '@layer': {
     [cssLayerComponentPage]: {
       gridArea: 'result',
+      marginBlockStart: 40,
+
+      '@container': {
+        [getContainerQuery('md')]: {
+          marginBlockStart: 0,
+        },
+      },
     },
   },
 })

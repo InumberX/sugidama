@@ -131,3 +131,12 @@ export const svgIcon__error = style({
     },
   },
 })
+
+export const svgIcon__replay = style({
+  '@layer': {
+    [cssLayerComponentUiLow]: {
+      WebkitMaskImage: `url(/assets/img/icon-replay.svg?${CACHE_BUSTER})`,
+      maskImage: `url(/assets/img/icon-replay.svg?${CACHE_BUSTER})`,
+    },
+  },
+})

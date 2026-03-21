@@ -79,7 +79,7 @@ export const InputText = ({
               key={id ?? inputProps?.key}
               id={id ?? inputProps?.id}
               placeholder={placeholder}
-              className={[styles.inputText_input, (!!errors || isError) && styles.inputText_input__error]
+              className={[styles.inputText_input, (Boolean(errors?.length) || isError) && styles.inputText_input__error]
                 .filter(Boolean)
                 .join(' ')}
               disabled={isDisabled}
@@ -89,7 +89,7 @@ export const InputText = ({
           {unit && <span className={styles.inputText_unit}>{unit}</span>}
         </label>
 
-        <TransitionFade isShow={!!errors} className={styles.inputTextErrorMessage}>
+        <TransitionFade isShow={Boolean(errors?.length)} className={styles.inputTextErrorMessage}>
           {errors &&
             errors.map((error, i) => {
               return <ErrorMessage key={i} text={error} />

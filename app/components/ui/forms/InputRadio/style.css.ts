@@ -4,7 +4,6 @@ import { getFontSize } from '~/styles/mixins/font.css'
 import { getMediaQuery } from '~/styles/mixins/mediaQuery.css'
 import { getTransition } from '~/styles/mixins/transition.css'
 import { cssVariables } from '~/styles/variables/cssVariables.css'
-import { fontCaption, fontSmall } from '~/styles/variables/font.css'
 import { cssLayerComponentUiMiddle } from '~/styles/variables/layers.css'
 
 export const inputRadio = style({
@@ -270,30 +269,8 @@ export const inputRadio_text = style({
   },
 })
 
-export const inputRadio_helperText = style({
-  '@layer': {
-    [cssLayerComponentUiMiddle]: {
-      ...fontCaption,
-      marginBlockStart: 4,
-      color: cssVariables.color.font.sub.hex,
-    },
-  },
-})
-
 export const inputRadioErrorMessage = style({
   '@layer': {
-    [cssLayerComponentUiMiddle]: {
-      ...fontSmall,
-      marginBlockStart: 4,
-      color: cssVariables.color.font.error.hex,
-    },
-  },
-})
-
-export const inputRadioErrorMessage_text = style({
-  '@layer': {
-    [cssLayerComponentUiMiddle]: {
-      display: 'block',
-    },
+    [cssLayerComponentUiMiddle]: {},
   },
 })

@@ -1,4 +1,4 @@
-import { useForm, getFormProps, getInputProps } from '@conform-to/react'
+import { useForm, getFormProps, getInputProps, getCollectionProps } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
 import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -11,11 +11,14 @@ import { LayoutPageWrapper } from '~/components/ui/layouts/LayoutPageWrapper'
 import { PageTitle } from '~/components/ui/typographies/PageTitle'
 import { PAGES } from '~/config/paths'
 import { getDrinks } from '~/server/api/drinks.server'
+import { convertError } from '~/server/api/error.server'
+import { getTagTaste } from '~/server/api/tags.server'
 import { convertDrinksToArticleCardProps } from '~/utils/article'
 import { parseNumberParam } from '~/utils/loader-guards.server'
 import { getLang } from '~/utils/locale'
 import { getMetadata } from '~/utils/meta'
 import { preprocessSearchKeyword } from '~/utils/search'
+import { convertTags } from '~/utils/tags'
 
 import { SearchDrinksForm } from './_components/SearchDrinksForm'
 import { SearchDrinksResult, type SearchDrinksResultData } from './_components/SearchDrinksResult'
@@ -27,6 +30,7 @@ const page = PAGES.SG20_100
 
 const searchDrinksSchema = z.object({
   keyword: z.string().trim().optional(),
+  taste: z.array(z.string().trim()).optional(),
   page: z.string().optional(),
 })
 
@@ -59,10 +63,22 @@ export async function loader(args: Route.LoaderArgs) {
     submit.value.keyword = preprocessSearchKeyword(submit.value.keyword)
   }
 
+  const [tagTasteResult] = await Promise.all([getTagTaste()])
+
+  if (!tagTasteResult.success) {
+    throw convertError(tagTasteResult)
+  }
+
+  const tagTaste = convertTags({
+    lang,
+    tagItems: tagTasteResult.data.list,
+  })
+
   const drinks: Promise<SearchDrinksResultData> = getDrinks({
     page: currentPage,
     ...(submit.status === 'success' && {
       keyword: submit.value.keyword,
+      tags: [...(submit.value.taste ? submit.value.taste.map((taste) => parseNumberParam(taste)) : [])],
     }),
   }).then((res) => {
     if (!res.success) {
@@ -80,6 +96,12 @@ export async function loader(args: Route.LoaderArgs) {
         convertDrinksToArticleCardProps({
           lang,
           drink,
+          tags: [
+            {
+              name: 'taste',
+              items: [...tagTaste],
+            },
+          ],
         })
       ),
       totalSize: res.data.pageInfo.totalCnt,
@@ -91,11 +113,12 @@ export async function loader(args: Route.LoaderArgs) {
     currentPage,
     drinks,
     submitValue: submit.status === 'success' ? submit.value : undefined,
+    tagTaste,
   }
 }
 
 export default function PageSG20_100({ loaderData }: Route.ComponentProps) {
-  const { lang, currentPage, submitValue } = loaderData
+  const { lang, currentPage, submitValue, tagTaste } = loaderData
   const drinks = loaderData.drinks as Promise<SearchDrinksResultData>
   const navigation = useNavigation()
   const navigate = useNavigate()
@@ -117,6 +140,7 @@ export default function PageSG20_100({ loaderData }: Route.ComponentProps) {
     },
     defaultValue: {
       keyword: submitValue?.keyword ? preprocessSearchKeyword(submitValue.keyword) : '',
+      taste: submitValue?.taste ?? [],
       page: String(currentPage ?? 1),
     },
   })
@@ -166,6 +190,22 @@ export default function PageSG20_100({ loaderData }: Route.ComponentProps) {
                       placeholder: tPage('searchDrinksForm.keyword.placeholder'),
                     },
                   }}
+                  searchConditions={[
+                    {
+                      name: tPage('searchDrinksForm.conditions.taste.name'),
+                      count: Array.isArray(fields.taste.value)
+                        ? fields.taste.value.length
+                        : (fields.taste.value && 1) || 0,
+                      checkbox: {
+                        errors: fields.taste.errors,
+                        inputProps: getCollectionProps(fields.taste, {
+                          type: 'checkbox',
+                          options: tagTaste.map((tag) => String(tag.id)),
+                        }),
+                        labels: tagTaste.map((tag) => tag.label),
+                      },
+                    },
+                  ]}
                 />
               </Form>
             </div>

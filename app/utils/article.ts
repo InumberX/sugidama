@@ -1,11 +1,28 @@
 import { type ArticleCardProps } from '~/components/ui/cards/ArticleCard'
+import { type BaseTagProps } from '~/components/ui/tags/BaseTag'
 import { LANG } from '~/config/consts'
 import { PAGES } from '~/config/paths'
 import { format } from '~/utils/date'
 
 import type { Drink } from '~/types/api/drinks'
+import type { ConvertTag } from '~/utils/tags'
 
-export const convertDrinksToArticleCardProps = ({ lang, drink }: { lang: string; drink: Drink }): ArticleCardProps => {
+export const convertDrinksToArticleCardProps = ({
+  lang,
+  drink,
+  tags,
+}: {
+  lang: string
+  drink: Drink
+  tags: {
+    name: string
+    items: ConvertTag[]
+  }[]
+}): ArticleCardProps => {
+  const drinksPageUrl = PAGES.SG20_100.getUrl({
+    lang,
+  })
+
   return {
     button: {
       url: PAGES.SG20_101.getUrl({
@@ -29,5 +46,21 @@ export const convertDrinksToArticleCardProps = ({ lang, drink }: { lang: string;
         alt: drink.thumbnail.desc,
       },
     }),
+    tags: [
+      ...(tags.length > 0 && drink.tags.length > 0
+        ? tags
+            .map((tag) => {
+              return tag.items
+                .filter((item) => drink.tags.some((drinkTag) => drinkTag.tag_id === item.id))
+                .map((item): BaseTagProps => {
+                  return {
+                    url: `${drinksPageUrl}?${tag.name}=${item.id}`,
+                    children: item.label,
+                  }
+                })
+            })
+            .flat()
+        : []),
+    ],
   }
 }

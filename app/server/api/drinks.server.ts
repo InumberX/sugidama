@@ -8,19 +8,29 @@ export const getDrinks = async ({
   pageSize = 12,
   orderQuery = 'inst_ymdhi=DESC',
   keyword,
+  tags,
 }: {
   page?: number
   pageSize?: number
   orderQuery?: string
   keyword?: string
+  tags?: number[]
 }): Promise<ApiResult<Drinks>> => {
   const searchParams = new URLSearchParams()
   searchParams.set('cnt', String(pageSize))
   searchParams.set('pageID', String(page))
   searchParams.set('order_query', orderQuery)
+
   if (keyword) {
     searchParams.set('topics_keyword', keyword)
   }
+
+  if (tags && tags.length > 0) {
+    tags.map((tag) => {
+      searchParams.set('tag_id', String(tag))
+    })
+  }
+
   const result = await apiClient<Drinks>({
     path: `/drinks?${searchParams.toString()}`,
   })

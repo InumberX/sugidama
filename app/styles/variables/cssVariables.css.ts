@@ -73,6 +73,10 @@ export const cssVariableColors = {
       hex: '#a2beed',
       rgb: changeColorHexToRgb('#a2beed'),
     },
+    primaryLight: {
+      hex: '#dfe7f4',
+      rgb: changeColorHexToRgb('#dfe7f4'),
+    },
     sub: {
       hex: '#bebebe',
       rgb: changeColorHexToRgb('#bebebe'),

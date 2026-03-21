@@ -15,6 +15,13 @@
     },
     "search": {
       "label": "検索"
+    },
+    "conditions": {
+      "show": "条件を追加",
+      "hide": "閉じる",
+      "taste": {
+        "name": "味わい"
+      }
     }
   },
   "error": {

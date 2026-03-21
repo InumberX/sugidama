@@ -15,6 +15,13 @@
     },
     "search": {
       "label": "Search"
+    },
+    "conditions": {
+      "show": "Add conditions",
+      "hide": "Close",
+      "taste": {
+        "name": "Taste"
+      }
     }
   },
   "error": {

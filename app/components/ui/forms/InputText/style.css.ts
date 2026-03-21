@@ -4,7 +4,6 @@ import { getFontSize } from '~/styles/mixins/font.css'
 import { getMediaQuery } from '~/styles/mixins/mediaQuery.css'
 import { getTransition } from '~/styles/mixins/transition.css'
 import { cssVariables } from '~/styles/variables/cssVariables.css'
-import { fontCaption } from '~/styles/variables/font.css'
 import { cssLayerComponentUiMiddle } from '~/styles/variables/layers.css'
 
 export const inputText = style({

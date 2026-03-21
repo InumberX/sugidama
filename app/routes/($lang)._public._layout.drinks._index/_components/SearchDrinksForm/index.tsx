@@ -48,10 +48,10 @@ export const SearchDrinksForm = ({ onReset, keyword }: SearchDrinksFormProps) =>
             </div>
           </div>
         </div>
-        <div className={styles.searchProjectsSideBottom}>
-          <div className={styles.searchProjectsSideBottom_items}>
-            <div className={styles.searchProjectsSideBottom_item}>
-              <BaseButton buttonType="submit" className={styles.searchProjectsSideBottom_button}>
+        <div className={styles.searchDrinksSideBottom}>
+          <div className={styles.searchDrinksSideBottom_items}>
+            <div className={styles.searchDrinksSideBottom_item}>
+              <BaseButton buttonType="submit" className={styles.searchDrinksSideBottom_button}>
                 {tPage('searchDrinksForm.search.label')}
               </BaseButton>
             </div>

@@ -88,7 +88,7 @@ export const searchDrinksFormKeyword = style({
   },
 })
 
-export const searchProjectsSideBottom = style({
+export const searchDrinksSideBottom = style({
   '@layer': {
     [cssLayerComponentPage]: {
       backgroundColor: cssVariables.color.background.light.hex,
@@ -109,7 +109,7 @@ export const searchProjectsSideBottom = style({
   },
 })
 
-export const searchProjectsSideBottom_items = style({
+export const searchDrinksSideBottom_items = style({
   '@layer': {
     [cssLayerComponentPage]: {
       display: 'grid',
@@ -125,17 +125,17 @@ export const searchProjectsSideBottom_items = style({
   },
 })
 
-export const searchProjectsSideBottom_item__conditions = style({
+export const searchDrinksSideBottom_item__conditions = style({
   '@layer': {
     [cssLayerComponentPage]: {},
   },
 })
 
-export const searchProjectsSideBottom_item = style({
+export const searchDrinksSideBottom_item = style({
   '@layer': {
     [cssLayerComponentPage]: {
       selectors: {
-        [`&${searchProjectsSideBottom_item__conditions}`]: {
+        [`&${searchDrinksSideBottom_item__conditions}`]: {
           '@container': {
             [getContainerQuery('md')]: {
               display: 'none',
@@ -147,7 +147,7 @@ export const searchProjectsSideBottom_item = style({
   },
 })
 
-export const searchProjectsSideBottom_button = style({
+export const searchDrinksSideBottom_button = style({
   '@layer': {
     [cssLayerComponentPage]: {
       inlineSize: '100%',

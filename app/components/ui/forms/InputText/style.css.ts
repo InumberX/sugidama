@@ -149,16 +149,6 @@ export const inputText_label = style({
   },
 })
 
-export const inputText_helperText = style({
-  '@layer': {
-    [cssLayerComponentUiMiddle]: {
-      ...fontCaption,
-      marginBlockStart: 4,
-      color: cssVariables.color.font.subDark.hex,
-    },
-  },
-})
-
 export const inputTextErrorMessage = style({
   '@layer': {
     [cssLayerComponentUiMiddle]: {},

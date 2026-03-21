@@ -74,29 +74,12 @@ export const InputText = ({
 
                 onChange(event, newValue)
               }}
-              onBlur={(event) => {
-                if (inputProps?.onBlur) {
-                  inputProps.onBlur(event)
-                }
-                if (onBlur) {
-                  onBlur(event)
-                }
-              }}
-              onFocus={(event) => {
-                if (inputProps?.onFocus) {
-                  inputProps.onFocus(event)
-                }
-                if (onFocus) {
-                  onFocus(event)
-                }
-              }}
-              autoComplete={autoComplete ?? inputProps?.autoComplete}
+              onBlur={onBlur}
+              onFocus={onFocus}
+              autoComplete={autoComplete}
               key={id ?? inputProps?.key}
               placeholder={placeholder}
-              className={[
-                styles.inputText_input,
-                (Boolean(errors?.length) || isError) && styles.inputText_input__error,
-              ]
+              className={[styles.inputText_input, (Boolean(errors?.length) || isError) && styles.inputText_input__error]
                 .filter(Boolean)
                 .join(' ')}
               disabled={isDisabled}

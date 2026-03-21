@@ -107,12 +107,14 @@ export default function RootRoute({ loaderData }: Route.ComponentProps) {
               <script
                 async
                 nonce={nonce || undefined}
+                suppressHydrationWarning
                 src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`}
               />
               <script
                 async
                 id="gtag-init"
                 nonce={nonce || undefined}
+                suppressHydrationWarning
                 dangerouslySetInnerHTML={{
                   __html: `
                     window.dataLayer = window.dataLayer || [];
@@ -136,6 +138,7 @@ export default function RootRoute({ loaderData }: Route.ComponentProps) {
           <Scripts nonce={nonce || undefined} />
           <script
             nonce={nonce || undefined}
+            suppressHydrationWarning
             dangerouslySetInnerHTML={{
               __html: `window.env = ${JSON.stringify({})}`,
             }}

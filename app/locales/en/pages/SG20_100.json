@@ -5,6 +5,18 @@
       "description": "No search results.\nPlease set the conditions again and search again."
     }
   },
+  "searchDrinksForm": {
+    "reset": {
+      "label": "Reset search conditions"
+    },
+    "keyword": {
+      "placeholder": "Enter keyword",
+      "title": "Keyword"
+    },
+    "search": {
+      "label": "Search"
+    }
+  },
   "error": {
     "getSearchDrinksResult": "Failed to get search results"
   }

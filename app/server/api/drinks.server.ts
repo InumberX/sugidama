@@ -7,12 +7,19 @@ export const getDrinks = async ({
   page = 1,
   pageSize = 12,
   orderQuery = 'inst_ymdhi=DESC',
+  keyword,
 }: {
   page?: number
   pageSize?: number
   orderQuery?: string
+  keyword?: string
 }): Promise<ApiResult<Drinks>> => {
-  const params = [`cnt=${pageSize}`, `pageID=${page}`, `order_query=${orderQuery}`].join('&')
+  const params = [
+    `cnt=${pageSize}`,
+    `pageID=${page}`,
+    `order_query=${orderQuery}`,
+    ...(keyword ? [`topics_keyword=${keyword}`] : []),
+  ].join('&')
   const result = await apiClient<Drinks>({
     path: `/drinks?${params}`,
   })

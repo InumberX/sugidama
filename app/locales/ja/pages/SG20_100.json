@@ -5,6 +5,18 @@
       "description": "検索結果は0件です。\n条件を再度設定して検索してください。"
     }
   },
+  "searchDrinksForm": {
+    "reset": {
+      "label": "検索条件をリセット"
+    },
+    "keyword": {
+      "placeholder": "キーワードを入力してください",
+      "title": "キーワード"
+    },
+    "search": {
+      "label": "検索"
+    }
+  },
   "error": {
     "getSearchDrinksResult": "検索結果の取得に失敗しました"
   }

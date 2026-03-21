@@ -35,6 +35,10 @@ export const cssVariableColors = {
       hex: '#76a3ed',
       rgb: changeColorHexToRgb('#76a3ed'),
     },
+    sub: {
+      hex: '#bebebe',
+      rgb: changeColorHexToRgb('#bebebe'),
+    },
     subDark: {
       hex: '#858585',
       rgb: changeColorHexToRgb('#858585'),
@@ -51,6 +55,10 @@ export const cssVariableColors = {
       hex: '#f44336',
       rgb: changeColorHexToRgb('#f44336'),
     },
+    required: {
+      hex: '#d42020',
+      rgb: changeColorHexToRgb('#d42020'),
+    },
   },
   background: {
     body: {
@@ -60,6 +68,10 @@ export const cssVariableColors = {
     light: {
       hex: '#fff',
       rgb: changeColorHexToRgb('#fff'),
+    },
+    sub: {
+      hex: '#bebebe',
+      rgb: changeColorHexToRgb('#bebebe'),
     },
     subDark: {
       hex: '#858585',

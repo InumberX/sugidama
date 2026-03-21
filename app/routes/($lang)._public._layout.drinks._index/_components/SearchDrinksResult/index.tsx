@@ -79,7 +79,8 @@ export const SearchDrinksResult = ({
                         <div className={styles.searchDrinksResultNoResult_container}>
                           <p className={styles.searchDrinksResultNoResult_title}>
                             {tPage('searchDrinksResult.noResult.title')}
-                            <br />
+                          </p>
+                          <p className={styles.searchDrinksResultNoResult_description}>
                             <ReplaceNewLineText text={tPage('searchDrinksResult.noResult.description')} />
                           </p>
                         </div>

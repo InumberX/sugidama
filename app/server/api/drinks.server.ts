@@ -9,14 +9,14 @@ export const getDrinks = async ({
   orderQuery = 'inst_ymdhi=DESC',
   keyword,
   tags,
-  drinkCategoryId,
+  drinkCategoryIds,
 }: {
   page?: number
   pageSize?: number
   orderQuery?: string
   keyword?: string
   tags?: number[]
-  drinkCategoryId?: number
+  drinkCategoryIds?: number[]
 }): Promise<ApiResult<Drinks>> => {
   const filter: string[] = []
   const searchParams = new URLSearchParams()
@@ -28,8 +28,9 @@ export const getDrinks = async ({
     filter.push(`keyword contains "${keyword}"`)
   }
 
-  if (drinkCategoryId) {
-    filter.push(`drink_category = ${drinkCategoryId}`)
+  if (drinkCategoryIds && drinkCategoryIds.length > 0) {
+    const drinkCategoryFilter = drinkCategoryIds.map((id) => `drink_category = "${id}"`).join(' OR ')
+    filter.push(drinkCategoryIds.length > 1 ? `(${drinkCategoryFilter})` : drinkCategoryFilter)
   }
 
   if (tags && tags.length > 0) {

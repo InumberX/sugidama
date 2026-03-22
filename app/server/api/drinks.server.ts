@@ -38,7 +38,7 @@ export const getDrinks = async ({
     })
   }
 
-  if (filter) {
+  if (filter.length > 0) {
     searchParams.set('filter', filter.join(' AND '))
   }
 

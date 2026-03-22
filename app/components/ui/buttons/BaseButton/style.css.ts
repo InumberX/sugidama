@@ -90,6 +90,16 @@ export const baseButton__contained = style({
   },
 })
 
+export const baseButton__outlined = style({
+  '@layer': {
+    [cssLayerComponentUiLow]: {
+      borderBlock: '1px solid',
+      borderInline: '1px solid',
+      boxShadow: 'none',
+    },
+  },
+})
+
 export const baseButton__primary = style({
   '@layer': {
     [cssLayerComponentUiLow]: {
@@ -110,6 +120,23 @@ export const baseButton__primary = style({
         [`&${baseButton__contained}:after`]: {
           background: `linear-gradient(90deg, ${cssVariables.color.gradation.primaryDark})`,
         },
+
+        [`&${baseButton__outlined}`]: {
+          backgroundColor: 'transparent',
+          color: cssVariables.color.font.primary.hex,
+          borderColor: cssVariables.color.border.primary.hex,
+        },
+      },
+
+      '@media': {
+        [getMediaQuery('hover')]: {
+          selectors: {
+            [`&${baseButton__outlined}:hover`]: {
+              backgroundColor: cssVariables.color.background.primary.hex,
+              color: cssVariables.color.font.light.hex,
+            },
+          },
+        },
       },
     },
   },
@@ -126,11 +153,6 @@ export const baseButton = style({
       justifyContent: 'center',
       position: 'relative',
       textAlign: 'start',
-      transition: getTransition([
-        {
-          property: 'opacity',
-        },
-      ]),
     },
   },
 })

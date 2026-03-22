@@ -6,7 +6,7 @@ type ApiSuccess<T> = {
   data: T
 }
 
-type ApiError = {
+export type ApiError = {
   success: false
   // null = ネットワークエラー等
   status: number | null

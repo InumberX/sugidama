@@ -6,7 +6,7 @@ import * as styles from './style.css'
 
 export type BaseButtonProps = PrimitiveButtonProps & {
   size?: 'large' | 'medium' | 'small'
-  variant?: 'contained' // | 'outlined'
+  variant?: 'contained' | 'outlined'
   color?: 'primary'
   leftElm?: ReactNode
   rightElm?: ReactNode

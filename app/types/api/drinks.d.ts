@@ -29,16 +29,11 @@ export type Drink = {
   contents_type_list: number[]
   description: string
   thumbnail: Thumbnail
-  main_visual_image: Thumbnail[]
-  main_visual_title: string[]
-  main_visual_title_en: string[]
+  main_visuals: MainVisual[]
   manufacturer: string
   abv: number
   category: Category
-  link_url: string[]
-  link_text: string[]
-  link_url_en: string[]
-  link_text_en: string[]
+  links: Link[]
   comment: string
   subject_en: string
   description_en: string
@@ -47,9 +42,22 @@ export type Drink = {
   comment_en: string
 }
 
-type Category = {
+export type Category = {
   key: string
   label: string
+}
+
+export type Link = {
+  link_text: string
+  link_text_en: string
+  link_url: string
+  link_url_en: string
+}
+
+type MainVisual = {
+  main_visual_image: Thumbnail
+  main_visual_title: string
+  main_visual_title_en: string
 }
 
 type Thumbnail = {

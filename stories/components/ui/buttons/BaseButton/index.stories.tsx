@@ -63,3 +63,48 @@ export const Disabled: Story = {
     },
   },
 }
+
+export const OutlinedLarge: Story = {
+  args: {
+    children: 'OUTLINED LARGE',
+    size: 'large',
+    variant: 'outlined',
+    onClick: () => {
+      alert('onClick')
+    },
+  },
+}
+
+export const OutlinedMedium: Story = {
+  args: {
+    children: 'OUTLINED MEDIUM',
+    size: 'medium',
+    variant: 'outlined',
+    onClick: () => {
+      alert('onClick')
+    },
+  },
+}
+
+export const OutlinedSmall: Story = {
+  args: {
+    children: 'OUTLINED SMALL',
+    size: 'small',
+    variant: 'outlined',
+    onClick: () => {
+      alert('onClick')
+    },
+  },
+}
+
+export const OutlinedDisabled: Story = {
+  args: {
+    children: 'OUTLINED DISABLED',
+    size: 'large',
+    variant: 'outlined',
+    isDisabled: true,
+    onClick: () => {
+      alert('onClick')
+    },
+  },
+}

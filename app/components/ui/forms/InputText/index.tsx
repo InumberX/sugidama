@@ -77,7 +77,7 @@ export const InputText = ({
               onBlur={onBlur}
               onFocus={onFocus}
               autoComplete={autoComplete}
-              key={id ?? inputProps?.key}
+              key={inputProps?.key ?? id}
               placeholder={placeholder}
               className={[styles.inputText_input, (Boolean(errors?.length) || isError) && styles.inputText_input__error]
                 .filter(Boolean)

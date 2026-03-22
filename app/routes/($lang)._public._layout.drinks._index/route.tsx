@@ -111,10 +111,6 @@ export async function loader(args: Route.LoaderArgs) {
           drink,
           tags: [
             {
-              name: 'drink',
-              items: [...tagDrink],
-            },
-            {
               name: 'taste',
               items: [...tagTaste],
             },

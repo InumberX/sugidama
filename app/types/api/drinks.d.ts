@@ -32,7 +32,7 @@ export type Drink = {
   main_visuals: MainVisual[]
   manufacturer: string
   abv: number
-  category: Category
+  drink_category: DrinkCategory
   links: Link[]
   comment: string
   subject_en: string
@@ -42,7 +42,7 @@ export type Drink = {
   comment_en: string
 }
 
-export type Category = {
+export type DrinkCategory = {
   key: string
   label: string
 }

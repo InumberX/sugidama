@@ -613,17 +613,19 @@ export const searchDrinksConditionsContentsBody_container = style({
 export const searchDrinksConditionsContentsBody_contents = style({
   '@layer': {
     [cssLayerComponentPage]: {
-      backgroundColor: cssVariables.color.background.body.hex,
+      backgroundColor: cssVariables.color.background.subLight.hex,
       maxBlockSize: 320,
       overflow: 'clip auto',
-      paddingBlock: getClampPx(16, 12),
-      paddingInline: getClampPx(16, 12),
+      paddingBlock: 16,
+      paddingInline: 16,
 
       '@container': {
         [getContainerQuery('md')]: {
           borderBlockStart: `1px solid ${cssVariables.color.border.sub.hex}`,
           maxBlockSize: 'none',
           overflow: 'visible',
+          paddingBlock: 12,
+          paddingInline: 12,
         },
       },
     },

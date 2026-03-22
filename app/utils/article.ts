@@ -11,6 +11,7 @@ export const convertDrinksToArticleCardProps = ({
   lang,
   drink,
   tags,
+  drinkCategories,
 }: {
   lang: string
   drink: Drink
@@ -18,6 +19,7 @@ export const convertDrinksToArticleCardProps = ({
     name: string
     items: ConvertTag[]
   }[]
+  drinkCategories: ConvertTag[]
 }): ArticleCardProps => {
   const drinksPageUrl = PAGES.SG20_100.getUrl({
     lang,
@@ -47,6 +49,16 @@ export const convertDrinksToArticleCardProps = ({
       },
     }),
     tags: [
+      ...(drinkCategories.length > 0
+        ? drinkCategories
+            .filter((category) => drink.drink_category.key === String(category.id))
+            .map((category) => {
+              return {
+                url: `${drinksPageUrl}?drink=${category.id}`,
+                children: category.label,
+              }
+            })
+        : []),
       ...(tags.length > 0 && drink.tags.length > 0
         ? tags
             .map((tag) => {

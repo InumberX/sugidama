@@ -79,11 +79,7 @@ export async function loader(args: Route.LoaderArgs) {
     ...(submit.status === 'success' && {
       keyword: submit.value.keyword,
       tags: [
-        ...(submit.value.taste
-          ? submit.value.taste
-              .map((taste) => parseInt(taste, 10))
-              .filter((n) => !isNaN(n))
-          : []),
+        ...(submit.value.taste ? submit.value.taste.map((taste) => parseInt(taste, 10)).filter((n) => !isNaN(n)) : []),
       ],
     }),
   }).then((res) => {

@@ -192,6 +192,65 @@ describe('InputCheckbox', () => {
         expect(labels[1]?.textContent).toBe('ラベル2')
       })
     })
+
+    describe('inputProps に defaultChecked を含む場合', () => {
+      test('defaultChecked の値が初期選択として反映される', () => {
+        const inputProps = [
+          { key: 'key-0', id: 'id-0', name: 'taste', value: '0', form: 'form-0', defaultChecked: true },
+          { key: 'key-1', id: 'id-1', name: 'taste', value: '1', form: 'form-0', defaultChecked: false },
+          { key: 'key-2', id: 'id-2', name: 'taste', value: '2', form: 'form-0', defaultChecked: true },
+        ] as InputCheckboxProps['inputProps']
+
+        result = render(
+          <MemoryRouter>
+            <InputCheckbox inputProps={inputProps} labels={['ラベル1', 'ラベル2', 'ラベル3']} />
+          </MemoryRouter>
+        )
+        const inputs = result.container.querySelectorAll('input[type="checkbox"]')
+        expect((inputs[0] as HTMLInputElement).checked).toBe(true)
+        expect((inputs[1] as HTMLInputElement).checked).toBe(false)
+        expect((inputs[2] as HTMLInputElement).checked).toBe(true)
+      })
+
+      test('defaultChecked がある状態で別の項目をチェックすると既存選択が保持される', () => {
+        const handleChange = vi.fn()
+        const inputProps = [
+          { key: 'key-0', id: 'id-0', name: 'taste', value: '0', form: 'form-0', defaultChecked: true },
+          { key: 'key-1', id: 'id-1', name: 'taste', value: '1', form: 'form-0', defaultChecked: false },
+          { key: 'key-2', id: 'id-2', name: 'taste', value: '2', form: 'form-0', defaultChecked: true },
+        ] as InputCheckboxProps['inputProps']
+
+        result = render(
+          <MemoryRouter>
+            <InputCheckbox inputProps={inputProps} labels={['ラベル1', 'ラベル2', 'ラベル3']} onChange={handleChange} />
+          </MemoryRouter>
+        )
+        // 未チェックの項目をチェック
+        const inputs = result.container.querySelectorAll('input[type="checkbox"]')
+        fireEvent.click(inputs[1]!)
+        // 既存の defaultChecked の値が保持されている
+        expect(handleChange).toHaveBeenCalledWith(expect.any(Object), ['0', '2', '1'])
+      })
+
+      test('defaultChecked がある状態でチェック解除すると正しく除外される', () => {
+        const handleChange = vi.fn()
+        const inputProps = [
+          { key: 'key-0', id: 'id-0', name: 'taste', value: '0', form: 'form-0', defaultChecked: true },
+          { key: 'key-1', id: 'id-1', name: 'taste', value: '1', form: 'form-0', defaultChecked: false },
+          { key: 'key-2', id: 'id-2', name: 'taste', value: '2', form: 'form-0', defaultChecked: true },
+        ] as InputCheckboxProps['inputProps']
+
+        result = render(
+          <MemoryRouter>
+            <InputCheckbox inputProps={inputProps} labels={['ラベル1', 'ラベル2', 'ラベル3']} onChange={handleChange} />
+          </MemoryRouter>
+        )
+        // defaultChecked の項目をチェック解除
+        const inputs = result.container.querySelectorAll('input[type="checkbox"]')
+        fireEvent.click(inputs[0]!)
+        expect(handleChange).toHaveBeenCalledWith(expect.any(Object), ['2'])
+      })
+    })
   })
 
   //============================================================================

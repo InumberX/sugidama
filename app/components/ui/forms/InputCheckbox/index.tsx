@@ -122,7 +122,9 @@ export const InputCheckbox = ({
   }
 
   useEffect(() => {
-    setCurrentValue(normalizeValue(value))
+    if (value !== undefined) {
+      setCurrentValue(normalizeValue(value))
+    }
   }, [value])
 
   // ハイドレーション完了前は空の配列を表示してSSRとクライアントサイドの不整合を防ぐ
@@ -168,11 +170,12 @@ export const InputCheckbox = ({
                   )
                 })
               : safeInputProps?.map((inputProp, i) => {
+                  const { defaultChecked: _, ...restInputProp } = inputProp
                   return (
                     <li key={inputProp.id} className={styles.inputCheckbox_item}>
                       <label className={styles.inputCheckbox_label}>
                         <input
-                          {...inputProp}
+                          {...restInputProp}
                           type="checkbox"
                           key={inputProp.key}
                           className={[

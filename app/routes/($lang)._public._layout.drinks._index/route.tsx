@@ -78,7 +78,13 @@ export async function loader(args: Route.LoaderArgs) {
     page: currentPage,
     ...(submit.status === 'success' && {
       keyword: submit.value.keyword,
-      tags: [...(submit.value.taste ? submit.value.taste.map((taste) => parseNumberParam(taste)) : [])],
+      tags: [
+        ...(submit.value.taste
+          ? submit.value.taste
+              .map((taste) => parseInt(taste, 10))
+              .filter((n) => !isNaN(n))
+          : []),
+      ],
     }),
   }).then((res) => {
     if (!res.success) {

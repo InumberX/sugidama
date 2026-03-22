@@ -26,8 +26,8 @@ export const getDrinks = async ({
   }
 
   if (tags && tags.length > 0) {
-    tags.map((tag) => {
-      searchParams.set('tag_id', String(tag))
+    tags.forEach((tag) => {
+      searchParams.append('tag_id', String(tag))
     })
   }
 

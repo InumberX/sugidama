@@ -29,7 +29,7 @@ export const convertDrinksToArticleCardProps = ({
     button: {
       url: PAGES.SG20_101.getUrl({
         lang,
-        params: { drinkId: drink.slug ?? drink.topics_id },
+        params: { drinkId: drink.slug || drink.topics_id },
       }),
     },
     title: {

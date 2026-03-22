@@ -12,13 +12,14 @@ import { PageTitle } from '~/components/ui/typographies/PageTitle'
 import { PAGES } from '~/config/paths'
 import { getDrinks } from '~/server/api/drinks.server'
 import { convertError } from '~/server/api/error.server'
+import { getMasterDrinkCategory } from '~/server/api/masters.server'
 import { getTagTaste } from '~/server/api/tags.server'
 import { convertDrinksToArticleCardProps } from '~/utils/article'
 import { parseNumberParam } from '~/utils/loader-guards.server'
 import { getLang } from '~/utils/locale'
 import { getMetadata } from '~/utils/meta'
 import { preprocessSearchKeyword } from '~/utils/search'
-import { convertTags } from '~/utils/tags'
+import { convertMasterDrinkCategory, convertTags } from '~/utils/tags'
 
 import { SearchDrinksForm } from './_components/SearchDrinksForm'
 import { SearchDrinksResult, type SearchDrinksResultData } from './_components/SearchDrinksResult'
@@ -30,6 +31,7 @@ const page = PAGES.SG20_100
 
 const searchDrinksSchema = z.object({
   keyword: z.string().trim().optional(),
+  drink: z.string().trim().optional(),
   taste: z.array(z.string().trim()).optional(),
   page: z.string().optional(),
 })
@@ -63,15 +65,24 @@ export async function loader(args: Route.LoaderArgs) {
     submit.value.keyword = preprocessSearchKeyword(submit.value.keyword)
   }
 
-  const [tagTasteResult] = await Promise.all([getTagTaste()])
+  const [tagTasteResult, masterDrinkCategoryResult] = await Promise.all([getTagTaste(), getMasterDrinkCategory()])
 
   if (!tagTasteResult.success) {
     throw convertError(tagTasteResult)
   }
 
+  if (!masterDrinkCategoryResult.success) {
+    throw convertError(masterDrinkCategoryResult)
+  }
+
   const tagTaste = convertTags({
     lang,
     tagItems: tagTasteResult.data.list,
+  })
+
+  const tagDrink = convertMasterDrinkCategory({
+    lang,
+    tagItems: masterDrinkCategoryResult.data.list,
   })
 
   const drinks: Promise<SearchDrinksResultData> = getDrinks({
@@ -100,10 +111,15 @@ export async function loader(args: Route.LoaderArgs) {
           drink,
           tags: [
             {
+              name: 'drink',
+              items: [...tagDrink],
+            },
+            {
               name: 'taste',
               items: [...tagTaste],
             },
           ],
+          drinkCategories: tagDrink,
         })
       ),
       totalSize: res.data.pageInfo.totalCnt,
@@ -116,11 +132,12 @@ export async function loader(args: Route.LoaderArgs) {
     drinks,
     submitValue: submit.status === 'success' ? submit.value : undefined,
     tagTaste,
+    tagDrink,
   }
 }
 
 export default function PageSG20_100({ loaderData }: Route.ComponentProps) {
-  const { lang, currentPage, submitValue, tagTaste } = loaderData
+  const { lang, currentPage, submitValue, tagTaste, tagDrink } = loaderData
   const drinks = loaderData.drinks as Promise<SearchDrinksResultData>
   const navigation = useNavigation()
   const navigate = useNavigate()
@@ -142,6 +159,7 @@ export default function PageSG20_100({ loaderData }: Route.ComponentProps) {
     },
     defaultValue: {
       keyword: submitValue?.keyword ? preprocessSearchKeyword(submitValue.keyword) : '',
+      drink: submitValue?.drink ?? '',
       taste: submitValue?.taste ?? [],
       page: String(currentPage ?? 1),
     },
@@ -193,6 +211,20 @@ export default function PageSG20_100({ loaderData }: Route.ComponentProps) {
                     },
                   }}
                   searchConditions={[
+                    {
+                      name: tPage('searchDrinksForm.conditions.drink.name'),
+                      count: Array.isArray(fields.drink.value)
+                        ? fields.drink.value.length
+                        : (fields.drink.value && 1) || 0,
+                      checkbox: {
+                        errors: fields.drink.errors,
+                        inputProps: getCollectionProps(fields.drink, {
+                          type: 'checkbox',
+                          options: tagDrink.map((tag) => String(tag.id)),
+                        }),
+                        labels: tagDrink.map((tag) => tag.label),
+                      },
+                    },
                     {
                       name: tPage('searchDrinksForm.conditions.taste.name'),
                       count: Array.isArray(fields.taste.value)

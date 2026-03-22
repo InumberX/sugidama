@@ -1,5 +1,6 @@
 import { LANG } from '~/config/consts'
 
+import type { MasterDrinkCategory } from '~/types/api/master-drink-category'
 import type { Tag } from '~/types/api/tags'
 
 export type ConvertTag = {
@@ -18,4 +19,21 @@ export const convertTags = ({ lang, tagItems }: { lang: string; tagItems: Tag['l
       })
     })
     .flat()
+}
+
+export const convertMasterDrinkCategory = ({
+  lang,
+  tagItems,
+}: {
+  lang: string
+  tagItems: MasterDrinkCategory['list']
+}): ConvertTag[] => {
+  return tagItems
+    .map((item) => {
+      return {
+        id: parseInt(item.id, 10),
+        label: lang === LANG.EN ? item.name_en : item.name,
+      }
+    })
+    .filter((item) => !isNaN(item.id))
 }

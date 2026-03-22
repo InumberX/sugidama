@@ -19,6 +19,9 @@
     "conditions": {
       "show": "Add conditions",
       "hide": "Close",
+      "drink": {
+        "name": "Category"
+      },
       "taste": {
         "name": "Taste"
       }

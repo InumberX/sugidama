@@ -9,26 +9,37 @@ export const getDrinks = async ({
   orderQuery = 'inst_ymdhi=DESC',
   keyword,
   tags,
+  drinkCategoryId,
 }: {
   page?: number
   pageSize?: number
   orderQuery?: string
   keyword?: string
   tags?: number[]
+  drinkCategoryId?: number
 }): Promise<ApiResult<Drinks>> => {
+  const filter: string[] = []
   const searchParams = new URLSearchParams()
   searchParams.set('cnt', String(pageSize))
   searchParams.set('pageID', String(page))
   searchParams.set('order_query', orderQuery)
 
   if (keyword) {
-    searchParams.set('topics_keyword', keyword)
+    filter.push(`keyword contains "${keyword}"`)
+  }
+
+  if (drinkCategoryId) {
+    filter.push(`drink_category = ${drinkCategoryId}`)
   }
 
   if (tags && tags.length > 0) {
     tags.forEach((tag) => {
       searchParams.append('tag_id', String(tag))
     })
+  }
+
+  if (filter) {
+    searchParams.set('filter', filter.join(' AND '))
   }
 
   const result = await apiClient<Drinks>({

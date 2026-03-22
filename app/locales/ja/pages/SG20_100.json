@@ -19,6 +19,9 @@
     "conditions": {
       "show": "条件を追加",
       "hide": "閉じる",
+      "drink": {
+        "name": "カテゴリ"
+      },
       "taste": {
         "name": "味わい"
       }

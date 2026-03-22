@@ -158,7 +158,7 @@ export default function PageSG20_100({ loaderData }: Route.ComponentProps) {
     },
     defaultValue: {
       keyword: submitValue?.keyword ? preprocessSearchKeyword(submitValue.keyword) : '',
-      drink: submitValue?.drink ?? '',
+      drink: submitValue?.drink ?? [],
       taste: submitValue?.taste ?? [],
       page: String(currentPage ?? 1),
     },

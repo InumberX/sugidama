@@ -25,7 +25,8 @@ export const getDrinks = async ({
   searchParams.set('order_query', orderQuery)
 
   if (keyword) {
-    filter.push(`keyword contains "${keyword}"`)
+    const sanitizedKeyword = keyword.replace(/"/g, '\\"')
+    filter.push(`keyword contains "${sanitizedKeyword}"`)
   }
 
   if (drinkCategoryIds && drinkCategoryIds.length > 0) {

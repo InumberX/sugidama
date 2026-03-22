@@ -58,7 +58,22 @@ export const InputCheckbox = ({
   onClick,
   isReadOnly,
 }: InputCheckboxProps) => {
-  const [currentValue, setCurrentValue] = useState<string[]>(normalizeValue(value))
+  const [currentValue, setCurrentValue] = useState<string[]>(() => {
+    const normalized = normalizeValue(value)
+    if (normalized.length > 0) {
+      return normalized
+    }
+
+    // inputProps（Conform の getCollectionProps）から defaultChecked の値を取得
+    if (inputProps) {
+      return inputProps
+        .filter((prop) => prop.defaultChecked)
+        .map((prop) => prop.value)
+        .filter((v): v is string => typeof v !== 'undefined')
+    }
+
+    return []
+  })
 
   const isHydrated = useSyncExternalStore(
     () => () => {},
@@ -170,6 +185,7 @@ export const InputCheckbox = ({
                           readOnly={isReadOnly}
                           onChange={handleChange}
                           onClick={handleClick}
+                          checked={currentValue.includes(inputProp.value ?? '')}
                         />
                         <span className={styles.inputCheckbox_contents}>
                           <span className={styles.inputCheckboxIcon}>

@@ -2,6 +2,14 @@ import { render, type RenderResult, cleanup, fireEvent } from '@testing-library/
 import { MemoryRouter } from 'react-router'
 import { describe, vi, beforeEach, afterEach, test, expect } from 'vitest'
 
+import jaSelect from '~/locales/ja/components/ui/forms/select.json'
+
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => jaSelect[key as keyof typeof jaSelect] ?? key,
+  }),
+}))
+
 import { Select, type SelectProps } from '~/components/ui/forms/Select'
 
 const defaultOptions = [

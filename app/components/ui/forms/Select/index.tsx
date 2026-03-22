@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+
 import { TransitionFade } from '~/components/ui/transitions/TransitionFade'
 import { ErrorMessage } from '~/components/ui/typographies/ErrorMessage'
 import { HelperText, type HelperTextProps } from '~/components/ui/typographies/HelperText'
@@ -44,6 +46,8 @@ export const Select = ({
   isReadOnly,
   dataTestId,
 }: SelectProps) => {
+  const { t } = useTranslation('components/ui/forms/select')
+
   return (
     <div className={[styles.select, className].filter(Boolean).join(' ')}>
       <div className={styles.select_container}>
@@ -70,7 +74,7 @@ export const Select = ({
               onChange(event, newValue)
             }}
           >
-            {!isNotOutputEmptyOption && <option value="">選択してください</option>}
+            {!isNotOutputEmptyOption && <option value="">{t('emptyOptionLabel')}</option>}
             {options.map((option, i) => {
               return (
                 <option key={i} value={option.value}>

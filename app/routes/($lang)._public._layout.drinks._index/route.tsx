@@ -31,7 +31,7 @@ const page = PAGES.SG20_100
 
 const searchDrinksSchema = z.object({
   keyword: z.string().trim().optional(),
-  drink: z.string().trim().optional(),
+  drink: z.array(z.string().trim()).optional(),
   taste: z.array(z.string().trim()).optional(),
   page: z.string().optional(),
 })

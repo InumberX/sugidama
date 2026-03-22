@@ -80,11 +80,20 @@ describe('convertDrinksToArticleCardProps', () => {
 
     it('slugがundefinedの場合、topics_idにフォールバックする', () => {
       const drink = createDrink({ topics_id: 789 })
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ;(drink as any).slug = undefined
+      // @ts-expect-error: slugにundefinedを代入してフォールバック動作をテスト
+      drink.slug = undefined
       const result = convertDrinksToArticleCardProps({ ...defaultArgs, drink })
 
       expect(result.button?.url).toBe('/drinks/789')
+    })
+
+    it('slugがnullの場合、topics_idにフォールバックする', () => {
+      const drink = createDrink({ topics_id: 101 })
+      // @ts-expect-error: slugにnullを代入してフォールバック動作をテスト
+      drink.slug = null
+      const result = convertDrinksToArticleCardProps({ ...defaultArgs, drink })
+
+      expect(result.button?.url).toBe('/drinks/101')
     })
   })
 })

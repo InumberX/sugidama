@@ -44,7 +44,8 @@ export const TextArea = ({
           <label className={styles.textArea_label}>
             <textarea
               {...inputProps}
-              key={id ?? inputProps?.key}
+              id={id ?? inputProps?.id}
+              key={inputProps?.key ?? id}
               placeholder={placeholder}
               className={[styles.textArea_input, (!!errors || isError) && styles.textArea_input__error]
                 .filter(Boolean)

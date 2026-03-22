@@ -8,6 +8,7 @@ import { HelperText, type HelperTextProps } from '~/components/ui/typographies/H
 import * as styles from './style.css'
 
 import type { getCollectionProps } from '@conform-to/react'
+import type React from 'react'
 
 import type { EventTypes } from '~/types/event'
 

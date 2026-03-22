@@ -52,7 +52,8 @@ export const Select = ({
             data-test-id={dataTestId}
             value={value}
             {...inputProps}
-            key={id ?? inputProps?.key}
+            id={id ?? inputProps?.id}
+            key={inputProps?.key ?? id}
             className={[styles.select_input, (!!errors || isError) && styles.select_input__error]
               .filter(Boolean)
               .join(' ')}

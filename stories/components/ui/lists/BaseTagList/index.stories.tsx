@@ -1,6 +1,6 @@
-import { BaseTagList } from '~/components/ui/lists/BaseTagList'
-
 import type { Meta, StoryObj } from '@storybook/react-vite'
+
+import { BaseTagList } from '~/components/ui/lists/BaseTagList'
 
 const meta: Meta<typeof BaseTagList> = {
   title: 'components/ui/lists/BaseTagList',

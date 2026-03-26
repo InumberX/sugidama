@@ -1,8 +1,7 @@
 import { describe, it, expect } from 'vitest'
 
-import { convertDrinksToArticleCardProps } from '~/utils/article'
-
 import type { Drink } from '~/types/api/drinks'
+import { convertDrinksToArticleCardProps } from '~/utils/article'
 
 const createDrink = (overrides: Partial<Drink> = {}): Drink => {
   return {

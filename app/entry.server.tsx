@@ -8,11 +8,11 @@ import { type EntryContext } from 'react-router'
 import { ServerRouter } from 'react-router'
 import { PassThrough } from 'stream'
 
+import i18next from './i18next.server'
+
 import { i18n } from '~/i18n'
 import { NonceProvider } from '~/providers/NonceProvider'
 import { buildCspDirective } from '~/server/csp.server'
-
-import i18next from './i18next.server'
 
 // import { resolve } from 'node:path'
 

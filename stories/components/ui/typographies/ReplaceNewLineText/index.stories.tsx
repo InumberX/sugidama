@@ -1,6 +1,6 @@
-import { ReplaceNewLineText } from '~/components/ui/typographies/ReplaceNewLineText'
-
 import type { Meta, StoryObj } from '@storybook/react-vite'
+
+import { ReplaceNewLineText } from '~/components/ui/typographies/ReplaceNewLineText'
 
 const meta: Meta<typeof ReplaceNewLineText> = {
   title: 'components/ui/typographies/ReplaceNewLineText',

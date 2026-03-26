@@ -1,11 +1,10 @@
 import { getFormProps, getCollectionProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod/v4'
+import type { Meta, StoryObj } from '@storybook/react-vite'
 import { z } from 'zod'
 
 import { InputCheckbox } from '~/components/ui/forms/InputCheckbox'
 import { customErrorMessage } from '~/utils/custom-error-message'
-
-import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const schema = z.object({
   name: z.array(z.string()).min(1, {

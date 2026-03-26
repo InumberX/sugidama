@@ -2,9 +2,8 @@ import { render, type RenderResult, cleanup, fireEvent } from '@testing-library/
 import { MemoryRouter } from 'react-router'
 import { describe, vi, beforeEach, afterEach, test, expect } from 'vitest'
 
-import { ArticleCompactCardList } from '~/components/ui/lists/ArticleCompactCardList'
-
 import type { ArticleCompactCardProps } from '~/components/ui/cards/ArticleCompactCard'
+import { ArticleCompactCardList } from '~/components/ui/lists/ArticleCompactCardList'
 
 describe('ArticleCompactCardList', () => {
   let result: RenderResult

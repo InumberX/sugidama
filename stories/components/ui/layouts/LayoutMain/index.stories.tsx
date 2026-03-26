@@ -1,6 +1,6 @@
-import { LayoutMain } from '~/components/ui/layouts/LayoutMain'
-
 import type { Meta, StoryObj } from '@storybook/react-vite'
+
+import { LayoutMain } from '~/components/ui/layouts/LayoutMain'
 
 const meta: Meta<typeof LayoutMain> = {
   title: 'components/ui/layouts/LayoutMain',

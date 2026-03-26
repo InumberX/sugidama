@@ -1,6 +1,6 @@
-import { PrimitiveSkeleton } from '~/components/primitives/skeletons/PrimitiveSkeleton'
-
 import * as styles from './style.css'
+
+import { PrimitiveSkeleton } from '~/components/primitives/skeletons/PrimitiveSkeleton'
 
 type ArticleCardListSkeletonProps = {
   className?: string

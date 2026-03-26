@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import * as styles from './style.css'
+
 import { BaseButton } from '~/components/ui/buttons/BaseButton'
 import { TextButton } from '~/components/ui/buttons/TextButton'
 import { FormSubSet } from '~/components/ui/forms/FormSubSet'
@@ -9,8 +11,6 @@ import { InputRadio, type InputRadioProps } from '~/components/ui/forms/InputRad
 import { InputText, type InputTextProps } from '~/components/ui/forms/InputText'
 import { SvgIcon } from '~/components/ui/icons/SvgIcon'
 import { TransitionFade } from '~/components/ui/transitions/TransitionFade'
-
-import * as styles from './style.css'
 
 type SearchCondition = {
   name: string

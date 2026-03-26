@@ -1,13 +1,11 @@
+import type { getSelectProps } from '@conform-to/react'
 import { useTranslation } from 'react-i18next'
+
+import * as styles from './style.css'
 
 import { TransitionFade } from '~/components/ui/transitions/TransitionFade'
 import { ErrorMessage } from '~/components/ui/typographies/ErrorMessage'
 import { HelperText, type HelperTextProps } from '~/components/ui/typographies/HelperText'
-
-import * as styles from './style.css'
-
-import type { getSelectProps } from '@conform-to/react'
-
 import type { EventTypes } from '~/types/event'
 
 export type SelectOption = {

@@ -1,7 +1,6 @@
 import { forwardRef } from 'react'
-import { Form as ReactRouterForm, useRouteLoaderData } from 'react-router'
-
 import type { ComponentProps } from 'react'
+import { Form as ReactRouterForm, useRouteLoaderData } from 'react-router'
 
 import type { loader as rootLoader } from '~/root'
 

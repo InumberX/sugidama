@@ -1,8 +1,7 @@
+import type { Meta, StoryObj } from '@storybook/react-vite'
 import { createRoutesStub } from 'react-router'
 
 import { LayoutHeader } from '~/components/common/LayoutHeader'
-
-import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta<typeof LayoutHeader> = {
   title: 'components/common/LayoutHeader',

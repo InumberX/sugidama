@@ -2,9 +2,8 @@ import { type ArticleCardProps } from '~/components/ui/cards/ArticleCard'
 import { type BaseTagProps } from '~/components/ui/tags/BaseTag'
 import { LANG } from '~/config/consts'
 import { PAGES } from '~/config/paths'
-import { format } from '~/utils/date'
-
 import type { Drink } from '~/types/api/drinks'
+import { format } from '~/utils/date'
 import type { ConvertTag } from '~/utils/tags'
 
 export const convertDrinksToArticleCardProps = ({

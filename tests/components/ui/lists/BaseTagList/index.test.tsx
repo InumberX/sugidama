@@ -3,7 +3,6 @@ import { MemoryRouter } from 'react-router'
 import { describe, vi, beforeEach, afterEach, test, expect } from 'vitest'
 
 import { BaseTagList } from '~/components/ui/lists/BaseTagList'
-
 import type { BaseTagProps } from '~/components/ui/tags/BaseTag'
 
 describe('BaseTagList', () => {

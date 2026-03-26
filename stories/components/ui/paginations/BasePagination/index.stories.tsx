@@ -1,6 +1,6 @@
-import { BasePagination } from '~/components/ui/paginations/BasePagination'
-
 import type { Meta, StoryObj } from '@storybook/react-vite'
+
+import { BasePagination } from '~/components/ui/paginations/BasePagination'
 
 const meta: Meta<typeof BasePagination> = {
   title: 'components/ui/paginations/BasePagination',

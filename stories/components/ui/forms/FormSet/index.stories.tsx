@@ -1,6 +1,6 @@
-import { FormSet } from '~/components/ui/forms/FormSet'
-
 import type { Meta, StoryObj } from '@storybook/react-vite'
+
+import { FormSet } from '~/components/ui/forms/FormSet'
 
 const meta: Meta<typeof FormSet> = {
   title: 'components/ui/forms/FormSet',

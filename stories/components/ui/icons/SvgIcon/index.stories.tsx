@@ -1,6 +1,6 @@
-import { SvgIcon } from '~/components/ui/icons/SvgIcon'
-
 import type { Meta, StoryObj } from '@storybook/react-vite'
+
+import { SvgIcon } from '~/components/ui/icons/SvgIcon'
 
 const meta: Meta<typeof SvgIcon> = {
   title: 'components/ui/icons/SvgIcon',

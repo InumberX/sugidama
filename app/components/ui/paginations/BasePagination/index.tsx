@@ -1,8 +1,8 @@
 import { useMemo, Fragment } from 'react'
 
-import { SvgIcon } from '~/components/ui/icons/SvgIcon'
-
 import * as styles from './style.css'
+
+import { SvgIcon } from '~/components/ui/icons/SvgIcon'
 
 export type BasePaginationProps = {
   className?: string

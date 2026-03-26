@@ -1,12 +1,11 @@
 import { type ReactNode, type JSX } from 'react'
 
-import { PrimitiveButton, type PrimitiveButtonProps } from '~/components/primitives/buttons/PrimitiveButton'
-import { BaseTagList } from '~/components/ui/lists/BaseTagList'
-import { CACHE_BUSTER } from '~/config/env'
-
 import * as styles from './style.css'
 
+import { PrimitiveButton, type PrimitiveButtonProps } from '~/components/primitives/buttons/PrimitiveButton'
+import { BaseTagList } from '~/components/ui/lists/BaseTagList'
 import type { BaseTagProps } from '~/components/ui/tags/BaseTag'
+import { CACHE_BUSTER } from '~/config/env'
 
 type TitleProps = {
   text: ReactNode

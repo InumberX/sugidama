@@ -1,5 +1,4 @@
 import { LANG } from '~/config/consts'
-
 import type { MasterDrinkCategory } from '~/types/api/master-drink-category'
 import type { Tag } from '~/types/api/tags'
 

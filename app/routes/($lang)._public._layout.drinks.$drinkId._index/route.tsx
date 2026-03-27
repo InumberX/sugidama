@@ -1,5 +1,8 @@
 import { type MetaFunction, useRouteLoaderData } from 'react-router'
 
+import type { Route } from './+types/route'
+import * as styles from './style.css'
+
 import { LayoutInner } from '~/components/ui/layouts/LayoutInner'
 import { LayoutPageWrapper } from '~/components/ui/layouts/LayoutPageWrapper'
 import { ArticleCardList } from '~/components/ui/lists/ArticleCardList'
@@ -9,10 +12,6 @@ import { PAGES } from '~/config/paths'
 import { loader as drinkDetailLoader } from '~/routes/($lang)._public._layout.drinks.$drinkId/route'
 import { getLang } from '~/utils/locale'
 import { getMetadata } from '~/utils/meta'
-
-import * as styles from './style.css'
-
-import type { Route } from './+types/route'
 
 const page = PAGES.SG20_101
 

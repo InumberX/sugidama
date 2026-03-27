@@ -1,6 +1,6 @@
-import { PrimitiveSkeleton } from '~/components/primitives/skeletons/PrimitiveSkeleton'
-
 import type { Meta, StoryObj } from '@storybook/react-vite'
+
+import { PrimitiveSkeleton } from '~/components/primitives/skeletons/PrimitiveSkeleton'
 
 const meta: Meta<typeof PrimitiveSkeleton> = {
   title: 'components/primitives/skeletons/PrimitiveSkeleton',

@@ -5,6 +5,11 @@ import { useTranslation } from 'react-i18next'
 import { type MetaFunction, useNavigation, useSearchParams, useNavigate } from 'react-router'
 import { z } from 'zod'
 
+import type { Route } from './+types/route'
+import { SearchDrinksForm } from './_components/SearchDrinksForm'
+import { SearchDrinksResult, type SearchDrinksResultData } from './_components/SearchDrinksResult'
+import * as styles from './style.css'
+
 import { Form } from '~/components/ui/forms/Form'
 import { LayoutInner } from '~/components/ui/layouts/LayoutInner'
 import { LayoutPageWrapper } from '~/components/ui/layouts/LayoutPageWrapper'
@@ -21,12 +26,6 @@ import { getMetadata } from '~/utils/meta'
 import { preprocessSearchKeyword } from '~/utils/search'
 import { SEARCH_DRINKS_CONDITION_KEY } from '~/utils/search'
 import { convertMasterDrinkCategory, convertTags } from '~/utils/tags'
-
-import { SearchDrinksForm } from './_components/SearchDrinksForm'
-import { SearchDrinksResult, type SearchDrinksResultData } from './_components/SearchDrinksResult'
-import * as styles from './style.css'
-
-import type { Route } from './+types/route'
 
 const page = PAGES.SG20_100
 

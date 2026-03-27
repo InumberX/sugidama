@@ -1,6 +1,6 @@
-import { SectionTitle } from '~/components/ui/typographies/SectionTitle'
-
 import type { Meta, StoryObj } from '@storybook/react-vite'
+
+import { SectionTitle } from '~/components/ui/typographies/SectionTitle'
 
 const meta: Meta<typeof SectionTitle> = {
   title: 'components/ui/typographies/SectionTitle',

@@ -1,5 +1,4 @@
 import { apiClient, type ApiResult } from '~/server/api/client.server'
-
 import type { Drinks } from '~/types/api/drinks'
 import type { DrinksDetail } from '~/types/api/drinks-detail'
 

@@ -1,6 +1,6 @@
-import { BaseAlert } from '~/components/ui/alerts/BaseAlert'
-
 import type { Meta, StoryObj } from '@storybook/react-vite'
+
+import { BaseAlert } from '~/components/ui/alerts/BaseAlert'
 
 const meta: Meta<typeof BaseAlert> = {
   title: 'components/ui/alerts/BaseAlert',

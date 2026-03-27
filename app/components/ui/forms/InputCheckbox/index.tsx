@@ -1,15 +1,13 @@
+import type { getCollectionProps } from '@conform-to/react'
 import { useState, useSyncExternalStore, useEffect } from 'react'
+import type React from 'react'
+
+import * as styles from './style.css'
 
 import { SvgIcon } from '~/components/ui/icons/SvgIcon'
 import { TransitionFade } from '~/components/ui/transitions/TransitionFade'
 import { ErrorMessage } from '~/components/ui/typographies/ErrorMessage'
 import { HelperText, type HelperTextProps } from '~/components/ui/typographies/HelperText'
-
-import * as styles from './style.css'
-
-import type { getCollectionProps } from '@conform-to/react'
-import type React from 'react'
-
 import type { EventTypes } from '~/types/event'
 
 export type InputCheckboxOption = {

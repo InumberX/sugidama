@@ -1,11 +1,10 @@
-import { TransitionFade } from '~/components/ui/transitions/TransitionFade'
-import { ErrorMessage } from '~/components/ui/typographies/ErrorMessage'
-import { HelperText, type HelperTextProps } from '~/components/ui/typographies/HelperText'
+import type { getInputProps } from '@conform-to/react'
 
 import * as styles from './style.css'
 
-import type { getInputProps } from '@conform-to/react'
-
+import { TransitionFade } from '~/components/ui/transitions/TransitionFade'
+import { ErrorMessage } from '~/components/ui/typographies/ErrorMessage'
+import { HelperText, type HelperTextProps } from '~/components/ui/typographies/HelperText'
 import type { EventTypes } from '~/types/event'
 
 export type InputTextProps = {

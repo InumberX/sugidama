@@ -1,6 +1,6 @@
-import { ArticleCard, type ArticleCardProps } from '~/components/ui/cards/ArticleCard'
-
 import * as styles from './style.css'
+
+import { ArticleCard, type ArticleCardProps } from '~/components/ui/cards/ArticleCard'
 
 export type ArticleCardListProps = {
   className?: string

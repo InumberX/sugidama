@@ -1,5 +1,7 @@
 import { Outlet } from 'react-router'
 
+import type { Route } from './+types/route'
+
 import { getDrinksDetail, getDrinks } from '~/server/api/drinks.server'
 import { convertError } from '~/server/api/error.server'
 import { getMasterDrinkCategory } from '~/server/api/masters.server'
@@ -8,8 +10,6 @@ import { convertDrinksToArticleCardProps } from '~/utils/article'
 import { getLang } from '~/utils/locale'
 import { SEARCH_DRINKS_CONDITION_KEY } from '~/utils/search'
 import { convertTags, convertMasterDrinkCategory } from '~/utils/tags'
-
-import type { Route } from './+types/route'
 
 export async function loader(args: Route.LoaderArgs) {
   const { params } = args

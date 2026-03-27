@@ -2,8 +2,8 @@
   "name": "@InumberX/sugidama",
   "version": "1.0.0",
   "private": true,
-  "sideEffects": false,
   "type": "module",
+  "sideEffects": false,
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev",
@@ -13,7 +13,6 @@
     "format-fix": "oxfmt --write \"./{app,tests,stories,.storybook}/**/*.{ts,tsx}\"",
     "lint": "oxlint ./{app,tests,stories,.storybook}/ --max-warnings=0",
     "lint-fix": "oxlint --fix ./{app,tests,stories,.storybook}/",
-    "lint-quiet": "oxlint ./{app,tests,stories,.storybook}/",
     "test": "vitest",
     "storybook": "storybook dev --no-open -p 6006 -c .storybook",
     "upgrade": "npx npm-check-updates -u",

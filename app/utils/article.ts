@@ -4,7 +4,6 @@ import { LANG } from '~/config/consts'
 import { PAGES } from '~/config/paths'
 import type { Drink } from '~/types/api/drinks'
 import { format } from '~/utils/date'
-import { format } from '~/utils/date'
 import { SEARCH_DRINKS_CONDITION_KEY } from '~/utils/search'
 import type { ConvertTag } from '~/utils/tags'
 

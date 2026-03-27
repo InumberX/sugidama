@@ -49,22 +49,13 @@ export async function loader(args: Route.LoaderArgs) {
   }
 }
 
-export default function PageSG20_101({ loaderData }: Route.ComponentProps) {
-  const { lang } = loaderData
+export default function PageSG20_101() {
   const drinkDetailLoaderData = useRouteLoaderData<typeof drinkDetailLoader>(
     'routes/($lang)._public._layout.drinks.$drinkId'
   )
-  const drink = drinkDetailLoaderData?.drink
   const latestDrinks = drinkDetailLoaderData?.latestDrinks
   const drinkCategory = drinkDetailLoaderData?.drinkCategory
   const relatedDrinks = drinkDetailLoaderData?.relatedDrinks
-
-  const pageName = page.getName({
-    lang,
-    params: {
-      drinkName: drink?.subject ?? '',
-    },
-  })
 
   return (
     <LayoutPageWrapper className={styles.drink}>

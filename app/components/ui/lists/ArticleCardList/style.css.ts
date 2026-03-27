@@ -11,12 +11,33 @@ export const articleCardList = style({
   },
 })
 
+export const articleCardList_items__small = style({
+  '@layer': {
+    [cssLayerComponentUiMiddle]: {},
+  },
+})
+
+export const articleCardList_items__medium = style({
+  '@layer': {
+    [cssLayerComponentUiMiddle]: {},
+  },
+})
+
 export const articleCardList_items = style({
   '@layer': {
     [cssLayerComponentUiMiddle]: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))',
       gap: 24,
+
+      selectors: {
+        [`&.${articleCardList_items__small}`]: {
+          gridTemplateColumns: 'repeat(auto-fill, minmax(min(240px, 100%), 1fr))',
+        },
+
+        [`&.${articleCardList_items__medium}`]: {
+          gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))',
+        },
+      },
     },
   },
 })

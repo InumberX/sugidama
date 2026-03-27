@@ -1,10 +1,16 @@
 import { type MetaFunction, useRouteLoaderData } from 'react-router'
 
+import { LayoutInner } from '~/components/ui/layouts/LayoutInner'
 import { LayoutPageWrapper } from '~/components/ui/layouts/LayoutPageWrapper'
+import { ArticleCardList } from '~/components/ui/lists/ArticleCardList'
+import { SectionTitle } from '~/components/ui/typographies/SectionTitle'
+import { LANG } from '~/config/consts'
 import { PAGES } from '~/config/paths'
 import { loader as drinkDetailLoader } from '~/routes/($lang)._public._layout.drinks.$drinkId/route'
 import { getLang } from '~/utils/locale'
 import { getMetadata } from '~/utils/meta'
+
+import * as styles from './style.css'
 
 import type { Route } from './+types/route'
 
@@ -29,7 +35,7 @@ export const meta: MetaFunction<{
     title: page.getName({
       lang,
       params: {
-        drinkName: drink?.subject ?? '',
+        drinkName: lang === LANG.EN ? (drink?.subject_en ?? '') : (drink?.subject ?? ''),
       },
     }),
   })
@@ -50,6 +56,9 @@ export default function PageSG20_101({ loaderData }: Route.ComponentProps) {
     'routes/($lang)._public._layout.drinks.$drinkId'
   )
   const drink = drinkDetailLoaderData?.drink
+  const latestDrinks = drinkDetailLoaderData?.latestDrinks
+  const drinkCategory = drinkDetailLoaderData?.drinkCategory
+  const relatedDrinks = drinkDetailLoaderData?.relatedDrinks
 
   const pageName = page.getName({
     lang,
@@ -59,8 +68,22 @@ export default function PageSG20_101({ loaderData }: Route.ComponentProps) {
   })
 
   return (
-    <LayoutPageWrapper>
-      <h1>{pageName}</h1>
+    <LayoutPageWrapper className={styles.drink}>
+      <div className={styles.drink_wrapper}>
+        <div className={styles.drink_container}>
+          {relatedDrinks && relatedDrinks.length > 0 && (
+            <LayoutInner>
+              <SectionTitle title={drinkCategory?.label} />
+              <ArticleCardList items={relatedDrinks} itemSize="small" />
+            </LayoutInner>
+          )}
+          {latestDrinks && latestDrinks.length > 0 && (
+            <LayoutInner>
+              <ArticleCardList items={latestDrinks} itemSize="small" />
+            </LayoutInner>
+          )}
+        </div>
+      </div>
     </LayoutPageWrapper>
   )
 }

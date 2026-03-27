@@ -19,6 +19,7 @@ import { parseNumberParam } from '~/utils/loader-guards.server'
 import { getLang } from '~/utils/locale'
 import { getMetadata } from '~/utils/meta'
 import { preprocessSearchKeyword } from '~/utils/search'
+import { SEARCH_DRINKS_CONDITION_KEY } from '~/utils/search'
 import { convertMasterDrinkCategory, convertTags } from '~/utils/tags'
 
 import { SearchDrinksForm } from './_components/SearchDrinksForm'
@@ -114,11 +115,11 @@ export async function loader(args: Route.LoaderArgs) {
           drink,
           tags: [
             {
-              name: 'taste',
+              name: SEARCH_DRINKS_CONDITION_KEY.TASTE,
               items: [...tagTaste],
             },
           ],
-          drinkCategories: tagDrink,
+          drinkCategories: [...tagDrink],
         })
       ),
       totalSize: res.data.pageInfo.totalCnt,

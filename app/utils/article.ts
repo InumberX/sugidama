@@ -3,6 +3,7 @@ import { type BaseTagProps } from '~/components/ui/tags/BaseTag'
 import { LANG } from '~/config/consts'
 import { PAGES } from '~/config/paths'
 import { format } from '~/utils/date'
+import { SEARCH_DRINKS_CONDITION_KEY } from '~/utils/search'
 
 import type { Drink } from '~/types/api/drinks'
 import type { ConvertTag } from '~/utils/tags'
@@ -54,7 +55,7 @@ export const convertDrinksToArticleCardProps = ({
             .filter((category) => drink.drink_category.key === String(category.id))
             .map((category) => {
               return {
-                url: `${drinksPageUrl}?drink=${category.id}`,
+                url: `${drinksPageUrl}?${SEARCH_DRINKS_CONDITION_KEY.DRINK}=${category.id}`,
                 children: category.label,
               }
             })

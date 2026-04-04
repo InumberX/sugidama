@@ -22,8 +22,8 @@
     "react-router-typegen-watch": "react-router typegen --watch"
   },
   "dependencies": {
-    "@conform-to/react": "^1.17.1",
-    "@conform-to/zod": "^1.17.1",
+    "@conform-to/react": "^1.18.0",
+    "@conform-to/zod": "^1.18.0",
     "@date-fns/tz": "^1.4.1",
     "@react-router/express": "^7.13.1",
     "@react-router/fs-routes": "^7.13.1",

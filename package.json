@@ -60,7 +60,7 @@
     "@vanilla-extract/vite-plugin": "^5.2.2",
     "@vitejs/plugin-react": "^5.1.4",
     "csstype": "^3.2.3",
-    "jsdom": "^28.1.0",
+    "jsdom": "^29.0.1",
     "oxfmt": "^0.41.0",
     "oxlint": "^1.56.0",
     "storybook": "^10.3.4",

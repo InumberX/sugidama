@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Sugidama is a personal development project built with React Router v7, featuring server-side rendering (SSR), internationalization (i18n), and component-driven development with Storybook. The project uses Vanilla Extract for CSS-in-JS styling.
+Sugidama is a personal development project built with React Router v7, featuring server-side rendering (SSR), internationalization (i18n), and component-driven development with Storybook. The project uses Vanilla Extract for CSS-in-JS styling. The backend API is powered by Kuroco CMS.
 
 ## Common Commands
 
@@ -69,6 +69,14 @@ Uses React Router v7 with file-based routing via `@react-router/fs-routes`:
   - `_layout` = layout wrapper
   - `_index` = index route
 - **SSR**: Enabled in `react-router.config.ts` (`ssr: true`)
+- **Future flags**: `v8_middleware: true` is enabled for React Router v8 middleware support
+
+### Server-Side
+
+- **CSP**: Content Security Policy configured in `app/server/csp.server.ts`
+- **CSRF**: CSRF protection in `app/server/csrf.server.ts`
+- **API layer**: Server-side API calls in `app/server/api/`
+- **Production server**: Express-based (`server.js`) using `@react-router/express`
 
 ### Component Organization
 
@@ -101,8 +109,7 @@ Each component typically has:
 - **TypeScript**: Uses path aliases `~/*` for `./app/*`
 - **Vite**:
   - Main config: `vite.config.ts` with React Router, Vanilla Extract, and cache busting
-  - HMR disabled by default (`hmr: false` in server config)
-  - Environment variables injected via `define` (SITE_URL, SITE_NAME, GOOGLE_ANALYTICS_ID, etc.)
+  - Environment variables injected via `define` (SITE_URL, SITE_NAME, GOOGLE_ANALYTICS_ID, API_URL, etc.)
 - **Vitest**: Configured in `vitest.config.ts` with jsdom environment, `setup-test-env.ts` for test setup
 - **Storybook**: Uses separate Vite config (`vite-storybook.config.ts`) with stories in `**/*.stories.@(ts|tsx)`
 
@@ -113,16 +120,21 @@ Key environment variables (defined in `vite.config.ts`):
 - `SITE_URL` - Site URL (default: `http://localhost:5173`)
 - `SITE_NAME` - Site name (default: `Sugidama(development)`)
 - `GOOGLE_ANALYTICS_ID` - GA tracking ID (default: `G-P7SXGX2CCT`)
+- `API_URL` - Kuroco CMS API endpoint (default: `https://afterworks.g.kuroco.app/rcms-api/7`)
 
 Accessed in app via `app/config/env.ts` and Vite's `import.meta.env.VITE_*` pattern.
 
+### Deployment
+
+Deployed on AWS Amplify (configured in `amplify.yml`). The build process outputs to `.amplify-hosting/` with separate `static` (client) and `compute/default` (server) directories.
+
 ### Special Considerations
 
-- **Node version**: Requires Node.js >=24.0.0 (Volta pinned to 24.5.0)
-- **Git Worktree**: Special handling in `vite.config.ts` to skip warmup and relax strict FS mode
+- **Node version**: Requires Node.js >=22.0.0 (Volta pinned to 22.20.0)
+- **Git Worktree**: Special handling in `vite.config.ts` — skips warmup and relaxes strict FS mode when `GIT_WORKTREE` env var is set
 - **Bot handling**: Server entry uses `isbot` to optimize rendering strategy (`onAllReady` vs `onShellReady`)
 - **Google Analytics**: Conditionally loaded in `app/root.tsx` based on `GOOGLE_ANALYTICS_ID`, tracked via `app/utils/gtags.client.ts`
-- **Linter**: Uses oxlint (Rust-based, config in `.oxlintrc.json`) instead of ESLint
-- **Formatter**: Uses oxfmt (Rust-based, config in `.oxfmtrc.json`) instead of Prettier
-- **Import ordering**: oxfmt enforces import ordering via `sortImports` with newlines between groups
+- **Linter**: Uses oxlint (Rust-based, config in `.oxlintrc.json`) instead of ESLint. `typescript/no-explicit-any` is enforced as error.
+- **Formatter**: Uses oxfmt (Rust-based, config in `.oxfmtrc.json`) instead of Prettier. Print width is 120, single quotes, no semicolons.
+- **Import ordering**: oxfmt enforces import ordering via `sortImports` with newlines between groups. Internal imports use the `~/` prefix (matching the TypeScript path alias). Group order: builtins/externals → parent/sibling/index → internals (`~/`) → unknown.
 - **API types**: Generated using [quicktype](https://app.quicktype.io) from Kuroco CMS JSON responses, saved to `app/types/`

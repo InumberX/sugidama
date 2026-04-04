@@ -4,5 +4,10 @@
   },
   "latestDrinks": {
     "title": "新着のお酒"
+  },
+  "bottom": {
+    "backToListButton": {
+      "label": "一覧に戻る"
+    }
   }
 }

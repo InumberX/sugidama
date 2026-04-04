@@ -36,3 +36,19 @@ export const drinkRelated_container = style({
     },
   },
 })
+
+export const drinkBottom = style({
+  '@layer': {
+    [cssLayerComponentPage]: {},
+  },
+})
+
+export const drinkBottom_container = style({
+  '@layer': {
+    [cssLayerComponentPage]: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  },
+})

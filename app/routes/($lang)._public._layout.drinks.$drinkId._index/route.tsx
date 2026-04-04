@@ -5,6 +5,7 @@ import { type MetaFunction, useRouteLoaderData, Await } from 'react-router'
 import type { Route } from './+types/route'
 import * as styles from './style.css'
 
+import { BaseButton } from '~/components/ui/buttons/BaseButton'
 import { LayoutInner } from '~/components/ui/layouts/LayoutInner'
 import { LayoutPageWrapper } from '~/components/ui/layouts/LayoutPageWrapper'
 import { LayoutSection } from '~/components/ui/layouts/LayoutSection'
@@ -52,7 +53,8 @@ export async function loader(args: Route.LoaderArgs) {
   }
 }
 
-export default function PageSG20_101() {
+export default function PageSG20_101({ loaderData }: Route.ComponentProps) {
+  const { lang } = loaderData
   const drinkDetailLoaderData = useRouteLoaderData<typeof drinkDetailLoader>(
     'routes/($lang)._public._layout.drinks.$drinkId'
   )
@@ -141,6 +143,20 @@ export default function PageSG20_101() {
               }}
             </Await>
           </Suspense>
+          <LayoutSection className={styles.drinkBottom} topSpace="topSpaceSmall" tag="div">
+            <LayoutInner>
+              <div className={styles.drinkBottom_container}>
+                <BaseButton
+                  url={PAGES.SG20_100.getUrl({
+                    lang,
+                  })}
+                  size="large"
+                >
+                  {tPage('bottom.backToListButton.label')}
+                </BaseButton>
+              </div>
+            </LayoutInner>
+          </LayoutSection>
         </div>
       </div>
     </LayoutPageWrapper>

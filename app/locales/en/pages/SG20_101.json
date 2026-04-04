@@ -1,0 +1,8 @@
+{
+  "relatedDrinks": {
+    "title": "{{drinkCategory}} Drinks"
+  },
+  "latestDrinks": {
+    "title": "Latest Drinks"
+  }
+}

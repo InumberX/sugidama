@@ -1,0 +1,8 @@
+{
+  "relatedDrinks": {
+    "title": "{{drinkCategory}}のお酒"
+  },
+  "latestDrinks": {
+    "title": "新着のお酒"
+  }
+}

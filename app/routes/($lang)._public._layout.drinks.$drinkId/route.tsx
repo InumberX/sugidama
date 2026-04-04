@@ -16,13 +16,9 @@ export async function loader(args: Route.LoaderArgs) {
   const { drinkId } = params
   const lang = getLang(params)
 
-  const [drinkDetailResult, latestDrinksResult, tagTasteResult, masterDrinkCategoryResult] = await Promise.all([
+  const [drinkDetailResult, tagTasteResult, masterDrinkCategoryResult] = await Promise.all([
     getDrinksDetail({
       id: drinkId,
-    }),
-    getDrinks({
-      page: 1,
-      pageSize: 4,
     }),
     getTagTaste(),
     getMasterDrinkCategory(),
@@ -30,10 +26,6 @@ export async function loader(args: Route.LoaderArgs) {
 
   if (!drinkDetailResult.success) {
     throw convertError(drinkDetailResult)
-  }
-
-  if (!latestDrinksResult.success) {
-    throw convertError(latestDrinksResult)
   }
 
   if (!tagTasteResult.success) {
@@ -58,34 +50,21 @@ export async function loader(args: Route.LoaderArgs) {
 
   const drinkCategory = tagDrink.find((category) => category.id === Number(drink.drink_category.key))
 
-  const relatedDrinksResult = drinkCategory
-    ? await getDrinks({
-        page: 1,
-        pageSize: 4,
-        drinkCategoryIds: [drinkCategory.id],
-      })
-    : undefined
+  const latestDrinksResult = getDrinks({
+    page: 1,
+    pageSize: 4,
+  }).then((res) => {
+    if (!res.success) {
+      return {
+        success: false,
+        error: res.message,
+        drinks: [],
+      }
+    }
 
-  if (relatedDrinksResult && !relatedDrinksResult.success) {
-    throw convertError(relatedDrinksResult)
-  }
-
-  const latestDrinks = latestDrinksResult.data.list.map((drink) =>
-    convertDrinksToArticleCardProps({
-      lang,
-      drink,
-      tags: [
-        {
-          name: SEARCH_DRINKS_CONDITION_KEY.TASTE,
-          items: [...tagTaste],
-        },
-      ],
-      drinkCategories: [...tagDrink],
-    })
-  )
-
-  const relatedDrinks = relatedDrinksResult
-    ? relatedDrinksResult.data.list.map((drink) =>
+    return {
+      success: true,
+      drinks: res.data.list.map((drink) =>
         convertDrinksToArticleCardProps({
           lang,
           drink,
@@ -97,14 +76,51 @@ export async function loader(args: Route.LoaderArgs) {
           ],
           drinkCategories: [...tagDrink],
         })
-      )
-    : []
+      ),
+    }
+  })
+
+  const relatedDrinksResult = drinkCategory
+    ? getDrinks({
+        page: 1,
+        pageSize: 4,
+        drinkCategoryIds: [drinkCategory.id],
+      }).then((res) => {
+        if (!res.success) {
+          return {
+            success: false,
+            error: res.message,
+            drinks: [],
+          }
+        }
+
+        return {
+          success: true,
+          drinks: res.data.list.map((drink) =>
+            convertDrinksToArticleCardProps({
+              lang,
+              drink,
+              tags: [
+                {
+                  name: SEARCH_DRINKS_CONDITION_KEY.TASTE,
+                  items: [...tagTaste],
+                },
+              ],
+              drinkCategories: [...tagDrink],
+            })
+          ),
+        }
+      })
+    : Promise.resolve({
+        success: true,
+        drinks: [],
+      })
 
   return {
     drink,
-    latestDrinks,
     drinkCategory,
-    relatedDrinks,
+    latestDrinks: latestDrinksResult,
+    relatedDrinks: relatedDrinksResult,
   }
 }
 

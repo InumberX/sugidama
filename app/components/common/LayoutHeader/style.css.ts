@@ -91,6 +91,103 @@ export const layoutHeaderBar = style({
   },
 })
 
+export const layoutHeaderCorner__topLeft = style({
+  '@layer': {
+    [cssLayerComponentCommon]: {},
+  },
+})
+
+export const layoutHeaderCorner__topRight = style({
+  '@layer': {
+    [cssLayerComponentCommon]: {},
+  },
+})
+
+export const layoutHeaderCorner__bottomLeft = style({
+  '@layer': {
+    [cssLayerComponentCommon]: {},
+  },
+})
+
+export const layoutHeaderCorner__bottomRight = style({
+  '@layer': {
+    [cssLayerComponentCommon]: {},
+  },
+})
+
+export const layoutHeaderCorner = style({
+  '@layer': {
+    [cssLayerComponentCommon]: {
+      position: 'fixed',
+      zIndex: cssVariables.zIndex.header.bar,
+      display: 'block',
+      aspectRatio: '1 / 1',
+      inlineSize: 16,
+      blockSize: 'auto',
+
+      selectors: {
+        [`&${layoutHeaderCorner__topLeft}, &${layoutHeaderCorner__topRight}`]: {
+          insetBlockStart: 16,
+        },
+
+        [`&${layoutHeaderCorner__topLeft}`]: {
+          insetInlineStart: 16,
+          background: `radial-gradient(
+            circle at bottom right,
+            transparent 16px,
+            ${cssVariables.color.background.subLight.hex} 16px
+          )`,
+        },
+
+        [`&${layoutHeaderCorner__topRight}`]: {
+          insetInlineEnd: 16,
+          background: `radial-gradient(
+            circle at bottom left,
+            transparent 16px,
+            ${cssVariables.color.background.subLight.hex} 16px
+          )`,
+        },
+
+        [`&${layoutHeaderCorner__bottomLeft}, &${layoutHeaderCorner__bottomRight}`]: {
+          insetBlockEnd: getClampPx(layoutHeaderHeight.minimum, layoutHeaderHeight.maximum),
+        },
+
+        [`&${layoutHeaderCorner__bottomLeft}`]: {
+          insetInlineStart: 16,
+          background: `radial-gradient(
+            circle at top right,
+            transparent 16px,
+            ${cssVariables.color.background.subLight.hex} 16px
+          )`,
+        },
+
+        [`&${layoutHeaderCorner__bottomRight}`]: {
+          insetInlineEnd: 16,
+          background: `radial-gradient(
+            circle at top left,
+            transparent 16px,
+            ${cssVariables.color.background.subLight.hex} 16px
+          )`,
+        },
+      },
+
+      '@media': {
+        [getMediaQuery('sm')]: {
+          selectors: {
+            [`&${layoutHeaderCorner__topLeft}, &${layoutHeaderCorner__topRight}`]: {
+              insetBlockStart: getClampPx(layoutHeaderHeight.minimum, layoutHeaderHeight.maximum),
+            },
+
+            [`&${layoutHeaderCorner__bottomLeft}, &${layoutHeaderCorner__bottomRight}`]: {
+              insetBlockEnd: 16,
+            },
+          },
+        },
+      },
+    },
+  },
+})
+
 export const layoutHeader_wrapper = style({
   '@layer': {
     [cssLayerComponentCommon]: {},

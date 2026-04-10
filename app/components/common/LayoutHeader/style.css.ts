@@ -265,6 +265,24 @@ export const layoutHeaderMenuGlobal_item = style({
     [cssLayerComponentCommon]: {
       flexGrow: 1,
       blockSize: '100%',
+      position: 'relative',
+
+      selectors: {
+        '&::before': {
+          content: '',
+          position: 'absolute',
+          insetBlockStart: '50%',
+          insetInlineStart: 0,
+          inlineSize: 1,
+          blockSize: '40%',
+          backgroundColor: cssVariables.color.background.sub.hex,
+          translate: '0 -50%',
+        },
+
+        [`${layoutHeaderMenuGlobal_items} > &:first-of-type::before`]: {
+          content: 'none',
+        },
+      },
     },
   },
 })

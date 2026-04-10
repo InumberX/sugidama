@@ -7,7 +7,7 @@ import { cssLayerComponentUiLow } from '~/styles/variables/layers.css'
 export const layoutInner__large = style({
   '@layer': {
     [cssLayerComponentUiLow]: {
-      maxInlineSize: `calc(${cssVariables.layout.inner.width.large} + (${cssVariables.layout.inner.padding.md} * 2))`,
+      maxInlineSize: `calc(${cssVariables.layout.inner.maxWidth.large})`,
     },
   },
 })

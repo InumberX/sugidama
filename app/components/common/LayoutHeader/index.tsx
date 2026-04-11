@@ -42,8 +42,14 @@ export const LayoutHeader = ({ className, isLogoTitle, lang }: Props) => {
 
   return (
     <header className={[styles.layoutHeader, 'JsHeader', className].filter(Boolean).join(' ')}>
+      <span className={[styles.layoutHeaderBar, styles.layoutHeaderBar__top].filter(Boolean).join(' ')} />
+      <span className={[styles.layoutHeaderBar, styles.layoutHeaderBar__bottom].filter(Boolean).join(' ')} />
+      <span className={[styles.layoutHeaderCorner, styles.layoutHeaderCorner__topLeft].filter(Boolean).join(' ')} />
+      <span className={[styles.layoutHeaderCorner, styles.layoutHeaderCorner__topRight].filter(Boolean).join(' ')} />
+      <span className={[styles.layoutHeaderCorner, styles.layoutHeaderCorner__bottomLeft].filter(Boolean).join(' ')} />
+      <span className={[styles.layoutHeaderCorner, styles.layoutHeaderCorner__bottomRight].filter(Boolean).join(' ')} />
       <div className={styles.layoutHeader_wrapper}>
-        <LayoutInner>
+        <LayoutInner className={styles.layoutHeader_inner}>
           <div className={styles.layoutHeader_container}>
             <div className={styles.layoutHeaderLogo}>
               <LogoTitle className={styles.layoutHeaderLogo_title}>

@@ -36,7 +36,7 @@ export const sectionTitle_text = style({
   '@layer': {
     [cssLayerComponentUiLow]: {
       ...fontHeading2,
-      color: cssVariables.color.font.base.hex,
+      color: cssVariables.color.font.subDark.hex,
     },
   },
 })

@@ -1,6 +1,5 @@
 import { style } from '@vanilla-extract/css'
 
-import { getRgba } from '~/styles/mixins/color.css'
 import { getMediaQuery, getMediaQueryReverse } from '~/styles/mixins/mediaQuery.css'
 import { getClampPx } from '~/styles/mixins/size.css'
 import { getTransition } from '~/styles/mixins/transition.css'
@@ -9,8 +8,8 @@ import { fontSmallBold } from '~/styles/variables/font.css'
 import { cssLayerComponentCommon } from '~/styles/variables/layers.css'
 
 export const layoutHeaderHeight = {
-  minimum: 56,
-  maximum: 80,
+  minimum: 64,
+  maximum: 64,
 }
 
 export const layoutHeader = style({
@@ -21,6 +20,170 @@ export const layoutHeader = style({
       insetInlineStart: 0,
       position: 'absolute',
       zIndex: cssVariables.zIndex.header.wrapper,
+      paddingBlockStart: 16,
+      paddingInline: 16,
+
+      '@media': {
+        [getMediaQuery('sm')]: {
+          position: 'fixed',
+          backgroundColor: cssVariables.color.background.subLight.hex,
+          paddingBlockStart: 0,
+          paddingInline: 0,
+        },
+      },
+    },
+  },
+})
+
+export const layoutHeaderBar__top = style({
+  '@layer': {
+    [cssLayerComponentCommon]: {},
+  },
+})
+
+export const layoutHeaderBar__bottom = style({
+  '@layer': {
+    [cssLayerComponentCommon]: {},
+  },
+})
+
+export const layoutHeaderBar = style({
+  '@layer': {
+    [cssLayerComponentCommon]: {
+      position: 'fixed',
+      zIndex: cssVariables.zIndex.header.bar,
+      display: 'block',
+      backgroundColor: cssVariables.color.background.subLight.hex,
+
+      selectors: {
+        [`&${layoutHeaderBar__top}, &${layoutHeaderBar__bottom}`]: {
+          inlineSize: '100%',
+          blockSize: 16,
+        },
+
+        [`&${layoutHeaderBar__top}`]: {
+          insetBlockStart: 0,
+          insetInlineStart: 0,
+        },
+
+        [`&${layoutHeaderBar__bottom}`]: {
+          display: 'none',
+          insetBlockEnd: getClampPx(layoutHeaderHeight.minimum, layoutHeaderHeight.maximum),
+          insetInlineStart: 0,
+        },
+      },
+
+      '@media': {
+        [getMediaQuery('sm')]: {
+          selectors: {
+            [`&${layoutHeaderBar__top}`]: {
+              display: 'none',
+            },
+
+            [`&${layoutHeaderBar__bottom}`]: {
+              display: 'block',
+              insetBlockEnd: 0,
+            },
+          },
+        },
+      },
+    },
+  },
+})
+
+export const layoutHeaderCorner__topLeft = style({
+  '@layer': {
+    [cssLayerComponentCommon]: {},
+  },
+})
+
+export const layoutHeaderCorner__topRight = style({
+  '@layer': {
+    [cssLayerComponentCommon]: {},
+  },
+})
+
+export const layoutHeaderCorner__bottomLeft = style({
+  '@layer': {
+    [cssLayerComponentCommon]: {},
+  },
+})
+
+export const layoutHeaderCorner__bottomRight = style({
+  '@layer': {
+    [cssLayerComponentCommon]: {},
+  },
+})
+
+export const layoutHeaderCorner = style({
+  '@layer': {
+    [cssLayerComponentCommon]: {
+      position: 'fixed',
+      zIndex: cssVariables.zIndex.header.bar,
+      display: 'block',
+      aspectRatio: '1 / 1',
+      inlineSize: 16,
+      blockSize: 'auto',
+
+      selectors: {
+        [`&${layoutHeaderCorner__topLeft}, &${layoutHeaderCorner__topRight}`]: {
+          insetBlockStart: 16,
+        },
+
+        [`&${layoutHeaderCorner__topLeft}`]: {
+          insetInlineStart: 16,
+          background: `radial-gradient(
+            circle at bottom right,
+            transparent 16px,
+            ${cssVariables.color.background.subLight.hex} 16px
+          )`,
+        },
+
+        [`&${layoutHeaderCorner__topRight}`]: {
+          insetInlineEnd: 16,
+          background: `radial-gradient(
+            circle at bottom left,
+            transparent 16px,
+            ${cssVariables.color.background.subLight.hex} 16px
+          )`,
+        },
+
+        [`&${layoutHeaderCorner__bottomLeft}, &${layoutHeaderCorner__bottomRight}`]: {
+          insetBlockEnd: getClampPx(layoutHeaderHeight.minimum, layoutHeaderHeight.maximum),
+        },
+
+        [`&${layoutHeaderCorner__bottomLeft}`]: {
+          insetInlineStart: 16,
+          background: `radial-gradient(
+            circle at top right,
+            transparent 16px,
+            ${cssVariables.color.background.subLight.hex} 16px
+          )`,
+        },
+
+        [`&${layoutHeaderCorner__bottomRight}`]: {
+          insetInlineEnd: 16,
+          background: `radial-gradient(
+            circle at top left,
+            transparent 16px,
+            ${cssVariables.color.background.subLight.hex} 16px
+          )`,
+        },
+      },
+
+      '@media': {
+        [getMediaQuery('sm')]: {
+          selectors: {
+            [`&${layoutHeaderCorner__topLeft}, &${layoutHeaderCorner__topRight}`]: {
+              insetBlockStart: getClampPx(layoutHeaderHeight.minimum, layoutHeaderHeight.maximum),
+            },
+
+            [`&${layoutHeaderCorner__bottomLeft}, &${layoutHeaderCorner__bottomRight}`]: {
+              insetBlockEnd: 16,
+            },
+          },
+        },
+      },
     },
   },
 })
@@ -28,6 +191,20 @@ export const layoutHeader = style({
 export const layoutHeader_wrapper = style({
   '@layer': {
     [cssLayerComponentCommon]: {},
+  },
+})
+
+export const layoutHeader_inner = style({
+  '@layer': {
+    [cssLayerComponentCommon]: {
+      maxInlineSize: `calc(${cssVariables.layout.inner.maxWidth.large} + (16px * 2))`,
+
+      '@media': {
+        [getMediaQuery('sm')]: {
+          paddingInline: 16,
+        },
+      },
+    },
   },
 })
 
@@ -88,7 +265,7 @@ export const layoutHeaderLogo_image = style({
   '@layer': {
     [cssLayerComponentCommon]: {
       blockSize: 'auto',
-      inlineSize: getClampPx(120, 240),
+      inlineSize: getClampPx(120, 160),
     },
   },
 })
@@ -96,17 +273,9 @@ export const layoutHeaderLogo_image = style({
 export const layoutHeaderMenu = style({
   '@layer': {
     [cssLayerComponentCommon]: {
-      zIndex: cssVariables.zIndex.header.menu,
-
       '@media': {
         [getMediaQuery('sm')]: {
-          position: 'fixed',
-          insetBlockStart: 8,
-          insetInlineEnd: cssVariables.layout.inner.padding.sm,
-        },
-
-        [getMediaQuery('md')]: {
-          insetInlineEnd: cssVariables.layout.inner.padding.md,
+          blockSize: '100%',
         },
       },
     },
@@ -118,10 +287,7 @@ export const layoutHeaderMenu_container = style({
     [cssLayerComponentCommon]: {
       '@media': {
         [getMediaQuery('sm')]: {
-          backgroundColor: getRgba(cssVariables.color.background.subLight.rgb, 0.56),
-          borderRadius: 'calc(infinity * 1px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          backdropFilter: 'blur(24px)',
+          blockSize: '100%',
         },
       },
     },
@@ -132,10 +298,12 @@ export const layoutHeaderMenuGlobal = style({
   '@layer': {
     [cssLayerComponentCommon]: {
       position: 'fixed',
-      insetBlockEnd: 16,
-      insetInlineStart: cssVariables.layout.inner.padding.xs,
-      inlineSize: `calc(100% - ${cssVariables.layout.inner.padding.xs} * 2)`,
+      insetBlockEnd: 0,
+      insetInlineStart: 0,
+      inlineSize: '100%',
       zIndex: cssVariables.zIndex.header.global,
+      blockSize: getClampPx(layoutHeaderHeight.minimum, layoutHeaderHeight.maximum),
+      paddingInline: 16,
 
       '@media': {
         [getMediaQuery('sm')]: {
@@ -143,6 +311,8 @@ export const layoutHeaderMenuGlobal = style({
           insetBlockEnd: 'auto',
           insetInlineStart: 'auto',
           inlineSize: 'auto',
+          blockSize: '100%',
+          paddingInline: 0,
         },
       },
     },
@@ -152,12 +322,11 @@ export const layoutHeaderMenuGlobal = style({
 export const layoutHeaderMenuGlobal_container = style({
   '@layer': {
     [cssLayerComponentCommon]: {
+      blockSize: '100%',
+
       '@media': {
         [getMediaQueryReverse('sm')]: {
-          backgroundColor: getRgba(cssVariables.color.background.subLight.rgb, 0.56),
-          borderRadius: 'calc(infinity * 1px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          backdropFilter: 'blur(24px)',
+          backgroundColor: cssVariables.color.background.subLight.hex,
         },
       },
     },
@@ -166,7 +335,16 @@ export const layoutHeaderMenuGlobal_container = style({
 
 export const layoutHeaderMenuGlobal_navigation = style({
   '@layer': {
-    [cssLayerComponentCommon]: {},
+    [cssLayerComponentCommon]: {
+      blockSize: '100%',
+
+      '@media': {
+        [getMediaQuery('sm')]: {
+          display: 'flex',
+          justifyContent: 'flex-end',
+        },
+      },
+    },
   },
 })
 
@@ -174,6 +352,7 @@ export const layoutHeaderMenuGlobal_items = style({
   '@layer': {
     [cssLayerComponentCommon]: {
       display: 'flex',
+      blockSize: '100%',
     },
   },
 })
@@ -182,6 +361,25 @@ export const layoutHeaderMenuGlobal_item = style({
   '@layer': {
     [cssLayerComponentCommon]: {
       flexGrow: 1,
+      blockSize: '100%',
+      position: 'relative',
+
+      selectors: {
+        '&::before': {
+          content: '',
+          position: 'absolute',
+          insetBlockStart: '50%',
+          insetInlineStart: 0,
+          inlineSize: 1,
+          blockSize: '40%',
+          backgroundColor: cssVariables.color.background.sub.hex,
+          translate: '0 -50%',
+        },
+
+        [`${layoutHeaderMenuGlobal_items} > &:first-of-type::before`]: {
+          content: 'none',
+        },
+      },
     },
   },
 })
@@ -197,8 +395,9 @@ export const layoutHeaderMenuGlobal_link = style({
       ...fontSmallBold,
       color: cssVariables.color.font.base.hex,
       textDecoration: 'none',
-      paddingBlock: 8,
+      paddingBlock: 4,
       paddingInline: 16,
+      blockSize: '100%',
 
       '@media': {
         [getMediaQuery('hover')]: {
@@ -211,6 +410,8 @@ export const layoutHeaderMenuGlobal_link = style({
 
         [getMediaQuery('sm')]: {
           paddingInline: 20,
+          flexDirection: 'row',
+          gap: 8,
         },
 
         [getMediaQuery('md')]: {

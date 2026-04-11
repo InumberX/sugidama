@@ -11,6 +11,10 @@ export const layoutFooter = style({
   '@layer': {
     [cssLayerComponentCommon]: {
       marginBlockStart: 'auto',
+      marginInline: 'auto',
+      inlineSize: '100%',
+      maxInlineSize: `calc(${cssVariables.layout.inner.maxWidth.large} + (16px * 2))`,
+      paddingInline: 16,
     },
   },
 })
@@ -19,11 +23,11 @@ export const layoutFooter_wrapper = style({
   '@layer': {
     [cssLayerComponentCommon]: {
       backgroundColor: cssVariables.color.util.black.hex,
-      paddingBlockEnd: getClampPx(layoutHeaderHeight.minimum + 24, layoutHeaderHeight.maximum + 24),
+      paddingBlockEnd: getClampPx(layoutHeaderHeight.minimum, layoutHeaderHeight.maximum),
 
       '@media': {
         [getMediaQuery('sm')]: {
-          paddingBlockEnd: 0,
+          paddingBlockEnd: 16,
         },
       },
     },

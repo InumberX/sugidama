@@ -32,7 +32,7 @@ type Details = {
   main_visuals: MainVisual[]
   manufacturer: string
   abv: number
-  category: Category
+  drink_category: DrinkCategory
   links: Link[]
   comment: string
   subject_en: string
@@ -42,7 +42,7 @@ type Details = {
   comment_en: string
 }
 
-type Category = {
+type DrinkCategory = {
   key: string
   label: string
 }

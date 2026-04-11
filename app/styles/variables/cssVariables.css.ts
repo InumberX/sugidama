@@ -62,8 +62,8 @@ export const cssVariableColors = {
   },
   background: {
     body: {
-      hex: '#fff',
-      rgb: changeColorHexToRgb('#fff'),
+      hex: '#efefef',
+      rgb: changeColorHexToRgb('#efefef'),
     },
     light: {
       hex: '#fff',
@@ -182,6 +182,9 @@ export const cssVariables = createGlobalTheme(':root', {
         sm: '4.6vw',
         md: '32px',
       },
+      maxWidth: {
+        large: '1400px + (32px * 2)',
+      },
     },
     header: {},
   },
@@ -192,8 +195,8 @@ export const cssVariables = createGlobalTheme(':root', {
   zIndex: {
     header: {
       wrapper: '10000',
-      menu: '10100',
-      global: '10200',
+      global: '10100',
+      bar: '10200',
     },
   },
 })

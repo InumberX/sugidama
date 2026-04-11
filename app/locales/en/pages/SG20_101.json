@@ -1,0 +1,13 @@
+{
+  "relatedDrinks": {
+    "title": "{{drinkCategory}} Drinks"
+  },
+  "latestDrinks": {
+    "title": "Latest Drinks"
+  },
+  "bottom": {
+    "backToListButton": {
+      "label": "Back to List"
+    }
+  }
+}

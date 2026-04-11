@@ -48,7 +48,7 @@ export const pageTitle_paragraph = style({
   '@layer': {
     [cssLayerComponentUiLow]: {
       ...fontHeading1,
-      color: cssVariables.color.font.subDark.hex,
+      color: cssVariables.color.font.base.hex,
       display: 'flex',
     },
   },

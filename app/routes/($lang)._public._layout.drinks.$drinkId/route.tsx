@@ -6,7 +6,7 @@ import { getDrinksDetail, getDrinks } from '~/server/api/drinks.server'
 import { convertError } from '~/server/api/error.server'
 import { getMasterDrinkCategory } from '~/server/api/masters.server'
 import { getTagTaste } from '~/server/api/tags.server'
-import { convertDrinksToArticleCardProps } from '~/utils/article'
+import { convertDrinkToArticleCardProps, convertDrinkToBaseArticleProps } from '~/utils/article'
 import { getLang } from '~/utils/locale'
 import { SEARCH_DRINKS_CONDITION_KEY } from '~/utils/search'
 import { convertTags, convertMasterDrinkCategory } from '~/utils/tags'
@@ -50,6 +50,18 @@ export async function loader(args: Route.LoaderArgs) {
 
   const drinkCategory = tagDrink.find((category) => category.id === Number(drink.drink_category.key))
 
+  const drinkArticle = convertDrinkToBaseArticleProps({
+    lang,
+    drink,
+    tags: [
+      {
+        name: SEARCH_DRINKS_CONDITION_KEY.TASTE,
+        items: [...tagTaste],
+      },
+    ],
+    drinkCategories: [...tagDrink],
+  })
+
   const latestDrinksResult = getDrinks({
     page: 1,
     pageSize: 4,
@@ -65,7 +77,7 @@ export async function loader(args: Route.LoaderArgs) {
     return {
       success: true,
       drinks: res.data.list.map((drink) =>
-        convertDrinksToArticleCardProps({
+        convertDrinkToArticleCardProps({
           lang,
           drink,
           tags: [
@@ -97,7 +109,7 @@ export async function loader(args: Route.LoaderArgs) {
         return {
           success: true,
           drinks: res.data.list.map((drink) =>
-            convertDrinksToArticleCardProps({
+            convertDrinkToArticleCardProps({
               lang,
               drink,
               tags: [
@@ -117,7 +129,7 @@ export async function loader(args: Route.LoaderArgs) {
       })
 
   return {
-    drink,
+    drinkArticle,
     drinkCategory,
     latestDrinks: latestDrinksResult,
     relatedDrinks: relatedDrinksResult,

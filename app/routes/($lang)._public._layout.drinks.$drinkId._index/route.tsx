@@ -5,13 +5,13 @@ import { type MetaFunction, useRouteLoaderData, Await } from 'react-router'
 import type { Route } from './+types/route'
 import * as styles from './style.css'
 
+import { BaseArticle } from '~/components/ui/articles/BaseArticle'
 import { BaseButton } from '~/components/ui/buttons/BaseButton'
 import { LayoutInner } from '~/components/ui/layouts/LayoutInner'
 import { LayoutPageWrapper } from '~/components/ui/layouts/LayoutPageWrapper'
 import { LayoutSection } from '~/components/ui/layouts/LayoutSection'
 import { ArticleCardList } from '~/components/ui/lists/ArticleCardList'
 import { SectionTitle } from '~/components/ui/typographies/SectionTitle'
-import { LANG } from '~/config/consts'
 import { PAGES } from '~/config/paths'
 import { loader as drinkDetailLoader } from '~/routes/($lang)._public._layout.drinks.$drinkId/route'
 import { getLang } from '~/utils/locale'
@@ -31,14 +31,14 @@ export const meta: MetaFunction<{
   const lang = getLang({
     lang: params.lang,
   })
-  const drink = matchData?.drink
+  const drinkArticle = matchData?.drinkArticle
 
   return getMetadata({
     args,
     title: page.getName({
       lang,
       params: {
-        drinkName: lang === LANG.EN ? (drink?.subject_en ?? '') : (drink?.subject ?? ''),
+        drinkName: drinkArticle?.title.text ?? '',
       },
     }),
   })
@@ -59,6 +59,7 @@ export default function PageSG20_101({ loaderData }: Route.ComponentProps) {
     'routes/($lang)._public._layout.drinks.$drinkId'
   )
   const { t: tPage } = useTranslation('pages/SG20_101')
+  const drinkArticle = drinkDetailLoaderData?.drinkArticle
   const drinkCategory = drinkDetailLoaderData?.drinkCategory
   const latestDrinks = use(
     drinkDetailLoaderData?.latestDrinks ??
@@ -79,6 +80,11 @@ export default function PageSG20_101({ loaderData }: Route.ComponentProps) {
     <LayoutPageWrapper className={styles.drink} isBottomNoSpace>
       <div className={styles.drink_wrapper}>
         <div className={styles.drink_container}>
+          <LayoutSection className={styles.drinkArticle} tag="div">
+            <LayoutInner>
+              <div className={styles.drinkArticle_container}>{drinkArticle && <BaseArticle {...drinkArticle} />}</div>
+            </LayoutInner>
+          </LayoutSection>
           <Suspense fallback={<></>}>
             <Await resolve={relatedDrinks}>
               {(data) => {
@@ -105,7 +111,18 @@ export default function PageSG20_101({ loaderData }: Route.ComponentProps) {
                             drinkCategory: drinkCategory?.label,
                           })}
                         />
-                        <ArticleCardList items={relatedDrinks} itemSize="small" />
+                        <ArticleCardList
+                          items={relatedDrinks.map((relatedDrink) => {
+                            return {
+                              ...relatedDrink,
+                              title: {
+                                ...relatedDrink.title,
+                                titleTag: 'h3',
+                              },
+                            }
+                          })}
+                          itemSize="small"
+                        />
                       </div>
                     </LayoutInner>
                   </LayoutSection>
@@ -135,7 +152,18 @@ export default function PageSG20_101({ loaderData }: Route.ComponentProps) {
                     <LayoutInner>
                       <div className={styles.drinkRelated_container}>
                         <SectionTitle title={tPage('latestDrinks.title')} />
-                        <ArticleCardList items={latestDrinks} itemSize="small" />
+                        <ArticleCardList
+                          items={latestDrinks.map((latestDrink) => {
+                            return {
+                              ...latestDrink,
+                              title: {
+                                ...latestDrink.title,
+                                titleTag: 'h3',
+                              },
+                            }
+                          })}
+                          itemSize="small"
+                        />
                       </div>
                     </LayoutInner>
                   </LayoutSection>

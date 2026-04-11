@@ -21,6 +21,18 @@ export const drink_container = style({
   },
 })
 
+export const drinkArticle = style({
+  '@layer': {
+    [cssLayerComponentPage]: {},
+  },
+})
+
+export const drinkArticle_container = style({
+  '@layer': {
+    [cssLayerComponentPage]: {},
+  },
+})
+
 export const drinkRelated = style({
   '@layer': {
     [cssLayerComponentPage]: {},

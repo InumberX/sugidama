@@ -19,7 +19,7 @@ import { getDrinks } from '~/server/api/drinks.server'
 import { convertError } from '~/server/api/error.server'
 import { getMasterDrinkCategory } from '~/server/api/masters.server'
 import { getTagTaste } from '~/server/api/tags.server'
-import { convertDrinksToArticleCardProps } from '~/utils/article'
+import { convertDrinkToArticleCardProps } from '~/utils/article'
 import { parseNumberParam } from '~/utils/loader-guards.server'
 import { getLang } from '~/utils/locale'
 import { getMetadata } from '~/utils/meta'
@@ -109,7 +109,7 @@ export async function loader(args: Route.LoaderArgs) {
     return {
       success: true,
       drinks: res.data.list.map((drink) =>
-        convertDrinksToArticleCardProps({
+        convertDrinkToArticleCardProps({
           lang,
           drink,
           tags: [

@@ -99,7 +99,7 @@ export const convertDrinkToBaseArticleProps = ({
   const comment = lang === LANG.EN ? drink.comment_en : drink.comment
   const links = drink.links.map((link) => ({
     text: lang === LANG.EN ? link.link_text_en : link.link_text,
-    url: link.link_url,
+    url: lang === LANG.EN && link.link_url_en ? link.link_url_en : link.link_url,
   }))
 
   return {

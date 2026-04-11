@@ -67,7 +67,9 @@ export const articleSliderMainImage = style({
       alignItems: 'center',
       justifyContent: 'center',
       inlineSize: '100%',
-      blockSize: '100%',
+      blockSize: 'auto',
+      overflow: 'hidden',
+      borderRadius: 8,
     },
   },
 })

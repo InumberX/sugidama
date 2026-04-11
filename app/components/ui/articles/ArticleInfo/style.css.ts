@@ -88,3 +88,29 @@ export const articleInfo_text = style({
     },
   },
 })
+
+export const articleInfoLinks = style({
+  '@layer': {
+    [cssLayerComponentUiLow]: {},
+  },
+})
+
+export const articleInfoLinks_items = style({
+  '@layer': {
+    [cssLayerComponentUiLow]: {},
+  },
+})
+
+export const articleInfoLinks_item = style({
+  '@layer': {
+    [cssLayerComponentUiLow]: {},
+  },
+})
+
+export const articleInfoLink_icon = style({
+  '@layer': {
+    [cssLayerComponentUiLow]: {
+      backgroundColor: cssVariables.color.background.subDark.hex,
+    },
+  },
+})

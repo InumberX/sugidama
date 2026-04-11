@@ -22,7 +22,7 @@ export type ArticleSliderProps = {
 
 export const ArticleSlider = ({ className, options, thumbnailOptions, slides }: ArticleSliderProps) => {
   // 無限ループ時にスライドが4枚以下だと表示が崩れるので複製する
-  const slideInfos =
+  const slideItems =
     slides.length <= 1
       ? slides
       : slides.length <= 2
@@ -63,10 +63,24 @@ export const ArticleSlider = ({ className, options, thumbnailOptions, slides }: 
           slides: {
             origin: 'center',
             spacing: 16,
-            perView: 3,
+            perView: 2,
           },
         },
         [`(width >= ${BREAKPOINTS.md}px)`]: {
+          slides: {
+            origin: 'center',
+            spacing: 16,
+            perView: 2.4,
+          },
+        },
+        [`(width >= ${BREAKPOINTS.lg}px)`]: {
+          slides: {
+            origin: 'center',
+            spacing: 16,
+            perView: 3,
+          },
+        },
+        [`(width >= ${BREAKPOINTS.xl}px)`]: {
           slides: {
             origin: 'center',
             spacing: 16,
@@ -101,7 +115,7 @@ export const ArticleSlider = ({ className, options, thumbnailOptions, slides }: 
         >
           <div className={styles.articleSliderMain_container}>
             <div ref={sliderRef} className={['keen-slider', styles.articleSliderMain_slider].filter(Boolean).join(' ')}>
-              {slideInfos.map((slide, i) => {
+              {slideItems.map((slide, i) => {
                 return (
                   <div
                     key={i}
@@ -123,7 +137,7 @@ export const ArticleSlider = ({ className, options, thumbnailOptions, slides }: 
           </div>
         </div>
 
-        {slideInfos.length >= 2 && (
+        {slideItems.length >= 2 && (
           <div
             className={[styles.articleSliderSub, isSubReady && styles.articleSliderSub__active]
               .filter(Boolean)
@@ -163,7 +177,7 @@ export const ArticleSlider = ({ className, options, thumbnailOptions, slides }: 
                 ref={sliderSubRef}
                 className={['keen-slider', styles.articleSliderSub_slider].filter(Boolean).join(' ')}
               >
-                {slideInfos.map((slide, i) => {
+                {slideItems.map((slide, i) => {
                   return (
                     <div
                       key={i}

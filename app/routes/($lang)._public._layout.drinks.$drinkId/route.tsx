@@ -129,6 +129,7 @@ export async function loader(args: Route.LoaderArgs) {
       })
 
   return {
+    thumbnail: drink.thumbnail?.url,
     drinkArticle,
     drinkCategory,
     latestDrinks: latestDrinksResult,

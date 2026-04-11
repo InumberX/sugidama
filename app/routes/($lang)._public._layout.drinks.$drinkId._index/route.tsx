@@ -32,6 +32,7 @@ export const meta: MetaFunction<{
     lang: params.lang,
   })
   const drinkArticle = matchData?.drinkArticle
+  const thumbnail = matchData?.thumbnail
 
   return getMetadata({
     args,
@@ -41,6 +42,7 @@ export const meta: MetaFunction<{
         drinkName: drinkArticle?.title.text ?? '',
       },
     }),
+    ogImage: thumbnail,
   })
 }
 

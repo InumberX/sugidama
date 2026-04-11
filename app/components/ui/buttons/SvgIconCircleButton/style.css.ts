@@ -109,6 +109,21 @@ export const svgIconCircleButton = style({
         '&:after': {
           zIndex: 1,
         },
+
+        [`&${svgIconCircleButton__small}`]: {
+          paddingInline: 2,
+          paddingBlock: 2,
+        },
+
+        [`&${svgIconCircleButton__medium}`]: {
+          paddingInline: 4,
+          paddingBlock: 4,
+        },
+
+        [`&${svgIconCircleButton__large}`]: {
+          paddingInline: 12,
+          paddingBlock: 12,
+        },
       },
     },
   },

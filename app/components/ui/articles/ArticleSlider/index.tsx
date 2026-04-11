@@ -160,7 +160,6 @@ export const ArticleSlider = ({ className, options, thumbnailOptions, slides }: 
                       .join(' ')}
                     isDisabled={!isSubReady}
                     title="前へ"
-                    aria-label="前へ"
                     onClick={() => {
                       if (!isSubReady || !instanceSubRef.current) {
                         return
@@ -226,7 +225,6 @@ export const ArticleSlider = ({ className, options, thumbnailOptions, slides }: 
                       .join(' ')}
                     isDisabled={!isSubReady}
                     title="次へ"
-                    aria-label="次へ"
                     onClick={() => {
                       if (!isSubReady || !instanceSubRef.current) {
                         return

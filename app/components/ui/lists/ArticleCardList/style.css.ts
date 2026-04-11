@@ -30,11 +30,11 @@ export const articleCardList_items = style({
       gap: 24,
 
       selectors: {
-        [`&.${articleCardList_items__small}`]: {
+        [`&${articleCardList_items__small}`]: {
           gridTemplateColumns: 'repeat(auto-fill, minmax(min(240px, 100%), 1fr))',
         },
 
-        [`&.${articleCardList_items__medium}`]: {
+        [`&${articleCardList_items__medium}`]: {
           gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))',
         },
       },

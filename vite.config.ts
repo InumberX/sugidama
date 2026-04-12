@@ -51,6 +51,7 @@ export default defineConfig({
     },
   },
   define: {
+    'import.meta.env.VITE_NODE_ENV': `"${process.env.NODE_ENV || 'development'}"`,
     'import.meta.env.VITE_NO_INDEX': `"${process.env.NO_INDEX || ''}"`,
     'import.meta.env.VITE_SITE_URL': `"${process.env.SITE_URL || 'http://localhost:5173'}"`,
     'import.meta.env.VITE_SITE_NAME': `"${process.env.SITE_NAME || 'Sugidama(development)'}"`,

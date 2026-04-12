@@ -3,7 +3,7 @@ import type { MetaArgs } from 'react-router'
 
 import type { Route } from '~/+types/root'
 import { LANG } from '~/config/consts'
-import { NO_INDEX, SITE_URL } from '~/config/env'
+import { NO_INDEX, NODE_ENV, SITE_URL } from '~/config/env'
 import { getSiteInfo } from '~/utils/locale'
 
 type Props = {
@@ -99,7 +99,7 @@ export const getMetadata = ({
     },
   ]
 
-  if (process.env.NODE_ENV !== 'production' || NO_INDEX === 'true') {
+  if (NODE_ENV !== 'production' || NO_INDEX === 'true') {
     metadata.push({
       name: 'robots',
       content: 'noindex, nofollow',

@@ -8,6 +8,7 @@ import { type EntryContext } from 'react-router'
 import { ServerRouter } from 'react-router'
 import { PassThrough } from 'stream'
 
+import { NODE_ENV } from './config/env'
 import i18next from './i18next.server'
 
 import { i18n } from '~/i18n'
@@ -17,7 +18,7 @@ import { buildCspDirective } from '~/server/csp.server'
 // import { resolve } from 'node:path'
 
 const ABORT_DELAY = 5000
-const isDevelopment = process.env.NODE_ENV !== 'production'
+const isDevelopment = NODE_ENV !== 'production'
 
 export default async function handleRequest(
   request: Request,

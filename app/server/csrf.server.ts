@@ -1,6 +1,8 @@
 import { parse, serialize } from 'cookie'
 import { randomBytes, timingSafeEqual } from 'node:crypto'
 
+import { NODE_ENV } from '~/config/env'
+
 const CSRF_COOKIE_NAME = '_csrf'
 const CSRF_HEADER_NAME = 'X-CSRF-Token'
 
@@ -12,7 +14,7 @@ export function createCsrfCookieHeader(token: string): string {
   return serialize(CSRF_COOKIE_NAME, token, {
     path: '/',
     httpOnly: false,
-    secure: process.env.NODE_ENV === 'production',
+    secure: NODE_ENV === 'production',
     sameSite: 'lax',
   })
 }

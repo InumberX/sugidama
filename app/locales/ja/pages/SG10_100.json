@@ -9,5 +9,13 @@
         "label": "もっと見る"
       }
     }
+  },
+  "searchCategory": {
+    "title": "カテゴリから探す",
+    "bottom": {
+      "button": {
+        "label": "他の条件で検索する"
+      }
+    }
   }
 }

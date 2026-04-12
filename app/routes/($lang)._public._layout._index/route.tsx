@@ -4,6 +4,7 @@ import { type MetaFunction } from 'react-router'
 import type { Route } from './+types/route'
 import * as styles from './style.css'
 
+import { PrimitiveButton } from '~/components/primitives/buttons/PrimitiveButton'
 import { BaseButton } from '~/components/ui/buttons/BaseButton'
 import { type ArticleCardProps } from '~/components/ui/cards/ArticleCard'
 import { type ArticleCompactCardProps } from '~/components/ui/cards/ArticleCompactCard'
@@ -70,42 +71,61 @@ export async function loader(args: Route.LoaderArgs) {
   })
 
   const drinks = drinksResult.data.list
-  const drinksArticleCardItems = drinks.slice(0, 2).map((drink) =>
-    convertDrinkToArticleCardProps({
-      lang,
-      drink,
-      tags: [
-        {
-          name: SEARCH_DRINKS_CONDITION_KEY.TASTE,
-          items: [...tagTaste],
-        },
-      ],
-      drinkCategories: [...tagDrink],
-    })
-  )
-  const drinksArticleCompactCardItems = drinks.slice(2, 6).map((drink) =>
-    convertDrinkToArticleCompactCardProps({
-      lang,
-      drink,
-      tags: [
-        {
-          name: SEARCH_DRINKS_CONDITION_KEY.TASTE,
-          items: [...tagTaste],
-        },
-      ],
-      drinkCategories: [...tagDrink],
-    })
-  )
+  const drinksArticleCardItems = drinks
+    .slice(0, 2)
+    .map((drink) =>
+      convertDrinkToArticleCardProps({
+        lang,
+        drink,
+        tags: [
+          {
+            name: SEARCH_DRINKS_CONDITION_KEY.TASTE,
+            items: [...tagTaste],
+          },
+        ],
+        drinkCategories: [...tagDrink],
+      })
+    )
+    .map((item) => ({
+      ...item,
+      title: {
+        ...item.title,
+        titleTag: 'h3',
+      },
+    }))
+  const drinksArticleCompactCardItems = drinks
+    .slice(2, 6)
+    .map((drink) =>
+      convertDrinkToArticleCompactCardProps({
+        lang,
+        drink,
+        tags: [
+          {
+            name: SEARCH_DRINKS_CONDITION_KEY.TASTE,
+            items: [...tagTaste],
+          },
+        ],
+        drinkCategories: [...tagDrink],
+      })
+    )
+    .map((item) => ({
+      ...item,
+      title: {
+        ...item.title,
+        titleTag: 'h3',
+      },
+    }))
 
   return {
     lang,
     drinksArticleCardItems,
     drinksArticleCompactCardItems,
+    tagDrink,
   }
 }
 
 export default function PageSG10_100({ loaderData }: Route.ComponentProps) {
-  const { lang } = loaderData
+  const { lang, tagDrink } = loaderData
   const drinksArticleCardItems = loaderData.drinksArticleCardItems as ArticleCardProps[]
   const drinksArticleCompactCardItems = loaderData.drinksArticleCompactCardItems as ArticleCompactCardProps[]
   const { t: tPage } = useTranslation('pages/SG10_100')
@@ -155,6 +175,48 @@ export default function PageSG10_100({ loaderData }: Route.ComponentProps) {
                   size="large"
                 >
                   {tPage('newArrivals.bottom.button.label')}
+                </BaseButton>
+              </div>
+            </div>
+          </LayoutInner>
+        </LayoutSection>
+        <LayoutSection className={styles.homeSearchCategory}>
+          <LayoutInner>
+            <div className={styles.homeSearchCategory_container}>
+              <PageTitle titleTag="h2" color="primary" title={tPage('searchCategory.title')} />
+              <div className={styles.homeSearchCategoryList}>
+                <ul className={styles.homeSearchCategoryList_items}>
+                  {tagDrink.map((tag) => (
+                    <li key={`${tag.id}-${lang}`} className={styles.homeSearchCategoryList_item}>
+                      <PrimitiveButton
+                        url={`${PAGES.SG20_100.getUrl({
+                          lang,
+                        })}?${SEARCH_DRINKS_CONDITION_KEY.DRINK}=${tag.id}`}
+                        className={styles.homeSearchCategoryListLink}
+                      >
+                        <div className={styles.homeSearchCategoryListLink_container}>
+                          <figure className={styles.homeSearchCategoryListLinkThumbnail}>
+                            <img
+                              src={`/assets/img/img-category-${tag.slug}.webp?${CACHE_BUSTER}`}
+                              alt=""
+                              className={styles.homeSearchCategoryListLinkThumbnail_image}
+                            />
+                          </figure>
+                          <h3 className={styles.homeSearchCategoryListLink_title}>{tag.label}</h3>
+                        </div>
+                      </PrimitiveButton>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className={styles.homeSearchCategory_bottom}>
+                <BaseButton
+                  url={PAGES.SG20_100.getUrl({
+                    lang,
+                  })}
+                  size="large"
+                >
+                  {tPage('searchCategory.bottom.button.label')}
                 </BaseButton>
               </div>
             </div>

@@ -9,5 +9,13 @@
         "label": "See More"
       }
     }
+  },
+  "searchCategory": {
+    "title": "Search by Category",
+    "bottom": {
+      "button": {
+        "label": "Search with Other Criteriaï"
+      }
+    }
   }
 }

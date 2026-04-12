@@ -1,9 +1,10 @@
 import { style } from '@vanilla-extract/css'
 
-import { getContainerQuery } from '~/styles/mixins/mediaQuery.css'
+import { getContainerQuery, getMediaQuery } from '~/styles/mixins/mediaQuery.css'
 import { getClampPx } from '~/styles/mixins/size.css'
+import { getTransition } from '~/styles/mixins/transition.css'
 import { cssVariables } from '~/styles/variables/cssVariables.css'
-import { fontLargeBold } from '~/styles/variables/font.css'
+import { fontLargeBold, fontMediumBold } from '~/styles/variables/font.css'
 import { cssLayerComponentPage } from '~/styles/variables/layers.css'
 
 export const home = style({
@@ -121,6 +122,133 @@ export const homeNewArrivalsList_sub = style({
 })
 
 export const homeNewArrivals_bottom = style({
+  '@layer': {
+    [cssLayerComponentPage]: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  },
+})
+
+export const homeSearchCategory = style({
+  '@layer': {
+    [cssLayerComponentPage]: {},
+  },
+})
+
+export const homeSearchCategory_container = style({
+  '@layer': {
+    [cssLayerComponentPage]: {
+      display: 'grid',
+      gridTemplateColumns: '1fr',
+      gap: getClampPx(24, 40),
+    },
+  },
+})
+
+export const homeSearchCategoryList = style({
+  '@layer': {
+    [cssLayerComponentPage]: {},
+  },
+})
+
+export const homeSearchCategoryList_items = style({
+  '@layer': {
+    [cssLayerComponentPage]: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+      gap: getClampPx(16, 24),
+    },
+  },
+})
+
+export const homeSearchCategoryList_item = style({
+  '@layer': {
+    [cssLayerComponentPage]: {},
+  },
+})
+
+export const homeSearchCategoryListLink = style({
+  '@layer': {
+    [cssLayerComponentPage]: {
+      textAlign: 'center',
+      ...fontMediumBold,
+      color: cssVariables.color.font.subDark.hex,
+
+      '@media': {
+        [getMediaQuery('hover')]: {
+          selectors: {
+            '&:hover': {
+              color: cssVariables.color.font.primary.hex,
+            },
+          },
+        },
+      },
+    },
+  },
+})
+
+export const homeSearchCategoryListLink_container = style({
+  '@layer': {
+    [cssLayerComponentPage]: {
+      display: 'grid',
+      gridTemplateColumns: '1fr',
+      gap: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  },
+})
+
+export const homeSearchCategoryListLinkThumbnail = style({
+  '@layer': {
+    [cssLayerComponentPage]: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden',
+      aspectRatio: '1 / 1',
+      borderRadius: 'calc(infinity * 1px)',
+    },
+  },
+})
+
+export const homeSearchCategoryListLinkThumbnail_image = style({
+  '@layer': {
+    [cssLayerComponentPage]: {
+      inlineSize: '100%',
+      blockSize: '100%',
+      objectFit: 'cover',
+      objectPosition: 'center',
+      transition: getTransition([
+        {
+          property: 'scale',
+        },
+      ]),
+
+      '@media': {
+        [getMediaQuery('hover')]: {
+          selectors: {
+            [`${homeSearchCategoryListLink}:hover &`]: {
+              scale: cssVariables.scale.hover,
+            },
+          },
+        },
+      },
+    },
+  },
+})
+
+export const homeSearchCategoryListLink_title = style({
+  '@layer': {
+    [cssLayerComponentPage]: {
+      ...fontMediumBold,
+    },
+  },
+})
+
+export const homeSearchCategory_bottom = style({
   '@layer': {
     [cssLayerComponentPage]: {
       display: 'flex',

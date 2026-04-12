@@ -14,6 +14,7 @@ export type SvgIconVariant =
   | 'error'
   | 'replay'
   | 'check'
+  | 'slash'
 
 type Props = {
   className?: string

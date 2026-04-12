@@ -4,7 +4,7 @@ import { getMediaQuery, getMediaQueryReverse } from '~/styles/mixins/mediaQuery.
 import { getClampPx } from '~/styles/mixins/size.css'
 import { getTransition } from '~/styles/mixins/transition.css'
 import { cssVariables } from '~/styles/variables/cssVariables.css'
-import { fontSmallBold } from '~/styles/variables/font.css'
+import { fontMediumBold, fontSmallBold } from '~/styles/variables/font.css'
 import { cssLayerComponentCommon } from '~/styles/variables/layers.css'
 
 export const layoutHeaderHeight = {
@@ -273,11 +273,7 @@ export const layoutHeaderLogo_image = style({
 export const layoutHeaderMenu = style({
   '@layer': {
     [cssLayerComponentCommon]: {
-      '@media': {
-        [getMediaQuery('sm')]: {
-          blockSize: '100%',
-        },
-      },
+      blockSize: '100%',
     },
   },
 })
@@ -285,9 +281,14 @@ export const layoutHeaderMenu = style({
 export const layoutHeaderMenu_container = style({
   '@layer': {
     [cssLayerComponentCommon]: {
+      blockSize: '100%',
+
       '@media': {
         [getMediaQuery('sm')]: {
-          blockSize: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+          gap: 8,
         },
       },
     },
@@ -454,6 +455,86 @@ export const layoutHeaderMenuGlobal_icon = style({
 })
 
 export const layoutHeaderMenuGlobal_text = style({
+  '@layer': {
+    [cssLayerComponentCommon]: {
+      display: 'block',
+    },
+  },
+})
+
+export const layoutHeaderMenuLanguage = style({
+  '@layer': {
+    [cssLayerComponentCommon]: {
+      blockSize: '100%',
+    },
+  },
+})
+
+export const layoutHeaderMenuLanguage_items = style({
+  '@layer': {
+    [cssLayerComponentCommon]: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+      blockSize: '100%',
+    },
+  },
+})
+
+export const layoutHeaderMenuLanguage_item = style({
+  '@layer': {
+    [cssLayerComponentCommon]: {},
+  },
+})
+
+export const layoutHeaderMenuLanguage_contents = style({
+  '@layer': {
+    [cssLayerComponentCommon]: {
+      display: 'flex',
+      alignItems: 'center',
+    },
+  },
+})
+
+export const layoutHeaderMenuLanguage_icon = style({
+  '@layer': {
+    [cssLayerComponentCommon]: {
+      flexShrink: 0,
+      backgroundColor: cssVariables.color.background.subDark.hex,
+      inlineSize: 24,
+    },
+  },
+})
+
+export const layoutHeaderMenuLanguage_current = style({
+  '@layer': {
+    [cssLayerComponentCommon]: {
+      ...fontMediumBold,
+      color: cssVariables.color.font.base.hex,
+    },
+  },
+})
+
+export const layoutHeaderMenuLanguageLink = style({
+  '@layer': {
+    [cssLayerComponentCommon]: {
+      ...fontMediumBold,
+      color: cssVariables.color.font.subDark.hex,
+
+      '@media': {
+        [getMediaQuery('hover')]: {
+          selectors: {
+            '&:hover': {
+              color: cssVariables.color.font.primary.hex,
+            },
+          },
+        },
+      },
+    },
+  },
+})
+
+export const layoutHeaderMenuLanguageLink_text = style({
   '@layer': {
     [cssLayerComponentCommon]: {
       display: 'block',

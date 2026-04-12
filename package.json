@@ -32,7 +32,7 @@
     "cookie": "^1.1.1",
     "cross-env": "^10.1.0",
     "date-fns": "^4.1.0",
-    "dotenv": "^17.4.0",
+    "dotenv": "^17.4.1",
     "express": "^5.2.1",
     "framer-motion": "^12.38.0",
     "i18next": "^25.8.13",

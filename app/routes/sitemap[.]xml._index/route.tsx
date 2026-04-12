@@ -5,10 +5,8 @@ export async function loader() {
 
   return new Response(sitemap, {
     headers: {
-      'Content-Type': 'application/xml',
+      'Content-Type': 'application/xml; charset=UTF-8',
       'Cache-Control': 'public, max-age=3600, s-maxage=7200, stale-while-revalidate=86400',
-      'xml-version': '1.0',
-      encoding: 'UTF-8',
     },
   })
 }

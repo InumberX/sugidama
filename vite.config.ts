@@ -2,7 +2,6 @@ import { reactRouter } from '@react-router/dev/vite'
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin'
 import { defineConfig } from 'vite'
 import devtoolsJson from 'vite-plugin-devtools-json'
-import tsconfigPaths from 'vite-tsconfig-paths'
 
 const now = new Date()
 const nowDatetime =
@@ -60,5 +59,8 @@ export default defineConfig({
     'import.meta.env.VITE_LASTMOD': `"${LASTMOD}"`,
     'import.meta.env.VITE_API_URL': `"${process.env.API_URL || 'https://afterworks.g.kuroco.app/rcms-api/7'}"`,
   },
-  plugins: [reactRouter(), tsconfigPaths(), vanillaExtractPlugin(), devtoolsJson()],
+  plugins: [reactRouter(), vanillaExtractPlugin(), devtoolsJson()],
+  resolve: {
+    tsconfigPaths: true,
+  },
 })

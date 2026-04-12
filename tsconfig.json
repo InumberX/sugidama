@@ -23,7 +23,6 @@
     "strict": true,
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
     "paths": {
       "~/*": ["./app/*"],
       "~/+types/*": ["./.react-router/types/app/+types/*"]

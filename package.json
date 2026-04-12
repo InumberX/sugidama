@@ -32,15 +32,15 @@
     "cookie": "^1.1.1",
     "cross-env": "^10.1.0",
     "date-fns": "^4.1.0",
-    "dotenv": "^17.4.0",
+    "dotenv": "^17.4.1",
     "express": "^5.2.1",
     "framer-motion": "^12.38.0",
     "i18next": "^25.8.13",
     "i18next-browser-languagedetector": "^8.2.1",
     "isbot": "^5.1.37",
     "keen-slider": "^6.8.6",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
     "react-i18next": "^16.5.4",
     "react-router": "^7.14.0",
     "remix-i18next": "^7.4.2",
@@ -48,9 +48,9 @@
   },
   "devDependencies": {
     "@react-router/dev": "^7.14.0",
-    "@storybook/addon-docs": "^10.3.4",
-    "@storybook/addon-links": "^10.3.4",
-    "@storybook/react-vite": "^10.3.4",
+    "@storybook/addon-docs": "^10.3.5",
+    "@storybook/addon-links": "^10.3.5",
+    "@storybook/react-vite": "^10.3.5",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -59,17 +59,21 @@
     "@types/react-dom": "^19.2.3",
     "@vanilla-extract/css": "^1.20.1",
     "@vanilla-extract/vite-plugin": "^5.2.2",
-    "@vitejs/plugin-react": "^5.1.4",
+    "@vitejs/plugin-react": "^6.0.1",
     "csstype": "^3.2.3",
-    "jsdom": "^29.0.1",
-    "oxfmt": "^0.43.0",
-    "oxlint": "^1.58.0",
-    "storybook": "^10.3.4",
+    "jsdom": "^29.0.2",
+    "oxfmt": "^0.44.0",
+    "oxlint": "^1.59.0",
+    "storybook": "^10.3.5",
     "typescript": "5.9.3",
-    "vite": "^7.3.1",
+    "vite": "^8.0.8",
     "vite-plugin-devtools-json": "^1.0.0",
-    "vite-tsconfig-paths": "^6.1.1",
-    "vitest": "^4.1.2"
+    "vitest": "^4.1.4"
+  },
+  "overrides": {
+    "vite-plugin-devtools-json": {
+      "vite": "$vite"
+    }
   },
   "engines": {
     "node": ">=22.0.0"

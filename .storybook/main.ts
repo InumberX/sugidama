@@ -3,7 +3,6 @@ import { StorybookConfig } from '@storybook/react-vite'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { loadConfigFromFile, mergeConfig, type ConfigEnv } from 'vite'
-import tsconfigPaths from 'vite-tsconfig-paths'
 
 const __sbFilename = fileURLToPath(import.meta.url)
 const __sbDirname = path.dirname(__sbFilename)
@@ -45,7 +44,6 @@ const config: StorybookConfig = {
     // tsconfigの情報をマージし、pathaliasを有効にする
     return mergeConfig(config, {
       ...configFromFile?.config,
-      plugins: [tsconfigPaths()],
       define: {
         ...configFromFile?.config.define,
         'process.env.NODE_DEBUG': false,

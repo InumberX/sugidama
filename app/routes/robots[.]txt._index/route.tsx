@@ -1,4 +1,4 @@
-import { SITE_URL, NO_INDEX } from '~/config/env'
+import { SITE_URL, NO_INDEX, NODE_ENV } from '~/config/env'
 
 export async function loader() {
   const robots = `User-agent: CCBot
@@ -9,7 +9,7 @@ User-agent: baidu
 Crawl-delay: 10
 Sitemap: ${SITE_URL}/sitemap.xml
 ${
-  process.env.NODE_ENV !== 'production' || NO_INDEX === 'true'
+  NODE_ENV !== 'production' || NO_INDEX === 'true'
     ? `User-agent: *
 Disallow: /
 `

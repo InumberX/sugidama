@@ -1,3 +1,4 @@
+export const NODE_ENV = import.meta.env.VITE_NODE_ENV
 export const NO_INDEX = import.meta.env.VITE_NO_INDEX
 export const SITE_URL = import.meta.env.VITE_SITE_URL
 export const SITE_NAME = import.meta.env.VITE_SITE_NAME

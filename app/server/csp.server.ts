@@ -4,7 +4,14 @@ export function buildCspDirective(nonce: string): string {
   const scriptSources = ["'self'", `'nonce-${nonce}'`, "'strict-dynamic'", 'https://www.googletagmanager.com']
   const styleSources = ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com']
   const fontSources = ["'self'", 'https://fonts.gstatic.com']
-  const imgSources = ["'self'", 'data:', 'blob:', API_URL, 'https://www.google.co.jp'].filter(Boolean)
+  const imgSources = [
+    "'self'",
+    'data:',
+    'blob:',
+    API_URL,
+    'https://afterworks.g.kuroco-img.app',
+    'https://www.google.co.jp',
+  ].filter(Boolean)
   const connectSources = [
     "'self'",
     'https://www.googletagmanager.com',

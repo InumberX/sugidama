@@ -635,39 +635,7 @@ globalStyle('textarea[readonly]:hover', {
   },
 })
 
-globalStyle(':placeholder', {
-  '@layer': {
-    [cssLayerReset]: {
-      color: cssVariables.color.font.placeholder.hex,
-    },
-  },
-})
-
 globalStyle('::placeholder', {
-  '@layer': {
-    [cssLayerReset]: {
-      color: cssVariables.color.font.placeholder.hex,
-    },
-  },
-})
-
-globalStyle(':input-placeholder', {
-  '@layer': {
-    [cssLayerReset]: {
-      color: cssVariables.color.font.placeholder.hex,
-    },
-  },
-})
-
-globalStyle('::input-placeholder', {
-  '@layer': {
-    [cssLayerReset]: {
-      color: cssVariables.color.font.placeholder.hex,
-    },
-  },
-})
-
-globalStyle('input:placeholder, textarea:placeholder', {
   '@layer': {
     [cssLayerReset]: {
       color: cssVariables.color.font.placeholder.hex,
@@ -683,47 +651,7 @@ globalStyle('input::placeholder, textarea::placeholder', {
   },
 })
 
-globalStyle('input:input-placeholder, textarea:input-placeholder', {
-  '@layer': {
-    [cssLayerReset]: {
-      color: cssVariables.color.font.placeholder.hex,
-    },
-  },
-})
-
-globalStyle('input::input-placeholder, textarea::input-placeholder', {
-  '@layer': {
-    [cssLayerReset]: {
-      color: cssVariables.color.font.placeholder.hex,
-    },
-  },
-})
-
-globalStyle('input:focus:placeholder, textarea:focus:placeholder', {
-  '@layer': {
-    [cssLayerReset]: {
-      color: 'transparent',
-    },
-  },
-})
-
 globalStyle('input:focus::placeholder, textarea:focus::placeholder', {
-  '@layer': {
-    [cssLayerReset]: {
-      color: 'transparent',
-    },
-  },
-})
-
-globalStyle('input:focus:input-placeholder, textarea:focus:input-placeholder', {
-  '@layer': {
-    [cssLayerReset]: {
-      color: 'transparent',
-    },
-  },
-})
-
-globalStyle('input:focus::input-placeholder, textarea:focus::input-placeholder ', {
   '@layer': {
     [cssLayerReset]: {
       color: 'transparent',

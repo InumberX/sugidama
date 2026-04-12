@@ -61,7 +61,7 @@
     "@vanilla-extract/vite-plugin": "^5.2.2",
     "@vitejs/plugin-react": "^5.1.4",
     "csstype": "^3.2.3",
-    "jsdom": "^29.0.1",
+    "jsdom": "^29.0.2",
     "oxfmt": "^0.44.0",
     "oxlint": "^1.59.0",
     "storybook": "^10.3.5",

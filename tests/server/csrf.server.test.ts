@@ -7,6 +7,16 @@ import {
   validateCsrfRequest,
 } from '~/server/csrf.server'
 
+vi.mock('~/config/env', async (importOriginal) => {
+  const original = await importOriginal<typeof import('~/config/env')>()
+  return {
+    ...original,
+    get NODE_ENV() {
+      return process.env.NODE_ENV ?? 'test'
+    },
+  }
+})
+
 describe('csrf.server', () => {
   afterEach(() => {
     vi.unstubAllEnvs()

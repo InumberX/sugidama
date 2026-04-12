@@ -1,5 +1,6 @@
 type MasterDrinkCategoryItem = {
   id: string
+  order: string
   name: string
   name_en: string
   slug: string

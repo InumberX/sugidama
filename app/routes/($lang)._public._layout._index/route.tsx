@@ -4,14 +4,29 @@ import { type MetaFunction } from 'react-router'
 import type { Route } from './+types/route'
 import * as styles from './style.css'
 
+import { BaseButton } from '~/components/ui/buttons/BaseButton'
+import { type ArticleCardProps } from '~/components/ui/cards/ArticleCard'
+import { type ArticleCompactCardProps } from '~/components/ui/cards/ArticleCompactCard'
 import { LayoutInner } from '~/components/ui/layouts/LayoutInner'
 import { LayoutPageWrapper } from '~/components/ui/layouts/LayoutPageWrapper'
 import { LayoutSection } from '~/components/ui/layouts/LayoutSection'
+import { ArticleCardList } from '~/components/ui/lists/ArticleCardList'
+import { ArticleCompactCardList } from '~/components/ui/lists/ArticleCompactCardList'
+import { PageTitle } from '~/components/ui/typographies/PageTitle'
 import { ReplaceNewLineText } from '~/components/ui/typographies/ReplaceNewLineText'
 import { LANG, SITE_NAME_JA, SITE_NAME_EN } from '~/config/consts'
 import { CACHE_BUSTER } from '~/config/env'
+import { PAGES } from '~/config/paths'
+import { getDrinks } from '~/server/api/drinks.server'
+import { convertError } from '~/server/api/error.server'
+import { getMasterDrinkCategory } from '~/server/api/masters.server'
+import { getTagTaste } from '~/server/api/tags.server'
+import { convertDrinkToArticleCardProps, convertDrinkToArticleCompactCardProps } from '~/utils/article'
 import { getLang } from '~/utils/locale'
 import { getMetadata } from '~/utils/meta'
+import { SEARCH_DRINKS_CONDITION_KEY } from '~/utils/search'
+import { convertTags } from '~/utils/tags'
+import { convertMasterDrinkCategory } from '~/utils/tags'
 
 export const meta: MetaFunction = (args) => {
   return getMetadata({
@@ -23,19 +38,82 @@ export async function loader(args: Route.LoaderArgs) {
   const { params } = args
   const lang = getLang(params)
 
+  const [tagTasteResult, masterDrinkCategoryResult, drinksResult] = await Promise.all([
+    getTagTaste(),
+    getMasterDrinkCategory(),
+    getDrinks({
+      page: 1,
+      pageSize: 6,
+    }),
+  ])
+
+  if (!tagTasteResult.success) {
+    throw convertError(tagTasteResult)
+  }
+
+  if (!masterDrinkCategoryResult.success) {
+    throw convertError(masterDrinkCategoryResult)
+  }
+
+  if (!drinksResult.success) {
+    throw convertError(drinksResult)
+  }
+
+  const tagTaste = convertTags({
+    lang,
+    tagItems: tagTasteResult.data.list,
+  })
+
+  const tagDrink = convertMasterDrinkCategory({
+    lang,
+    tagItems: masterDrinkCategoryResult.data.list,
+  })
+
+  const drinks = drinksResult.data.list
+  const drinksArticleCardItems = drinks.slice(0, 2).map((drink) =>
+    convertDrinkToArticleCardProps({
+      lang,
+      drink,
+      tags: [
+        {
+          name: SEARCH_DRINKS_CONDITION_KEY.TASTE,
+          items: [...tagTaste],
+        },
+      ],
+      drinkCategories: [...tagDrink],
+    })
+  )
+  const drinksArticleCompactCardItems = drinks.slice(2, 6).map((drink) =>
+    convertDrinkToArticleCompactCardProps({
+      lang,
+      drink,
+      tags: [
+        {
+          name: SEARCH_DRINKS_CONDITION_KEY.TASTE,
+          items: [...tagTaste],
+        },
+      ],
+      drinkCategories: [...tagDrink],
+    })
+  )
+
   return {
     lang,
+    drinksArticleCardItems,
+    drinksArticleCompactCardItems,
   }
 }
 
 export default function PageSG10_100({ loaderData }: Route.ComponentProps) {
   const { lang } = loaderData
+  const drinksArticleCardItems = loaderData.drinksArticleCardItems as ArticleCardProps[]
+  const drinksArticleCompactCardItems = loaderData.drinksArticleCompactCardItems as ArticleCompactCardProps[]
   const { t: tPage } = useTranslation('pages/SG10_100')
 
   return (
     <LayoutPageWrapper>
       <div className={styles.home}>
-        <LayoutSection className={styles.homeTitle} tag="div">
+        <LayoutSection className={styles.homeTitle} tag="div" bottomSpace="bottomSpaceSmall">
           <LayoutInner>
             <div className={styles.homeTitle_container}>
               <h1 className={styles.homeTitleLogo}>
@@ -51,6 +129,33 @@ export default function PageSG10_100({ loaderData }: Route.ComponentProps) {
                 <p className={styles.homeTitleLead_paragraph}>
                   <ReplaceNewLineText text={tPage('title.lead')} />
                 </p>
+              </div>
+            </div>
+          </LayoutInner>
+        </LayoutSection>
+        <LayoutSection className={styles.homeNewArrivals} topSpace="topSpaceSmall">
+          <LayoutInner>
+            <div className={styles.homeNewArrivals_container}>
+              <PageTitle titleTag="h2" color="primary" title={tPage('newArrivals.title')} />
+              <div className={styles.homeNewArrivalsList}>
+                <div className={styles.homeNewArrivalsList_main}>
+                  <ArticleCardList items={drinksArticleCardItems} itemSize="twoColumns" />
+                </div>
+                {drinksArticleCompactCardItems.length > 0 && (
+                  <div className={styles.homeNewArrivalsList_sub}>
+                    <ArticleCompactCardList items={drinksArticleCompactCardItems} />
+                  </div>
+                )}
+              </div>
+              <div className={styles.homeNewArrivals_bottom}>
+                <BaseButton
+                  url={PAGES.SG20_100.getUrl({
+                    lang,
+                  })}
+                  size="large"
+                >
+                  {tPage('newArrivals.bottom.button.label')}
+                </BaseButton>
               </div>
             </div>
           </LayoutInner>

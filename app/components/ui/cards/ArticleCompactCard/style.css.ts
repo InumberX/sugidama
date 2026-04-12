@@ -1,7 +1,7 @@
 import { style } from '@vanilla-extract/css'
 
 import { getLineClamp } from '~/styles/mixins/font.css'
-import { getContainerQuery, getMediaQuery } from '~/styles/mixins/mediaQuery.css'
+import { getMediaQuery } from '~/styles/mixins/mediaQuery.css'
 import { getClampPx } from '~/styles/mixins/size.css'
 import { getTransition } from '~/styles/mixins/transition.css'
 import { cssVariables } from '~/styles/variables/cssVariables.css'
@@ -18,31 +18,17 @@ export const articleCompactCard = style({
   '@layer': {
     [cssLayerComponentUiLow]: {
       display: 'grid',
-      gridTemplateColumns: '1fr',
+      gridTemplateColumns: 'auto 1fr',
+      gridTemplateRows: 'auto 1fr auto',
       gridTemplateAreas: `
-        "thumbnail"
-        "description"
-        "title"
-        "tags"
+        "thumbnail description"
+        "thumbnail title"
+        "thumbnail tags"
       `,
       borderRadius: 12,
       backgroundColor: cssVariables.color.background.subLight.hex,
       overflow: 'hidden',
-      paddingBlockEnd: 12,
       blockSize: '100%',
-
-      '@container': {
-        [getContainerQuery('sm')]: {
-          gridTemplateAreas: `
-            "thumbnail description"
-            "thumbnail title"
-            "thumbnail tags"
-          `,
-          gridTemplateColumns: 'auto 1fr',
-          gridTemplateRows: 'auto 1fr auto',
-          paddingBlockEnd: 0,
-        },
-      },
     },
   },
 })
@@ -65,19 +51,13 @@ export const articleCompactCardDescription_container = style({
       blockSize: '100%',
       inlineSize: '100%',
       color: cssVariables.color.font.subDark.hex,
-      paddingBlock: '8px 0',
+      paddingBlock: '12px 0',
       paddingInline: 12,
       backgroundColor: 'transparent',
       border: 'none',
       textDecoration: 'none',
       boxShadow: 'none',
       textAlign: 'start',
-
-      '@container': {
-        [getContainerQuery('sm')]: {
-          paddingBlockStart: 12,
-        },
-      },
     },
   },
 })
@@ -96,12 +76,7 @@ export const articleCompactCardTags = style({
       gridArea: 'tags',
       marginBlockStart: 8,
       paddingInline: 12,
-
-      '@container': {
-        [getContainerQuery('sm')]: {
-          paddingBlockEnd: 12,
-        },
-      },
+      paddingBlockEnd: 12,
     },
   },
 })
@@ -122,23 +97,15 @@ export const articleCompactCardThumbnail_container = style({
       display: 'flex',
       alignItems: 'flex-start',
       justifyContent: 'flex-start',
-      paddingBlock: '12px 0',
-      paddingInline: 12,
+      paddingBlock: 12,
+      paddingInline: '12px 0',
       backgroundColor: 'transparent',
       border: 'none',
       textDecoration: 'none',
       boxShadow: 'none',
       position: 'relative',
       zIndex: 1,
-      inlineSize: '100%',
-
-      '@container': {
-        [getContainerQuery('sm')]: {
-          inlineSize: getClampPx(120, 160),
-          paddingBlockEnd: 12,
-          paddingInlineEnd: 0,
-        },
-      },
+      inlineSize: getClampPx(120, 160),
     },
   },
 })
@@ -198,7 +165,7 @@ export const articleCompactCardTitle_container = style({
       blockSize: '100%',
       inlineSize: '100%',
       color: cssVariables.color.font.base.hex,
-      paddingBlock: '4px 0',
+      paddingBlock: 12,
       paddingInline: 12,
       backgroundColor: 'transparent',
       border: 'none',
@@ -211,27 +178,21 @@ export const articleCompactCardTitle_container = style({
         },
       ]),
 
+      selectors: {
+        [`&:where(${articleCompactCard}:has(${articleCompactCardDescription}) &)`]: {
+          paddingBlockStart: 4,
+        },
+
+        [`&:where(${articleCompactCard}:has(${articleCompactCardTags}) &)`]: {
+          paddingBlockEnd: 0,
+        },
+      },
+
       '@media': {
         [getMediaQuery('hover')]: {
           selectors: {
             [`&:where(${articleCompactCard}:has(${articleCompactCard_clickable}:hover) &)`]: {
               color: cssVariables.color.font.primary.hex,
-            },
-          },
-        },
-      },
-
-      '@container': {
-        [getContainerQuery('sm')]: {
-          paddingBlock: 12,
-
-          selectors: {
-            [`&:where(${articleCompactCard}:has(${articleCompactCardDescription}) &)`]: {
-              paddingBlockStart: 4,
-            },
-
-            [`&:where(${articleCompactCard}:has(${articleCompactCardTags}) &)`]: {
-              paddingBlockEnd: 0,
             },
           },
         },

@@ -5,7 +5,7 @@ import { ArticleCard, type ArticleCardProps } from '~/components/ui/cards/Articl
 export type ArticleCardListProps = {
   className?: string
   items: ArticleCardProps[]
-  itemSize?: 'small' | 'medium'
+  itemSize?: 'small' | 'medium' | 'twoColumns'
 }
 
 export const ArticleCardList = ({ className, items, itemSize = 'medium' }: ArticleCardListProps) => {

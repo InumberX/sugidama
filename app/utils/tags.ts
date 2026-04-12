@@ -5,6 +5,7 @@ import type { Tag } from '~/types/api/tags'
 export type ConvertTag = {
   id: number
   label: string
+  slug?: string
 }
 
 export const convertTags = ({ lang, tagItems }: { lang: string; tagItems: Tag['list'] }): ConvertTag[] => {
@@ -28,11 +29,13 @@ export const convertMasterDrinkCategory = ({
   tagItems: MasterDrinkCategory['list']
 }): ConvertTag[] => {
   return tagItems
+    .sort((a, b) => Number(a.order) - Number(b.order))
     .map((item) => {
       return {
         id: parseInt(item.id, 10),
         label: lang === LANG.EN ? item.name_en : item.name,
+        slug: item.slug,
       }
     })
-    .filter((item) => !isNaN(item.id))
+    .filter((item) => !isNaN(item.id) && item.slug !== '')
 }

@@ -1,5 +1,6 @@
 import { style } from '@vanilla-extract/css'
 
+import { getContainerQuery } from '~/styles/mixins/mediaQuery.css'
 import { cssLayerComponentUiMiddle } from '~/styles/variables/layers.css'
 
 export const articleCardList = style({
@@ -23,6 +24,12 @@ export const articleCardList_items__medium = style({
   },
 })
 
+export const articleCardList_items__twoColumns = style({
+  '@layer': {
+    [cssLayerComponentUiMiddle]: {},
+  },
+})
+
 export const articleCardList_items = style({
   '@layer': {
     [cssLayerComponentUiMiddle]: {
@@ -36,6 +43,20 @@ export const articleCardList_items = style({
 
         [`&${articleCardList_items__medium}`]: {
           gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))',
+        },
+
+        [`&${articleCardList_items__twoColumns}`]: {
+          gridTemplateColumns: 'repeat(1, 1fr)',
+        },
+      },
+
+      '@container': {
+        [getContainerQuery('sm')]: {
+          selectors: {
+            [`&${articleCardList_items__twoColumns}`]: {
+              gridTemplateColumns: 'repeat(2, 1fr)',
+            },
+          },
         },
       },
     },

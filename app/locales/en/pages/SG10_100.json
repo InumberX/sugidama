@@ -1,0 +1,21 @@
+{
+  "title": {
+    "lead": "On this site, the owner records delicious drinks enjoyed over the years, based on personal taste and preference.\nIt introduces brands, breweries, and flavor profiles, with links to purchase sites for any drinks that catch your interest.\nIf you love drinks or are curious about them, feel free to explore."
+  },
+  "newArrivals": {
+    "title": "New Arrivals",
+    "bottom": {
+      "button": {
+        "label": "See More"
+      }
+    }
+  },
+  "searchCategory": {
+    "title": "Search by Category",
+    "bottom": {
+      "button": {
+        "label": "Search with Other Criteriaï"
+      }
+    }
+  }
+}

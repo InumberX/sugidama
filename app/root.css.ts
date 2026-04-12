@@ -952,7 +952,7 @@ globalStyle('.obj__xxl--container', {
       display: 'none',
 
       '@container': {
-        [getMediaQuery('xl')]: {
+        [getContainerQuery('xl')]: {
           display: 'block',
         },
       },

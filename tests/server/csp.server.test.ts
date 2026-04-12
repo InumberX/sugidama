@@ -95,6 +95,12 @@ describe('csp.server', () => {
       expect(connectSrc).toContain('https://api.example.com')
     })
 
+    it('includes Kuroco image CDN in img-src', () => {
+      const csp = buildCspDirective('nonce')
+      const imgSrc = csp.split('; ').find((d) => d.startsWith('img-src'))
+      expect(imgSrc).toContain('https://afterworks.g.kuroco-img.app')
+    })
+
     it('includes Google ads audience pixel in img-src', () => {
       const csp = buildCspDirective('nonce')
       const imgSrc = csp.split('; ').find((d) => d.startsWith('img-src'))

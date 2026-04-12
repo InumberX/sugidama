@@ -372,7 +372,14 @@ describe('convertDrinkToBaseArticleProps', () => {
 
     it('lang=enの場合、リンクのタイトルがLinksになりlink_text_enが使われる', () => {
       const drink = createDrink({
-        links: [{ link_text: 'リンク1', link_text_en: 'Link 1', link_url: 'https://example.com', link_url_en: '' }],
+        links: [
+          {
+            link_text: 'リンク1',
+            link_text_en: 'Link 1',
+            link_url: 'https://example.com',
+            link_url_en: 'https://example.com/en',
+          },
+        ],
       })
       const result = convertDrinkToBaseArticleProps({ ...defaultArgs, lang: 'en', drink })
 

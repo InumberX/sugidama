@@ -167,11 +167,15 @@ export const convertDrinkToBaseArticleProps = ({
     lang,
   })
   const drinkCategory = drinkCategories.find((category) => category.id === Number(drink.drink_category.key))
+  const manufacturer = lang === LANG.EN ? drink.manufacturer_en : drink.manufacturer
+  const abv = drink.abv
   const comment = lang === LANG.EN ? drink.comment_en : drink.comment
-  const links = drink.links.map((link) => ({
-    text: lang === LANG.EN ? link.link_text_en : link.link_text,
-    url: lang === LANG.EN && link.link_url_en ? link.link_url_en : link.link_url,
-  }))
+  const links = drink.links
+    .map((link) => ({
+      text: lang === LANG.EN ? link.link_text_en : link.link_text,
+      url: lang === LANG.EN ? link.link_url_en : link.link_url,
+    }))
+    .filter((link) => link.text && link.text !== '' && link.url && link.url !== '')
 
   return {
     title: {
@@ -188,6 +192,22 @@ export const convertDrinkToBaseArticleProps = ({
               {
                 title: lang === LANG.EN ? 'Category' : '種類',
                 text: drinkCategory.label,
+              },
+            ]
+          : []),
+        ...(manufacturer
+          ? [
+              {
+                title: lang === LANG.EN ? 'Manufacturer' : '製造元',
+                text: manufacturer,
+              },
+            ]
+          : []),
+        ...(abv
+          ? [
+              {
+                title: lang === LANG.EN ? 'Alcohol content' : 'アルコール度数',
+                text: `${abv}%`,
               },
             ]
           : []),

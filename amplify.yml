@@ -18,6 +18,7 @@ frontend:
         - npm ci
     build:
       commands:
+        - echo "NO_INDEX=$NO_INDEX" >> .env
         - echo "SITE_URL=$SITE_URL" >> .env
         - echo "SITE_NAME=$SITE_NAME" >> .env
         - echo "API_URL=$API_URL" >> .env

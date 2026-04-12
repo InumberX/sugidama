@@ -149,3 +149,12 @@ export const svgIcon__check = style({
     },
   },
 })
+
+export const svgIcon__slash = style({
+  '@layer': {
+    [cssLayerComponentUiLow]: {
+      WebkitMaskImage: `url(/assets/img/icon-slash.svg?${CACHE_BUSTER})`,
+      maskImage: `url(/assets/img/icon-slash.svg?${CACHE_BUSTER})`,
+    },
+  },
+})

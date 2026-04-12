@@ -1,11 +1,14 @@
-import { Link } from 'react-router'
+import { Link, useLocation } from 'react-router'
 
 import * as styles from './style.css'
 
+import { PrimitiveButton } from '~/components/primitives/buttons/PrimitiveButton'
 import { SvgIcon, type SvgIconVariant } from '~/components/ui/icons/SvgIcon'
 import { LayoutInner } from '~/components/ui/layouts/LayoutInner'
+import { LANG } from '~/config/consts'
 import { CACHE_BUSTER } from '~/config/env'
 import { PAGES } from '~/config/paths'
+import { getLangRoute } from '~/utils/locale'
 
 type Props = {
   className?: string
@@ -14,8 +17,11 @@ type Props = {
 }
 
 export const LayoutHeader = ({ className, isLogoTitle, lang }: Props) => {
+  const location = useLocation()
+  const currentUrls = location.pathname.split('/').slice(1)
+  const currentUrl = `${lang === LANG.JA && currentUrls.length > 0 ? location.pathname : '/' + currentUrls.slice(1).join('/')}${location.search}${location.hash}`
   const LogoTitle = isLogoTitle ? 'h1' : 'div'
-  const globalMenuInfos: {
+  const globalMenuItems: {
     title: string
     url: string
     icon: SvgIconVariant
@@ -37,6 +43,29 @@ export const LayoutHeader = ({ className, isLogoTitle, lang }: Props) => {
         lang,
       }),
       icon: 'liquor',
+    },
+  ]
+  const languageItems: {
+    id: string
+    lang: string
+    url: string
+    text: string
+  }[] = [
+    {
+      id: LANG.JA,
+      lang: LANG.JA,
+      url: `${getLangRoute({
+        lang: LANG.JA,
+      })}${currentUrl}`,
+      text: 'JA',
+    },
+    {
+      id: LANG.EN,
+      lang: LANG.EN,
+      url: `${getLangRoute({
+        lang: LANG.EN,
+      })}${currentUrl}`,
+      text: 'EN',
     },
   ]
 
@@ -76,17 +105,42 @@ export const LayoutHeader = ({ className, isLogoTitle, lang }: Props) => {
                   <div className={styles.layoutHeaderMenuGlobal_container}>
                     <nav className={styles.layoutHeaderMenuGlobal_navigation}>
                       <ul className={styles.layoutHeaderMenuGlobal_items}>
-                        {globalMenuInfos.map((info, i) => (
+                        {globalMenuItems.map((item, i) => (
                           <li key={i} className={styles.layoutHeaderMenuGlobal_item}>
-                            <Link to={info.url} className={styles.layoutHeaderMenuGlobal_link}>
-                              <SvgIcon variant={info.icon} className={styles.layoutHeaderMenuGlobal_icon} />
-                              <span className={styles.layoutHeaderMenuGlobal_text}>{info.title}</span>
+                            <Link to={item.url} className={styles.layoutHeaderMenuGlobal_link}>
+                              <SvgIcon variant={item.icon} className={styles.layoutHeaderMenuGlobal_icon} />
+                              <span className={styles.layoutHeaderMenuGlobal_text}>{item.title}</span>
                             </Link>
                           </li>
                         ))}
                       </ul>
                     </nav>
                   </div>
+                </div>
+                <div className={styles.layoutHeaderMenuLanguage}>
+                  <ul className={styles.layoutHeaderMenuLanguage_items}>
+                    {languageItems.map((item, languageIndex) => {
+                      return (
+                        <li
+                          key={`${item.id}-${languageIndex}-${lang}`}
+                          className={styles.layoutHeaderMenuLanguage_item}
+                        >
+                          <div className={styles.layoutHeaderMenuLanguage_contents}>
+                            {languageIndex > 0 && (
+                              <SvgIcon variant="slash" className={styles.layoutHeaderMenuLanguage_icon} />
+                            )}
+                            {lang === item.lang ? (
+                              <span className={styles.layoutHeaderMenuLanguage_current}>{item.text}</span>
+                            ) : (
+                              <PrimitiveButton url={item.url} className={styles.layoutHeaderMenuLanguageLink}>
+                                <span className={styles.layoutHeaderMenuLanguageLink_text}>{item.text}</span>
+                              </PrimitiveButton>
+                            )}
+                          </div>
+                        </li>
+                      )
+                    })}
+                  </ul>
                 </div>
               </div>
             </div>

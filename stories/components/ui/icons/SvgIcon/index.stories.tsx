@@ -81,3 +81,9 @@ export const Check: Story = {
     variant: 'check',
   },
 }
+
+export const Slash: Story = {
+  args: {
+    variant: 'slash',
+  },
+}

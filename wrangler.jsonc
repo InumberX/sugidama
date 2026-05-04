@@ -6,16 +6,21 @@
   "main": "./workers/app.ts",
   "assets": {
     "directory": "./build/client",
+    "binding": "ASSETS",
+    // Route every request through the Worker first so the Basic-auth gate in
+    // workers/app.ts also covers static assets (JS/CSS/images). Without this,
+    // matching files in build/client are served before the Worker runs.
+    "run_worker_first": true
   },
   "observability": {
-    "enabled": true,
+    "enabled": true
   },
   "env": {
     "development": {
-      "name": "dev-sugidama",
+      "name": "dev-sugidama"
     },
     "production": {
-      "name": "sugidama",
-    },
-  },
+      "name": "sugidama"
+    }
+  }
 }

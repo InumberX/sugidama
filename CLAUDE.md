@@ -135,7 +135,12 @@ Accessed in app via `app/config/env.ts` and Vite's `import.meta.env.VITE_*` patt
 
 ### Deployment
 
-Deployed on AWS Amplify (configured in `amplify.yml`). The build process outputs to `.amplify-hosting/` with separate `static` (client) and `compute/default` (server) directories.
+Deployed on **Cloudflare Workers** with the static-asset binding for `build/client`. Configuration lives in `wrangler.jsonc`, the Worker entry is `workers/app.ts`, and CI runs `.github/workflows/deploy.yml`:
+
+- `develop` branch → `dev-sugidama` Worker (GitHub Actions environment: `development`)
+- `main` branch → `sugidama` Worker (GitHub Actions environment: `production`)
+
+`run_worker_first: true` is enabled on the assets binding so the Basic-auth gate in `workers/app.ts` covers all requests, including static assets. Environment-specific build values (`SITE_URL` etc.) are injected at build time via GitHub Environments; runtime secrets (`BASIC_AUTH_USER`/`PASS`) are stored as Cloudflare Workers secrets.
 
 ### Special Considerations
 

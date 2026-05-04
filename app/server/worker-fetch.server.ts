@@ -1,5 +1,8 @@
 import { verifyBasicAuth } from '~/server/basic-auth.server'
 
+// Mirror of bindings declared in `wrangler.jsonc` plus Workers secrets set via
+// `wrangler secret put`. Keep in sync manually whenever `wrangler.jsonc`
+// changes; `npm run build` does not regenerate this type.
 export type WorkerEnv = {
   BASIC_AUTH_USER?: string
   BASIC_AUTH_PASS?: string
@@ -7,6 +10,11 @@ export type WorkerEnv = {
 }
 
 export type WorkerFetch = (request: Request, env: WorkerEnv) => Promise<Response>
+
+// Static assets only answer safe, body-less methods. Routing POST/PUT/DELETE
+// /PATCH through ASSETS would surface 405s for the app's own mutating routes
+// (forms, CSRF-protected actions) before React Router can handle them.
+const ASSET_FETCH_METHODS = new Set(['GET', 'HEAD'])
 
 export function createWorkerFetch(handler: (request: Request) => Response | Promise<Response>): WorkerFetch {
   return async function fetch(request, env) {
@@ -17,10 +25,11 @@ export function createWorkerFetch(handler: (request: Request) => Response | Prom
         return denied
       }
     }
-    // Try the static-asset binding first; missing assets fall through to SSR.
-    const assetResponse = await env.ASSETS.fetch(request)
-    if (assetResponse.status !== 404) {
-      return assetResponse
+    if (ASSET_FETCH_METHODS.has(request.method)) {
+      const assetResponse = await env.ASSETS.fetch(request)
+      if (assetResponse.status !== 404) {
+        return assetResponse
+      }
     }
     return handler(request)
   }

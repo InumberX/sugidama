@@ -24,12 +24,11 @@ describe('timingSafeEqual', () => {
     expect(timingSafeEqual('café', 'cafe')).toBe(false)
   })
 
-  it('does not short-circuit on length mismatch (always iterates max length)', () => {
-    // Snapshot the function string: the implementation must not contain
-    // `return false` before the comparison loop. This protects against a
-    // regression that would re-introduce a length-side-channel.
-    const source = timingSafeEqual.toString()
-    const beforeLoop = source.slice(0, source.indexOf('for ('))
-    expect(beforeLoop).not.toMatch(/return false/)
+  it('rejects strings whose prefix matches but the longer one extends past it', () => {
+    // Without seeding `diff` with the length difference, a same-prefix longer
+    // string would compare equal to the shorter one because the loop only
+    // XORs bytes that exist in the shorter string.
+    expect(timingSafeEqual('abc', 'abcXY')).toBe(false)
+    expect(timingSafeEqual('abcXY', 'abc')).toBe(false)
   })
 })

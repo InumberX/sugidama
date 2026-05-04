@@ -8,8 +8,9 @@ This repository is a React Router 7 + TypeScript app. Main application code live
 
 - `npm install`: install dependencies. Use Node `22.x` (`volta` pins `22.20.0`).
 - `npm run dev`: start the local dev server at `http://localhost:5173`.
-- `npm run build`: create the production build.
-- `npm run start`: serve the built app from `build/server/index.js`.
+- `npm run build`: create the production build (outputs `build/client` + `build/server`).
+- `npm run start`: preview the built worker locally via `wrangler dev`.
+- `npm run deploy-development` / `npm run deploy-production`: build and deploy to the matching Cloudflare Worker.
 - `npm run typecheck`: generate React Router types, then run `tsc -b`.
 - `npm run lint` / `npm run lint-fix`: check or fix lint issues with `oxlint`.
 - `npm run format` / `npm run format-fix`: check or rewrite formatting with `oxfmt`.

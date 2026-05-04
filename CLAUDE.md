@@ -12,7 +12,7 @@ Sugidama is a personal development project built with React Router v7, featuring
 ```bash
 npm run dev                      # Start Vite dev server with HMR (http://localhost:5173)
 npm run build                    # Build for production (build/client + build/server)
-npm start                        # Preview the worker locally with `wrangler dev`
+npm start                        # Preview the worker locally (uses .env.development.local for SITE_URL etc.)
 ```
 
 ### Deployment (Cloudflare Workers)

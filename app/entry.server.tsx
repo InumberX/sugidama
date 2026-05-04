@@ -100,9 +100,13 @@ export default async function handleRequest(
     } catch {
       // Timed out or client disconnected — fall through with whatever rendered.
     }
+    // Bot path is fully resolved; safe to release the abort budget.
+    clearTimeout(timeoutId)
   }
-
-  clearTimeout(timeoutId)
+  // Browser path: keep `timeoutId` alive so the abort signal still fires if a
+  // Suspense or data promise stalls during streaming. The pending timer is
+  // garbage-collected when the worker invocation ends; an abort after the
+  // stream already completed is a harmless no-op.
 
   responseHeaders.set('Content-Type', 'text/html')
   return new Response(body, {

@@ -86,7 +86,8 @@ Uses React Router v7 with file-based routing via `@react-router/fs-routes`:
 - **CSP**: Content Security Policy configured in `app/server/csp.server.ts`
 - **CSRF**: CSRF protection in `app/server/csrf.server.ts`
 - **API layer**: Server-side API calls in `app/server/api/`
-- **Production server**: Express-based (`server.js`) using `@react-router/express`
+- **Worker entry**: `workers/app.ts` (Cloudflare Workers fetch handler) — wraps the React Router request handler with `createWorkerFetch` from `app/server/worker-fetch.server.ts`. Runs Basic-auth gating, then forwards GET/HEAD to the static-asset binding before falling back to SSR.
+- **Basic auth**: opt-in via the `BASIC_AUTH_USER` / `BASIC_AUTH_PASS` Workers Secrets. Both must be set or both must be unset; partial configuration causes the worker to fail closed (`503`).
 
 ### Component Organization
 

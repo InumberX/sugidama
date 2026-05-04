@@ -24,7 +24,11 @@ export function decodeBasicCredentials(b64: string): string | null {
   }
 }
 
-export function verifyBasicAuth(request: Request, expectedUser: string, expectedPass: string): Response | null {
+export async function verifyBasicAuth(
+  request: Request,
+  expectedUser: string,
+  expectedPass: string
+): Promise<Response | null> {
   const header = request.headers.get('Authorization')
   const match = header?.match(BASIC_AUTH_HEADER_PATTERN)
   if (!match) {
@@ -40,8 +44,9 @@ export function verifyBasicAuth(request: Request, expectedUser: string, expected
   }
   const user = decoded.slice(0, sep)
   const pass = decoded.slice(sep + 1)
-  const userOk = timingSafeEqual(user, expectedUser)
-  const passOk = timingSafeEqual(pass, expectedPass)
+  // Run both comparisons in parallel so a wrong username does not return
+  // sooner than a wrong password (which itself would be a small timing leak).
+  const [userOk, passOk] = await Promise.all([timingSafeEqual(user, expectedUser), timingSafeEqual(pass, expectedPass)])
   if (!userOk || !passOk) {
     return unauthorizedResponse()
   }

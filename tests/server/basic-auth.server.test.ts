@@ -52,61 +52,61 @@ describe('decodeBasicCredentials', () => {
 })
 
 describe('verifyBasicAuth', () => {
-  it('returns null (auth passes) for matching credentials', () => {
+  it('returns null (auth passes) for matching credentials', async () => {
     const request = buildRequest(basicHeader(USER, PASS))
-    expect(verifyBasicAuth(request, USER, PASS)).toBeNull()
+    expect(await verifyBasicAuth(request, USER, PASS)).toBeNull()
   })
 
-  it('accepts case-insensitive scheme name', () => {
+  it('accepts case-insensitive scheme name', async () => {
     const request = buildRequest(basicHeader(USER, PASS).replace('Basic', 'basic'))
-    expect(verifyBasicAuth(request, USER, PASS)).toBeNull()
+    expect(await verifyBasicAuth(request, USER, PASS)).toBeNull()
   })
 
-  it('verifies UTF-8 credentials correctly', () => {
+  it('verifies UTF-8 credentials correctly', async () => {
     const u = '管理者'
     const p = 'パスワード'
     const request = buildRequest(basicHeader(u, p))
-    expect(verifyBasicAuth(request, u, p)).toBeNull()
+    expect(await verifyBasicAuth(request, u, p)).toBeNull()
   })
 
-  it('returns 401 when Authorization header is missing', () => {
+  it('returns 401 when Authorization header is missing', async () => {
     const request = buildRequest()
-    const response = verifyBasicAuth(request, USER, PASS)
+    const response = await verifyBasicAuth(request, USER, PASS)
     expect(response).not.toBeNull()
     expect(response?.status).toBe(401)
     expect(response?.headers.get('WWW-Authenticate')).toContain('Basic')
   })
 
-  it('returns 401 for non-Basic scheme', () => {
+  it('returns 401 for non-Basic scheme', async () => {
     const request = buildRequest('Bearer some-token')
-    const response = verifyBasicAuth(request, USER, PASS)
+    const response = await verifyBasicAuth(request, USER, PASS)
     expect(response?.status).toBe(401)
   })
 
-  it('returns 401 for malformed credential payload (no colon)', () => {
+  it('returns 401 for malformed credential payload (no colon)', async () => {
     const request = buildRequest(`Basic ${btoa('no-colon')}`)
-    const response = verifyBasicAuth(request, USER, PASS)
+    const response = await verifyBasicAuth(request, USER, PASS)
     expect(response?.status).toBe(401)
   })
 
-  it('returns 401 for invalid base64 payload', () => {
+  it('returns 401 for invalid base64 payload', async () => {
     const request = buildRequest('Basic !!!')
-    const response = verifyBasicAuth(request, USER, PASS)
+    const response = await verifyBasicAuth(request, USER, PASS)
     expect(response?.status).toBe(401)
   })
 
-  it('returns 401 for wrong username', () => {
+  it('returns 401 for wrong username', async () => {
     const request = buildRequest(basicHeader('wrong', PASS))
-    expect(verifyBasicAuth(request, USER, PASS)?.status).toBe(401)
+    expect((await verifyBasicAuth(request, USER, PASS))?.status).toBe(401)
   })
 
-  it('returns 401 for wrong password', () => {
+  it('returns 401 for wrong password', async () => {
     const request = buildRequest(basicHeader(USER, 'wrong'))
-    expect(verifyBasicAuth(request, USER, PASS)?.status).toBe(401)
+    expect((await verifyBasicAuth(request, USER, PASS))?.status).toBe(401)
   })
 
-  it('accepts passwords that contain colons (split is at first colon only)', () => {
+  it('accepts passwords that contain colons (split is at first colon only)', async () => {
     const request = buildRequest(basicHeader('admin', 'pa:ss:word'))
-    expect(verifyBasicAuth(request, 'admin', 'pa:ss:word')).toBeNull()
+    expect(await verifyBasicAuth(request, 'admin', 'pa:ss:word')).toBeNull()
   })
 })

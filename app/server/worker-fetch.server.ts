@@ -36,7 +36,7 @@ export function createWorkerFetch(handler: (request: Request) => Response | Prom
       return new Response('Service Unavailable', { status: 503 })
     }
     if (userSet && passSet) {
-      const denied = verifyBasicAuth(request, env.BASIC_AUTH_USER!, env.BASIC_AUTH_PASS!)
+      const denied = await verifyBasicAuth(request, env.BASIC_AUTH_USER!, env.BASIC_AUTH_PASS!)
       if (denied) {
         return denied
       }

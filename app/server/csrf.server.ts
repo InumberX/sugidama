@@ -46,7 +46,7 @@ export async function validateCsrfRequest(request: Request): Promise<void> {
     throw new Response('Invalid CSRF token', { status: 403 })
   }
 
-  if (!timingSafeEqual(cookieToken, token)) {
+  if (!(await timingSafeEqual(cookieToken, token))) {
     throw new Response('Invalid CSRF token', { status: 403 })
   }
 }

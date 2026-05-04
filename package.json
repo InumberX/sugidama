@@ -9,7 +9,7 @@
     "build-development": "cross-env CLOUDFLARE_ENV=development npm run build",
     "build-production": "cross-env CLOUDFLARE_ENV=production npm run build",
     "dev": "react-router dev",
-    "start": "wrangler dev",
+    "start": "cross-env NODE_ENV=production wrangler dev",
     "deploy-development": "npm run build-development && cross-env NODE_ENV=production CLOUDFLARE_ENV=development wrangler deploy --env=development",
     "deploy-production": "npm run build-production && cross-env NODE_ENV=production CLOUDFLARE_ENV=production wrangler deploy --env=production",
     "typecheck": "npm run react-router-typegen && tsc -b",

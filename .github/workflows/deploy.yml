@@ -99,6 +99,17 @@ jobs:
 
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
+        # Re-export the same build-time vars to wrangler so any deploy-time
+        # rebundling (e.g. via @cloudflare/vite-plugin's redirected config)
+        # picks up the same values used in the previous Build step.
+        env:
+          NODE_ENV: production
+          CLOUDFLARE_ENV: ${{ env.WRANGLER_ENV }}
+          NO_INDEX: ${{ vars.NO_INDEX }}
+          SITE_URL: ${{ vars.SITE_URL }}
+          SITE_NAME: ${{ vars.SITE_NAME }}
+          GOOGLE_ANALYTICS_ID: ${{ vars.GOOGLE_ANALYTICS_ID }}
+          API_URL: ${{ vars.API_URL }}
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

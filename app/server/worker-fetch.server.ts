@@ -16,6 +16,11 @@ export type WorkerFetch = (request: Request, env: WorkerEnv) => Promise<Response
 // (forms, CSRF-protected actions) before React Router can handle them.
 const ASSET_FETCH_METHODS = new Set(['GET', 'HEAD'])
 
+// Tracks whether the partial-config error has already been logged in this
+// isolate. Without this, a misconfigured deploy would emit one identical
+// error per request and flood Workers logs.
+let partialAuthConfigWarned = false
+
 export function createWorkerFetch(handler: (request: Request) => Response | Promise<Response>): WorkerFetch {
   return async function fetch(request, env) {
     const userSet = Boolean(env.BASIC_AUTH_USER)
@@ -24,7 +29,10 @@ export function createWorkerFetch(handler: (request: Request) => Response | Prom
     // (only one of USER/PASS) used to silently disable the auth gate. Now we
     // refuse all traffic until the operator fixes the misconfiguration.
     if (userSet !== passSet) {
-      console.error('BASIC_AUTH_USER and BASIC_AUTH_PASS must both be set or both be unset; rejecting all requests.')
+      if (!partialAuthConfigWarned) {
+        partialAuthConfigWarned = true
+        console.error('BASIC_AUTH_USER and BASIC_AUTH_PASS must both be set or both be unset; rejecting all requests.')
+      }
       return new Response('Service Unavailable', { status: 503 })
     }
     if (userSet && passSet) {

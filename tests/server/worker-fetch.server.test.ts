@@ -60,7 +60,7 @@ describe('createWorkerFetch', () => {
   })
 
   it('fails closed with 503 when only BASIC_AUTH_USER is set', async () => {
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.spyOn(console, 'error').mockImplementation(() => {})
     const handler = vi.fn()
     const fetch = createWorkerFetch(handler)
     const { env, assetsFetch } = buildEnv({ BASIC_AUTH_USER: USER })
@@ -68,11 +68,10 @@ describe('createWorkerFetch', () => {
     expect(handler).not.toHaveBeenCalled()
     expect(assetsFetch).not.toHaveBeenCalled()
     expect(response.status).toBe(503)
-    expect(errorSpy).toHaveBeenCalled()
   })
 
   it('fails closed with 503 when only BASIC_AUTH_PASS is set', async () => {
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    vi.spyOn(console, 'error').mockImplementation(() => {})
     const handler = vi.fn()
     const fetch = createWorkerFetch(handler)
     const { env, assetsFetch } = buildEnv({ BASIC_AUTH_PASS: PASS })
@@ -80,7 +79,20 @@ describe('createWorkerFetch', () => {
     expect(handler).not.toHaveBeenCalled()
     expect(assetsFetch).not.toHaveBeenCalled()
     expect(response.status).toBe(503)
-    expect(errorSpy).toHaveBeenCalled()
+  })
+
+  it('logs the partial-config error only once per isolate (not per request)', async () => {
+    // Re-import the module so the internal warning flag starts fresh.
+    vi.resetModules()
+    const { createWorkerFetch: freshCreateWorkerFetch } = await import('~/server/worker-fetch.server')
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const handler = vi.fn()
+    const fetch = freshCreateWorkerFetch(handler)
+    const { env } = buildEnv({ BASIC_AUTH_USER: USER })
+    await fetch(buildRequest({}), env)
+    await fetch(buildRequest({}), env)
+    await fetch(buildRequest({}), env)
+    expect(errorSpy).toHaveBeenCalledTimes(1)
   })
 
   it('returns 401 without consulting ASSETS or handler when auth required and header missing', async () => {

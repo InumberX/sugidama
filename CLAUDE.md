@@ -23,7 +23,7 @@ npm run deploy-development       # Build and deploy to dev-sugidama (Workers env
 npm run deploy-production        # Build and deploy to sugidama (Workers env: production)
 ```
 
-> When adding a new Cloudflare binding to `wrangler.jsonc` (KV namespaces, R2 buckets, additional bindings, etc.), also extend the `WorkerEnv` type in `app/server/worker-fetch.server.ts`. The type is hand-maintained — there is no auto-generation step that would catch drift at typecheck time.
+> When adding either a new Cloudflare binding to `wrangler.jsonc` (KV namespaces, R2 buckets, etc.) **or** a new Worker secret via `wrangler secret put`, also extend the `WorkerEnv` type in `app/server/worker-fetch.server.ts`. The type is hand-maintained — there is no auto-generation step that would catch drift at typecheck time.
 
 ### Code Quality
 ```bash

@@ -21,8 +21,9 @@ npm run build-development        # Build for the development Worker (CLOUDFLARE_
 npm run build-production         # Build for the production Worker (CLOUDFLARE_ENV=production)
 npm run deploy-development       # Build and deploy to dev-sugidama (Workers env: development)
 npm run deploy-production        # Build and deploy to sugidama (Workers env: production)
-npm run cf-typegen               # Regenerate Worker types from wrangler.jsonc
 ```
+
+> When adding a new Cloudflare binding to `wrangler.jsonc` (KV namespaces, R2 buckets, additional bindings, etc.), also extend the `WorkerEnv` type in `app/server/worker-fetch.server.ts`. The type is hand-maintained — there is no auto-generation step that would catch drift at typecheck time.
 
 ### Code Quality
 ```bash

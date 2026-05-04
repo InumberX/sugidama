@@ -2,6 +2,8 @@
 # Copy to `.dev.vars` and fill in values. Do NOT commit `.dev.vars`.
 # For deployed environments, use: `wrangler secret put <NAME> --env=<environment>`
 
-# Set both to enable Basic auth. Leave either empty to disable.
+# Basic auth is opt-in. Set both values to enable. Leave both empty/unset to
+# disable. Setting only one is treated as a misconfiguration: the worker will
+# return 503 for every request until both are set or both are removed.
 BASIC_AUTH_USER=
 BASIC_AUTH_PASS=

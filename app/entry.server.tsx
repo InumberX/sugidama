@@ -79,9 +79,17 @@ export default async function handleRequest(
     )
   } catch (error) {
     clearTimeout(timeoutId)
-    console.error(error)
+    // Aborts (5s render budget exceeded or client disconnect) are expected
+    // control flow, not bugs — only log unexpected shell-rendering errors.
+    if (!signal.aborted) {
+      console.error(error)
+    }
+    // Preserve the security headers (XFO/XCTO/HSTS/CSP) already attached to
+    // responseHeaders so the error page is not served less protected than a
+    // successful response.
+    responseHeaders.set('Content-Type', 'text/plain')
     return new Response('Internal Server Error', {
-      headers: { 'Content-Type': 'text/plain' },
+      headers: responseHeaders,
       status: 500,
     })
   }

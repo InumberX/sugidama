@@ -12,6 +12,7 @@ import { NonceProvider } from '~/providers/NonceProvider'
 import { buildCspDirective } from '~/server/csp.server'
 
 const isDevelopment = NODE_ENV !== 'production'
+const ABORT_DELAY_MS = 5000
 
 function generateNonce(): string {
   const bytes = new Uint8Array(16)
@@ -51,25 +52,49 @@ export default async function handleRequest(
   const userAgent = request.headers.get('user-agent')
   const waitForAll = isbot(userAgent)
 
-  const body = await renderToReadableStream(
-    <I18nextProvider i18n={instance}>
-      <NonceProvider nonce={nonce}>
-        <ServerRouter context={reactRouterContext} url={request.url} nonce={nonce} />
-      </NonceProvider>
-    </I18nextProvider>,
-    {
-      nonce,
-      signal: request.signal,
-      onError(error) {
-        console.error(error)
-        responseStatusCode = 500
-      },
-    }
-  )
+  const renderTimeout = new AbortController()
+  const timeoutId = setTimeout(() => renderTimeout.abort(), ABORT_DELAY_MS)
+  // Combine client disconnect with our render-time budget so React aborts on either.
+  const signal = AbortSignal.any([request.signal, renderTimeout.signal])
+
+  let body: Awaited<ReturnType<typeof renderToReadableStream>>
+  try {
+    body = await renderToReadableStream(
+      <I18nextProvider i18n={instance}>
+        <NonceProvider nonce={nonce}>
+          <ServerRouter context={reactRouterContext} url={request.url} nonce={nonce} />
+        </NonceProvider>
+      </I18nextProvider>,
+      {
+        nonce,
+        signal,
+        onError(error) {
+          if (signal.aborted) {
+            return
+          }
+          console.error(error)
+          responseStatusCode = 500
+        },
+      }
+    )
+  } catch (error) {
+    clearTimeout(timeoutId)
+    console.error(error)
+    return new Response('Internal Server Error', {
+      headers: { 'Content-Type': 'text/plain' },
+      status: 500,
+    })
+  }
 
   if (waitForAll) {
-    await body.allReady
+    try {
+      await body.allReady
+    } catch {
+      // Timed out or client disconnected — fall through with whatever rendered.
+    }
   }
+
+  clearTimeout(timeoutId)
 
   responseHeaders.set('Content-Type', 'text/html')
   return new Response(body, {

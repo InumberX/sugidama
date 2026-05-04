@@ -1,0 +1,7 @@
+# Local-only secrets for `npm run dev` / `wrangler dev`.
+# Copy to `.dev.vars` and fill in values. Do NOT commit `.dev.vars`.
+# For deployed environments, use: `wrangler secret put <NAME> --env=<environment>`
+
+# Set both to enable Basic auth. Leave either empty to disable.
+BASIC_AUTH_USER=
+BASIC_AUTH_PASS=

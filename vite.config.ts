@@ -1,7 +1,23 @@
+import { cloudflare } from '@cloudflare/vite-plugin'
 import { reactRouter } from '@react-router/dev/vite'
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin'
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import devtoolsJson from 'vite-plugin-devtools-json'
+
+// vanilla-extract sets `ssr.external` for Node SSR runtime sharing.
+// Cloudflare Workers bundle everything into a single isolate, so externals
+// are unnecessary and rejected by @cloudflare/vite-plugin's validation.
+// Strip them before the cloudflare plugin's configResolved runs.
+const stripSsrExternalsForCloudflare: Plugin = {
+  name: 'sugidama:strip-ssr-externals-for-cloudflare',
+  enforce: 'pre',
+  configResolved(config) {
+    const ssr = config.environments?.ssr
+    if (ssr?.resolve) {
+      ssr.resolve.external = []
+    }
+  },
+}
 
 const now = new Date()
 const nowDatetime =
@@ -26,10 +42,8 @@ const LASTMOD =
   ('0' + now.getSeconds()).slice(-2) +
   '+09:00'
 
-// Function to get warmup config based on environment
 const warmupConfig = () => {
   if (process.env.GIT_WORKTREE) {
-    // Skip warmup in git worktree environments to avoid file loading issues
     return undefined
   }
 
@@ -42,9 +56,17 @@ export default defineConfig({
   build: {
     assetsInlineLimit: 0,
   },
+  // Align Cloudflare plugin's per-environment outDir with React Router's
+  // expected build/client and build/server layout.
+  environments: {
+    client: {
+      build: { outDir: 'build/client' },
+    },
+    ssr: {
+      build: { outDir: 'build/server' },
+    },
+  },
   server: {
-    // ホットリロードを有効したい時はコメントアウト
-    // hmr: false,
     warmup: warmupConfig(),
     fs: {
       strict: !process.env.GIT_WORKTREE,
@@ -60,7 +82,13 @@ export default defineConfig({
     'import.meta.env.VITE_LASTMOD': `"${LASTMOD}"`,
     'import.meta.env.VITE_API_URL': `"${process.env.API_URL || 'https://afterworks.g.kuroco.app/rcms-api/7'}"`,
   },
-  plugins: [reactRouter(), vanillaExtractPlugin(), devtoolsJson()],
+  plugins: [
+    stripSsrExternalsForCloudflare,
+    cloudflare({ viteEnvironment: { name: 'ssr' } }),
+    reactRouter(),
+    vanillaExtractPlugin(),
+    devtoolsJson(),
+  ],
   resolve: {
     tsconfigPaths: true,
   },

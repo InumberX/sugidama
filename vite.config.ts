@@ -1,7 +1,7 @@
 import { cloudflare } from '@cloudflare/vite-plugin'
 import { reactRouter } from '@react-router/dev/vite'
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin'
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig, loadEnv, type Plugin } from 'vite'
 import devtoolsJson from 'vite-plugin-devtools-json'
 
 // vanilla-extract sets `ssr.external` for Node SSR runtime sharing.
@@ -52,44 +52,54 @@ const warmupConfig = () => {
   }
 }
 
-export default defineConfig({
-  build: {
-    assetsInlineLimit: 0,
-  },
-  // Align Cloudflare plugin's per-environment outDir with React Router's
-  // expected build/client and build/server layout.
-  environments: {
-    client: {
-      build: { outDir: 'build/client' },
+export default defineConfig(({ mode }) => {
+  // For local deploys (`npm run deploy-development` etc.) load values from
+  // `.env.<env>.local`. CLOUDFLARE_ENV reflects the deploy target; fall back
+  // to Vite's own mode (development/production) for `npm run dev`/`build`.
+  // process.env always wins so CI's workflow-injected vars take precedence.
+  const envMode = process.env.CLOUDFLARE_ENV || mode
+  const fileEnv = loadEnv(envMode, process.cwd(), '')
+  const env = { ...fileEnv, ...process.env }
+
+  return {
+    build: {
+      assetsInlineLimit: 0,
     },
-    ssr: {
-      build: { outDir: 'build/server' },
+    // Align Cloudflare plugin's per-environment outDir with React Router's
+    // expected build/client and build/server layout.
+    environments: {
+      client: {
+        build: { outDir: 'build/client' },
+      },
+      ssr: {
+        build: { outDir: 'build/server' },
+      },
     },
-  },
-  server: {
-    warmup: warmupConfig(),
-    fs: {
-      strict: !process.env.GIT_WORKTREE,
+    server: {
+      warmup: warmupConfig(),
+      fs: {
+        strict: !process.env.GIT_WORKTREE,
+      },
     },
-  },
-  define: {
-    'import.meta.env.VITE_NODE_ENV': `"${process.env.NODE_ENV || 'development'}"`,
-    'import.meta.env.VITE_NO_INDEX': `"${process.env.NO_INDEX || ''}"`,
-    'import.meta.env.VITE_SITE_URL': `"${process.env.SITE_URL || 'http://localhost:5173'}"`,
-    'import.meta.env.VITE_SITE_NAME': `"${process.env.SITE_NAME || 'Sugidama(development)'}"`,
-    'import.meta.env.VITE_GOOGLE_ANALYTICS_ID': `"${process.env.GOOGLE_ANALYTICS_ID || 'G-P7SXGX2CCT'}"`,
-    'import.meta.env.VITE_CACHE_BUSTER': `"${CACHE_BUSTER}"`,
-    'import.meta.env.VITE_LASTMOD': `"${LASTMOD}"`,
-    'import.meta.env.VITE_API_URL': `"${process.env.API_URL || 'https://afterworks.g.kuroco.app/rcms-api/7'}"`,
-  },
-  plugins: [
-    stripSsrExternalsForCloudflare,
-    cloudflare({ viteEnvironment: { name: 'ssr' } }),
-    reactRouter(),
-    vanillaExtractPlugin(),
-    devtoolsJson(),
-  ],
-  resolve: {
-    tsconfigPaths: true,
-  },
+    define: {
+      'import.meta.env.VITE_NODE_ENV': `"${env.NODE_ENV || 'development'}"`,
+      'import.meta.env.VITE_NO_INDEX': `"${env.NO_INDEX || ''}"`,
+      'import.meta.env.VITE_SITE_URL': `"${env.SITE_URL || 'http://localhost:5173'}"`,
+      'import.meta.env.VITE_SITE_NAME': `"${env.SITE_NAME || 'Sugidama(development)'}"`,
+      'import.meta.env.VITE_GOOGLE_ANALYTICS_ID': `"${env.GOOGLE_ANALYTICS_ID || 'G-P7SXGX2CCT'}"`,
+      'import.meta.env.VITE_CACHE_BUSTER': `"${CACHE_BUSTER}"`,
+      'import.meta.env.VITE_LASTMOD': `"${LASTMOD}"`,
+      'import.meta.env.VITE_API_URL': `"${env.API_URL || 'https://afterworks.g.kuroco.app/rcms-api/7'}"`,
+    },
+    plugins: [
+      stripSsrExternalsForCloudflare,
+      cloudflare({ viteEnvironment: { name: 'ssr' } }),
+      reactRouter(),
+      vanillaExtractPlugin(),
+      devtoolsJson(),
+    ],
+    resolve: {
+      tsconfigPaths: true,
+    },
+  }
 })

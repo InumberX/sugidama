@@ -6,6 +6,12 @@ on:
       - develop
       - main
 
+# Cancel superseded runs on the same branch so an older deploy cannot
+# overwrite a newer one if it finishes later.
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   cache-version: v1
 

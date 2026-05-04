@@ -92,3 +92,6 @@ web_modules/
 .amplify-hosting
 
 .react-router
+
+.wrangler
+.dev.vars

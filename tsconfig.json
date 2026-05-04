@@ -27,9 +27,8 @@
       "~/*": ["./app/*"],
       "~/+types/*": ["./.react-router/types/app/+types/*"]
     },
-    // Remix takes care of building everything in `remix build`.
     "noEmit": true,
-    "types": ["@react-router/node", "vite/client"],
+    "types": ["@cloudflare/workers-types", "vite/client"],
     "rootDirs": [".", "./.react-router/types"],
     "plugins": [
       {

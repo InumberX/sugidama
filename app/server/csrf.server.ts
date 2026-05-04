@@ -1,13 +1,15 @@
 import { parse, serialize } from 'cookie'
-import { randomBytes, timingSafeEqual } from 'node:crypto'
 
 import { NODE_ENV } from '~/config/env'
+import { timingSafeEqual } from '~/server/timing-safe-equal.server'
 
 const CSRF_COOKIE_NAME = '_csrf'
 const CSRF_HEADER_NAME = 'X-CSRF-Token'
 
 export function generateCsrfToken(): string {
-  return randomBytes(32).toString('hex')
+  const bytes = new Uint8Array(32)
+  crypto.getRandomValues(bytes)
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('')
 }
 
 export function createCsrfCookieHeader(token: string): string {
@@ -30,8 +32,6 @@ export async function validateCsrfRequest(request: Request): Promise<void> {
   const cookieToken = getCsrfTokenFromCookie(request)
   const headerToken = request.headers.get(CSRF_HEADER_NAME)
 
-  // When JS is enabled, the fetch interceptor sets the header.
-  // When JS is disabled, native form submissions include the token as a hidden input.
   let token = headerToken
   if (!token) {
     try {
@@ -46,9 +46,7 @@ export async function validateCsrfRequest(request: Request): Promise<void> {
     throw new Response('Invalid CSRF token', { status: 403 })
   }
 
-  const a = Buffer.from(cookieToken)
-  const b = Buffer.from(token)
-  if (a.length !== b.length || !timingSafeEqual(a, b)) {
+  if (!(await timingSafeEqual(cookieToken, token))) {
     throw new Response('Invalid CSRF token', { status: 403 })
   }
 }

@@ -1,7 +1,23 @@
+import { cloudflare } from '@cloudflare/vite-plugin'
 import { reactRouter } from '@react-router/dev/vite'
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin'
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv, type Plugin } from 'vite'
 import devtoolsJson from 'vite-plugin-devtools-json'
+
+// vanilla-extract sets `ssr.external` for Node SSR runtime sharing.
+// Cloudflare Workers bundle everything into a single isolate, so externals
+// are unnecessary and rejected by @cloudflare/vite-plugin's validation.
+// Strip them before the cloudflare plugin's configResolved runs.
+const stripSsrExternalsForCloudflare: Plugin = {
+  name: 'sugidama:strip-ssr-externals-for-cloudflare',
+  enforce: 'pre',
+  configResolved(config) {
+    const ssr = config.environments?.ssr
+    if (ssr?.resolve) {
+      ssr.resolve.external = []
+    }
+  },
+}
 
 const now = new Date()
 const nowDatetime =
@@ -26,10 +42,8 @@ const LASTMOD =
   ('0' + now.getSeconds()).slice(-2) +
   '+09:00'
 
-// Function to get warmup config based on environment
 const warmupConfig = () => {
   if (process.env.GIT_WORKTREE) {
-    // Skip warmup in git worktree environments to avoid file loading issues
     return undefined
   }
 
@@ -38,30 +52,54 @@ const warmupConfig = () => {
   }
 }
 
-export default defineConfig({
-  build: {
-    assetsInlineLimit: 0,
-  },
-  server: {
-    // ホットリロードを有効したい時はコメントアウト
-    // hmr: false,
-    warmup: warmupConfig(),
-    fs: {
-      strict: !process.env.GIT_WORKTREE,
+export default defineConfig(({ mode }) => {
+  // For local deploys (`npm run deploy-development` etc.) load values from
+  // `.env.<env>.local`. CLOUDFLARE_ENV reflects the deploy target; fall back
+  // to Vite's own mode (development/production) for `npm run dev`/`build`.
+  // process.env always wins so CI's workflow-injected vars take precedence.
+  const envMode = process.env.CLOUDFLARE_ENV || mode
+  const fileEnv = loadEnv(envMode, process.cwd(), '')
+  const env = { ...fileEnv, ...process.env }
+
+  return {
+    build: {
+      assetsInlineLimit: 0,
     },
-  },
-  define: {
-    'import.meta.env.VITE_NODE_ENV': `"${process.env.NODE_ENV || 'development'}"`,
-    'import.meta.env.VITE_NO_INDEX': `"${process.env.NO_INDEX || ''}"`,
-    'import.meta.env.VITE_SITE_URL': `"${process.env.SITE_URL || 'http://localhost:5173'}"`,
-    'import.meta.env.VITE_SITE_NAME': `"${process.env.SITE_NAME || 'Sugidama(development)'}"`,
-    'import.meta.env.VITE_GOOGLE_ANALYTICS_ID': `"${process.env.GOOGLE_ANALYTICS_ID || 'G-P7SXGX2CCT'}"`,
-    'import.meta.env.VITE_CACHE_BUSTER': `"${CACHE_BUSTER}"`,
-    'import.meta.env.VITE_LASTMOD': `"${LASTMOD}"`,
-    'import.meta.env.VITE_API_URL': `"${process.env.API_URL || 'https://afterworks.g.kuroco.app/rcms-api/7'}"`,
-  },
-  plugins: [reactRouter(), vanillaExtractPlugin(), devtoolsJson()],
-  resolve: {
-    tsconfigPaths: true,
-  },
+    // Align Cloudflare plugin's per-environment outDir with React Router's
+    // expected build/client and build/server layout.
+    environments: {
+      client: {
+        build: { outDir: 'build/client' },
+      },
+      ssr: {
+        build: { outDir: 'build/server' },
+      },
+    },
+    server: {
+      warmup: warmupConfig(),
+      fs: {
+        strict: !process.env.GIT_WORKTREE,
+      },
+    },
+    define: {
+      'import.meta.env.VITE_NODE_ENV': `"${env.NODE_ENV || 'development'}"`,
+      'import.meta.env.VITE_NO_INDEX': `"${env.NO_INDEX || ''}"`,
+      'import.meta.env.VITE_SITE_URL': `"${env.SITE_URL || 'http://localhost:5173'}"`,
+      'import.meta.env.VITE_SITE_NAME': `"${env.SITE_NAME || 'Sugidama(development)'}"`,
+      'import.meta.env.VITE_GOOGLE_ANALYTICS_ID': `"${env.GOOGLE_ANALYTICS_ID || 'G-P7SXGX2CCT'}"`,
+      'import.meta.env.VITE_CACHE_BUSTER': `"${CACHE_BUSTER}"`,
+      'import.meta.env.VITE_LASTMOD': `"${LASTMOD}"`,
+      'import.meta.env.VITE_API_URL': `"${env.API_URL || 'https://afterworks.g.kuroco.app/rcms-api/7'}"`,
+    },
+    plugins: [
+      stripSsrExternalsForCloudflare,
+      cloudflare({ viteEnvironment: { name: 'ssr' } }),
+      reactRouter(),
+      vanillaExtractPlugin(),
+      devtoolsJson(),
+    ],
+    resolve: {
+      tsconfigPaths: true,
+    },
+  }
 })

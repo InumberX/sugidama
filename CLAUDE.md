@@ -10,10 +10,20 @@ Sugidama is a personal development project built with React Router v7, featuring
 
 ### Development
 ```bash
-npm run dev                      # Start development server (http://localhost:5173)
-npm run build                    # Build for production
-npm start                        # Start production server
+npm run dev                      # Start Vite dev server with HMR (http://localhost:5173)
+npm run build                    # Build for production (build/client + build/server)
+npm start                        # Preview the worker locally (uses .env.development.local for SITE_URL etc.)
 ```
+
+### Deployment (Cloudflare Workers)
+```bash
+npm run build-development        # Build for the development Worker (CLOUDFLARE_ENV=development)
+npm run build-production         # Build for the production Worker (CLOUDFLARE_ENV=production)
+npm run deploy-development       # Build and deploy to dev-sugidama (Workers env: development)
+npm run deploy-production        # Build and deploy to sugidama (Workers env: production)
+```
+
+> When adding either a new Cloudflare binding to `wrangler.jsonc` (KV namespaces, R2 buckets, etc.) **or** a new Worker secret via `wrangler secret put`, also extend the `WorkerEnv` type in `app/server/worker-fetch.server.ts`. The type is hand-maintained — there is no auto-generation step that would catch drift at typecheck time.
 
 ### Code Quality
 ```bash
@@ -76,7 +86,8 @@ Uses React Router v7 with file-based routing via `@react-router/fs-routes`:
 - **CSP**: Content Security Policy configured in `app/server/csp.server.ts`
 - **CSRF**: CSRF protection in `app/server/csrf.server.ts`
 - **API layer**: Server-side API calls in `app/server/api/`
-- **Production server**: Express-based (`server.js`) using `@react-router/express`
+- **Worker entry**: `workers/app.ts` (Cloudflare Workers fetch handler) — wraps the React Router request handler with `createWorkerFetch` from `app/server/worker-fetch.server.ts`. Runs Basic-auth gating, then forwards GET/HEAD to the static-asset binding before falling back to SSR.
+- **Basic auth**: opt-in via the `BASIC_AUTH_USER` / `BASIC_AUTH_PASS` Workers Secrets. Both must be set or both must be unset; partial configuration causes the worker to fail closed (`503`).
 
 ### Component Organization
 
@@ -126,7 +137,12 @@ Accessed in app via `app/config/env.ts` and Vite's `import.meta.env.VITE_*` patt
 
 ### Deployment
 
-Deployed on AWS Amplify (configured in `amplify.yml`). The build process outputs to `.amplify-hosting/` with separate `static` (client) and `compute/default` (server) directories.
+Deployed on **Cloudflare Workers** with the static-asset binding for `build/client`. Configuration lives in `wrangler.jsonc`, the Worker entry is `workers/app.ts`, and CI runs `.github/workflows/deploy.yml`:
+
+- `develop` branch → `dev-sugidama` Worker (GitHub Actions environment: `development`)
+- `main` branch → `sugidama` Worker (GitHub Actions environment: `production`)
+
+`run_worker_first: true` is enabled on the assets binding so the Basic-auth gate in `workers/app.ts` covers all requests, including static assets. Environment-specific build values (`SITE_URL` etc.) are injected at build time via GitHub Environments; runtime secrets (`BASIC_AUTH_USER`/`PASS`) are stored as Cloudflare Workers secrets.
 
 ### Special Considerations
 

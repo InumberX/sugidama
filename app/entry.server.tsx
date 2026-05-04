@@ -1,12 +1,8 @@
-import { createReadableStreamFromReadable } from '@react-router/node'
-import { createInstance, type i18n as i18nType } from 'i18next'
+import { createInstance } from 'i18next'
 import { isbot } from 'isbot'
-import { randomBytes } from 'node:crypto'
-import { renderToPipeableStream } from 'react-dom/server'
+import { renderToReadableStream } from 'react-dom/server'
 import { I18nextProvider, initReactI18next } from 'react-i18next'
-import { type EntryContext } from 'react-router'
-import { ServerRouter } from 'react-router'
-import { PassThrough } from 'stream'
+import { type EntryContext, ServerRouter } from 'react-router'
 
 import { NODE_ENV } from './config/env'
 import i18next from './i18next.server'
@@ -15,10 +11,18 @@ import { i18n } from '~/i18n'
 import { NonceProvider } from '~/providers/NonceProvider'
 import { buildCspDirective } from '~/server/csp.server'
 
-// import { resolve } from 'node:path'
-
-const ABORT_DELAY = 5000
 const isDevelopment = NODE_ENV !== 'production'
+const ABORT_DELAY_MS = 5000
+
+function generateNonce(): string {
+  const bytes = new Uint8Array(16)
+  crypto.getRandomValues(bytes)
+  let binary = ''
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i])
+  }
+  return btoa(binary)
+}
 
 export default async function handleRequest(
   request: Request,
@@ -36,118 +40,77 @@ export default async function handleRequest(
     ns,
   })
 
-  // Security headers
   responseHeaders.set('X-Content-Type-Options', 'nosniff')
   responseHeaders.set('X-Frame-Options', 'DENY')
 
-  // HSTS and CSP are production-only (skip in development to avoid localhost issues and Vite HMR issues)
-  const nonce = randomBytes(16).toString('base64')
+  const nonce = generateNonce()
   if (!isDevelopment) {
     responseHeaders.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload')
     responseHeaders.set('Content-Security-Policy', buildCspDirective(nonce))
   }
 
-  return isbot(request.headers.get('user-agent'))
-    ? handleBotRequest(request, responseStatusCode, responseHeaders, reactRouterContext, instance, nonce)
-    : handleBrowserRequest(request, responseStatusCode, responseHeaders, reactRouterContext, instance, nonce)
-}
+  const userAgent = request.headers.get('user-agent')
+  const waitForAll = isbot(userAgent)
 
-function handleBotRequest(
-  request: Request,
-  responseStatusCode: number,
-  responseHeaders: Headers,
-  reactRouterContext: EntryContext,
-  i18n: i18nType,
-  nonce: string
-) {
-  return new Promise((resolve, reject) => {
-    let shellRendered = false
-    const { pipe, abort } = renderToPipeableStream(
-      <I18nextProvider i18n={i18n}>
+  const renderTimeout = new AbortController()
+  const timeoutId = setTimeout(() => renderTimeout.abort(), ABORT_DELAY_MS)
+  // Combine client disconnect with our render-time budget so React aborts on either.
+  const signal = AbortSignal.any([request.signal, renderTimeout.signal])
+
+  let body: Awaited<ReturnType<typeof renderToReadableStream>>
+  try {
+    body = await renderToReadableStream(
+      <I18nextProvider i18n={instance}>
         <NonceProvider nonce={nonce}>
           <ServerRouter context={reactRouterContext} url={request.url} nonce={nonce} />
         </NonceProvider>
       </I18nextProvider>,
       {
         nonce,
-        onAllReady() {
-          shellRendered = true
-          const body = new PassThrough()
-          const stream = createReadableStreamFromReadable(body)
-
-          responseHeaders.set('Content-Type', 'text/html')
-
-          resolve(
-            new Response(stream, {
-              headers: responseHeaders,
-              status: responseStatusCode,
-            })
-          )
-
-          pipe(body)
-        },
-        onShellError(error: unknown) {
-          reject(error)
-        },
-        onError(error: unknown) {
-          responseStatusCode = 500
-          if (shellRendered) {
-            console.error(error)
+        signal,
+        onError(error) {
+          if (signal.aborted) {
+            return
           }
+          console.error(error)
+          responseStatusCode = 500
         },
       }
     )
+  } catch (error) {
+    clearTimeout(timeoutId)
+    // Aborts (5s render budget exceeded or client disconnect) are expected
+    // control flow, not bugs — only log unexpected shell-rendering errors.
+    if (!signal.aborted) {
+      console.error(error)
+    }
+    // Preserve the security headers (XFO/XCTO/HSTS/CSP) already attached to
+    // responseHeaders so the error page is not served less protected than a
+    // successful response.
+    responseHeaders.set('Content-Type', 'text/plain')
+    return new Response('Internal Server Error', {
+      headers: responseHeaders,
+      status: 500,
+    })
+  }
 
-    setTimeout(abort, ABORT_DELAY)
-  })
-}
+  if (waitForAll) {
+    try {
+      await body.allReady
+    } catch {
+      // Timed out or client disconnected — fall through with whatever rendered.
+    }
+    // Bot path is fully resolved; safe to release the abort budget.
+    clearTimeout(timeoutId)
+  }
+  // Browser path: keep `timeoutId` alive so the abort signal still fires if a
+  // Suspense or data promise stalls during streaming. The pending timer is
+  // garbage-collected when the worker invocation ends; an abort after the
+  // stream already completed is a harmless no-op.
 
-function handleBrowserRequest(
-  request: Request,
-  responseStatusCode: number,
-  responseHeaders: Headers,
-  reactRouterContext: EntryContext,
-  i18n: i18nType,
-  nonce: string
-) {
-  return new Promise((resolve, reject) => {
-    let shellRendered = false
-    const { pipe, abort } = renderToPipeableStream(
-      <I18nextProvider i18n={i18n}>
-        <NonceProvider nonce={nonce}>
-          <ServerRouter context={reactRouterContext} url={request.url} nonce={nonce} />
-        </NonceProvider>
-      </I18nextProvider>,
-      {
-        nonce,
-        onShellReady() {
-          shellRendered = true
-          const body = new PassThrough()
-          const stream = createReadableStreamFromReadable(body)
-
-          responseHeaders.set('Content-Type', 'text/html')
-
-          resolve(
-            new Response(stream, {
-              headers: responseHeaders,
-              status: responseStatusCode,
-            })
-          )
-
-          pipe(body)
-        },
-        onShellError(error: unknown) {
-          reject(error)
-        },
-        onError(error: unknown) {
-          responseStatusCode = 500
-          if (shellRendered) {
-            console.error(error)
-          }
-        },
-      }
-    )
-
-    setTimeout(abort, ABORT_DELAY)
+  responseHeaders.set('Content-Type', 'text/html')
+  return new Response(body, {
+    headers: responseHeaders,
+    status: responseStatusCode,
   })
 }

@@ -1,22 +1,10 @@
 import { createRequestHandler } from 'react-router'
 
-import { verifyBasicAuth } from '~/server/basic-auth.server'
-
-type Env = {
-  BASIC_AUTH_USER?: string
-  BASIC_AUTH_PASS?: string
-}
+import { createWorkerFetch, type WorkerEnv } from '~/server/worker-fetch.server'
 
 const requestHandler = createRequestHandler(() => import('virtual:react-router/server-build'), import.meta.env.MODE)
+const handleWorkerRequest = createWorkerFetch(requestHandler)
 
 export default {
-  async fetch(request, env): Promise<Response> {
-    if (env.BASIC_AUTH_USER && env.BASIC_AUTH_PASS) {
-      const denied = verifyBasicAuth(request, env.BASIC_AUTH_USER, env.BASIC_AUTH_PASS)
-      if (denied) {
-        return denied
-      }
-    }
-    return requestHandler(request)
-  },
-} satisfies ExportedHandler<Env>
+  fetch: (request, env) => handleWorkerRequest(request, env),
+} satisfies ExportedHandler<WorkerEnv>

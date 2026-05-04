@@ -105,8 +105,7 @@ describe('verifyBasicAuth', () => {
     expect(verifyBasicAuth(request, USER, PASS)?.status).toBe(401)
   })
 
-  it('returns 401 when password contains a colon and username is wrong', () => {
-    // Passwords are allowed to contain colons; username:pass split is at first colon.
+  it('accepts passwords that contain colons (split is at first colon only)', () => {
     const request = buildRequest(basicHeader('admin', 'pa:ss:word'))
     expect(verifyBasicAuth(request, 'admin', 'pa:ss:word')).toBeNull()
   })

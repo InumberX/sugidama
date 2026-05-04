@@ -6,8 +6,8 @@
   "sideEffects": false,
   "scripts": {
     "build": "react-router build",
-    "build-development": "CLOUDFLARE_ENV=development react-router build",
-    "build-production": "CLOUDFLARE_ENV=production react-router build",
+    "build-development": "NODE_ENV=production CLOUDFLARE_ENV=development react-router build",
+    "build-production": "NODE_ENV=production CLOUDFLARE_ENV=production react-router build",
     "dev": "react-router dev",
     "start": "wrangler dev",
     "deploy-development": "npm run build-development && wrangler deploy --env=development",

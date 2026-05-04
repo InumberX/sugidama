@@ -1,6 +1,7 @@
 import { parse, serialize } from 'cookie'
 
 import { NODE_ENV } from '~/config/env'
+import { timingSafeEqual } from '~/server/timing-safe-equal.server'
 
 const CSRF_COOKIE_NAME = '_csrf'
 const CSRF_HEADER_NAME = 'X-CSRF-Token'
@@ -25,20 +26,6 @@ export function getCsrfTokenFromCookie(request: Request): string | undefined {
   if (!cookieHeader) return undefined
   const cookies = parse(cookieHeader)
   return cookies[CSRF_COOKIE_NAME] || undefined
-}
-
-function timingSafeEqual(a: string, b: string): boolean {
-  const encoder = new TextEncoder()
-  const aBytes = encoder.encode(a)
-  const bBytes = encoder.encode(b)
-  if (aBytes.length !== bBytes.length) {
-    return false
-  }
-  let diff = 0
-  for (let i = 0; i < aBytes.length; i++) {
-    diff |= aBytes[i] ^ bBytes[i]
-  }
-  return diff === 0
 }
 
 export async function validateCsrfRequest(request: Request): Promise<void> {

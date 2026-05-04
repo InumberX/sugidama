@@ -18,9 +18,17 @@ const ASSET_FETCH_METHODS = new Set(['GET', 'HEAD'])
 
 export function createWorkerFetch(handler: (request: Request) => Response | Promise<Response>): WorkerFetch {
   return async function fetch(request, env) {
-    // Auth gate covers everything (static assets included).
-    if (env.BASIC_AUTH_USER && env.BASIC_AUTH_PASS) {
-      const denied = verifyBasicAuth(request, env.BASIC_AUTH_USER, env.BASIC_AUTH_PASS)
+    const userSet = Boolean(env.BASIC_AUTH_USER)
+    const passSet = Boolean(env.BASIC_AUTH_PASS)
+    // Fail closed on partial configuration: a misplaced `wrangler secret put`
+    // (only one of USER/PASS) used to silently disable the auth gate. Now we
+    // refuse all traffic until the operator fixes the misconfiguration.
+    if (userSet !== passSet) {
+      console.error('BASIC_AUTH_USER and BASIC_AUTH_PASS must both be set or both be unset; rejecting all requests.')
+      return new Response('Service Unavailable', { status: 503 })
+    }
+    if (userSet && passSet) {
+      const denied = verifyBasicAuth(request, env.BASIC_AUTH_USER!, env.BASIC_AUTH_PASS!)
       if (denied) {
         return denied
       }

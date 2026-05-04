@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { afterEach, describe, it, expect, vi } from 'vitest'
 
 import { createWorkerFetch, type WorkerEnv } from '~/server/worker-fetch.server'
 
@@ -34,6 +34,10 @@ function buildEnv(overrides: Partial<WorkerEnv> = {}): { env: WorkerEnv; assetsF
 }
 
 describe('createWorkerFetch', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   it('forwards to handler when no auth env is configured and asset is missing', async () => {
     const handler = vi.fn().mockResolvedValue(new Response('ok', { status: 200 }))
     const fetch = createWorkerFetch(handler)
@@ -55,22 +59,28 @@ describe('createWorkerFetch', () => {
     expect(await response.text()).toBe('asset-body')
   })
 
-  it('forwards when only BASIC_AUTH_USER is set (auth not enforced)', async () => {
-    const handler = vi.fn().mockResolvedValue(new Response('ok'))
+  it('fails closed with 503 when only BASIC_AUTH_USER is set', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const handler = vi.fn()
     const fetch = createWorkerFetch(handler)
-    const { env } = buildEnv({ BASIC_AUTH_USER: USER })
+    const { env, assetsFetch } = buildEnv({ BASIC_AUTH_USER: USER })
     const response = await fetch(buildRequest({}), env)
-    expect(handler).toHaveBeenCalledOnce()
-    expect(response.status).toBe(200)
+    expect(handler).not.toHaveBeenCalled()
+    expect(assetsFetch).not.toHaveBeenCalled()
+    expect(response.status).toBe(503)
+    expect(errorSpy).toHaveBeenCalled()
   })
 
-  it('forwards when only BASIC_AUTH_PASS is set (auth not enforced)', async () => {
-    const handler = vi.fn().mockResolvedValue(new Response('ok'))
+  it('fails closed with 503 when only BASIC_AUTH_PASS is set', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const handler = vi.fn()
     const fetch = createWorkerFetch(handler)
-    const { env } = buildEnv({ BASIC_AUTH_PASS: PASS })
+    const { env, assetsFetch } = buildEnv({ BASIC_AUTH_PASS: PASS })
     const response = await fetch(buildRequest({}), env)
-    expect(handler).toHaveBeenCalledOnce()
-    expect(response.status).toBe(200)
+    expect(handler).not.toHaveBeenCalled()
+    expect(assetsFetch).not.toHaveBeenCalled()
+    expect(response.status).toBe(503)
+    expect(errorSpy).toHaveBeenCalled()
   })
 
   it('returns 401 without consulting ASSETS or handler when auth required and header missing', async () => {

@@ -1,7 +1,7 @@
-import * as path from 'path'
-import * as VitestConfig from 'vitest/config'
 import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin'
 import react from '@vitejs/plugin-react'
+import * as path from 'path'
+import * as VitestConfig from 'vitest/config'
 
 export default VitestConfig.defineConfig({
   test: {

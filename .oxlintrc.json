@@ -2,13 +2,13 @@
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["typescript", "react"],
   "categories": {
-    "correctness": "deny",
+    "correctness": "deny"
   },
   "env": {
     "builtin": true,
     "es2022": true,
     "browser": true,
-    "commonjs": true,
+    "commonjs": true
   },
   "ignorePatterns": ["node_modules", ".cache", "build", "public/build", ".react-router"],
   "rules": {
@@ -17,7 +17,7 @@
     "no-unused-vars": "error",
     "react/jsx-no-target-blank": "allow",
     "react/react-in-jsx-scope": "allow",
-    "sort-imports": "allow",
+    "sort-imports": "allow"
   },
   "overrides": [
     {
@@ -43,8 +43,8 @@
         "typescript/no-wrapper-object-types": "error",
         "typescript/prefer-as-const": "error",
         "typescript/prefer-namespace-keyword": "error",
-        "typescript/triple-slash-reference": "error",
-      },
+        "typescript/triple-slash-reference": "error"
+      }
     },
     {
       "files": ["**/*.{ts,tsx}"],
@@ -65,14 +65,14 @@
         "react/no-unknown-property": "error",
         "react/no-unsafe": "off",
         "react/rules-of-hooks": "error",
-        "react/exhaustive-deps": "warn",
-      },
+        "react/exhaustive-deps": "warn"
+      }
     },
     {
       "files": ["app/server/**/*.{ts,tsx}", "**/*.server.{ts,tsx}"],
       "env": {
-        "node": true,
-      },
-    },
-  ],
+        "node": true
+      }
+    }
+  ]
 }

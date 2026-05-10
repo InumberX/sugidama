@@ -24,7 +24,7 @@ type SearchDrinksResultProps = {
   isLoading?: boolean
   currentPage: number
   searchResult: Promise<SearchDrinksResultData>
-  handleChangePage: BasePaginationProps['handleChangePage']
+  onChangePage: BasePaginationProps['onChangePage']
 }
 
 const ELEMENT_SEARCH_DRINKS_RESULT_ID = 'search-drinks-result'
@@ -33,7 +33,7 @@ export const SearchDrinksResult = ({
   isLoading = false,
   currentPage,
   searchResult,
-  handleChangePage,
+  onChangePage,
 }: SearchDrinksResultProps) => {
   const { t: tCommon } = useTranslation('common')
   const { t: tPage } = useTranslation('pages/SG20_100')
@@ -70,7 +70,7 @@ export const SearchDrinksResult = ({
                           <BasePagination
                             currentPage={currentPage}
                             totalSize={totalSize}
-                            handleChangePage={handleChangePage}
+                            onChangePage={onChangePage}
                           />
                         </div>
                       </>

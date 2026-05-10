@@ -11,7 +11,7 @@ export type BasePaginationProps = {
   // 1ページに表示させる件数
   perPageSize?: number
   isDisabled?: boolean
-  handleChangePage: (newPage: number) => void
+  onChangePage: (newPage: number) => void
   isHideNumberButton?: boolean
 }
 
@@ -21,14 +21,14 @@ const BasePaginationItem = ({
   totalPage,
   pageNumber,
   isDisabled,
-  handleChangePage,
+  onChangePage,
 }: {
   className?: string
   currentPage: number
   totalPage: number
   pageNumber: number
   isDisabled?: boolean
-  handleChangePage: (newPage: number) => void
+  onChangePage: (newPage: number) => void
 }) => {
   return (
     <li
@@ -55,7 +55,7 @@ const BasePaginationItem = ({
             .filter(Boolean)
             .join(' ')}
           disabled={isDisabled}
-          onClick={() => handleChangePage(pageNumber)}
+          onClick={() => onChangePage(pageNumber)}
         >
           <span className={styles.basePaginationButton_container}>
             <span className={styles.basePaginationButton_text}>{pageNumber}</span>
@@ -72,7 +72,7 @@ export const BasePagination = ({
   totalSize,
   perPageSize = 12,
   isDisabled,
-  handleChangePage,
+  onChangePage,
   isHideNumberButton = false,
 }: BasePaginationProps) => {
   const totalPage = useMemo(() => {
@@ -100,7 +100,7 @@ export const BasePagination = ({
               title="前のページへ"
               aria-label="前のページへ"
               disabled={currentPage === 1 || isDisabled}
-              onClick={() => handleChangePage(currentPage - 1)}
+              onClick={() => onChangePage(currentPage - 1)}
             >
               <span className={styles.basePaginationButton_container}>
                 <SvgIcon className={styles.basePaginationButton_icon} variant="keyboardArrowLeft" />
@@ -113,7 +113,7 @@ export const BasePagination = ({
               currentPage={currentPage}
               totalPage={totalPage}
               pageNumber={currentPage}
-              handleChangePage={handleChangePage}
+              onChangePage={onChangePage}
               isDisabled={isDisabled}
             />
           ) : (
@@ -126,7 +126,7 @@ export const BasePagination = ({
                         currentPage={currentPage}
                         totalPage={totalPage}
                         pageNumber={pageNumber}
-                        handleChangePage={handleChangePage}
+                        onChangePage={onChangePage}
                         className="obj__md obj__lg obj__xl obj__xxl"
                         isDisabled={isDisabled}
                       />
@@ -163,7 +163,7 @@ export const BasePagination = ({
                             currentPage={currentPage}
                             totalPage={totalPage}
                             pageNumber={pageNumber}
-                            handleChangePage={handleChangePage}
+                            onChangePage={onChangePage}
                             className="obj__md obj__lg obj__xl obj__xxl"
                             isDisabled={isDisabled}
                           />
@@ -196,7 +196,7 @@ export const BasePagination = ({
                         currentPage={currentPage}
                         totalPage={totalPage}
                         pageNumber={pageNumber}
-                        handleChangePage={handleChangePage}
+                        onChangePage={onChangePage}
                         className="obj__xs obj__sm"
                         isDisabled={isDisabled}
                       />
@@ -233,7 +233,7 @@ export const BasePagination = ({
                             currentPage={currentPage}
                             totalPage={totalPage}
                             pageNumber={pageNumber}
-                            handleChangePage={handleChangePage}
+                            onChangePage={onChangePage}
                             className="obj__xs obj__sm"
                             isDisabled={isDisabled}
                           />
@@ -273,7 +273,7 @@ export const BasePagination = ({
               title="次のページへ"
               aria-label="次のページへ"
               disabled={currentPage >= totalPage || totalPage <= 1 || isDisabled}
-              onClick={() => handleChangePage(currentPage + 1)}
+              onClick={() => onChangePage(currentPage + 1)}
             >
               <span className={styles.basePaginationButton_container}>
                 <SvgIcon className={styles.basePaginationButton_icon} variant="keyboardArrowRight" />

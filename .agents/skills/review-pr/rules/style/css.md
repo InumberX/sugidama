@@ -58,11 +58,27 @@ export const baseButton__primary = style({
 
 ## カスケードレイヤー（@layer）
 
-`app/styles/variables/layers.css.ts` で以下の順序で定義済み（後に書かれたものが優先される）:
+`app/styles/variables/layers.css.ts` で **`globalLayer({ parent: ... }, name)` によるネスト層** として定義されている。`utils` を最上位として、その内側に `componentPage` → `componentCommon` → `componentUiHigh` → `componentUiMiddle` → `componentUiLow` → `componentUiPrimitive` → `reset` が順にネストされる:
 
 ```
-reset → componentUiPrimitive → componentUiLow → componentUiMiddle → componentUiHigh → componentCommon → componentPage → utils
+@layer utils {
+  @layer componentPage {
+    @layer componentCommon {
+      @layer componentUiHigh {
+        @layer componentUiMiddle {
+          @layer componentUiLow {
+            @layer componentUiPrimitive {
+              @layer reset { ... }
+            }
+          }
+        }
+      }
+    }
+  }
+}
 ```
+
+レビュー実務上は **「ファイルの配置場所と一致するレイヤー定数を使うこと」** だけを確認すれば足りる。具体的な cascade 優先順位の機微（ネスト層同士の比較ルール）に踏み込んだ指摘はせず、配置と定数の不一致のみを Must とする。
 
 エクスポート定数:
 
@@ -198,18 +214,20 @@ export const articleCardTitle_text = style({
 
 `app/styles/mixins/` の関数を活用する:
 
-| Mixin | 用途 |
-|---|---|
-| `getClampPx(min, max)` | 流体型の px 値（`paddingInline`、`gap` 等） |
-| `getClampRem(min, max)` | 流体型の rem 値（`fontSize` 等） |
-| `getFontSize(px)` | 固定 px → rem 換算 |
-| `getMediaQuery('hover' \| 'print' \| breakpointKey)` | カスタムメディアクエリ生成 |
-| `getMediaQueryReverse(breakpointKey)` | 逆方向のメディアクエリ |
-| `getContainerQuery(breakpointKey)` / `getContainerQueryReverse` | コンテナクエリ |
-| `getTransition([{ property: '...' }])` | トランジション生成 |
-| `getLineClamp(n)` | n 行クランプ |
+| Mixin | 出典 | 用途 |
+|---|---|---|
+| `getClampPx(min, max)` | `mixins/size.css` | 流体型の px 値（`paddingInline`、`gap` 等） |
+| `getClampRem(min, max)` | `mixins/size.css` | 流体型の rem 値（`fontSize` 等） |
+| `getFontSize(px)` | `mixins/font.css` | 固定 px → rem 換算 |
+| `getLineClamp(n)` | `mixins/font.css` | n 行クランプ |
+| `getMediaQuery('hover' \| 'print' \| 'not-scripting' \| breakpointKey)` | `mixins/mediaQuery.css` | カスタムメディアクエリ生成 |
+| `getMediaQueryReverse(breakpointKey)` | `mixins/mediaQuery.css` | 逆方向のメディアクエリ |
+| `getContainerQuery(breakpointKey)` / `getContainerQueryReverse` | `mixins/mediaQuery.css` | コンテナクエリ |
+| `getTransition([{ property: '...' }])` | `mixins/transition.css` | トランジション生成 |
+| `getRgba(rgbColor, alpha)` | `mixins/color.css` | `cssVariables.color.*.rgb` を `rgba()` でアルファ付き色に変換 |
+| `getTextGradation(color)` | `mixins/color.css` | テキストにグラデーションを適用する `StyleRule`（`background-clip: text` ほか） |
 
-固定ピクセル値の `fontSize: 16` 直書きが見えたら、`fontMediumBold` 等のプリセットや `getClampRem` で置き換えられないか確認する。
+固定ピクセル値の `fontSize: 16` 直書きが見えたら、`fontMediumBold` 等のプリセットや `getClampRem` で置き換えられないか確認する。アルファ付きの色や `rgba(0, 0, 0, 0.4)` の直書きが見えたら、`cssVariables.color.*.rgb` + `getRgba` の組み合わせに置き換えられないか確認する。
 
 ## メディアクエリ
 

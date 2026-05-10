@@ -56,13 +56,17 @@ description: Review a pull request against this project's style, naming, and str
 
 ### 🔴 Must（規約違反・修正必須）
 
-- **`app/components/ui/buttons/NewButton/style.css.ts:5`**
-  クラス名が PascalCase で定義されています。Vanilla Extract のエクスポートはコンポーネント名と一致する camelCase（`newButton`）を採用しています（参考: `rules/style/css.md` クラス命名、既存の `BaseButton/style.css.ts`）。
+- **`app/components/ui/buttons/NewButton/style.css.ts:12`**
+  Element に `__`（2 つ）を使っており Modifier と区別がつきません。本プロジェクトでは Element は `_`（1 つ）、Modifier は `__`（2 つ）で使い分けます。また `@layer` で囲まれていません（参考: `rules/style/css.md` エクスポート命名・カスケードレイヤー、既存の `BaseButton/style.css.ts`）。
   ```ts
-  // Bad
-  export const NewButton = style({ ... })
-  // Good
-  export const newButton = style({ ... })
+  // Bad — @layer なし、Element に __ 2 つ
+  export const newButton__text = style({ display: 'block' })
+  // Good — @layer で囲み、Element は _ 1 つ
+  export const newButton_text = style({
+    '@layer': {
+      [cssLayerComponentUiLow]: { display: 'block' },
+    },
+  })
   ```
 
 ### 🟡 Should（推奨される改善）

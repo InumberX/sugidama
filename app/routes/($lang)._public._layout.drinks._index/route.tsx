@@ -248,7 +248,7 @@ export default function PageSG20_100({ loaderData }: Route.ComponentProps) {
                 isLoading={navigation.state === 'loading'}
                 currentPage={currentPage}
                 searchResult={drinks}
-                handleChangePage={(newPage) => {
+                onChangePage={(newPage) => {
                   handleSubmitSearch(newPage)
                 }}
               />

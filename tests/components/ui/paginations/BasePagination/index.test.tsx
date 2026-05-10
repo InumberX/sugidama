@@ -18,7 +18,7 @@ describe('BasePagination', () => {
   describe('Input/Output', () => {
     describe('基本的な出力', () => {
       beforeEach(() => {
-        result = render(<BasePagination currentPage={1} totalSize={50} handleChangePage={handleChangePage} />)
+        result = render(<BasePagination currentPage={1} totalSize={50} onChangePage={handleChangePage} />)
       })
 
       test('ページネーション要素が正常に出力されている', () => {
@@ -39,7 +39,7 @@ describe('BasePagination', () => {
 
     describe('totalPage の計算', () => {
       test('totalSize=50, perPageSize=12 の場合、5ページになる', () => {
-        result = render(<BasePagination currentPage={1} totalSize={50} handleChangePage={handleChangePage} />)
+        result = render(<BasePagination currentPage={1} totalSize={50} onChangePage={handleChangePage} />)
         const pageItems = result.container.querySelectorAll('li[class*="basePagination_item"]')
         // 前へ(1) + md/lg用ページ1〜5(5) + xs/sm用ページ1,セパレーター,ページ5(3) + 次へ(1) = 10
         expect(pageItems.length).toBe(10)
@@ -47,7 +47,7 @@ describe('BasePagination', () => {
 
       test('totalSize=100, perPageSize=10 の場合、10ページになる', () => {
         result = render(
-          <BasePagination currentPage={1} totalSize={100} perPageSize={10} handleChangePage={handleChangePage} />
+          <BasePagination currentPage={1} totalSize={100} perPageSize={10} onChangePage={handleChangePage} />
         )
         // 総ページ数が5を超えるので、省略表示される
         const pagination = result.container.querySelector('div[class*="basePagination"]')
@@ -55,7 +55,7 @@ describe('BasePagination', () => {
       })
 
       test('totalSize=0 の場合、1ページになる', () => {
-        result = render(<BasePagination currentPage={1} totalSize={0} handleChangePage={handleChangePage} />)
+        result = render(<BasePagination currentPage={1} totalSize={0} onChangePage={handleChangePage} />)
         const pagination = result.container.querySelector('div[class*="basePagination"]')
         expect(pagination).not.toBe(null)
       })
@@ -64,7 +64,7 @@ describe('BasePagination', () => {
     describe('perPageSize のデフォルト値', () => {
       test('perPageSize を指定しない場合、デフォルト値 12 が適用される', () => {
         // totalSize=24 でデフォルト perPageSize=12 なら totalPage=2
-        result = render(<BasePagination currentPage={1} totalSize={24} handleChangePage={handleChangePage} />)
+        result = render(<BasePagination currentPage={1} totalSize={24} onChangePage={handleChangePage} />)
         const pageButtons = result.container.querySelectorAll('button[class*="basePaginationButton"]')
         // 前へ + ページ2 + 次へ = 3 (ページ1は現在ページなのでspan)
         const page2Button = Array.from(pageButtons).find((btn) => btn.textContent === '2')
@@ -79,7 +79,7 @@ describe('BasePagination', () => {
     describe('境界値テスト', () => {
       test('totalSize が perPageSize で割り切れる場合（totalSize=36, perPageSize=12 → 3ページ）', () => {
         result = render(
-          <BasePagination currentPage={1} totalSize={36} perPageSize={12} handleChangePage={handleChangePage} />
+          <BasePagination currentPage={1} totalSize={36} perPageSize={12} onChangePage={handleChangePage} />
         )
         const pageButtons = result.container.querySelectorAll('button[class*="basePaginationButton"]')
         const page3Button = Array.from(pageButtons).find((btn) => btn.textContent === '3')
@@ -91,7 +91,7 @@ describe('BasePagination', () => {
 
       test('totalSize が perPageSize で割り切れない場合（totalSize=37, perPageSize=12 → 4ページ）', () => {
         result = render(
-          <BasePagination currentPage={1} totalSize={37} perPageSize={12} handleChangePage={handleChangePage} />
+          <BasePagination currentPage={1} totalSize={37} perPageSize={12} onChangePage={handleChangePage} />
         )
         const pageButtons = result.container.querySelectorAll('button[class*="basePaginationButton"]')
         const page4Button = Array.from(pageButtons).find((btn) => btn.textContent === '4')
@@ -102,7 +102,7 @@ describe('BasePagination', () => {
       })
 
       test('totalSize=1 の場合、1ページのみ', () => {
-        result = render(<BasePagination currentPage={1} totalSize={1} handleChangePage={handleChangePage} />)
+        result = render(<BasePagination currentPage={1} totalSize={1} onChangePage={handleChangePage} />)
         const currentPage = result.container.querySelector('span[class*="basePaginationCurrent_text"]')
         expect(currentPage?.textContent).toBe('1')
 
@@ -115,12 +115,7 @@ describe('BasePagination', () => {
     describe('isHideNumberButton', () => {
       beforeEach(() => {
         result = render(
-          <BasePagination
-            currentPage={3}
-            totalSize={100}
-            handleChangePage={handleChangePage}
-            isHideNumberButton={true}
-          />
+          <BasePagination currentPage={3} totalSize={100} onChangePage={handleChangePage} isHideNumberButton={true} />
         )
       })
 
@@ -142,7 +137,7 @@ describe('BasePagination', () => {
             className="custom-pagination"
             currentPage={1}
             totalSize={50}
-            handleChangePage={handleChangePage}
+            onChangePage={handleChangePage}
           />
         )
       })
@@ -155,7 +150,7 @@ describe('BasePagination', () => {
 
     describe('現在のページのスタイル', () => {
       beforeEach(() => {
-        result = render(<BasePagination currentPage={2} totalSize={50} handleChangePage={handleChangePage} />)
+        result = render(<BasePagination currentPage={2} totalSize={50} onChangePage={handleChangePage} />)
       })
 
       test('現在のページは span 要素で表示される', () => {
@@ -172,7 +167,7 @@ describe('BasePagination', () => {
 
     describe('総ページ数が5以下の場合', () => {
       beforeEach(() => {
-        result = render(<BasePagination currentPage={1} totalSize={50} handleChangePage={handleChangePage} />)
+        result = render(<BasePagination currentPage={1} totalSize={50} onChangePage={handleChangePage} />)
       })
 
       test('すべてのページ番号ボタンが表示される', () => {
@@ -186,7 +181,7 @@ describe('BasePagination', () => {
     describe('総ページ数が5を超える場合（省略表示）', () => {
       beforeEach(() => {
         result = render(
-          <BasePagination currentPage={5} totalSize={120} perPageSize={12} handleChangePage={handleChangePage} />
+          <BasePagination currentPage={5} totalSize={120} perPageSize={12} onChangePage={handleChangePage} />
         )
       })
 
@@ -211,7 +206,7 @@ describe('BasePagination', () => {
         beforeEach(() => {
           // totalPage=10
           result = render(
-            <BasePagination currentPage={1} totalSize={100} perPageSize={10} handleChangePage={handleChangePage} />
+            <BasePagination currentPage={1} totalSize={100} perPageSize={10} onChangePage={handleChangePage} />
           )
         })
 
@@ -231,7 +226,7 @@ describe('BasePagination', () => {
       describe('先頭付近（currentPage=2）', () => {
         beforeEach(() => {
           result = render(
-            <BasePagination currentPage={2} totalSize={100} perPageSize={10} handleChangePage={handleChangePage} />
+            <BasePagination currentPage={2} totalSize={100} perPageSize={10} onChangePage={handleChangePage} />
           )
         })
 
@@ -247,7 +242,7 @@ describe('BasePagination', () => {
       describe('中間（currentPage=5）', () => {
         beforeEach(() => {
           result = render(
-            <BasePagination currentPage={5} totalSize={100} perPageSize={10} handleChangePage={handleChangePage} />
+            <BasePagination currentPage={5} totalSize={100} perPageSize={10} onChangePage={handleChangePage} />
           )
         })
 
@@ -270,7 +265,7 @@ describe('BasePagination', () => {
       describe('末尾付近（currentPage=9）', () => {
         beforeEach(() => {
           result = render(
-            <BasePagination currentPage={9} totalSize={100} perPageSize={10} handleChangePage={handleChangePage} />
+            <BasePagination currentPage={9} totalSize={100} perPageSize={10} onChangePage={handleChangePage} />
           )
         })
 
@@ -286,7 +281,7 @@ describe('BasePagination', () => {
       describe('最終ページ（currentPage=10）', () => {
         beforeEach(() => {
           result = render(
-            <BasePagination currentPage={10} totalSize={100} perPageSize={10} handleChangePage={handleChangePage} />
+            <BasePagination currentPage={10} totalSize={100} perPageSize={10} onChangePage={handleChangePage} />
           )
         })
 
@@ -306,7 +301,7 @@ describe('BasePagination', () => {
 
     describe('先頭ページの表示', () => {
       beforeEach(() => {
-        result = render(<BasePagination currentPage={1} totalSize={50} handleChangePage={handleChangePage} />)
+        result = render(<BasePagination currentPage={1} totalSize={50} onChangePage={handleChangePage} />)
       })
 
       test('最初のページアイテムに first クラスが適用される', () => {
@@ -317,7 +312,7 @@ describe('BasePagination', () => {
 
     describe('最終ページの表示', () => {
       beforeEach(() => {
-        result = render(<BasePagination currentPage={1} totalSize={50} handleChangePage={handleChangePage} />)
+        result = render(<BasePagination currentPage={1} totalSize={50} onChangePage={handleChangePage} />)
       })
 
       test('最後のページアイテムに last クラスが適用される', () => {
@@ -333,7 +328,7 @@ describe('BasePagination', () => {
   describe('Operation', () => {
     describe('ページ番号クリック', () => {
       beforeEach(() => {
-        result = render(<BasePagination currentPage={1} totalSize={50} handleChangePage={handleChangePage} />)
+        result = render(<BasePagination currentPage={1} totalSize={50} onChangePage={handleChangePage} />)
       })
 
       test('ページ番号ボタンをクリックすると handleChangePage が呼ばれる', () => {
@@ -352,19 +347,19 @@ describe('BasePagination', () => {
 
     describe('前へボタン', () => {
       test('最初のページでは前へボタンが無効化される', () => {
-        result = render(<BasePagination currentPage={1} totalSize={50} handleChangePage={handleChangePage} />)
+        result = render(<BasePagination currentPage={1} totalSize={50} onChangePage={handleChangePage} />)
         const prevButton = result.getByLabelText('前のページへ')
         expect(prevButton).toBeDisabled()
       })
 
       test('2ページ目以降では前へボタンが有効', () => {
-        result = render(<BasePagination currentPage={2} totalSize={50} handleChangePage={handleChangePage} />)
+        result = render(<BasePagination currentPage={2} totalSize={50} onChangePage={handleChangePage} />)
         const prevButton = result.getByLabelText('前のページへ')
         expect(prevButton).not.toBeDisabled()
       })
 
       test('前へボタンをクリックすると currentPage - 1 で handleChangePage が呼ばれる', () => {
-        result = render(<BasePagination currentPage={3} totalSize={50} handleChangePage={handleChangePage} />)
+        result = render(<BasePagination currentPage={3} totalSize={50} onChangePage={handleChangePage} />)
         const prevButton = result.getByLabelText('前のページへ')
         fireEvent.click(prevButton)
         expect(handleChangePage).toHaveBeenCalledWith(2)
@@ -374,19 +369,19 @@ describe('BasePagination', () => {
     describe('次へボタン', () => {
       test('最後のページでは次へボタンが無効化される', () => {
         // totalSize=50, perPageSize=12 -> totalPage=5
-        result = render(<BasePagination currentPage={5} totalSize={50} handleChangePage={handleChangePage} />)
+        result = render(<BasePagination currentPage={5} totalSize={50} onChangePage={handleChangePage} />)
         const nextButton = result.getByLabelText('次のページへ')
         expect(nextButton).toBeDisabled()
       })
 
       test('最後のページ以外では次へボタンが有効', () => {
-        result = render(<BasePagination currentPage={1} totalSize={50} handleChangePage={handleChangePage} />)
+        result = render(<BasePagination currentPage={1} totalSize={50} onChangePage={handleChangePage} />)
         const nextButton = result.getByLabelText('次のページへ')
         expect(nextButton).not.toBeDisabled()
       })
 
       test('次へボタンをクリックすると currentPage + 1 で handleChangePage が呼ばれる', () => {
-        result = render(<BasePagination currentPage={2} totalSize={50} handleChangePage={handleChangePage} />)
+        result = render(<BasePagination currentPage={2} totalSize={50} onChangePage={handleChangePage} />)
         const nextButton = result.getByLabelText('次のページへ')
         fireEvent.click(nextButton)
         expect(handleChangePage).toHaveBeenCalledWith(3)
@@ -396,7 +391,7 @@ describe('BasePagination', () => {
     describe('isDisabled', () => {
       beforeEach(() => {
         result = render(
-          <BasePagination currentPage={2} totalSize={50} handleChangePage={handleChangePage} isDisabled={true} />
+          <BasePagination currentPage={2} totalSize={50} onChangePage={handleChangePage} isDisabled={true} />
         )
       })
 
@@ -420,7 +415,7 @@ describe('BasePagination', () => {
 
     describe('1ページしかない場合', () => {
       beforeEach(() => {
-        result = render(<BasePagination currentPage={1} totalSize={10} handleChangePage={handleChangePage} />)
+        result = render(<BasePagination currentPage={1} totalSize={10} onChangePage={handleChangePage} />)
       })
 
       test('前へボタンが無効化される', () => {

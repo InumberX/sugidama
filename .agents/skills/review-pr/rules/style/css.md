@@ -193,7 +193,8 @@ export const baseButton = style({
 ```
 
 利用可能なトークン（`cssVariables.*`）:
-- `color.font.*`、`color.background.*`、`color.border.*`、`color.gradation.*`、`color.util.*`、`color.skeleton.*`（各キーに `.hex` と `.rgb`）
+- `color.font.*`、`color.background.*`、`color.border.*`、`color.util.*`、`color.skeleton.*` — 各キーは `{ hex, rgb }` を持つオブジェクト。色は `cssVariables.color.font.base.hex`、アルファ付きは `getRgba(cssVariables.color.font.base.rgb, 0.4)` のように参照する
+- `color.gradation.*` — **例外**。`hex`/`rgb` を持たず、`linear-gradient()` 等にそのまま埋め込める CSS グラデーション文字列（例: `cssVariables.color.gradation.primary`）。`background: linear-gradient(90deg, ${cssVariables.color.gradation.primary})` のように使う
 - `font.family.main`、`font.weight.{medium,bold}`
 - `opacity.{hover,disabled}`
 - `layout.inner.{width,padding,maxWidth}`

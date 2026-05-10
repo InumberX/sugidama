@@ -28,17 +28,27 @@
 
 修飾子は **ベースクラスと組み合わせて指定**する。Vanilla Extract ではテンプレートリテラルで参照する:
 
-```ts
-// Good — TS 側で組み合わせ
-export const baseButton = ({ isDisabled, size = 'medium', variant = 'contained' }) => {
-  return [
-    styles.baseButton,
-    isDisabled && styles.baseButton__disabled,
-    styles[`baseButton__${size}`],
-    styles[`baseButton__${variant}`],
-  ].filter(Boolean).join(' ')
+```tsx
+// Good — TS 側でコンポーネント内のローカル変数として組み合わせ
+import * as styles from './style.css'
+
+export const BaseButton = ({ isDisabled, size = 'medium', variant = 'contained', ...props }: BaseButtonProps) => {
+  const baseButtonClassName = useMemo(() => {
+    return [
+      styles.baseButton,
+      isDisabled && styles.baseButton__disabled,
+      styles[`baseButton__${size}`],
+      styles[`baseButton__${variant}`],
+    ]
+      .filter(Boolean)
+      .join(' ')
+  }, [isDisabled, size, variant])
+
+  return <PrimitiveButton {...props} className={baseButtonClassName} isDisabled={isDisabled} />
 }
 ```
+
+> ローカル変数名は `<componentName>ClassName` で揃えるのが既存パターン（例: `baseButtonClassName`、`primitiveButtonClassName`）。Vanilla Extract のスタイル export 名（`baseButton`）と同名にしない。
 
 ```ts
 // Good — Modifier の有無で挙動が変わる場合は CSS 側でセレクタ結合

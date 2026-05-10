@@ -67,11 +67,7 @@ export const SearchDrinksResult = ({
                       <>
                         <ArticleCardList items={drinks} />
                         <div className={styles.searchDrinksResult_pagination}>
-                          <BasePagination
-                            currentPage={currentPage}
-                            totalSize={totalSize}
-                            onChangePage={onChangePage}
-                          />
+                          <BasePagination currentPage={currentPage} totalSize={totalSize} onChangePage={onChangePage} />
                         </div>
                       </>
                     ) : (

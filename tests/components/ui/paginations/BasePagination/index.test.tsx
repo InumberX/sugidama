@@ -115,12 +115,7 @@ describe('BasePagination', () => {
     describe('isHideNumberButton', () => {
       beforeEach(() => {
         result = render(
-          <BasePagination
-            currentPage={3}
-            totalSize={100}
-            onChangePage={handleChangePage}
-            isHideNumberButton={true}
-          />
+          <BasePagination currentPage={3} totalSize={100} onChangePage={handleChangePage} isHideNumberButton={true} />
         )
       })
 

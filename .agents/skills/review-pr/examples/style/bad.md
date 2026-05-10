@@ -405,17 +405,21 @@ export const BaseButton = ({ /* ... */ }: BaseButtonProps) => { /* ... */ }
 ## 15. ❌ パスエイリアスの誤用
 
 ```tsx
-// Bad — このプロジェクトには存在しないエイリアス
+// Bad — このプロジェクトには存在しないプレフィックスのエイリアス
 import { BaseButton } from '@/components/ui/buttons/BaseButton'
 import { BaseButton } from '@components/buttons/BaseButton'
+import { BaseButton } from '#components/buttons/BaseButton'
 
 // Bad — 相対パスで深く辿る
 import { BaseButton } from '../../../components/ui/buttons/BaseButton'
 ```
 
 ```tsx
-// Good — `~/` のみ使う
+// Good — アプリケーションコードは `~/` を使う
 import { BaseButton } from '~/components/ui/buttons/BaseButton'
+
+// Good — React Router 生成型は `~/+types/` を使う（tsconfig.json paths に定義された専用エイリアス）
+import type { Route } from '~/+types/root'
 ```
 
 参照: `rules/style/structure.md` パスエイリアス

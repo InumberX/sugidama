@@ -177,15 +177,27 @@ export default function PageSG10_100({ loaderData }: Route.ComponentProps) { ...
 
 ## パスエイリアス
 
-`~/*` のみが `app/*` を指す。**他のエイリアスは存在しない**。
+`tsconfig.json` の `paths` で定義されているのは **次の 2 つのみ**:
+
+| エイリアス | 解決先 | 用途 |
+|---|---|---|
+| `~/*` | `./app/*` | アプリケーションコード全般（コンポーネント・hooks・utils・types・config 等） |
+| `~/+types/*` | `./.react-router/types/app/+types/*` | **React Router v7 が自動生成するルート型の参照専用**。`app/utils/meta.ts` 等で `import type { Route } from '~/+types/root'` のように使用 |
+
+`~/+types/*` は React Router の typegen で生成される型ファイル（`Route.LoaderArgs`、`Route.ComponentProps`、`Route.MetaArgs` 等）を参照するための専用エイリアス。手書きする型を `~/+types/` 配下に置いてはいけない。生成系なので `.react-router/` ディレクトリを git にコミットしない（gitignore 済み）。
 
 ```ts
-// Good
+// Good — 通常のアプリケーションコード
 import { BaseButton } from '~/components/ui/buttons/BaseButton'
 
-// Bad — 解決されない
+// Good — React Router 生成型の参照（ルートファイルや、ルート型を扱う共通 utility 内）
+import type { Route } from '~/+types/root'
+import type { Route } from './+types/route'  // ルートファイル内では相対パスが慣例
+
+// Bad — 未定義のエイリアスを使用
 import { BaseButton } from '@/components/ui/buttons/BaseButton'
 import { BaseButton } from '@components/buttons/BaseButton'
+import { BaseButton } from '#components/buttons/BaseButton'
 ```
 
 ## アンチパターン（指摘対象）
@@ -200,7 +212,7 @@ import { BaseButton } from '@components/buttons/BaseButton'
 - ❌ hook ファイルが kebab-case（→ `useXxx.ts` の camelCase）
 - ❌ サーバー専用モジュールに `.server.ts` サフィックスがない
 - ❌ クライアント専用モジュールに `.client.ts` サフィックスがない
-- ❌ `~/` 以外のパスエイリアスを使用
+- ❌ `~/` / `~/+types/` 以外のプレフィックスを使ったパスエイリアス（`@/`、`@components/`、`#/` 等）の使用
 - ❌ `export default` でのコンポーネントエクスポート（`route.tsx`・`entry.*`・`root.tsx` は除く）
 - ❌ ルートファイルが flatRoutes 規約から外れている
 - ❌ Vanilla Extract のレイヤー指定が配置場所と合っていない（`components/primitives/` で `cssLayerComponentCommon` を使う等）

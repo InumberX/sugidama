@@ -25,7 +25,7 @@ This repository is a React Router 7 + TypeScript app deployed to Cloudflare Work
 
 Use TypeScript with strict typing and the `~/` import alias for `app/`. Formatting is enforced by `oxfmt`: 2-space indentation, single quotes, no semicolons, trailing commas (`es5`), and 120-column wrap. Keep imports sorted in the existing group order. Use PascalCase for component directories and component exports (for example `BaseButton`), camelCase for utilities (`search.ts`), and colocate styles as `style.css.ts`. Follow existing route naming patterns such as `app/routes/($lang)._public._layout...`. Prefer Vanilla Extract for styling and reuse tokens from `app/styles/variables/` and helpers from `app/styles/mixins/`.
 
-When adding a new Cloudflare binding in `wrangler.jsonc` or a new Worker secret via `wrangler secret put`, also update the hand-maintained `WorkerEnv` type in `app/server/worker-fetch.server.ts`. The type is not auto-generated, so omitting either source will silently drift past typecheck.
+When adding a new Cloudflare binding in `wrangler.jsonc` or a new Worker secret via `wrangler secret put`, also update the hand-maintained `WorkerEnv` type in `workers/handler.ts`. The type is not auto-generated, so omitting either source will silently drift past typecheck.
 
 ## Testing Guidelines
 

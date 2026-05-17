@@ -33,7 +33,7 @@ app/
 └── routes.ts              # flatRoutes 設定
 ```
 
-> ルート Worker は `workers/app.ts`、設定は `wrangler.jsonc`。新規 Cloudflare バインディングや Workers Secret を増やしたら `app/server/worker-fetch.server.ts` の `WorkerEnv` 型も手動で更新が必要（`CLAUDE.md` 参照）。
+> ルート Worker は `workers/app.ts`、設定は `wrangler.jsonc`。新規 Cloudflare バインディングや Workers Secret を増やしたら `workers/handler.ts` の `WorkerEnv` 型も手動で更新が必要（`CLAUDE.md` 参照）。
 
 ## components の 3 階層
 

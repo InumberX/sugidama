@@ -29,7 +29,7 @@
     "@conform-to/react": "^1.19.1",
     "@conform-to/zod": "^1.19.1",
     "@date-fns/tz": "^1.4.1",
-    "@inumberx/cloudflare-workers-basic-auth": "^0.1.0",
+    "@inumberx/cloudflare-workers-basic-auth": "^1.0.0",
     "cookie": "^1.1.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.38.0",
@@ -45,8 +45,8 @@
     "zod": "4.3.6"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.36.0",
-    "@cloudflare/workers-types": "^4.20260507.1",
+    "@cloudflare/vite-plugin": "^1.37.1",
+    "@cloudflare/workers-types": "^4.20260517.1",
     "@react-router/dev": "^7.15.0",
     "@react-router/fs-routes": "^7.15.0",
     "@storybook/addon-docs": "^10.3.6",

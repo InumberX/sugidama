@@ -1,6 +1,7 @@
 export const SEARCH_DRINKS_CONDITION_KEY = {
   DRINK: 'drink',
   TASTE: 'taste',
+  DRINKABILITY: 'drinkability',
 }
 
 export const preprocessSearchKeyword = (keyword?: string): string => {

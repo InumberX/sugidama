@@ -24,6 +24,9 @@
       },
       "taste": {
         "name": "Taste"
+      },
+      "drinkability": {
+        "name": "Drinkability"
       }
     }
   },

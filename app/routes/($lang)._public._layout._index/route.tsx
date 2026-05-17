@@ -21,7 +21,7 @@ import { PAGES } from '~/config/paths'
 import { getDrinks } from '~/server/api/drinks.server'
 import { convertError } from '~/server/api/error.server'
 import { getMasterDrinkCategory } from '~/server/api/masters.server'
-import { getTagTaste } from '~/server/api/tags.server'
+import { getTagDrinkability, getTagTaste } from '~/server/api/tags.server'
 import { convertDrinkToArticleCardProps, convertDrinkToArticleCompactCardProps } from '~/utils/article'
 import { getLang } from '~/utils/locale'
 import { getMetadata } from '~/utils/meta'
@@ -39,35 +39,45 @@ export async function loader(args: Route.LoaderArgs) {
   const { params } = args
   const lang = getLang(params)
 
-  const [tagTasteResult, masterDrinkCategoryResult, drinksResult] = await Promise.all([
-    getTagTaste(),
+  const [masterDrinkCategoryResult, tagTasteResult, tagDrinkabilityResult, drinksResult] = await Promise.all([
     getMasterDrinkCategory(),
+    getTagTaste(),
+    getTagDrinkability(),
     getDrinks({
       page: 1,
       pageSize: 6,
     }),
   ])
 
+  if (!masterDrinkCategoryResult.success) {
+    throw convertError(masterDrinkCategoryResult)
+  }
+
   if (!tagTasteResult.success) {
     throw convertError(tagTasteResult)
   }
 
-  if (!masterDrinkCategoryResult.success) {
-    throw convertError(masterDrinkCategoryResult)
+  if (!tagDrinkabilityResult.success) {
+    throw convertError(tagDrinkabilityResult)
   }
 
   if (!drinksResult.success) {
     throw convertError(drinksResult)
   }
 
+  const tagDrink = convertMasterDrinkCategory({
+    lang,
+    tagItems: masterDrinkCategoryResult.data.list,
+  })
+
   const tagTaste = convertTags({
     lang,
     tagItems: tagTasteResult.data.list,
   })
 
-  const tagDrink = convertMasterDrinkCategory({
+  const tagDrinkability = convertTags({
     lang,
-    tagItems: masterDrinkCategoryResult.data.list,
+    tagItems: tagDrinkabilityResult.data.list,
   })
 
   const drinks = drinksResult.data.list
@@ -81,6 +91,10 @@ export async function loader(args: Route.LoaderArgs) {
           {
             name: SEARCH_DRINKS_CONDITION_KEY.TASTE,
             items: [...tagTaste],
+          },
+          {
+            name: SEARCH_DRINKS_CONDITION_KEY.DRINKABILITY,
+            items: [...tagDrinkability],
           },
         ],
         drinkCategories: [...tagDrink],
@@ -103,6 +117,10 @@ export async function loader(args: Route.LoaderArgs) {
           {
             name: SEARCH_DRINKS_CONDITION_KEY.TASTE,
             items: [...tagTaste],
+          },
+          {
+            name: SEARCH_DRINKS_CONDITION_KEY.DRINKABILITY,
+            items: [...tagDrinkability],
           },
         ],
         drinkCategories: [...tagDrink],

@@ -24,6 +24,9 @@
       },
       "taste": {
         "name": "味わい"
+      },
+      "drinkability": {
+        "name": "飲みやすさ"
       }
     }
   },

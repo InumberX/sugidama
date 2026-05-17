@@ -5,7 +5,7 @@ import type { Route } from './+types/route'
 import { getDrinksDetail, getDrinks } from '~/server/api/drinks.server'
 import { convertError } from '~/server/api/error.server'
 import { getMasterDrinkCategory } from '~/server/api/masters.server'
-import { getTagTaste } from '~/server/api/tags.server'
+import { getTagDrinkability, getTagTaste } from '~/server/api/tags.server'
 import { convertDrinkToArticleCardProps, convertDrinkToBaseArticleProps } from '~/utils/article'
 import { getLang } from '~/utils/locale'
 import { SEARCH_DRINKS_CONDITION_KEY } from '~/utils/search'
@@ -16,36 +16,46 @@ export async function loader(args: Route.LoaderArgs) {
   const { drinkId } = params
   const lang = getLang(params)
 
-  const [drinkDetailResult, tagTasteResult, masterDrinkCategoryResult] = await Promise.all([
+  const [drinkDetailResult, masterDrinkCategoryResult, tagTasteResult, tagDrinkabilityResult] = await Promise.all([
     getDrinksDetail({
       id: drinkId,
     }),
-    getTagTaste(),
     getMasterDrinkCategory(),
+    getTagTaste(),
+    getTagDrinkability(),
   ])
 
   if (!drinkDetailResult.success) {
     throw convertError(drinkDetailResult)
   }
 
-  if (!tagTasteResult.success) {
-    throw convertError(tagTasteResult)
-  }
-
   if (!masterDrinkCategoryResult.success) {
     throw convertError(masterDrinkCategoryResult)
   }
 
+  if (!tagTasteResult.success) {
+    throw convertError(tagTasteResult)
+  }
+
+  if (!tagDrinkabilityResult.success) {
+    throw convertError(tagDrinkabilityResult)
+  }
+
   const drink = drinkDetailResult.data.details
+
+  const tagDrink = convertMasterDrinkCategory({
+    lang,
+    tagItems: masterDrinkCategoryResult.data.list,
+  })
 
   const tagTaste = convertTags({
     lang,
     tagItems: tagTasteResult.data.list,
   })
 
-  const tagDrink = convertMasterDrinkCategory({
+  const tagDrinkability = convertTags({
     lang,
-    tagItems: masterDrinkCategoryResult.data.list,
+    tagItems: tagDrinkabilityResult.data.list,
   })
 
   const drinkCategory = tagDrink.find((category) => category.id === Number(drink.drink_category.key))
@@ -57,6 +67,10 @@ export async function loader(args: Route.LoaderArgs) {
       {
         name: SEARCH_DRINKS_CONDITION_KEY.TASTE,
         items: [...tagTaste],
+      },
+      {
+        name: SEARCH_DRINKS_CONDITION_KEY.DRINKABILITY,
+        items: [...tagDrinkability],
       },
     ],
     drinkCategories: [...tagDrink],
@@ -84,6 +98,10 @@ export async function loader(args: Route.LoaderArgs) {
             {
               name: SEARCH_DRINKS_CONDITION_KEY.TASTE,
               items: [...tagTaste],
+            },
+            {
+              name: SEARCH_DRINKS_CONDITION_KEY.DRINKABILITY,
+              items: [...tagDrinkability],
             },
           ],
           drinkCategories: [...tagDrink],
@@ -116,6 +134,10 @@ export async function loader(args: Route.LoaderArgs) {
                 {
                   name: SEARCH_DRINKS_CONDITION_KEY.TASTE,
                   items: [...tagTaste],
+                },
+                {
+                  name: SEARCH_DRINKS_CONDITION_KEY.DRINKABILITY,
+                  items: [...tagDrinkability],
                 },
               ],
               drinkCategories: [...tagDrink],

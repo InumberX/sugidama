@@ -8,3 +8,11 @@ export const getTagTaste = async (): Promise<ApiResult<Tag>> => {
 
   return result
 }
+
+export const getTagDrinkability = async (): Promise<ApiResult<Tag>> => {
+  const result = await apiClient<Tag>({
+    path: '/tags/drinkability',
+  })
+
+  return result
+}

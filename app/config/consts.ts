@@ -7,7 +7,7 @@ export const BASE_TITLE_NOTE_JA = 'お酒の銘柄、製造元、味わいを紹
 
 export const SITE_NAME_EN = SITE_NAME
 export const BASE_DESCRIPTION_EN =
-  'This site records the delicious sake I have drunk so far, based on my own judgment and prejudice. It introduces brands, manufacturers, and characteristics of sake, and if you are interested in a particular sake, you can also view the sales site.'
+  "This site is a personal archive of drinks I've enjoyed, with notes on makers, flavors, and where to buy them."
 export const BASE_TITLE_NOTE_EN = 'Brand, Manufacturer, and Taste of Sake'
 
 // Timezone constant for Japan Standard Time (JST)

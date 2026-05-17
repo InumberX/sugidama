@@ -71,7 +71,7 @@
     "vite": "^8.0.11",
     "vite-plugin-devtools-json": "^1.0.0",
     "vitest": "^4.1.5",
-    "wrangler": "^4.88.0"
+    "wrangler": "^4.92.0"
   },
   "overrides": {
     "vite-plugin-devtools-json": {

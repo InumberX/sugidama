@@ -26,8 +26,8 @@
     "react-router-typegen-watch": "react-router typegen --watch"
   },
   "dependencies": {
-    "@conform-to/react": "^1.19.1",
-    "@conform-to/zod": "^1.19.1",
+    "@conform-to/react": "^1.19.3",
+    "@conform-to/zod": "^1.19.3",
     "@date-fns/tz": "^1.4.1",
     "@inumberx/cloudflare-workers-basic-auth": "^1.0.0",
     "cookie": "^1.1.1",

@@ -23,7 +23,7 @@ npm run deploy-development       # Build and deploy to dev-sugidama (Workers env
 npm run deploy-production        # Build and deploy to sugidama (Workers env: production)
 ```
 
-> When adding either a new Cloudflare binding to `wrangler.jsonc` (KV namespaces, R2 buckets, etc.) **or** a new Worker secret via `wrangler secret put`, also extend the `WorkerEnv` type in `app/server/worker-fetch.server.ts`. The type is hand-maintained — there is no auto-generation step that would catch drift at typecheck time.
+> When adding either a new Cloudflare binding to `wrangler.jsonc` (KV namespaces, R2 buckets, etc.) **or** a new Worker secret via `wrangler secret put`, also extend the `WorkerEnv` type in `workers/handler.ts`. The type is hand-maintained — there is no auto-generation step that would catch drift at typecheck time.
 
 ### Code Quality
 ```bash
@@ -86,7 +86,7 @@ Uses React Router v7 with file-based routing via `@react-router/fs-routes`:
 - **CSP**: Content Security Policy configured in `app/server/csp.server.ts`
 - **CSRF**: CSRF protection in `app/server/csrf.server.ts`
 - **API layer**: Server-side API calls in `app/server/api/`
-- **Worker entry**: `workers/app.ts` (Cloudflare Workers fetch handler) — wraps the React Router request handler with `createWorkerFetch` from `app/server/worker-fetch.server.ts`. Runs Basic-auth gating, then forwards GET/HEAD to the static-asset binding before falling back to SSR.
+- **Worker entry**: `workers/app.ts` (Cloudflare Workers fetch handler) — instantiates the React Router request handler and delegates to `createHandleWorkerRequest` in `workers/handler.ts`, which wires the project's env to `createWorkerFetch` from `@inumberx/cloudflare-workers-basic-auth`. Runs Basic-auth gating, then forwards GET/HEAD to the static-asset binding before falling back to SSR.
 - **Basic auth**: opt-in via the `BASIC_AUTH_USER` / `BASIC_AUTH_PASS` Workers Secrets. Both must be set or both must be unset; partial configuration causes the worker to fail closed (`503`).
 
 ### Component Organization

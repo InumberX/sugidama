@@ -1,9 +1,10 @@
 import { createRequestHandler } from 'react-router'
 
-import { createWorkerFetch, type WorkerEnv } from '~/server/worker-fetch.server'
+import { createHandleWorkerRequest, type WorkerEnv } from './handler'
 
 const requestHandler = createRequestHandler(() => import('virtual:react-router/server-build'), import.meta.env.MODE)
-const handleWorkerRequest = createWorkerFetch(requestHandler)
+
+const handleWorkerRequest = createHandleWorkerRequest(requestHandler)
 
 export default {
   fetch: (request, env) => handleWorkerRequest(request, env),

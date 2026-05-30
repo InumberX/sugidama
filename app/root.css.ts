@@ -50,6 +50,15 @@ globalStyle('body', {
       paddingInline: 0,
       WebkitTextSizeAdjust: '100%',
       textSizeAdjust: '100%',
+      verticalAlign: 'baseline',
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      WebkitOverflowWrap: 'anywhere',
+      overflowWrap: 'anywhere',
+      webkitWordBreak: 'normal',
+      wordBreak: 'normal',
+      webkitLineBreak: 'strict',
+      lineBreak: 'strict',
     },
   },
 })
@@ -74,15 +83,8 @@ globalStyle('h1, h2, h3, h4, h5, h6, dl, dt, dd, p, blockquote, ul, ol, li', {
     [cssLayerReset]: {
       marginBlock: 0,
       marginInline: 0,
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      WebkitOverflowWrap: 'break-word',
-      overflowWrap: 'break-word',
       paddingBlock: 0,
       paddingInline: 0,
-      verticalAlign: 'baseline',
-      WebkitWordWrap: 'break-word',
-      wordWrap: 'break-word',
     },
   },
 })
@@ -91,19 +93,6 @@ globalStyle('ul, ol', {
   '@layer': {
     [cssLayerReset]: {
       listStyle: 'none',
-    },
-  },
-})
-
-globalStyle('figcaption, span', {
-  '@layer': {
-    [cssLayerReset]: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      WebkitOverflowWrap: 'break-word',
-      overflowWrap: 'break-word',
-      WebkitWordWrap: 'break-word',
-      wordWrap: 'break-word',
     },
   },
 })

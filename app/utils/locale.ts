@@ -1,4 +1,4 @@
-import { Params } from 'react-router'
+import { type Params } from 'react-router'
 
 import { LANG, PAGE_INFO, SITE_INFO } from '~/config/consts'
 

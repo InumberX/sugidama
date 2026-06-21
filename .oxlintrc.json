@@ -28,6 +28,10 @@
         "prefer-rest-params": "error",
         "prefer-spread": "error",
         "typescript/ban-ts-comment": "error",
+        "typescript/consistent-type-imports": [
+          "error",
+          { "fixStyle": "inline-type-imports", "disallowTypeAnnotations": false }
+        ],
         "typescript/no-duplicate-enum-values": "error",
         "typescript/no-empty-object-type": "error",
         "typescript/no-explicit-any": "error",

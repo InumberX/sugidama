@@ -1,4 +1,4 @@
-import { Preview } from '@storybook/react-vite'
+import { type Preview } from '@storybook/react-vite'
 import { useEffect } from 'react'
 import { I18nextProvider } from 'react-i18next'
 

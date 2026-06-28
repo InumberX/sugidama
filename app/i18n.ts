@@ -34,3 +34,8 @@ export const i18n = {
     },
   },
 }
+
+// All namespaces bundled in the i18n resources. Resources are provided inline
+// (no backend), so the full set is always available in the store regardless of
+// which subset is requested at init time.
+export const i18nNamespaces = Object.keys(i18n.resources[LANG.JA])

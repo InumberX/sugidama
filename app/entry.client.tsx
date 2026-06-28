@@ -4,9 +4,8 @@ import { startTransition, StrictMode } from 'react'
 import { hydrateRoot } from 'react-dom/client'
 import { I18nextProvider, initReactI18next } from 'react-i18next'
 import { HydratedRouter } from 'react-router/dom'
-import { getInitialNamespaces } from 'remix-i18next/client'
 
-import { i18n } from '~/i18n'
+import { i18n, i18nNamespaces } from '~/i18n'
 
 // Check if a URL is same-origin to avoid leaking CSRF token to third parties
 function isSameOrigin(input: RequestInfo | URL): boolean {
@@ -51,7 +50,7 @@ async function hydrate() {
     .use(LanguageDetector)
     .init({
       ...i18n,
-      ns: getInitialNamespaces(),
+      ns: i18nNamespaces,
       detection: {
         order: ['htmlTag'],
         caches: [],

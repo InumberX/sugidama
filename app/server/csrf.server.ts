@@ -1,4 +1,4 @@
-import { parse, serialize } from 'cookie'
+import { parseCookie, stringifySetCookie } from 'cookie'
 
 import { NODE_ENV } from '~/config/env'
 import { timingSafeEqual } from '~/server/timing-safe-equal.server'
@@ -13,7 +13,9 @@ export function generateCsrfToken(): string {
 }
 
 export function createCsrfCookieHeader(token: string): string {
-  return serialize(CSRF_COOKIE_NAME, token, {
+  return stringifySetCookie({
+    name: CSRF_COOKIE_NAME,
+    value: token,
     path: '/',
     httpOnly: false,
     secure: NODE_ENV === 'production',
@@ -24,7 +26,7 @@ export function createCsrfCookieHeader(token: string): string {
 export function getCsrfTokenFromCookie(request: Request): string | undefined {
   const cookieHeader = request.headers.get('Cookie')
   if (!cookieHeader) return undefined
-  const cookies = parse(cookieHeader)
+  const cookies = parseCookie(cookieHeader)
   return cookies[CSRF_COOKIE_NAME] || undefined
 }
 

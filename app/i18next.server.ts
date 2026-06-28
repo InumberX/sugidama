@@ -1,31 +1,21 @@
-import { RemixI18Next } from 'remix-i18next/server'
-
 import { LANG } from '~/config/consts'
-import { i18n } from '~/i18n'
 
-const i18next = new RemixI18Next({
-  detection: {
-    supportedLanguages: i18n.supportedLngs,
-    fallbackLanguage: i18n.fallbackLng,
-    async findLocale(request) {
-      const url = new URL(request.url)
-      const paths = url.pathname.split('/').splice(1)
+export { i18nNamespaces } from '~/i18n'
 
-      if (paths.length === 0) {
-        return LANG.JA
-      }
+// Detect the active language from the request URL. Japanese is the default and
+// has no path prefix (e.g. `/`), English is prefixed with `/en`.
+export function getLocale(request: Request): string {
+  const url = new URL(request.url)
+  const paths = url.pathname.split('/').splice(1)
 
-      switch (paths[0]) {
-        case LANG.EN:
-          return LANG.EN
-        default:
-          return LANG.JA
-      }
-    },
-  },
-  i18next: {
-    ...i18n,
-  },
-})
+  if (paths.length === 0) {
+    return LANG.JA
+  }
 
-export default i18next
+  switch (paths[0]) {
+    case LANG.EN:
+      return LANG.EN
+    default:
+      return LANG.JA
+  }
+}

@@ -5,7 +5,7 @@ import { I18nextProvider, initReactI18next } from 'react-i18next'
 import { type EntryContext, ServerRouter } from 'react-router'
 
 import { NODE_ENV } from './config/env'
-import i18next from './i18next.server'
+import { getLocale, i18nNamespaces } from './i18next.server'
 
 import { i18n } from '~/i18n'
 import { NonceProvider } from '~/providers/NonceProvider'
@@ -31,13 +31,12 @@ export default async function handleRequest(
   reactRouterContext: EntryContext
 ) {
   const instance = createInstance()
-  const lng = await i18next.getLocale(request)
-  const ns = i18next.getRouteNamespaces(reactRouterContext)
+  const lng = getLocale(request)
 
   await instance.use(initReactI18next).init({
     ...i18n,
     lng,
-    ns,
+    ns: i18nNamespaces,
   })
 
   responseHeaders.set('X-Content-Type-Options', 'nosniff')

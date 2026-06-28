@@ -30,7 +30,7 @@
     "@conform-to/zod": "^1.19.3",
     "@date-fns/tz": "^1.5.0",
     "@inumberx/cloudflare-workers-basic-auth": "^1.0.0",
-    "cookie": "^1.1.1",
+    "cookie": "^2.0.0",
     "date-fns": "^4.3.0",
     "framer-motion": "^12.40.0",
     "i18next": "^26.3.0",

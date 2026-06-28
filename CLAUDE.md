@@ -146,7 +146,7 @@ Deployed on **Cloudflare Workers** with the static-asset binding for `build/clie
 
 ### Special Considerations
 
-- **Node version**: Requires Node.js >=22.0.0 (Volta pinned to 22.20.0)
+- **Node version**: Requires Node.js >=24.0.0 (Volta pinned to 24.16.0)
 - **Git Worktree**: Special handling in `vite.config.ts` — skips warmup and relaxes strict FS mode when `GIT_WORKTREE` env var is set
 - **Bot handling**: Server entry uses `isbot` to optimize rendering strategy (`onAllReady` vs `onShellReady`)
 - **Google Analytics**: Conditionally loaded in `app/root.tsx` based on `GOOGLE_ANALYTICS_ID`, tracked via `app/utils/gtags.client.ts`

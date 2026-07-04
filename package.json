@@ -29,7 +29,7 @@
     "@conform-to/react": "^1.19.4",
     "@conform-to/zod": "^1.19.4",
     "@date-fns/tz": "^1.5.0",
-    "@inumberx/cloudflare-workers-basic-auth": "^1.0.0",
+    "@inumberx/cloudflare-workers-basic-auth": "^1.0.1",
     "cookie": "^2.0.0",
     "date-fns": "^4.4.0",
     "framer-motion": "^12.42.0",

@@ -44,8 +44,8 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.42.3",
-    "@cloudflare/workers-types": "^4.20260626.1",
+    "@cloudflare/vite-plugin": "^1.43.0",
+    "@cloudflare/workers-types": "^5.20260703.1",
     "@react-router/dev": "^8.0.1",
     "@react-router/fs-routes": "^8.0.1",
     "@storybook/addon-docs": "^10.4.6",

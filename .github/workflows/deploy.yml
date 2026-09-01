@@ -12,6 +12,9 @@ concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
 
+
+permissions:
+  contents: read
 env:
   cache-version: v1
 

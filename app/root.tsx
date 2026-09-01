@@ -39,9 +39,17 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const paths = url.pathname.split('/').splice(1)
 
   if (lang === LANG.JA && paths.length > 0 && paths[0] === LANG.JA) {
-    const redirectUrl = `${
-      url.pathname.replace(new RegExp(`^/${LANG.JA}`), '/').replace(/\/\//g, '/') || '/'
-    }${url.search}${url.hash}`
+    // 接頭辞の除去はスラッシュを1つ増やすため、`//` の折り畳みだけでは
+    // `//evil.com` のようなプロトコル相対 URL が残る。文字列として検査せず、
+    // 自サイトのオリジンに解決できるかで判定する。
+    // 接頭辞を `/` へ置き換えるとスラッシュが1つ増え、`//evil.com` のような
+    // プロトコル相対 URL になる。置き換えず除去するだけにする。
+    const stripped = url.pathname.replace(new RegExp(`^/${LANG.JA}`), '') || '/'
+    const candidate = new URL(`${stripped}${url.search}${url.hash}`, url.origin)
+    const redirectUrl =
+      candidate.origin === url.origin
+        ? `${candidate.pathname}${candidate.search}${candidate.hash}`
+        : '/'
     throw redirect(redirectUrl)
   }
 

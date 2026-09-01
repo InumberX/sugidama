@@ -47,9 +47,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     const stripped = url.pathname.replace(new RegExp(`^/${LANG.JA}`), '') || '/'
     const candidate = new URL(`${stripped}${url.search}${url.hash}`, url.origin)
     const redirectUrl =
-      candidate.origin === url.origin
-        ? `${candidate.pathname}${candidate.search}${candidate.hash}`
-        : '/'
+      candidate.origin === url.origin ? `${candidate.pathname}${candidate.search}${candidate.hash}` : '/'
     throw redirect(redirectUrl)
   }
 

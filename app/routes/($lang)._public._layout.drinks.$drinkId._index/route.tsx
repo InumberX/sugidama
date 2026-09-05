@@ -13,11 +13,19 @@ import { LayoutSection } from '~/components/ui/layouts/LayoutSection'
 import { ArticleCardList } from '~/components/ui/lists/ArticleCardList'
 import { SectionTitle } from '~/components/ui/typographies/SectionTitle'
 import { PAGES } from '~/config/paths'
-import { type loader as drinkDetailLoader } from '~/routes/($lang)._public._layout.drinks.$drinkId/route'
+import {
+  type DrinksResult,
+  type loader as drinkDetailLoader,
+} from '~/routes/($lang)._public._layout.drinks.$drinkId/route'
 import { getLang } from '~/utils/locale'
 import { getMetadata } from '~/utils/meta'
 
 const page = PAGES.SG20_101
+
+const EMPTY_DRINKS_RESULT: DrinksResult = {
+  success: true,
+  drinks: [],
+}
 
 export const meta: MetaFunction<{
   'routes/($lang)._public._layout.drinks.$drinkId': typeof drinkDetailLoader
@@ -63,20 +71,8 @@ export default function PageSG20_101({ loaderData }: Route.ComponentProps) {
   const { t: tPage } = useTranslation('pages/SG20_101')
   const drinkArticle = drinkDetailLoaderData?.drinkArticle
   const drinkCategory = drinkDetailLoaderData?.drinkCategory
-  const latestDrinks = use(
-    drinkDetailLoaderData?.latestDrinks ??
-      Promise.resolve({
-        success: true,
-        drinks: [],
-      })
-  )
-  const relatedDrinks = use(
-    drinkDetailLoaderData?.relatedDrinks ??
-      Promise.resolve({
-        success: true,
-        drinks: [],
-      })
-  )
+  const latestDrinks = use(drinkDetailLoaderData?.latestDrinks ?? Promise.resolve<DrinksResult>(EMPTY_DRINKS_RESULT))
+  const relatedDrinks = use(drinkDetailLoaderData?.relatedDrinks ?? Promise.resolve<DrinksResult>(EMPTY_DRINKS_RESULT))
 
   return (
     <LayoutPageWrapper className={styles.drink} isBottomNoSpace>

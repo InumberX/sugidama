@@ -1,5 +1,5 @@
 import type { getCollectionProps } from '@conform-to/react'
-import { useState, useSyncExternalStore, useEffect } from 'react'
+import { useState, useSyncExternalStore } from 'react'
 import type React from 'react'
 
 import * as styles from './style.css'
@@ -57,10 +57,13 @@ export const InputCheckbox = ({
   onClick,
   isReadOnly,
 }: InputCheckboxProps) => {
+  const normalizedValue = normalizeValue(value)
+  // value プロパティの変化を内容で判定するためのキー
+  const valueKey = typeof value === 'undefined' ? undefined : JSON.stringify(normalizedValue)
+
   const [currentValue, setCurrentValue] = useState<string[]>(() => {
-    const normalized = normalizeValue(value)
-    if (normalized.length > 0) {
-      return normalized
+    if (normalizedValue.length > 0) {
+      return normalizedValue
     }
 
     // inputProps（Conform の getCollectionProps）から defaultChecked の値を取得
@@ -73,6 +76,13 @@ export const InputCheckbox = ({
 
     return []
   })
+
+  // value プロパティが変化した場合はレンダー中に内部状態へ反映する
+  const [prevValueKey, setPrevValueKey] = useState(valueKey)
+  if (typeof valueKey !== 'undefined' && valueKey !== prevValueKey) {
+    setPrevValueKey(valueKey)
+    setCurrentValue(normalizedValue)
+  }
 
   const isHydrated = useSyncExternalStore(
     () => () => {},
@@ -119,12 +129,6 @@ export const InputCheckbox = ({
 
     onClick(event, isChecked)
   }
-
-  useEffect(() => {
-    if (value !== undefined) {
-      setCurrentValue(normalizeValue(value))
-    }
-  }, [value])
 
   // ハイドレーション完了前は空の配列を表示してSSRとクライアントサイドの不整合を防ぐ
   const safeOptions = isHydrated ? options : undefined

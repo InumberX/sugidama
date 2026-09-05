@@ -2,6 +2,7 @@ import { Outlet } from 'react-router'
 
 import type { Route } from './+types/route'
 
+import type { ArticleCardProps } from '~/components/ui/cards/ArticleCard'
 import { getDrinksDetail, getDrinks } from '~/server/api/drinks.server'
 import { convertError } from '~/server/api/error.server'
 import { getMasterDrinkCategory } from '~/server/api/masters.server'
@@ -10,6 +11,12 @@ import { convertDrinkToArticleCardProps, convertDrinkToBaseArticleProps } from '
 import { getLang } from '~/utils/locale'
 import { SEARCH_DRINKS_CONDITION_KEY } from '~/utils/search'
 import { convertTags, convertMasterDrinkCategory } from '~/utils/tags'
+
+export type DrinksResult = {
+  success: boolean
+  error?: string
+  drinks: ArticleCardProps[]
+}
 
 export async function loader(args: Route.LoaderArgs) {
   const { params } = args
@@ -76,7 +83,7 @@ export async function loader(args: Route.LoaderArgs) {
     drinkCategories: [...tagDrink],
   })
 
-  const latestDrinksResult = getDrinks({
+  const latestDrinksResult: Promise<DrinksResult> = getDrinks({
     page: 1,
     pageSize: 4,
   }).then((res) => {
@@ -110,7 +117,7 @@ export async function loader(args: Route.LoaderArgs) {
     }
   })
 
-  const relatedDrinksResult = drinkCategory
+  const relatedDrinksResult: Promise<DrinksResult> = drinkCategory
     ? getDrinks({
         page: 1,
         pageSize: 4,

@@ -41,7 +41,7 @@
     "react-dom": "^19.2.8",
     "react-i18next": "^17.0.13",
     "react-router": "^8.1.0",
-    "zod": "4.4.3"
+    "zod": "4.5.4"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.54.4",

@@ -1,11 +1,19 @@
-import { createRequestHandler } from 'react-router'
+import { router } from '../app/router.ts'
+import { createHandleWorkerRequest, type WorkerEnv } from './handler.ts'
 
-import { createHandleWorkerRequest, type WorkerEnv } from './handler'
+// The Node starter gets this from `createRequestListener`'s default `onError`:
+// log the error and answer a generic 500 rather than leaking the stack.
+const handleRequest = async (request: Request): Promise<Response> => {
+  try {
+    return await router.fetch(request)
+  } catch (error) {
+    console.error(error)
+    return new Response('Internal Server Error', { status: 500 })
+  }
+}
 
-const requestHandler = createRequestHandler(() => import('virtual:react-router/server-build'), import.meta.env.MODE)
-
-const handleWorkerRequest = createHandleWorkerRequest(requestHandler)
+const handleWorkerRequest = createHandleWorkerRequest(handleRequest)
 
 export default {
-  fetch: (request, env) => handleWorkerRequest(request, env),
-} satisfies ExportedHandler<WorkerEnv>
+  fetch: (request: Request, env: WorkerEnv) => handleWorkerRequest(request, env),
+}

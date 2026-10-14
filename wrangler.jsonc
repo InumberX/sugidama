@@ -2,15 +2,20 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "sugidama",
   "compatibility_date": "2026-05-04",
+  // `nodejs_compat` supplies the `node:` built-ins some remix packages import,
+  // and (with a compatibility date of 2025-04-01 or later) fills `process.env`
+  // from `vars` and secrets, which is what app/env.ts reads.
   "compatibility_flags": ["nodejs_compat"],
   "main": "./workers/app.ts",
   "workers_dev": false,
   "assets": {
-    "directory": "./build/client",
+    // Root `public/` is served as-is. There is no build step, so there is no
+    // `build/client` to point at.
+    "directory": "./public",
     "binding": "ASSETS",
     // Route every request through the Worker first so the Basic-auth gate in
-    // workers/app.ts also covers static assets (JS/CSS/images). Without this,
-    // matching files in build/client are served before the Worker runs.
+    // workers/handler.ts also covers static assets (CSS/images). Without this,
+    // matching files in public/ are served before the Worker runs.
     "run_worker_first": true,
   },
   "observability": {

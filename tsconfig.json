@@ -1,39 +1,19 @@
 {
-  "include": [
-    "env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.js",
-    "**/*.jsx",
-    "./.storybook/*.ts",
-    "./.storybook/*.tsx",
-    ".react-router/types/**/*"
-  ],
-  "exclude": ["node_modules", "build"],
   "compilerOptions": {
-    "lib": ["DOM", "DOM.Iterable", "ES2022"],
-    "skipLibCheck": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "jsx": "react-jsx",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "resolveJsonModule": true,
-    "target": "ES2022",
     "strict": true,
-    "allowJs": true,
-    "forceConsistentCasingInFileNames": true,
-    "paths": {
-      "~/*": ["./app/*"],
-      "~/+types/*": ["./.react-router/types/app/+types/*"]
-    },
-    "noEmit": true,
-    "types": ["@cloudflare/workers-types", "vite/client"],
-    "rootDirs": [".", "./.react-router/types"],
-    "plugins": [
-      {
-        "name": "@react-router/dev"
-      }
-    ]
-  }
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "types": ["node", "remix/assets/types/hmr"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ESNext",
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "remix/component",
+    "noEmit": true
+  },
+  "exclude": ["dist"]
 }

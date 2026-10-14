@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["typescript", "react"],
+  "plugins": ["typescript", "react", "import"],
   "categories": {
     "correctness": "deny"
   },
@@ -8,11 +8,24 @@
     "builtin": true,
     "es2022": true,
     "browser": true,
-    "commonjs": true
+    "node": true
   },
-  "ignorePatterns": ["node_modules", ".cache", "build", "public/build", ".react-router"],
+  "ignorePatterns": ["node_modules", "dist", "db", "tmp", "/public"],
   "rules": {
+    "import/first": "error",
+    "import/namespace": "allow",
     "no-array-constructor": "error",
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "node:test",
+            "message": "Use `remix/test`. `remix test` does not count node:test results, so a failing node:test test still exits 0."
+          }
+        ]
+      }
+    ],
     "no-shadow": "allow",
     "no-unused-vars": "error",
     "react/jsx-no-target-blank": "allow",
@@ -53,29 +66,24 @@
     {
       "files": ["**/*.{ts,tsx}"],
       "rules": {
-        "react/display-name": "error",
         "react/jsx-key": "error",
         "react/jsx-no-comment-textnodes": "error",
         "react/jsx-no-duplicate-props": "error",
         "react/jsx-no-undef": "error",
         "react/no-children-prop": "error",
         "react/no-danger-with-children": "error",
-        "react/no-direct-mutation-state": "error",
-        "react/no-find-dom-node": "error",
-        "react/no-is-mounted": "error",
-        "react/no-render-return-value": "error",
-        "react/no-string-refs": "error",
         "react/no-unescaped-entities": "error",
-        "react/no-unknown-property": "error",
-        "react/no-unsafe": "off",
-        "react/rules-of-hooks": "error",
-        "react/exhaustive-deps": "warn"
-      }
-    },
-    {
-      "files": ["app/server/**/*.{ts,tsx}", "**/*.server.{ts,tsx}"],
-      "env": {
-        "node": true
+
+        "react/display-name": "off",
+        "react/no-unknown-property": "off",
+        "react/rules-of-hooks": "off",
+        "react/exhaustive-deps": "off",
+        "react/no-direct-mutation-state": "off",
+        "react/no-find-dom-node": "off",
+        "react/no-is-mounted": "off",
+        "react/no-render-return-value": "off",
+        "react/no-string-refs": "off",
+        "react/no-unsafe": "off"
       }
     }
   ]

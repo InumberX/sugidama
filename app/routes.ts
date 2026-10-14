@@ -1,4 +1,11 @@
-import { type RouteConfig } from '@react-router/dev/routes'
-import { flatRoutes } from '@react-router/fs-routes'
+// The single source of truth for URLs. Patterns are literals so Remix can type
+// `href()` arguments and `context.params` from them. This module imports nothing
+// from the app, so nothing can create a cycle back into the route contract.
+import { get, route } from 'remix/routes'
 
-export default flatRoutes() satisfies RouteConfig
+export const routes = route({
+  home: get('/'),
+  // Development-only component gallery. Declared unconditionally so the route
+  // map stays a stable type; the action returns 404 outside development.
+  devUi: get('/dev/ui'),
+})

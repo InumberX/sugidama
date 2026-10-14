@@ -1,40 +1,60 @@
-# Repository Guidelines
+# Remix 3 Agent Guide
 
-## Project Structure & Module Organization
+Sugidama is a Remix 3 app on Cloudflare Workers, built from `inumberx/remix-template`. The migration from React Router is tracked in issue #115. Use these conventions when continuing to build it out.
 
-This repository is a React Router 7 + TypeScript app deployed to Cloudflare Workers. Main application code lives in `app/`: routes in `app/routes/`, reusable UI in `app/components/`, server-only code in `app/server/`, hooks in `app/hooks/`, providers in `app/providers/`, shared helpers in `app/utils/`, config in `app/config/`, styles and theme tokens in `app/styles/`, and locale files in `app/locales/`. Worker entry code lives in `workers/`, Storybook config in `.storybook/`, and component stories in `stories/`. Generated React Router types are written to `.react-router/types/` and should not be edited manually. Automated tests mirror the app structure under `tests/`.
+## Commands
 
-## Build, Test, and Development Commands
+```sh
+npm i
+npm run dev        # wrangler dev on :8787
+npm test
+npm run typecheck
+npm run bundle     # wrangler deploy --dry-run
+```
 
-- `npm install`: install dependencies. Use Node `22.x` (`volta` pins `22.20.0`).
-- `npm run dev`: start the local dev server at `http://localhost:5173`.
-- `npm run build`: create the production build (outputs `build/client` + `build/server`).
-- `npm run build-development` / `npm run build-production`: build with the matching Cloudflare environment variables.
-- `npm run start`: preview the built worker locally via `wrangler dev`.
-- `npm run deploy-development` / `npm run deploy-production`: build and deploy to the matching Cloudflare Worker.
-- `npm run typecheck`: generate React Router types, then run `tsc -b`.
-- `npm run react-router-typegen` / `npm run react-router-typegen-watch`: generate route types once or in watch mode.
-- `npm run lint` / `npm run lint-fix`: check or fix lint issues with `oxlint`.
-- `npm run format` / `npm run format-fix`: check or rewrite formatting with `oxfmt`.
-- `npm run test`: run the Vitest suite.
-- `npm run test -- --run`: run tests once without watch mode.
-- `npm run storybook`: open Storybook on port `6006`.
-- `npm run pre-commit`: run the expected local gate: typecheck, lint fix, and format fix.
+## Building Features
 
-## Coding Style & Naming Conventions
+Refer to ./.agents/skills/remix/SKILL.md for the Remix mental model and how to find guides and API READMEs through `node_modules/remix/INDEX.md`. Project-specific conventions are in `CLAUDE.md`.
 
-Use TypeScript with strict typing and the `~/` import alias for `app/`. Formatting is enforced by `oxfmt`: 2-space indentation, single quotes, no semicolons, trailing commas (`es5`), and 120-column wrap. Keep imports sorted in the existing group order. Use PascalCase for component directories and component exports (for example `BaseButton`), camelCase for utilities (`search.ts`), and colocate styles as `style.css.ts`. Follow existing route naming patterns such as `app/routes/($lang)._public._layout...`. Prefer Vanilla Extract for styling and reuse tokens from `app/styles/variables/` and helpers from `app/styles/mixins/`.
+## Layout
 
-When adding a new Cloudflare binding in `wrangler.jsonc` or a new Worker secret via `wrangler secret put`, also update the hand-maintained `WorkerEnv` type in `workers/handler.ts`. The type is not auto-generated, so omitting either source will silently drift past typecheck.
+- `app/routes.ts` defines the shared route contract used for type-safe hrefs
+- `app/router.ts` wires routes to route handlers and installs the standard Remix component renderer used by actions
+- `app/env.ts` is the only module that reads `process.env`; everything else imports the resolved constants
+- `app/actions/controller.tsx` owns the direct leaf route actions (`home`, `devUi`)
+- `app/actions/<route-key>/controller.tsx` owns a nested route map
+- `app/actions/<route-key>-page/<route-key>-page.tsx` renders one page; `document.tsx` and `meta.tsx` are the shared shell and metadata defaults
+- `app/ui/` holds cross-route UI: `primitives/` (unstyled skeletons), `<category>/` (styled components), `styles/public/` (tokens and query constants), `types/`
+- Root `public/` contains static files served unchanged by the Workers `ASSETS` binding, including the cascade layer order in `static/css/app.css`
+- `workers/app.ts` is the Worker entry; `workers/handler.ts` adds Basic auth and static-file routing in front of `router.fetch`
+- No page ships browser JavaScript yet, so there is no `app/assets.ts` or `app/actions/public/entry.ts` (see CLAUDE.md, **Browser JavaScript**)
 
-## Testing Guidelines
+## Route Ownership
 
-Vitest and Testing Library are the default test stack. The test environment is `jsdom` with shared setup in `setup-test-env.ts`. Place tests in `tests/` using mirrored paths and `index.test.tsx` or `*.test.ts` names, for example `tests/components/ui/buttons/BaseButton/index.test.tsx`. Add tests for new utilities, route loaders, and UI behavior. Prefer focused test runs while iterating, then run the relevant broader checks before finishing. CI runs `npm run test`, `npm run format`, `npm run lint`, `npm run typecheck`, and `npm run build` on every push.
+- Start from `app/routes.ts` and map each route to the narrowest owner on disk.
+- Put top-level route actions in `app/actions/controller.tsx`.
+- Add `app/actions/<route-key>/controller.tsx` for nested route maps that need their own actions or middleware.
+- Keep route-owned page modules next to the route that owns them.
+- Move shared UI to `app/ui/`, not `app/actions/`.
 
-## Environment & Deployment Notes
+- A controller's `actions` object contains only direct leaf route keys; nested route maps get their own controller and an explicit `router.map(routes.<routeKey>, controller)` line.
+- Name directories under `app/actions/` after route-map keys, not URL path segments.
+- Controller middleware does not protect other controllers; add it to each controller that needs it.
 
-Environment variable samples live in `.env.example` and `.dev.vars.example`. Cloudflare Worker configuration lives in `wrangler.jsonc`, with `workers/app.ts` as the runtime entrypoint. `build/client` is served through the Worker asset binding, and `run_worker_first: true` is enabled so Worker middleware applies to static assets too. If a change affects runtime config, verify both build-time Vite env usage and Worker runtime secret usage.
+## Placement Precedence
 
-## Commit & Pull Request Guidelines
+When code could live in more than one place:
 
-Recent history uses short, scoped commit subjects such as `fix: upgrade vitest` and `add: npmrc`. Keep that lowercase prefix style (`fix:`, `add:`, `feat:`, `chore:`) and write imperative summaries. Branch prefixes matter: `feature/*` PRs are auto-labeled as enhancement, while `bugfix/*` and `hotfix/*` become bug PRs. PRs should include a concise description, linked issue if applicable, screenshots for UI changes, and confirmation that relevant checks were run locally.
+1. Put it in the narrowest owner first; if it belongs to one route, keep it with that route.
+2. Shared UI across route areas goes in `app/ui/`.
+3. Request lifecycle setup (auth, sessions, uploads, database injection) goes in `app/middleware/`.
+4. Schema, queries, persistence and startup data logic go in `app/data/`.
+5. `app/utils/<topic>.ts` only as a last resort, for pure cross-layer helpers that import nothing from `app/actions/` or response/render APIs.
+
+## Build-Out Notes
+
+- Run the app with `wrangler dev`, never a Node server: Workers has no filesystem, so Node-only middleware must fail locally rather than in production.
+
+- This starter intentionally begins small; add directories like `app/data/`, `app/middleware/` and `test/` only when you need them.
+- Avoid generic dumping-ground directories: no `app/lib/`, no `app/components/` (that is `app/ui/`), no `app/controllers/` (that is `app/actions/`).
+- Do not register app leaf routes directly in `app/router.ts`; they belong in a controller.

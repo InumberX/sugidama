@@ -2,26 +2,39 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "sugidama",
   "compatibility_date": "2026-05-04",
+  // `nodejs_compat` supplies the `node:` built-ins some remix packages import,
+  // and (with a compatibility date of 2025-04-01 or later) fills `process.env`
+  // from `vars` and secrets, which is what app/env.ts reads.
   "compatibility_flags": ["nodejs_compat"],
   "main": "./workers/app.ts",
   "workers_dev": false,
   "assets": {
-    "directory": "./build/client",
+    // Root `public/` is served as-is. There is no build step, so there is no
+    // `build/client` to point at.
+    "directory": "./public",
     "binding": "ASSETS",
     // Route every request through the Worker first so the Basic-auth gate in
-    // workers/app.ts also covers static assets (JS/CSS/images). Without this,
-    // matching files in build/client are served before the Worker runs.
+    // workers/handler.ts also covers static assets (CSS/images). Without this,
+    // matching files in public/ are served before the Worker runs.
     "run_worker_first": true,
   },
   "observability": {
     "enabled": true,
   },
+  // Every deployed Worker is a production build — staging included, which is
+  // kept out of search engines by NO_INDEX, not by NODE_ENV. Wrangler would
+  // otherwise take NODE_ENV from the deploying shell first, so a stray
+  // `NODE_ENV=development` would ship /dev/ui to the live site. `define` is not
+  // inherited by environments, so each one repeats it; the top level is left to
+  // wrangler's default, which is "development" under `wrangler dev`.
   "env": {
     "development": {
       "name": "dev-sugidama",
+      "define": { "process.env.NODE_ENV": "\"production\"" },
     },
     "production": {
       "name": "sugidama",
+      "define": { "process.env.NODE_ENV": "\"production\"" },
     },
   },
 }

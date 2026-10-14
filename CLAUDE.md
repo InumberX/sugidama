@@ -236,7 +236,7 @@ What does **not** work on Workers, and is therefore absent from `app/router.ts` 
 - `remix/middleware/static` (`staticFiles`) and the compression middleware — Node filesystem and zlib APIs. The platform serves and compresses static files instead (`guides/03-request-handling.md` says the same).
 - `remix/assets` (`createAssetServer`) — compiles browser modules per request with native `oxc-*` / `lightningcss` binaries and reads the filesystem. See **Browser JavaScript**.
 
-**`NODE_ENV` is fixed at bundle time.** Wrangler's esbuild replaces `process.env.NODE_ENV`: `"production"` for `wrangler deploy` (so both `dev-sugidama` and `sugidama` are `IS_PRODUCTION`), `"development"` under `wrangler dev`. Staging is kept out of search engines by `NO_INDEX=true`, not by `NODE_ENV`. Every other variable in `app/env.ts` is read from `process.env` at module load, which `nodejs_compat` fills from `vars`, secrets and `.dev.vars`.
+**`NODE_ENV` is fixed at bundle time.** Wrangler's esbuild replaces `process.env.NODE_ENV`. Each deploy environment in `wrangler.jsonc` pins it to `"production"` through `define` (so both `dev-sugidama` and `sugidama` are `IS_PRODUCTION`); without that, wrangler would take the deploying shell's `NODE_ENV` first and only then default to `"production"`, so a leftover `NODE_ENV=development` would ship `/dev/ui` to the live site. `define` is not inherited by environments, so a new one must repeat it. The top level has no `define`, so `wrangler dev` keeps wrangler's `"development"`. Staging is kept out of search engines by `NO_INDEX=true`, not by `NODE_ENV`. Every other variable in `app/env.ts` is read from `process.env` at module load, which `nodejs_compat` fills from `vars`, secrets and `.dev.vars`.
 
 ## Browser JavaScript
 

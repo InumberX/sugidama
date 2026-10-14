@@ -55,6 +55,7 @@ export const getClampPx = (minSize: number, maxSize: number): string => {
  * Style recipes are plain `CSSProps` objects, never `css(...)` descriptors, so
  * consumers can spread them into a single `css(...)` call. Two separate
  * descriptors on one element do NOT have a reliable cascade order — see the
- * "Composing styles" note in CLAUDE.md.
+ * "Override styles by spreading recipes into one `css(...)` call" rule in
+ * CLAUDE.md.
  */
 export type StyleRecipe = Parameters<typeof css>[0]

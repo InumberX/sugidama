@@ -21,12 +21,20 @@
   "observability": {
     "enabled": true,
   },
+  // Every deployed Worker is a production build — staging included, which is
+  // kept out of search engines by NO_INDEX, not by NODE_ENV. Wrangler would
+  // otherwise take NODE_ENV from the deploying shell first, so a stray
+  // `NODE_ENV=development` would ship /dev/ui to the live site. `define` is not
+  // inherited by environments, so each one repeats it; the top level is left to
+  // wrangler's default, which is "development" under `wrangler dev`.
   "env": {
     "development": {
       "name": "dev-sugidama",
+      "define": { "process.env.NODE_ENV": "\"production\"" },
     },
     "production": {
       "name": "sugidama",
+      "define": { "process.env.NODE_ENV": "\"production\"" },
     },
   },
 }

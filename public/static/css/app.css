@@ -2,15 +2,16 @@
  * App-owned cascade layers.
  *
  * This file must be served verbatim, so it lives in the root `public/`
- * directory (`staticFiles`) rather than under the asset server, whose CSS
- * compiler rewrites `@layer` statements.
+ * directory, which the Workers `ASSETS` binding serves byte for byte. (The
+ * Remix asset server's CSS compiler would rewrite the `@layer` statements.)
  *
  * The order declaration has to be registered before any `css(...)` rule.
  * Remix appends its `style` tags (`data-rmx-style`) at the END of `<head>`, so
  * a <link> written in app/actions/document.tsx is always parsed first.
  *
  * Weakest to strongest:
- *   reset  user-agent normalization
+ *   reset  user-agent normalization (ress 6.0.0, adjusted only where stylelint
+ *          requires it: `font-weight: 700`, `outline: 1px dotted`)
  *   lib    third-party stylesheets — pull them in with
  *          `@import url('...') layer(lib);` so the app can override them
  *   base   app-wide defaults and design tokens

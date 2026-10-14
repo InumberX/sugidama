@@ -1,9 +1,33 @@
-# Local-only secrets for `npm run dev` / `wrangler dev`.
-# Copy to `.dev.vars` and fill in values. Do NOT commit `.dev.vars`.
-# For deployed environments, use: `wrangler secret put <NAME> --env=<environment>`
+# Local-only values for `npm run dev` (`wrangler dev`). Copy to `.dev.vars` and
+# fill in what you need. Do NOT commit `.dev.vars`.
+#
+# Everything here is optional: app/env.ts has a local default for each variable,
+# so `wrangler dev` runs with an empty `.dev.vars` (or none). Deployed Workers
+# do not read this file — their values live in wrangler.jsonc (`env.*.vars`),
+# and secrets are set with `wrangler secret put <NAME> --env=<environment>`.
+
+# --- Secrets ---------------------------------------------------------------
 
 # Basic auth is opt-in. Set both values to enable. Leave both empty/unset to
 # disable. Setting only one is treated as a misconfiguration: the worker will
 # return 503 for every request until both are set or both are removed.
 BASIC_AUTH_USER=
 BASIC_AUTH_PASS=
+
+# --- Variables (defaults in app/env.ts) -------------------------------------
+
+# Origin for canonical / og:url. Default: http://localhost:8787
+SITE_URL=
+# `true` forces noindex, nofollow. Under `wrangler dev` every page is already
+# noindex, because NODE_ENV is "development".
+NO_INDEX=
+# Default: Sugidama(development)
+SITE_NAME=
+# Kuroco CMS API. Default: https://afterworks.g.kuroco.app/rcms-api/7 (the staging
+# endpoint; production uses /rcms-api/8)
+API_URL=
+# Google Analytics measurement id. Default: empty (no page views sent)
+GOOGLE_ANALYTICS_ID=
+# Per deploy, normally set by `npm run deploy-*`. Default: BUILD_ID=dev, DEPLOYED_AT unset
+BUILD_ID=
+DEPLOYED_AT=

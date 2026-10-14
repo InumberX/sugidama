@@ -30,8 +30,8 @@ npm run format-fix
 npm run stylelint           # stylelint over public/**/*.css
 npm run stylelint-fix
 npm run pre-commit          # typecheck -> format-fix -> lint-fix -> stylelint-fix
-npm run deploy-development  # wrangler deploy --env=development (dev-sugidama)
-npm run deploy-production   # wrangler deploy --env=production (sugidama)
+npm run deploy-development  # wrangler deploy --env=development + BUILD_ID/DEPLOYED_AT (dev-sugidama)
+npm run deploy-production   # wrangler deploy --env=production + BUILD_ID/DEPLOYED_AT (sugidama)
 ```
 
 Run a single test file or filter by name:
@@ -43,7 +43,7 @@ npm test -- --only 'renders the home page'
 
 **Run the app with `wrangler dev`, not Node.** It runs the same runtime as production (workerd), so a Node-only API (`node:fs`, `remix/middleware/static`, the asset server) fails locally instead of after a deploy. There is no `server.ts` and no `hmr.ts`: the template's Node server was deliberately dropped. Tests still run in Node through `remix test`; they drive `router.fetch` and `renderToString`, which are runtime-agnostic.
 
-Local secrets and variables go in `.dev.vars` (see `.dev.vars.example`); `wrangler dev` exposes them through `process.env`, the same as `vars` and secrets on a deployed Worker.
+Local secrets and variables go in `.dev.vars` (see `.dev.vars.example`); `wrangler dev` exposes them through `process.env`, the same as `vars` and secrets on a deployed Worker. Every variable has a local default in `app/env.ts`, so `.dev.vars` is optional.
 
 **Node version.** `.node-version` pins 24.16.0 (the same as `volta` in `package.json`) and `package.json` requires `>=24.3.0`, because `remix test` and the `remix` CLI load TypeScript through `module.registerHooks`. On an older runtime they fail with `does not provide an export named 'registerHooks'`. `oxlint`, `oxfmt`, `tsc` and `wrangler` work regardless.
 
@@ -189,7 +189,7 @@ Nothing in `app/ui/styles/` may import a component.
 
 ## Tests
 
-Co-locate tests beside what they test, one per component directory — `app/actions/controller.test.tsx`, `app/ui/**/<name>/<name>.test.tsx`, `app/env.test.ts`, `workers/handler.test.ts`. The CLI discovers by filename pattern rather than location. Root `test/` is reserved for shared helpers, fixtures, and integration/E2E coverage, and does not exist yet.
+Co-locate tests beside what they test, one per component directory — `app/actions/controller.test.tsx`, `app/ui/**/<name>/<name>.test.tsx`, `app/env.test.ts`, `workers/handler.test.ts`, `workers/wrangler.test.ts` (for the root `wrangler.jsonc`). The CLI discovers by filename pattern rather than location. Root `test/` is reserved for shared helpers, fixtures, and integration/E2E coverage, and does not exist yet.
 
 Drive route behavior with `router.fetch(new Request(...))` and assert on the `Response`; use `renderToString` for component specimens. See the note in **Commands** about `remix/test` vs `node:test`.
 
@@ -238,6 +238,10 @@ What does **not** work on Workers, and is therefore absent from `app/router.ts` 
 
 **`NODE_ENV` is fixed at bundle time.** Wrangler's esbuild replaces `process.env.NODE_ENV`. Each deploy environment in `wrangler.jsonc` pins it to `"production"` through `define` (so both `dev-sugidama` and `sugidama` are `IS_PRODUCTION`); without that, wrangler would take the deploying shell's `NODE_ENV` first and only then default to `"production"`, so a leftover `NODE_ENV=development` would ship `/dev/ui` to the live site. `define` is not inherited by environments, so a new one must repeat it. The top level has no `define`, so `wrangler dev` keeps wrangler's `"development"`. Staging is kept out of search engines by `NO_INDEX=true`, not by `NODE_ENV`. Every other variable in `app/env.ts` is read from `process.env` at module load, which `nodejs_compat` fills from `vars`, secrets and `.dev.vars`.
 
+**Per-environment values live in `wrangler.jsonc`.** Each of `env.development` and `env.production` lists `SITE_URL`, `NO_INDEX`, `SITE_NAME`, `API_URL` and `GOOGLE_ANALYTICS_ID` under `vars` — in full, because `vars` is not inherited either. They are not build-time values any more (React Router baked them in through Vite's `define`; there is no build now), and keeping them in the repo means a deploy from a laptop and one from CI produce the same Worker. GitHub Environment variables are no longer read. `workers/wrangler.test.ts` reads the file through wrangler's own parser and fails if an environment is missing `define` or a variable, or still holds a `__SET_ME__` placeholder. When `app/env.ts` gains a variable, add it to both environments, to that test's list, and to `.dev.vars.example`.
+
+The two per-deploy values come from the `deploy-*` npm scripts as `--var` flags rather than from the file: `BUILD_ID` (the commit sha, `git rev-parse HEAD`) and `DEPLOYED_AT` (UTC, ISO 8601), which replaces the Vite build time the sitemap used as `<lastmod>`. `DEPLOYED_AT` has no local default on purpose — in a Worker's global scope `new Date()` is the Unix epoch, measured.
+
 ## Browser JavaScript
 
 No page ships JavaScript yet — the agreed approach for the migration (issue #115) is to build every page server-rendered first, using native HTML for interaction (GET forms, `<details>`, `popover`, CSS transitions and scroll-snap), and add hydration only where that is not enough.
@@ -251,7 +255,7 @@ When a component really needs the browser, it becomes a `clientEntry` as in the 
 | Workflow | Trigger | What it does |
 | --- | --- | --- |
 | `push.yml` | push to any branch | `setup` -> (`lint` / `test`) -> `build` |
-| `deploy.yml` | push to `develop` / `main` | `lint` / `test` -> `wrangler deploy --env=development` / `--env=production` |
+| `deploy.yml` | push to `develop` / `main` | `lint` / `test` -> `npm run deploy-development` / `deploy-production` |
 | `automation-pr-label.yml` | PR opened | labels `enhancement` / `bug` from the branch prefix |
 | `automation-release-pr.yml` | push to `develop` | opens the `develop` -> `main` release PR |
 | `automation-release-note.yml` | push to `main` | cuts a `v{YYYY.MM.DD}-{n}` tag and generates the release note |
@@ -271,7 +275,7 @@ There is no build, so nothing produces hashed filenames, and root `public/` URLs
 - **OGP images** (`DEFAULT_OG_IMAGE`, per-page `ogImage`). SNS crawlers cache the card by image URL, so a per-deploy query would make every deploy look like a new image and split the cached card. To change an OGP image, give the file a new name.
 - **favicon / apple-touch-icon.** Fetched directly by the browser and the OS outside the page's cache, and expected at a stable URL.
 
-**Every deploy should set one `BUILD_ID`.** `BUILD_ID` falls back to `'dev'`, so a deploy that forgets to set it will not invalidate root `public/` files — pass the commit sha from CI.
+**Every deploy should set one `BUILD_ID`.** `BUILD_ID` falls back to `'dev'`, so a deploy that forgets to set it will not invalidate root `public/` files. Deploy through `npm run deploy-*`, which passes the commit sha; a bare `wrangler deploy` does not.
 
 ## Lint and Format
 
@@ -311,7 +315,7 @@ The pieces that must stay in sync:
 - **`app/routes.ts`** — the single source of truth for URLs. Add routes here before wiring anything else, and build every internal URL with `routes.<name>.href(...)` rather than a string literal.
 - **`app/router.ts`** — builds the middleware stack, derives `AppContext` from it via `MiddlewareContext<[...]>`, publishes that type through `declare module 'remix'`, then calls `router.map(routes, controller)`. `router.map` wires only *direct leaf* routes; each nested route map needs its own `router.map(routes.<key>, controller)` line and its own `app/actions/<route-key>/controller.tsx`.
 - **`app/actions/controller.tsx`** — `createController(routes, { actions })`, one action per leaf route key. Actions return `Response` objects; UI responses go through `context.render(<Node />)`, which the `render()` middleware provides.
-- **`app/env.ts`** — the only module that reads `process.env`. Everything else imports the resolved constants (`NODE_ENV`, `IS_PRODUCTION`, `BUILD_ID`, `HAS_BUILD_ID`, `CACHE_BUSTER`, `SITE_URL`, `NO_INDEX`) — tests included: `app/env.test.ts` skips on `HAS_BUILD_ID` rather than reading the variable.
+- **`app/env.ts`** — the only module that reads `process.env`. Everything else imports the resolved constants (`NODE_ENV`, `IS_PRODUCTION`, `BUILD_ID`, `HAS_BUILD_ID`, `DEPLOYED_AT`, `CACHE_BUSTER`, `SITE_URL`, `NO_INDEX`, `SITE_NAME`, `API_URL`, `GOOGLE_ANALYTICS_ID`) — tests included: `app/env.test.ts` skips on `HAS_BUILD_ID` rather than reading the variable.
 - **`app/ui/`** — shared cross-route UI, organized by category (see "The `app/ui/` layout").
 - **`workers/`** — the Worker entry and its env type (see **Cloudflare Workers**).
 

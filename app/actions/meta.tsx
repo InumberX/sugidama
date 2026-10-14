@@ -6,12 +6,11 @@
 // page overrides only what differs.
 import type { RemixNode } from 'remix/component'
 
-import { IS_PRODUCTION, NO_INDEX, SITE_URL } from '../env.ts'
+import { IS_PRODUCTION, NO_INDEX, SITE_NAME, SITE_URL } from '../env.ts'
 
-// Placeholders until feature/remix3-seo ports the localized site name and
+// Placeholders until feature/remix3-seo ports the localized base title note and
 // description from app/locales/*/common.json on develop.
-export const SITE_NAME = 'Sugidama'
-export const BASE_TITLE = 'Sugidama'
+export const BASE_TITLE = SITE_NAME
 export const BASE_DESCRIPTION = 'Sugidama'
 export const DEFAULT_OG_IMAGE = '/assets/img/img-ogp.jpg'
 

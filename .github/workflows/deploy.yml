@@ -90,11 +90,13 @@ jobs:
 
       - run: npm ci
 
+      # Per-environment values (SITE_URL, NO_INDEX, ...) live in wrangler.jsonc;
+      # the npm script adds BUILD_ID (this commit) and DEPLOYED_AT, so a deploy
+      # from CI and one from a laptop produce the same Worker. WRANGLER_ENV is
+      # derived from github.ref above and reaches the shell as an env var, not
+      # through ${{ }} interpolation.
       - name: Deploy to Cloudflare Workers
-        uses: cloudflare/wrangler-action@v3
-        # TODO(#115 feature/remix3-env): SITE_URL などを Worker の変数として渡す。
-        # Remix 3 にはビルド工程が無く、値は実行時に process.env から読む。
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: deploy --env=${{ env.WRANGLER_ENV }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npm run "deploy-$WRANGLER_ENV"

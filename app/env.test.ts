@@ -1,11 +1,11 @@
 import * as assert from 'remix/assert'
 import { describe, it } from 'remix/test'
 
-import { CACHE_BUSTER, HAS_BUILD_ID } from './env.ts'
+import { API_URL, CACHE_BUSTER, HAS_BUILD_ID, SITE_URL } from './env.ts'
 
 describe('CACHE_BUSTER', () => {
   it('is a bare query string, so a caller supplies the `?` itself', () => {
-    // `/assets/img/img.jpg?${CACHE_BUSTER}` が正しい 1 クエリになること。
+    // `/static/css/app.css?${CACHE_BUSTER}` が正しい 1 クエリになること。
     // 自前の `?` や区切り文字を含んでいると二重になる。
     assert.match(CACHE_BUSTER, /^ver=[^?&#\s]+$/)
   })
@@ -19,4 +19,11 @@ describe('CACHE_BUSTER', () => {
       assert.equal(CACHE_BUSTER, 'ver=dev')
     }
   )
+})
+
+describe('URL constants', () => {
+  it('strip a trailing slash, since other modules append paths to them', () => {
+    assert.doesNotMatch(SITE_URL, /\/$/)
+    assert.doesNotMatch(API_URL, /\/$/)
+  })
 })

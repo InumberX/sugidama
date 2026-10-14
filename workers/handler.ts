@@ -9,13 +9,12 @@ export type WorkerEnv = {
   ASSETS: AssetFetcher
 }
 
-export function createHandleWorkerRequest(
+export const createHandleWorkerRequest = (
   handler: (request: Request) => Response | Promise<Response>
-) {
-  return createWorkerFetch<WorkerEnv>({
+) =>
+  createWorkerFetch<WorkerEnv>({
     handler,
     realm: 'Sugidama',
     basicAuth: (env) => ({ user: env.BASIC_AUTH_USER, pass: env.BASIC_AUTH_PASS }),
     assets: (env) => env.ASSETS,
   })
-}

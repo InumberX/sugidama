@@ -10,8 +10,8 @@
  * a <link> written in app/actions/document.tsx is always parsed first.
  *
  * Weakest to strongest:
- *   reset  user-agent normalization (ress 6.0.0, adjusted only where stylelint
- *          requires it: `font-weight: 700`, `outline: 1px dotted`)
+ *   reset  user-agent normalization: ress 6.0.0, verbatim. Keep it that way so
+ *          an update is a straight copy; app-specific fixes go in `base`.
  *   lib    third-party stylesheets — pull them in with
  *          `@import url('...') layer(lib);` so the app can override them
  *   base   app-wide defaults and design tokens
@@ -163,7 +163,7 @@
   }
 
   optgroup {
-    font-weight: 700;
+    font-weight: bold;
   }
 
   button {
@@ -195,7 +195,7 @@
   [type='reset']::-moz-focus-inner,
   [type='submit']::-moz-focus-inner,
   button:-moz-focusring {
-    outline: 1px dotted;
+    outline: 1px dotted ButtonText;
   }
 
   [type='reset'],

@@ -9,9 +9,27 @@ export type WorkerEnv = {
   ASSETS: AssetFetcher
 }
 
-export const createHandleWorkerRequest = (
-  handler: (request: Request) => Response | Promise<Response>
-) =>
+type RequestHandler = (request: Request) => Response | Promise<Response>
+
+// Catches what throws before a response exists — routing, middleware, an action
+// — and answers a generic 500 rather than leaking the stack. It cannot catch a
+// component that throws while rendering: `context.render` streams, so the 200
+// and the first bytes are already sent by then. Those errors are logged by the
+// renderer itself (`console.error`, the `renderToStream` default), and the
+// browser receives truncated HTML. The Node starter's `createRequestListener`
+// has the same split.
+export const withErrorResponse =
+  (handler: RequestHandler): RequestHandler =>
+  async (request) => {
+    try {
+      return await handler(request)
+    } catch (error) {
+      console.error(error)
+      return new Response('Internal Server Error', { status: 500 })
+    }
+  }
+
+export const createHandleWorkerRequest = (handler: RequestHandler) =>
   createWorkerFetch<WorkerEnv>({
     handler,
     realm: 'Sugidama',

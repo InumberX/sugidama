@@ -1,7 +1,7 @@
 import * as assert from 'remix/assert'
 import { describe, it, type TestContext } from 'remix/test'
 
-import { createHandleWorkerRequest, type WorkerEnv } from './handler.ts'
+import { createHandleWorkerRequest, type WorkerEnv, withErrorResponse } from './handler.ts'
 
 const USER = 'admin'
 const PASS = 'secret'
@@ -119,5 +119,34 @@ describe('createHandleWorkerRequest', () => {
     assert.equal(assetsFetch.mock.calls.length, 1)
     assert.equal(handler.mock.calls.length, 0)
     assert.equal(response.status, 200)
+  })
+})
+
+describe('withErrorResponse', () => {
+  it('passes a successful response through untouched', async () => {
+    const response = await withErrorResponse(() => new Response('ok', { status: 201 }))(
+      buildRequest()
+    )
+    assert.equal(response.status, 201)
+    assert.equal(await response.text(), 'ok')
+  })
+
+  it('turns a thrown error into a generic 500 and logs it', async (t) => {
+    const error = new Error('secret stack detail')
+    const consoleError = t.mock.method(console, 'error', () => {})
+    const response = await withErrorResponse(() => {
+      throw error
+    })(buildRequest())
+    assert.equal(response.status, 500)
+    assert.equal(await response.text(), 'Internal Server Error')
+    assert.equal(consoleError.mock.calls[0]?.arguments[0], error)
+  })
+
+  it('catches a rejected promise as well as a synchronous throw', async (t) => {
+    t.mock.method(console, 'error', () => {})
+    const response = await withErrorResponse(async () => {
+      throw new Error('async')
+    })(buildRequest())
+    assert.equal(response.status, 500)
   })
 })

@@ -6,14 +6,14 @@
 // page overrides only what differs.
 import type { RemixNode } from 'remix/component'
 
-import { IS_PRODUCTION, NO_INDEX, SITE_URL } from '../env.ts'
+import { CACHE_BUSTER, IS_PRODUCTION, NO_INDEX, SITE_URL } from '../env.ts'
 
 // Placeholders until feature/remix3-seo ports the localized site name and
 // description from app/locales/*/common.json on develop.
 export const SITE_NAME = 'Sugidama'
 export const BASE_TITLE = 'Sugidama'
 export const BASE_DESCRIPTION = 'Sugidama'
-export const DEFAULT_OG_IMAGE = '/assets/img/img-ogp.jpg'
+export const DEFAULT_OG_IMAGE = `/assets/img/img-ogp.jpg?${CACHE_BUSTER}`
 
 export type OgType = 'website' | 'article'
 export type TwitterCard = 'summary_large_image' | 'summary' | 'player' | 'app'

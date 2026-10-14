@@ -223,7 +223,7 @@ There is no PostCSS here. `@mixin`, `@custom-media` and `@media (--name)` are Po
 
 ## Cloudflare Workers
 
-`wrangler.jsonc` points `main` at `workers/app.ts`, which wraps `router.fetch` in a try/catch (log, then a generic 500 — what the Node starter's `createRequestListener` did by default) and hands it to `workers/handler.ts`. The catch only sees errors thrown before a response exists: `context.render` streams, so a component that throws mid-render has already sent its 200, and the renderer logs it (`console.error` by default) while the browser gets truncated HTML. That module wires `@inumberx/cloudflare-workers-basic-auth`'s `createWorkerFetch`:
+`wrangler.jsonc` points `main` at `workers/app.ts`, which wraps `router.fetch` in `withErrorResponse` (log, then a generic 500 — what the Node starter's `createRequestListener` did by default) and hands it to `createHandleWorkerRequest`; both live in `workers/handler.ts`, so `workers/handler.test.ts` covers them without loading the router. The catch only sees errors thrown before a response exists: `context.render` streams, so a component that throws mid-render has already sent its 200, and the renderer logs it (`console.error` by default) while the browser gets truncated HTML. `createHandleWorkerRequest` wires `@inumberx/cloudflare-workers-basic-auth`'s `createWorkerFetch`:
 
 1. **Basic auth.** Opt-in through the `BASIC_AUTH_USER` / `BASIC_AUTH_PASS` secrets. Both set or both unset; one without the other fails closed with `503`.
 2. **Static files.** GET/HEAD go to the `ASSETS` binding first, which serves root `public/` as-is; a `404` from it falls through to the router. `run_worker_first: true` is what puts static files behind the Basic-auth gate too.
@@ -299,7 +299,7 @@ The config is `stylelint-config-standard` plus the few adjustments the hand-writ
 
 Remix 3 (`remix@3.0.0`), server-first, built on Web `Request`/`Response`. Everything runtime imports from a `remix/<subpath>`. The top-level `remix` module exists only as the augmentation target for `RouterTypes`.
 
-Request flow: `workers/app.ts` → `workers/handler.ts` (Basic auth, then `ASSETS` for GET/HEAD) → `router.fetch(request)` → middleware stack in `app/router.ts` (`render()`) → the controller mapped for the matched route → a `Response`.
+Request flow: `workers/app.ts` → `workers/handler.ts` (Basic auth, then `ASSETS` for GET/HEAD, then `withErrorResponse`) → `router.fetch(request)` → middleware stack in `app/router.ts` (`render()`) → the controller mapped for the matched route → a `Response`.
 
 The pieces that must stay in sync:
 

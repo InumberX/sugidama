@@ -38,8 +38,18 @@ export function Document(handle: Handle<DocumentProps>) {
           <meta name="theme-color" content="#a2beed" />
           <meta name="format-detection" content="telephone=no" />
           <meta name="twitter:site" content="@InumberX" />
-          <link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="16x16" />
-          <link rel="apple-touch-icon" href="/apple-icon.png" type="image/png" sizes="180x180" />
+          <link
+            rel="icon"
+            href={`/favicon.ico?${CACHE_BUSTER}`}
+            type="image/x-icon"
+            sizes="16x16"
+          />
+          <link
+            rel="apple-touch-icon"
+            href={`/apple-icon.png?${CACHE_BUSTER}`}
+            type="image/png"
+            sizes="180x180"
+          />
           {/* Declares the `@layer reset, lib, base, rmx, util` order before any
               css(...) rule lands. Root public/ URLs never change on their own,
               hence the cache buster. */}

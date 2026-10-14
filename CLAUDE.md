@@ -264,7 +264,12 @@ Node comes from `.node-version` via `actions/setup-node`'s `node-version-file`, 
 
 ## Caching
 
-There is no build, so nothing produces hashed filenames. Root `public/` URLs are fixed, so files the app references carry `?${CACHE_BUSTER}` (`app/env.ts`, from `BUILD_ID`) and rotate per deploy. Cache headers for those files come from the Workers static-asset defaults (revalidation with ETag).
+There is no build, so nothing produces hashed filenames, and root `public/` URLs are fixed. Cache headers for those files come from the Workers static-asset defaults (revalidation with ETag).
+
+`?${CACHE_BUSTER}` (`app/env.ts`, from `BUILD_ID`) goes only on subresources a page loads while rendering and that must change in step with the deployed HTML — today that is `app.css`. It rotates the URL on every deploy, which is the point for a stylesheet and the wrong thing for anything whose URL is its identity:
+
+- **OGP images** (`DEFAULT_OG_IMAGE`, per-page `ogImage`). SNS crawlers cache the card by image URL, so a per-deploy query would make every deploy look like a new image and split the cached card. To change an OGP image, give the file a new name.
+- **favicon / apple-touch-icon.** Fetched directly by the browser and the OS outside the page's cache, and expected at a stable URL.
 
 **Every deploy should set one `BUILD_ID`.** `BUILD_ID` falls back to `'dev'`, so a deploy that forgets to set it will not invalidate root `public/` files — pass the commit sha from CI.
 

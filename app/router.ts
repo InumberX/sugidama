@@ -2,6 +2,7 @@ import { cop } from 'remix/middleware/cop'
 import { createRouter, type MiddlewareContext } from 'remix/router'
 
 import controller from './actions/controller.tsx'
+import drinksController from './actions/drinks/controller.tsx'
 import { renderWithCsp } from './middleware/csp.tsx'
 import { securityHeaders } from './middleware/security-headers.ts'
 import { trailingSlash } from './middleware/trailing-slash.ts'
@@ -43,3 +44,4 @@ export const router = createRouter<AppContext>({
 })
 
 router.map(routes, controller)
+router.map(routes.drinks, drinksController)

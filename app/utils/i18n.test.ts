@@ -1,7 +1,7 @@
 import * as assert from 'remix/assert'
 import { describe, it } from 'remix/test'
 
-import { DEFAULT_LANG, defineMessages, isLang, LANGS, toLangParam } from './i18n.ts'
+import { DEFAULT_LANG, defineMessages, isLang, LANGS, toLangParam, toLangPath } from './i18n.ts'
 
 describe('i18n', () => {
   it('publishes Japanese as the default and English', () => {
@@ -20,6 +20,18 @@ describe('i18n', () => {
   it('leaves the default language out of the route param', () => {
     assert.equal(toLangParam('ja'), undefined)
     assert.equal(toLangParam('en'), 'en')
+  })
+
+  it('builds the same page in the other language, query included', () => {
+    const at = (path: string) => new URL(`http://localhost${path}`)
+
+    assert.equal(toLangPath(at('/'), 'ja', 'en'), '/en')
+    assert.equal(toLangPath(at('/en'), 'en', 'ja'), '/')
+    assert.equal(toLangPath(at('/drinks?drink=1&page=2'), 'ja', 'en'), '/en/drinks?drink=1&page=2')
+    assert.equal(toLangPath(at('/en/drinks/sake'), 'en', 'ja'), '/drinks/sake')
+    // The current language maps onto itself.
+    assert.equal(toLangPath(at('/en/drinks'), 'en', 'en'), '/en/drinks')
+    assert.equal(toLangPath(at('/drinks'), 'ja', 'ja'), '/drinks')
   })
 
   it('returns each language its own messages, interpolation included', () => {

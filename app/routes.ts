@@ -12,6 +12,11 @@ import { get, route } from 'remix/routes'
 // constrain a variable, so it is also what rejects `/fr`.
 export const routes = route({
   home: get('/(:lang)'),
+  // A route area: its own controller (app/actions/drinks/) and router.map line.
+  // The detail page (`show`) joins it with the SG20_101 port.
+  drinks: {
+    index: get('/(:lang/)drinks'),
+  },
   // Development-only component gallery. Declared unconditionally so the route
   // map stays a stable type; the action returns 404 outside development.
   devUi: get('/dev/ui'),

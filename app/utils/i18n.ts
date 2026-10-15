@@ -42,3 +42,16 @@ export const defineMessages = <T>(
     readonly [L in Exclude<Lang, typeof DEFAULT_LANG>]: NoInfer<T>
   }
 ): Messages<T> => messages
+
+/**
+ * The same page in another language, as a root-relative path with the query:
+ * `/drinks?drink=1` in Japanese is `/en/drinks?drink=1` in English and back.
+ * `from` is the request's own language (`context.lang`), whose prefix — if it
+ * has one — is the URL's first segment. The fragment is never sent to the
+ * server, so it cannot be carried over.
+ */
+export const toLangPath = (url: URL, from: Lang, to: Lang): string => {
+  const path = from === DEFAULT_LANG ? url.pathname : url.pathname.replace(/^\/[^/]*/, '') || '/'
+  const prefixed = to === DEFAULT_LANG ? path : `/${to}${path === '/' ? '' : path}`
+  return `${prefixed}${url.search}`
+}

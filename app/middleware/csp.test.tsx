@@ -1,10 +1,9 @@
 import * as assert from 'remix/assert'
 import type { Handle } from 'remix/component'
-import { render } from 'remix/middleware/render'
 import { createRouter } from 'remix/router'
 import { describe, it } from 'remix/test'
 
-import { buildCspDirective, createNonce, csp, useCspNonce, withHeaders } from './csp.tsx'
+import { buildCspDirective, createNonce, renderWithCsp, useCspNonce } from './csp.tsx'
 
 // Prints the nonce it receives through component context, so a test can compare
 // it with the one in the header.
@@ -14,7 +13,7 @@ function NonceProbe(handle: Handle<object>) {
 }
 
 const createTestRouter = () => {
-  const router = createRouter({ middleware: [render(), csp()] })
+  const router = createRouter({ middleware: [renderWithCsp()] })
   router.get('/', (context) => context.render(<NonceProbe />))
   return router
 }
@@ -45,6 +44,17 @@ describe('buildCspDirective', () => {
     assert.doesNotMatch(policy.match(/script-src[^;]*/)?.[0] ?? '', /'unsafe-inline'/)
   })
 
+  it('substitutes only the nonce into an otherwise fixed policy', () => {
+    assert.equal(
+      buildCspDirective('a').replace("'nonce-a'", ''),
+      buildCspDirective('b').replace("'nonce-b'", '')
+    )
+  })
+
+  it("drops develop's unused Sentry origin", () => {
+    assert.doesNotMatch(policy, /sentry/)
+  })
+
   it('keeps every directive develop sent', () => {
     for (const name of [
       'default-src',
@@ -68,7 +78,7 @@ describe('buildCspDirective', () => {
   })
 })
 
-describe('csp()', () => {
+describe('renderWithCsp()', () => {
   it('passes the header nonce down to components through context', async () => {
     const response = await createTestRouter().fetch(new Request('http://localhost/'))
     const nonce = nonceFromHeader(response)
@@ -90,16 +100,5 @@ describe('useCspNonce', () => {
   it('is undefined outside a request', async () => {
     const { renderToString } = await import('remix/component/server')
     assert.match(await renderToString(<NonceProbe />), /<p id="nonce">none<\/p>/)
-  })
-})
-
-describe('withHeaders', () => {
-  it('copies a response whose headers are immutable', () => {
-    const redirect = Response.redirect('http://localhost/elsewhere', 302)
-    const result = withHeaders(redirect, { 'X-Test': '1' })
-
-    assert.equal(result.headers.get('X-Test'), '1')
-    assert.equal(result.status, 302)
-    assert.equal(result.headers.get('Location'), 'http://localhost/elsewhere')
   })
 })

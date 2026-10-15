@@ -189,7 +189,7 @@ Nothing in `app/ui/styles/` may import a component.
 
 ## Tests
 
-Co-locate tests beside what they test, one per component directory — `app/actions/controller.test.tsx`, `app/ui/**/<name>/<name>.test.tsx`, `app/env.test.ts`, `workers/handler.test.ts`, `workers/wrangler.test.ts` (for the root `wrangler.jsonc`). The CLI discovers by filename pattern rather than location. Root `test/` is reserved for shared helpers, fixtures, and integration/E2E coverage, and does not exist yet.
+Co-locate tests beside what they test, one per component directory — `app/actions/controller.test.tsx`, `app/ui/**/<name>/<name>.test.tsx`, `app/env.test.ts`, `app/middleware/*.test.ts(x)`, `workers/handler.test.ts`, `workers/wrangler.test.ts` (for the root `wrangler.jsonc`). The CLI discovers by filename pattern rather than location. Root `test/` is reserved for shared helpers, fixtures, and integration/E2E coverage, and does not exist yet.
 
 Drive route behavior with `router.fetch(new Request(...))` and assert on the `Response`; use `renderToString` for component specimens. See the note in **Commands** about `remix/test` vs `node:test`.
 
@@ -248,9 +248,20 @@ Do not edit `vars` on the Cloudflare dashboard: `wrangler deploy` replaces them 
 
 The two per-deploy values come from `scripts/deploy.sh` (behind `npm run deploy-*`) as `--var` flags rather than from the file. The script refuses to deploy from a tree with uncommitted or untracked files, or with ignored files under `public/` (wrangler uploads the whole assets directory, `.DS_Store` included), and stops if `git rev-parse` fails, because `BUILD_ID` must name exactly what ships. It is POSIX `sh`, like the `test` script — run it from macOS, Linux or WSL. The values: `BUILD_ID` (the commit sha, `git rev-parse HEAD`) and `DEPLOYED_AT` (UTC, ISO 8601), which replaces the Vite build time the sitemap used as `<lastmod>`. `DEPLOYED_AT` has no local default on purpose — in a Worker's global scope `new Date()` is the Unix epoch, measured.
 
+## Security
+
+`app/router.ts` runs `securityHeaders()`, `cop()`, `render()`, `csp()` in that order; the order is load-bearing and commented there.
+
+- **`app/middleware/security-headers.ts`** — `X-Content-Type-Options: nosniff` and `X-Frame-Options: DENY` on every router response, and `Strict-Transport-Security` only when `IS_PRODUCTION` (both deployed Workers; HSTS on `localhost` would pin every local port to HTTPS). It runs first so `cop()`'s 403 gets the headers too. Static files from `ASSETS` never reach the router and get none of this.
+- **`app/middleware/csp.tsx`** — a Content-Security-Policy with a fresh nonce per request, ported from develop's directive list. Remix 3.0.0 has no nonce option, so `csp()` re-installs `context.render` (same `Renderer` key and `render` property, which replaces rather than duplicates) to wrap every page in `CspNonceProvider`, and a component reads the nonce in setup with `useCspNonce(handle)`. **Any `<script>` you write needs `nonce={useCspNonce(handle)}`** or the browser blocks it — `Document`'s `GoogleAnalytics` is the worked example. Unlike develop, the policy is sent under `wrangler dev` too, so a violation shows up locally.
+  - `style-src` keeps `'unsafe-inline'`: the `<style data-rmx-style>` tags `css(...)` emits cannot carry a nonce. https://github.com/remix-run/remix/pull/11926 (open, actively reviewed) adds a `nonce` option to `renderToStream()` that stamps those tags, the import map and the preloads. When it ships, pass `context.cspNonce` to the renderer and drop `'unsafe-inline'` — tracked in issue #115. That PR does not touch `render()`, so check how the middleware exposes it.
+  - A future hydration step needs this too: the import map is an inline script. `<ImportMap nonce={…}>` already accepts one, and the browser runtime copies it to maps added later.
+- **`cop()`** (`remix/middleware/cop`, built in) rejects unsafe cross-origin requests (`POST`/`PUT`/`PATCH`/`DELETE`) from `Sec-Fetch-Site` / `Origin`, with no tokens or session. GET is never checked — the drinks search is a GET form and needs no CSRF token; putting one in a URL would leak it through history, `Referer` and logs.
+- **CSRF tokens come with sessions.** There is no session and no state-changing endpoint yet, so there is nothing for a synchronizer token to protect, and Remix's `csrf()` (`remix/middleware/csrf`, built in) stores its token in the session. The day a session arrives — login, favourites, comments — add `session(...)` and then `csrf()` after `cop()`, and put `getCsrfToken(context)` in each unsafe form. develop's hand-written double-submit token (`csrf.server.ts`, `timing-safe-equal.server.ts`) was not ported: it had no POST endpoint to protect, and the built-in middleware replaces it.
+
 ## Browser JavaScript
 
-No page ships JavaScript yet — the agreed approach for the migration (issue #115) is to build every page server-rendered first, using native HTML for interaction (GET forms, `<details>`, `popover`, CSS transitions and scroll-snap), and add hydration only where that is not enough.
+No page ships app JavaScript yet — the only scripts are the third-party Google Analytics tag (nonce'd, see **Security**). The agreed approach for the migration (issue #115) is to build every page server-rendered first, using native HTML for interaction (GET forms, `<details>`, `popover`, CSS transitions and scroll-snap), and add hydration only where that is not enough.
 
 So `render()` is created without `assets`, `Document` renders no import map or module script, and `document.test.tsx` pins that. A module script without a server behind it would 404 in production.
 
@@ -314,7 +325,7 @@ The config is `stylelint-config-standard` plus the few adjustments the hand-writ
 
 Remix 3 (`remix@3.0.0`), server-first, built on Web `Request`/`Response`. Everything runtime imports from a `remix/<subpath>`. The top-level `remix` module exists only as the augmentation target for `RouterTypes`.
 
-Request flow: `workers/app.ts` → `workers/handler.ts` (Basic auth, then `ASSETS` for GET/HEAD, then `withErrorResponse`) → `router.fetch(request)` → middleware stack in `app/router.ts` (`render()`) → the controller mapped for the matched route → a `Response`.
+Request flow: `workers/app.ts` → `workers/handler.ts` (Basic auth, then `ASSETS` for GET/HEAD, then `withErrorResponse`) → `router.fetch(request)` → middleware stack in `app/router.ts` (`securityHeaders()`, `cop()`, `render()`, `csp()` — see **Security**) → the controller mapped for the matched route → a `Response`.
 
 The pieces that must stay in sync:
 
@@ -323,6 +334,7 @@ The pieces that must stay in sync:
 - **`app/actions/controller.tsx`** — `createController(routes, { actions })`, one action per leaf route key. Actions return `Response` objects; UI responses go through `context.render(<Node />)`, which the `render()` middleware provides.
 - **`app/env.ts`** — the only module that reads `process.env`. Everything else imports the resolved constants (`NODE_ENV`, `IS_PRODUCTION`, `BUILD_ID`, `HAS_BUILD_ID`, `DEPLOYED_AT`, `CACHE_BUSTER`, `SITE_URL`, `NO_INDEX`, `SITE_NAME`, `API_URL`, `GOOGLE_ANALYTICS_ID`) — tests included: `app/env.test.ts` skips on `HAS_BUILD_ID` rather than reading the variable.
 - **`app/ui/`** — shared cross-route UI, organized by category (see "The `app/ui/` layout").
+- **`app/middleware/`** — request-lifecycle middleware (`security-headers.ts`, `csp.tsx`; see **Security**).
 - **`workers/`** — the Worker entry and its env type (see **Cloudflare Workers**).
 
 ## Code Conventions

@@ -1,6 +1,7 @@
-import type { Handle, RemixNode } from 'remix/component'
+import { type Handle, type RemixNode, unsafeHTML } from 'remix/component'
 
-import { CACHE_BUSTER } from '../env.ts'
+import { CACHE_BUSTER, GOOGLE_ANALYTICS_ID } from '../env.ts'
+import { useCspNonce } from '../middleware/csp.tsx'
 import { LayoutWrapper } from '../ui/layouts/layout-wrapper/layout-wrapper.tsx'
 import { type PageMeta, renderMeta, resolveTitle } from './meta.tsx'
 
@@ -24,6 +25,8 @@ export type DocumentProps = {
 }
 
 export function Document(handle: Handle<DocumentProps>) {
+  const nonce = useCspNonce(handle)
+
   return () => {
     const { children, head, meta = {}, url } = handle.props
 
@@ -46,12 +49,52 @@ export function Document(handle: Handle<DocumentProps>) {
           <link rel="stylesheet" href={`/static/css/app.css?${CACHE_BUSTER}`} />
           <title>{resolveTitle(meta)}</title>
           {renderMeta(meta, url)}
+          <GoogleAnalytics id={GOOGLE_ANALYTICS_ID} nonce={nonce} />
           {head}
         </head>
         <body>
           <LayoutWrapper>{children}</LayoutWrapper>
         </body>
       </html>
+    )
+  }
+}
+
+export type GoogleAnalyticsProps = {
+  /** Measurement id. Empty renders nothing, which is the local default. */
+  id: string
+  /** The request's CSP nonce; both scripts need it under `script-src`. */
+  nonce?: string
+}
+
+/**
+ * The gtag.js loader and its config call, ported from develop's root.tsx.
+ * Without client-side navigation every page view is a full load, so gtag's own
+ * automatic page_view replaces the per-route `gtag.pageview()` develop sent.
+ */
+export function GoogleAnalytics(handle: Handle<GoogleAnalyticsProps>) {
+  return () => {
+    const { id, nonce } = handle.props
+    if (!id) return null
+
+    // JSON.stringify quotes the id; escaping `<` keeps a stray `</script>` in
+    // configuration from ending the element early.
+    const config = JSON.stringify(id).replace(/</g, '\\u003c')
+
+    return (
+      <>
+        <script
+          async
+          nonce={nonce}
+          src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`}
+        ></script>
+        <script
+          nonce={nonce}
+          innerHTML={unsafeHTML(
+            `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config',${config});`
+          )}
+        ></script>
+      </>
     )
   }
 }

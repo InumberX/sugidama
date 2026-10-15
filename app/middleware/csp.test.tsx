@@ -3,7 +3,9 @@ import type { Handle } from 'remix/component'
 import { createRouter } from 'remix/router'
 import { describe, it } from 'remix/test'
 
-import { buildCspDirective, createNonce, renderWithCsp, useCspNonce } from './csp.tsx'
+import { API_URL } from '../env.ts'
+import { useCspNonce } from '../ui/contexts/csp-nonce/csp-nonce.tsx'
+import { buildCspDirective, createNonce, renderWithCsp } from './csp.tsx'
 
 // Prints the nonce it receives through component context, so a test can compare
 // it with the one in the header.
@@ -15,6 +17,10 @@ function NonceProbe(handle: Handle<object>) {
 const createTestRouter = () => {
   const router = createRouter({ middleware: [renderWithCsp()] })
   router.get('/', (context) => context.render(<NonceProbe />))
+  router.get('/text', () => new Response('plain'))
+  router.get('/own-policy', (context) =>
+    context.render(<NonceProbe />, { headers: { 'Content-Security-Policy': "default-src 'self'" } })
+  )
   return router
 }
 
@@ -51,6 +57,19 @@ describe('buildCspDirective', () => {
     )
   })
 
+  it('leaves no placeholder behind', () => {
+    assert.doesNotMatch(policy, /\{\{nonce\}\}/)
+  })
+
+  it('allows everything under API_URL, not just that exact path', () => {
+    // A source path without a trailing slash matches only itself.
+    for (const name of ['img-src', 'connect-src']) {
+      const sources = policy.match(new RegExp(`${name} ([^;]*)`))?.[1].split(' ') ?? []
+      assert.ok(sources.includes(`${API_URL}/`), name)
+      assert.ok(!sources.includes(API_URL), name)
+    }
+  })
+
   it("drops develop's unused Sentry origin", () => {
     assert.doesNotMatch(policy, /sentry/)
   })
@@ -85,6 +104,16 @@ describe('renderWithCsp()', () => {
 
     assert.ok(nonce, 'the header carries a nonce')
     assert.equal(await nonceFromBody(response), nonce)
+  })
+
+  it('leaves a non-HTML response to the fallback policy', async () => {
+    const response = await createTestRouter().fetch(new Request('http://localhost/text'))
+    assert.equal(response.headers.get('Content-Security-Policy'), null)
+  })
+
+  it('keeps a policy the route set itself', async () => {
+    const response = await createTestRouter().fetch(new Request('http://localhost/own-policy'))
+    assert.equal(response.headers.get('Content-Security-Policy'), "default-src 'self'")
   })
 
   it('uses a fresh nonce for every request', async () => {

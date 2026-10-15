@@ -1,7 +1,7 @@
 import { type Handle, type RemixNode, unsafeHTML } from 'remix/component'
 
 import { CACHE_BUSTER, GOOGLE_ANALYTICS_ID } from '../env.ts'
-import { useCspNonce } from '../middleware/csp.tsx'
+import { useCspNonce } from '../ui/contexts/csp-nonce/csp-nonce.tsx'
 import { LayoutWrapper } from '../ui/layouts/layout-wrapper/layout-wrapper.tsx'
 import { type PageMeta, renderMeta, resolveTitle } from './meta.tsx'
 

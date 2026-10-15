@@ -1,5 +1,7 @@
 import { type AssetFetcher, createWorkerFetch } from '@inumberx/cloudflare-workers-basic-auth'
 
+import { internalServerError } from '../app/middleware/internal-server-error.ts'
+
 // Mirror of bindings declared in `wrangler.jsonc` plus Workers secrets set via
 // `wrangler secret put`. Keep in sync manually whenever `wrangler.jsonc`
 // changes; nothing regenerates this type.
@@ -24,8 +26,7 @@ export const withErrorResponse =
     try {
       return await handler(request)
     } catch (error) {
-      console.error(error)
-      return new Response('Internal Server Error', { status: 500 })
+      return internalServerError(error)
     }
   }
 

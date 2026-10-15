@@ -5,6 +5,7 @@
 import type { Middleware } from 'remix/router'
 
 import { IS_PRODUCTION } from '../env.ts'
+import { internalServerError } from './internal-server-error.ts'
 import { withHeaders } from './with-headers.ts'
 
 /** Sent on every router response. */
@@ -22,6 +23,13 @@ export const PRODUCTION_ONLY = {
   'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
 } as const
 
+/**
+ * The policy for any response that does not carry one — cop()'s 403, the 500
+ * below, a plain-text 404, a redirect. Nothing in those may load or frame
+ * anything. HTML pages get renderWithCsp()'s nonce policy instead.
+ */
+export const FALLBACK_CSP = "default-src 'none'; frame-ancestors 'none'"
+
 export type SecurityHeadersOptions = {
   /** Whether to add `PRODUCTION_ONLY`. Defaults to `IS_PRODUCTION`; tests pass it. */
   production?: boolean
@@ -30,10 +38,12 @@ export type SecurityHeadersOptions = {
 /**
  * Adds the static security headers to every response the router produces:
  * rejections from the middleware after it (`cop()`'s 403), and the generic 500
- * for anything that throws — develop sent its 500 with the same headers on
- * purpose, so an error page is never less protected than a normal one. That
- * makes this the router's error boundary; `withErrorResponse` in
- * workers/handler.ts still covers what fails outside the router.
+ * for anything that throws — develop kept its security headers, CSP included,
+ * on its 500 on purpose, so an error response is never less protected than a
+ * page. That makes this the router's error boundary; `withErrorResponse` in
+ * workers/handler.ts still covers what fails outside the router, with the same
+ * `internalServerError()`. A response without a CSP of its own gets
+ * `FALLBACK_CSP`.
  *
  * Static files from the `ASSETS` binding never reach the router.
  */
@@ -47,9 +57,13 @@ export const securityHeaders = ({
     try {
       response = await next()
     } catch (error) {
-      console.error(error)
-      response = new Response('Internal Server Error', { status: 500 })
+      response = internalServerError(error)
     }
-    return withHeaders(response, headers)
+    return withHeaders(
+      response,
+      response.headers.has('Content-Security-Policy')
+        ? headers
+        : { ...headers, 'Content-Security-Policy': FALLBACK_CSP }
+    )
   }
 }

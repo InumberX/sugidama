@@ -2,12 +2,16 @@ import * as assert from 'remix/assert'
 import { createRouter } from 'remix/router'
 import { describe, it } from 'remix/test'
 
-import { securityHeaders, type SecurityHeadersOptions } from './security-headers.ts'
+import { FALLBACK_CSP, securityHeaders, type SecurityHeadersOptions } from './security-headers.ts'
 
 const createTestRouter = (options?: SecurityHeadersOptions) => {
   const router = createRouter({ middleware: [securityHeaders(options)] })
   router.get('/', () => new Response('ok'))
   router.get('/moved', () => Response.redirect('http://localhost/', 302))
+  router.get(
+    '/own-policy',
+    () => new Response('ok', { headers: { 'Content-Security-Policy': "default-src 'self'" } })
+  )
   router.get('/boom', () => {
     throw new Error('boom')
   })
@@ -22,6 +26,19 @@ describe('securityHeaders()', () => {
       assert.equal(response.headers.get('X-Content-Type-Options'), 'nosniff', path)
       assert.equal(response.headers.get('X-Frame-Options'), 'DENY', path)
     }
+  })
+
+  it('gives a response without a policy the deny-all fallback', async () => {
+    const router = createTestRouter()
+    for (const path of ['/', '/moved', '/missing']) {
+      const response = await router.fetch(new Request(`http://localhost${path}`))
+      assert.equal(response.headers.get('Content-Security-Policy'), FALLBACK_CSP, path)
+    }
+  })
+
+  it('keeps a policy the response already carries', async () => {
+    const response = await createTestRouter().fetch(new Request('http://localhost/own-policy'))
+    assert.equal(response.headers.get('Content-Security-Policy'), "default-src 'self'")
   })
 
   it('sends a two-year, preload-ready HSTS policy in production', async () => {
@@ -51,6 +68,7 @@ describe('securityHeaders()', () => {
     assert.equal(await response.text(), 'Internal Server Error')
     assert.equal(response.headers.get('X-Frame-Options'), 'DENY')
     assert.ok(response.headers.get('Strict-Transport-Security'))
+    assert.equal(response.headers.get('Content-Security-Policy'), FALLBACK_CSP)
     assert.equal(consoleError.mock.calls.length, 1)
   })
 })

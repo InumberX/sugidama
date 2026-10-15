@@ -56,13 +56,15 @@ export const baseButtonSizes: Record<BaseButtonSize, StyleRecipe> = {
   small: baseButton__small,
 }
 
-export const baseButton__contained: StyleRecipe = {
-  border: 'none',
-}
+/**
+ * Empty on purpose: the reset already has no border, and everything the
+ * contained look needs — the gradient layers and their hover — depends on the
+ * color, so it lives in `baseButtonColors`. Kept as the variant's named slot.
+ */
+export const baseButton__contained: StyleRecipe = {}
 
 export const baseButton__outlined: StyleRecipe = {
   border: '1px solid',
-  boxShadow: 'none',
 }
 
 export const baseButtonVariants: Record<BaseButtonVariant, StyleRecipe> = {

@@ -55,35 +55,21 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
       // one is neither focusable nor followable, so Tab and Enter cannot reach
       // a destination that `pointer-events: none` only hid from the mouse.
       // `aria-disabled` keeps it announced as disabled, and the caller's role
-      // (a disabled tab, say) survives; without one it stays a link.
-      if (isDisabled) {
-        return (
-          <a
-            role={role ?? 'link'}
-            aria-disabled="true"
-            title={title}
-            aria-label={ariaLabel}
-            aria-controls={ariaControls}
-            aria-selected={ariaSelected}
-            mix={hostStyle}
-          >
-            {children}
-          </a>
-        )
-      }
-
+      // (a disabled tab, say) survives; without one it stays a link. One
+      // element for both states, so an attribute added later reaches both.
       return (
         <a
-          href={url}
-          target={target}
-          rel={rel}
+          href={isDisabled ? undefined : url}
+          target={isDisabled ? undefined : target}
+          rel={isDisabled ? undefined : rel}
           title={title}
-          role={role}
-          tabIndex={tabIndex}
+          role={isDisabled ? (role ?? 'link') : role}
+          tabIndex={isDisabled ? undefined : tabIndex}
+          aria-disabled={isDisabled ? 'true' : undefined}
           aria-label={ariaLabel}
           aria-controls={ariaControls}
           aria-selected={ariaSelected}
-          data-rmx-document={isDocumentNavigation(url) ? '' : undefined}
+          data-rmx-document={!isDisabled && isDocumentNavigation(url) ? '' : undefined}
           mix={hostStyle}
         >
           {children}

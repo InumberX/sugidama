@@ -349,7 +349,12 @@
     --layout-header-space: 16px;
     --layout-main-gutter: 16px;
 
-    /* The inner column's cap, padding included — develop's layout.inner.maxWidth.large */
+    /*
+     * The inner column's cap, padding included — develop's
+     * layout.inner.maxWidth.large. Resolved here on :root, so retune it by
+     * overriding this property (or its inputs on :root); setting only an
+     * input on a subtree does not recompute it there.
+     */
     --layout-inner-max-width-large: calc(
       var(--layout-inner-width-large) + (var(--layout-inner-padding-md) * 2)
     );
@@ -609,6 +614,13 @@
     cursor: not-allowed;
   }
 
+  /*
+   * develop's forms rely on this: `readonly` has no native effect on a
+   * checkbox, a radio or a select (develop sets it on all of them), so
+   * blocking the pointer is what keeps them from changing. The cost, also
+   * develop's, is that a readonly text field cannot be clicked into to
+   * select its value; revisit with the forms in step 7.
+   */
   :is(input, select, textarea)[readonly] {
     pointer-events: none;
   }

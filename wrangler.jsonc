@@ -1,6 +1,11 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "sugidama",
+  // The top level is what `wrangler dev` runs, and it carries no `vars` or
+  // `define`. Its name must not be a deployed Worker's: a bare `wrangler deploy`
+  // (no --env) would otherwise replace production with a Worker that has no
+  // vars, localhost canonical URLs and the shell's NODE_ENV. Under this name it
+  // creates a stray Worker instead, and workers/wrangler.test.ts pins that.
+  "name": "sugidama-local",
   "compatibility_date": "2026-05-04",
   // `nodejs_compat` supplies the `node:` built-ins some remix packages import,
   // and (with a compatibility date of 2025-04-01 or later) fills `process.env`

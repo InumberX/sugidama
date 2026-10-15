@@ -25,6 +25,15 @@ if [ -n "$(git status --porcelain)" ]; then
   exit 1
 fi
 
+# The same holds for ignored files under public/: wrangler uploads everything
+# in the assets directory, so a stray .DS_Store or an old build output there
+# would be published under this commit's BUILD_ID.
+if [ -n "$(git status --porcelain --ignored -- public)" ]; then
+  echo "deploy: public/ contains ignored files that wrangler would upload:" >&2
+  git status --short --ignored -- public >&2
+  exit 1
+fi
+
 deployed_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
 exec wrangler deploy --env="$env_name" \

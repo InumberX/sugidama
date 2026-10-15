@@ -130,7 +130,7 @@ describe('renderWithCsp()', () => {
   it('puts the header nonce on the Google Analytics scripts Document renders', async () => {
     const router = createRouter({ middleware: [renderWithCsp()] })
     router.get('/', (context) =>
-      context.render(<Document url={context.url} analyticsId="G-TEST" />)
+      context.render(<Document lang="ja" url={context.url} analyticsId="G-TEST" />)
     )
     const response = await router.fetch(new Request('http://localhost/'))
     const nonce = nonceFromHeader(response)

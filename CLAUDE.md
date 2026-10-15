@@ -58,12 +58,13 @@ A `node:test` suite is the trap in the other direction: `remix test` imports the
 - **Declare the method.** A bare string (`home: '/'`) is typed `Route<"ANY", "/">` and answers POST, PUT and DELETE alike; `get('/')` answers GET and 404s the rest. Use `get`/`post`/`form`/`resources`, never a bare pattern.
 - **Keep patterns literal.** Remix derives `href()` arguments and `context.params` from the pattern's literal type. Any indirection that widens it to `string` silently removes that checking.
 - **Nest route areas.** `articles: { index: get('/articles'), show: get('/articles/:id') }` gives the area its own controller and a place to hang middleware later. `router.map` wires only direct leaves, so each nested map needs an explicit `router.map(routes.articles, articlesController)`.
+- **Prefix every public page with the optional language.** `home: get('/(:lang)')`, `drinks: get('/(:lang/)drinks')` — see **Languages**.
 
 Naming under `app/actions/` — **a bare directory is a route area, a `-page` directory is a page**:
 
 ```
 app/actions/
-  controller.tsx              direct leaves of the root map: assets, home, devUi
+  controller.tsx              direct leaves of the root map: home, devUi
   document.tsx                the shared document shell
   meta.tsx                    site-wide metadata defaults
   home-page/home-page.tsx     home
@@ -101,6 +102,17 @@ There is no file-system routing in Remix 3, so a Next-style `page.tsx` would car
 Per-page titles stay a `PAGE_TITLE` constant in the page module. A central screen registry (generalview's `app/config/paths.ts`) is not worth its weight until spec screen ids need tracing — the earlier `app/pages.ts` experiment worked, but only one route ever reads a given title.
 
 `/dev/ui` is a component gallery for development. The route is declared in every build so `typeof routes` stays stable, and the action returns 404 when `IS_PRODUCTION`. It renders every `app/ui/` variant through the real `context.render()` pipeline, so a specimen cannot diverge from what ships — which is why this exists instead of Storybook (no Remix 3 renderer exists, and a Vite builder would add a second, differently-resolving module graph).
+
+## Languages
+
+The site is published in Japanese (the default, no URL prefix) and English (`/en/…`), as develop was. `app/utils/i18n.ts` holds the vocabulary — `LANGS`, `Lang`, `DEFAULT_LANG`, `toLangParam()`, `defineMessages()` — and imports nothing, so pages, components and a future browser module can all use it. `app/middleware/lang.ts` is the request side.
+
+- **Patterns.** The optional group wraps the segment and the slash on the side that keeps the URL well formed: `/(:lang)` for the root, `/(:lang/)drinks` below it. `(/:lang)` looks equivalent but never matches `/en` — measured. Route patterns cannot constrain a variable, so `/(:lang)` matches any single segment; `/nope` reaches the home route with `lang: 'nope'`. A literal single-segment route (`/robots.txt`) still wins, because static text outranks a variable — `lang.test.ts` pins it.
+- **`lang()` middleware** turns the param into `context.lang`: none is `ja`, `en` is `en`, `ja` redirects (302 for GET/HEAD, as develop did; 307 otherwise, so a POST keeps its method) to the same URL without the prefix, and anything else is a 404. The redirect drops the first segment as it appears in the URL, not a fixed `/ja`, because the param is decoded (`/%6Aa` is `ja` too); for the same reason an encoded `en` (`/%65n`) is redirected to `/en`, so it cannot become a second indexable URL. Both go through `localRedirect()` (`app/middleware/local-redirect.ts`), which resolves the target against the request's origin and falls back to `/` for anything that would leave the site — develop's guard. It is controller middleware, not router middleware, because router middleware runs before matching and sees no params; and not action middleware, because a controller's `actions` object cannot carry the context an action's own middleware adds (`context.lang` loses its type). **Every controller with a language-prefixed route needs `middleware: [lang()]`** — controller middleware does not reach other controllers. The root controller's `devUi` has no `lang` param and so always resolves to `ja`.
+- **Trailing slashes.** Route patterns are exact, so `/en/` would be a 404 where develop's React Router answered it. `trailingSlash()` (router middleware, `app/middleware/trailing-slash.ts`) redirects `/path/` to `/path` before matching, for every method, with a 308 — unlike a 301 it keeps the method and body, so a POST stays a POST. Never link with a trailing slash.
+- **Links.** Build them with `routes.<name>.href({ lang: toLangParam(lang) })`. `toLangParam` maps `ja` to `undefined`, which drops the optional group, so Japanese links never carry `/ja`.
+- **`<html lang>`.** `Document` takes a required `lang` prop for the same reason it requires `url`: an English page that forgot it would still render, as Japanese.
+- **Messages.** There is no i18next. A page or component declares its own messages next to itself with `defineMessages({ ja: {…}, en: {…} })` and reads `MESSAGES[lang]`. The Japanese messages define the shape and every other language must match it exactly — a missing, misspelled or wrongly typed key is a type error (`app/utils/i18n.test.ts` pins each case). A message that interpolates is a function (`` (category: string) => `${category}のお酒` ``), which types its arguments where i18next's `{{drinkCategory}}` did not. develop's namespaces (`pages/SG10_100`, …) map onto the owning page's directory; site-wide strings (title note, description) belong to step 9 (`meta.tsx`).
 
 ## The `app/ui/` layout
 
@@ -189,7 +201,7 @@ Nothing in `app/ui/styles/` may import a component.
 
 ## Tests
 
-Co-locate tests beside what they test, one per component directory — `app/actions/controller.test.tsx`, `app/ui/**/<name>/<name>.test.tsx`, `app/env.test.ts`, `app/middleware/*.test.ts(x)` (`with-headers.ts` is the shared header helper), `workers/handler.test.ts`, `workers/wrangler.test.ts` (for the root `wrangler.jsonc`). The CLI discovers by filename pattern rather than location. Root `test/` is reserved for shared helpers, fixtures, and integration/E2E coverage, and does not exist yet.
+Co-locate tests beside what they test, one per component directory — `app/actions/controller.test.tsx`, `app/ui/**/<name>/<name>.test.tsx`, `app/env.test.ts`, `app/middleware/*.test.ts(x)` (`with-headers.ts` is the shared header helper), `app/utils/*.test.ts`, `workers/handler.test.ts`, `workers/wrangler.test.ts` (for the root `wrangler.jsonc`). The CLI discovers by filename pattern rather than location. Root `test/` is reserved for shared helpers, fixtures, and integration/E2E coverage, and does not exist yet.
 
 Drive route behavior with `router.fetch(new Request(...))` and assert on the `Response`; use `renderToString` for component specimens. See the note in **Commands** about `remix/test` vs `node:test`.
 
@@ -250,7 +262,7 @@ The two per-deploy values come from `scripts/deploy.sh` (behind `npm run deploy-
 
 ## Security
 
-`app/router.ts` runs `securityHeaders()`, `cop()`, `renderWithCsp()` in that order; the order is commented there.
+`app/router.ts` runs `securityHeaders()`, `cop()`, `trailingSlash()`, `renderWithCsp()` in that order; the order is commented there. (`trailingSlash()` is not a security measure; see **Languages**.)
 
 - **`app/middleware/security-headers.ts`** — `X-Content-Type-Options: nosniff` and `X-Frame-Options: DENY` on every router response (a header the response already sets is kept, as with the CSP), and `Strict-Transport-Security` only when `IS_PRODUCTION` (both deployed Workers; HSTS on `localhost` would pin every local port to HTTPS; tests pass `{ production }`). It runs first so `cop()`'s 403 gets the headers too, and it is the router's error boundary: a thrown error becomes a generic 500 *with* the headers, as develop's 500 had. Both it and `withErrorResponse` (failures outside the router) answer through `internalServerError()` in `app/middleware/internal-server-error.ts`. Any response that reaches it without a CSP of its own — the 403, the 500, a plain-text 404, a redirect — gets `FALLBACK_CSP` (`default-src 'none'; frame-ancestors 'none'`). Static files from `ASSETS` never reach the router and get none of this.
 - **`app/middleware/csp.tsx`** — a Content-Security-Policy with a fresh nonce per request: develop's directive list minus the unused `https://*.sentry.io`, joined once at load with only the nonce substituted per request. `API_URL` goes in as `${API_URL}/`: a source path without a trailing slash matches that exact path only, so develop's form allowed `/rcms-api/7` but nothing under it. Remix 3.0.0 has no nonce option, so `renderWithCsp()` is `render()` plus a step that re-installs `context.render` (same `Renderer` key and `render` property, which replaces rather than duplicates) to wrap every page in `CspNonceProvider`; a component reads the nonce in setup with `useCspNonce(handle)`. The provider and the hook live in `app/ui/contexts/csp-nonce/`, not in the middleware, so a component never imports server middleware. The nonce policy goes only on `text/html` responses that carry no CSP yet; a route that sets its own keeps it. Building on `render()` instead of running after it leaves no middleware order to get wrong. **Any `<script>` you write needs `nonce={useCspNonce(handle)}`** or the browser blocks it — `Document`'s `GoogleAnalytics` is the worked example. Unlike develop, the policy is sent under `wrangler dev` too, so a violation shows up locally.
@@ -326,7 +338,7 @@ The config is `stylelint-config-standard` plus the few adjustments the hand-writ
 
 Remix 3 (`remix@3.0.0`), server-first, built on Web `Request`/`Response`. Everything runtime imports from a `remix/<subpath>`. The top-level `remix` module exists only as the augmentation target for `RouterTypes`.
 
-Request flow: `workers/app.ts` → `workers/handler.ts` (Basic auth, then `ASSETS` for GET/HEAD, then `withErrorResponse`) → `router.fetch(request)` → middleware stack in `app/router.ts` (`securityHeaders()`, `cop()`, `renderWithCsp()` — see **Security**) → the controller mapped for the matched route → a `Response`.
+Request flow: `workers/app.ts` → `workers/handler.ts` (Basic auth, then `ASSETS` for GET/HEAD, then `withErrorResponse`) → `router.fetch(request)` → middleware stack in `app/router.ts` (`securityHeaders()`, `cop()`, `trailingSlash()`, `renderWithCsp()` — see **Security**) → the controller mapped for the matched route → a `Response`.
 
 The pieces that must stay in sync:
 
@@ -335,7 +347,8 @@ The pieces that must stay in sync:
 - **`app/actions/controller.tsx`** — `createController(routes, { actions })`, one action per leaf route key. Actions return `Response` objects; UI responses go through `context.render(<Node />)`, which the `render()` middleware provides.
 - **`app/env.ts`** — the only module that reads `process.env`. Everything else imports the resolved constants (`NODE_ENV`, `IS_PRODUCTION`, `BUILD_ID`, `HAS_BUILD_ID`, `DEPLOYED_AT`, `CACHE_BUSTER`, `SITE_URL`, `NO_INDEX`, `SITE_NAME`, `API_URL`, `GOOGLE_ANALYTICS_ID`) — tests included: `app/env.test.ts` skips on `HAS_BUILD_ID` rather than reading the variable.
 - **`app/ui/`** — shared cross-route UI, organized by category (see "The `app/ui/` layout").
-- **`app/middleware/`** — request-lifecycle middleware (`security-headers.ts`, `csp.tsx`; see **Security**).
+- **`app/middleware/`** — request-lifecycle middleware (`security-headers.ts`, `csp.tsx`, see **Security**; `lang.ts`, `trailing-slash.ts`, `local-redirect.ts`, see **Languages**).
+- **`app/utils/i18n.ts`** — the language list and the message helper (see **Languages**).
 - **`workers/`** — the Worker entry and its env type (see **Cloudflare Workers**).
 
 ## Code Conventions

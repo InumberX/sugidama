@@ -10,6 +10,7 @@ import { LayoutMain } from '../../ui/layouts/layout-main/layout-main.tsx'
 import { LayoutPageWrapper } from '../../ui/layouts/layout-page-wrapper/layout-page-wrapper.tsx'
 import { LayoutWrapper } from '../../ui/layouts/layout-wrapper/layout-wrapper.tsx'
 import { PrimitiveButton } from '../../ui/primitives/buttons/primitive-button/primitive-button.tsx'
+import type { Lang } from '../../utils/i18n.ts'
 import { Document } from '../document.tsx'
 import { Block } from './components/block/block.tsx'
 import { Section } from './components/section/section.tsx'
@@ -19,9 +20,13 @@ import * as styles from './dev-ui-page.styles.ts'
 
 const PAGE_TITLE = 'UI ギャラリー'
 
-export function DevUiPage(handle: Handle<{ url: URL }>) {
+export function DevUiPage(handle: Handle<{ lang: Lang; url: URL }>) {
   return () => (
-    <Document url={handle.props.url} meta={{ title: PAGE_TITLE, robots: 'noindex, nofollow' }}>
+    <Document
+      lang={handle.props.lang}
+      url={handle.props.url}
+      meta={{ title: PAGE_TITLE, robots: 'noindex, nofollow' }}
+    >
       <main mix={css(styles.devUiPage)}>
         <h1 mix={css(styles.devUiPage_heading)}>{PAGE_TITLE}</h1>
 

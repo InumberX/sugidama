@@ -8,7 +8,7 @@ describe('Document', () => {
   it('renders no module script of its own', async () => {
     // No page hydrates a client entry yet, and Workers has no asset server to
     // compile one. A module script here would 404 in production.
-    const html = await renderToString(<Document url={new URL('http://localhost/')} />)
+    const html = await renderToString(<Document lang="ja" url={new URL('http://localhost/')} />)
 
     assert.doesNotMatch(html, /<script[^>]* type="(module|importmap)"/)
   })
@@ -16,6 +16,7 @@ describe('Document', () => {
   it('renders the page head slot after the stylesheet and the metadata', async () => {
     const html = await renderToString(
       <Document
+        lang="ja"
         url={new URL('http://localhost/')}
         head={<link rel="preload" href="/page-asset.webp" as="image" />}
       />
@@ -47,5 +48,11 @@ describe('GoogleAnalytics', () => {
     const html = await renderToString(<GoogleAnalytics id="</script><b>x" nonce="abc" />)
 
     assert.equal(html.match(/<\/script>/g)?.length, 2)
+  })
+
+  it('declares the page language on <html>', async () => {
+    const html = await renderToString(<Document lang="en" url={new URL('http://localhost/en')} />)
+
+    assert.match(html, /<html lang="en">/)
   })
 })

@@ -3,12 +3,18 @@ import { type Handle, type RemixNode, unsafeHTML } from 'remix/component'
 import { CACHE_BUSTER, GOOGLE_ANALYTICS_ID } from '../env.ts'
 import { useCspNonce } from '../ui/contexts/csp-nonce/csp-nonce.tsx'
 import { LayoutWrapper } from '../ui/layouts/layout-wrapper/layout-wrapper.tsx'
+import type { Lang } from '../utils/i18n.ts'
 import { type PageMeta, renderMeta, resolveTitle } from './meta.tsx'
 
 export type DocumentProps = {
   children?: RemixNode
   /** Extra head content this page needs beyond the standard metadata. Rendered last in `<head>`. */
   head?: RemixNode
+  /**
+   * The page's language, from `context.lang`. Required for the same reason as
+   * `url`: an English page that forgot it would still render, as `lang="ja"`.
+   */
+  lang: Lang
   /**
    * Site-wide metadata with per-page overrides. `url` comes from
    * `context.url` in the action, since a component has no request of its own.
@@ -30,10 +36,10 @@ export function Document(handle: Handle<DocumentProps>) {
   const nonce = useCspNonce(handle)
 
   return () => {
-    const { analyticsId = GOOGLE_ANALYTICS_ID, children, head, meta = {}, url } = handle.props
+    const { analyticsId = GOOGLE_ANALYTICS_ID, children, head, lang, meta = {}, url } = handle.props
 
     return (
-      <html lang="ja">
+      <html lang={lang}>
         <head>
           <meta charSet="utf-8" />
           <meta

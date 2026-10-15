@@ -10,6 +10,8 @@ export const specimen: StyleRecipe = {
   border: '1px solid #e4e8e8',
 }
 
+export const specimen__wide: StyleRecipe = { gridColumn: '1 / -1' }
+
 export const specimen_label: StyleRecipe = { color: '#6b7676', fontSize: '12px' }
 
 export const specimen_stage: StyleRecipe = {

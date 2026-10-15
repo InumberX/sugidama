@@ -1,0 +1,16 @@
+import { createController } from 'remix/router'
+
+import { lang } from '../../middleware/lang.ts'
+import { routes } from '../../routes.ts'
+import { IndexPage } from './index-page/index-page.tsx'
+
+// The drinks route area. Controller middleware does not reach other
+// controllers, so lang() is added again here.
+export default createController(routes.drinks, {
+  middleware: [lang()],
+  actions: {
+    index(context) {
+      return context.render(<IndexPage lang={context.lang} url={context.url} />)
+    },
+  },
+})

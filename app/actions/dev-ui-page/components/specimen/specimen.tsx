@@ -8,7 +8,7 @@ export type * from './specimen.types.ts'
 /** A single labelled variant of a component. */
 export function Specimen(handle: Handle<SpecimenProps>) {
   return () => (
-    <div mix={css(styles.specimen)}>
+    <div mix={css({ ...styles.specimen, ...(handle.props.isWide ? styles.specimen__wide : null) })}>
       <span mix={css(styles.specimen_label)}>{handle.props.label}</span>
       <div mix={css(styles.specimen_stage)}>{handle.props.children}</div>
     </div>

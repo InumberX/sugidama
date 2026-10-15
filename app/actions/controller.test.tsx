@@ -13,6 +13,13 @@ describe('root controller', () => {
     assert.match(response.headers.get('Content-Type') ?? '', /^text\/html/)
   })
 
+  it('gives the home page one <h1>, in the page body as on develop', async () => {
+    const html = await (await router.fetch(new Request('http://localhost/'))).text()
+
+    assert.equal([...html.matchAll(/<h1\b/g)].length, 1)
+    assert.doesNotMatch(html, /<h1[^>]*><a\b/)
+  })
+
   it('renders the home page in English under /en', async () => {
     const response = await router.fetch(
       new Request(`http://localhost${routes.home.href({ lang: toLangParam('en') })}`)

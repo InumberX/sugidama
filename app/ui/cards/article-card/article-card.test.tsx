@@ -5,7 +5,7 @@ import { describe, it } from 'remix/test'
 import { ArticleCard } from './article-card.tsx'
 
 describe('ArticleCard', () => {
-  it('links the title, the date and the thumbnail to the card page', async () => {
+  it('links the title, the description and the thumbnail to the card page', async () => {
     const html = await renderToString(
       <ArticleCard
         url="/drinks/sake"
@@ -33,7 +33,7 @@ describe('ArticleCard', () => {
     assert.match(html, /<h3[^>]*><span/)
   })
 
-  it('keeps the thumbnail and the date at the top of their rows', async () => {
+  it('keeps the thumbnail and the description at the top of their rows', async () => {
     const html = await renderToString(
       <ArticleCard url="/x" title={{ text: 'A' }} description={{ text: 'd' }} />
     )

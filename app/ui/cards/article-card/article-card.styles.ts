@@ -1,6 +1,6 @@
 // Ported from develop: app/components/ui/cards/ArticleCard/style.css.ts
 //
-// Hovering any of the card's own links (title, date, thumbnail — not a tag)
+// Hovering any of the card's own links (title, description, thumbnail — not a tag)
 // recolors the title and zooms the image. develop marked those links with a
 // class; here the card and the links' wrappers carry data attributes, and the
 // hover rule sits in the recipe of the element it changes. It cannot sit in the

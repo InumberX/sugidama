@@ -35,6 +35,9 @@ describe('i18n', () => {
     // A `from` the URL does not carry removes nothing, not a real segment.
     assert.equal(toLangPath(at('/drinks'), 'en', 'ja'), '/drinks')
     assert.equal(toLangPath(at('/english/a'), 'en', 'ja'), '/english/a')
+    // Never a protocol-relative URL to another site.
+    assert.equal(toLangPath(at('/en//evil.example'), 'en', 'ja'), '/evil.example')
+    assert.equal(toLangPath(at('//evil.example'), 'ja', 'en'), '/en/evil.example')
   })
 
   it('returns each language its own messages, interpolation included', () => {

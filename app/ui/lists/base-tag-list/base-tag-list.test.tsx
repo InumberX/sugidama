@@ -32,4 +32,12 @@ describe('BaseTagList', () => {
 
     assert.match(html, /justify-content: flex-end/)
   })
+
+  it('accepts only inert tags when not semantic (type-level)', () => {
+    const render = () => (
+      // @ts-expect-error: a link tag would nest an <a> inside the link around the list
+      <BaseTagList isNotSemantic items={[{ url: '/drinks?tag=1', children: '辛口' }]} />
+    )
+    assert.equal(typeof render, 'function')
+  })
 })

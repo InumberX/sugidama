@@ -13,7 +13,7 @@ export type * from './article-card.types.ts'
 const EMPTY_THUMBNAIL = '/assets/img/img-empty-16-9.avif'
 
 /**
- * A drink card. As in develop, the title, the date and the thumbnail are three
+ * A drink card. As in develop, the title, the description and the thumbnail are three
  * links to the same page, each wrapped so the card's hover rule can find them;
  * the tags are links of their own to a filtered list.
  */

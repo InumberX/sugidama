@@ -290,7 +290,7 @@ export function DevUiPage(handle: Handle<{ lang: Lang; url: URL }>) {
 
           <Section
             title="ArticleCard / ArticleCardList"
-            note="タイトル・日付・サムネイルが同じページへのリンク"
+            note="タイトル・説明（お酒のカードでは日付）・サムネイルが同じページへのリンク"
           >
             <Specimen label="ArticleCard（単体）">
               <Stage>

@@ -56,7 +56,12 @@ export const toLangPath = (url: URL, from: Lang, to: Lang): string => {
   const prefix = `/${from}`
   const isPrefixed =
     from !== DEFAULT_LANG && (url.pathname === prefix || url.pathname.startsWith(`${prefix}/`))
-  const path = isPrefixed ? url.pathname.slice(prefix.length) || '/' : url.pathname
+  // Leading slashes collapse to one: `/en//host` would otherwise become
+  // `//host`, which a browser reads as another site.
+  const path = (isPrefixed ? url.pathname.slice(prefix.length) || '/' : url.pathname).replace(
+    /^\/+/,
+    '/'
+  )
   const prefixed = to === DEFAULT_LANG ? path : `/${to}${path === '/' ? '' : path}`
   return `${prefixed}${url.search}`
 }

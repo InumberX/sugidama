@@ -8,11 +8,12 @@ export type ArticleCardTag = 'article' | 'div'
 
 export type ArticleCardProps = {
   /**
-   * Where the card leads: its title, date and thumbnail each link here.
+   * Where the card leads: its title, description and thumbnail each link here.
    * develop took a whole `button` props object, and only ever passed `url`.
    */
   url?: string
   title: { text: RemixNode; titleTag?: ArticleCardTitleTag }
+  /** A short line above the title. develop's drink cards put the posting date here. */
   description?: { text: RemixNode }
   /** Rendered outlined unless an item says otherwise. */
   tags?: BaseTagProps[]

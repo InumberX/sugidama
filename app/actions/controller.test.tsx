@@ -3,6 +3,7 @@ import { describe, it } from 'remix/test'
 
 import { router } from '../router.ts'
 import { routes } from '../routes.ts'
+import { toLangParam } from '../utils/i18n.ts'
 
 describe('root controller', () => {
   it('renders the home page', async () => {
@@ -10,6 +11,30 @@ describe('root controller', () => {
 
     assert.equal(response.status, 200)
     assert.match(response.headers.get('Content-Type') ?? '', /^text\/html/)
+  })
+
+  it('renders the home page in English under /en', async () => {
+    const response = await router.fetch(
+      new Request(`http://localhost${routes.home.href({ lang: toLangParam('en') })}`)
+    )
+
+    assert.equal(response.status, 200)
+    assert.match(await response.text(), /<html lang="en">/)
+  })
+
+  it('renders the home page in Japanese without a prefix', async () => {
+    const href = routes.home.href({ lang: toLangParam('ja') })
+    const response = await router.fetch(new Request(`http://localhost${href}`))
+
+    assert.equal(href, '/')
+    assert.match(await response.text(), /<html lang="ja">/)
+  })
+
+  it('redirects /ja to the unprefixed URL', async () => {
+    const response = await router.fetch(new Request('http://localhost/ja'))
+
+    assert.equal(response.status, 302)
+    assert.equal(response.headers.get('Location'), '/')
   })
 
   it('serves the dev gallery outside production', async () => {
@@ -20,9 +45,11 @@ describe('root controller', () => {
   })
 
   it('answers 404 for an unmapped path', async () => {
-    const response = await router.fetch(new Request('http://localhost/nope'))
-
-    assert.equal(response.status, 404)
+    // One segment matches `/(:lang)` and is rejected by lang(); two match nothing.
+    for (const path of ['/nope', '/nope/deeper']) {
+      const response = await router.fetch(new Request(`http://localhost${path}`))
+      assert.equal(response.status, 404, path)
+    }
   })
 
   it('sends the security headers and a nonce-based CSP with the page', async () => {

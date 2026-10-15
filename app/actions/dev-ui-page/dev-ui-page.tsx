@@ -21,7 +21,11 @@ const PAGE_TITLE = 'UI ギャラリー'
 
 export function DevUiPage(handle: Handle<{ url: URL }>) {
   return () => (
-    <Document url={handle.props.url} meta={{ title: PAGE_TITLE, robots: 'noindex, nofollow' }}>
+    <Document
+      lang="ja"
+      url={handle.props.url}
+      meta={{ title: PAGE_TITLE, robots: 'noindex, nofollow' }}
+    >
       <main mix={css(styles.devUiPage)}>
         <h1 mix={css(styles.devUiPage_heading)}>{PAGE_TITLE}</h1>
 

@@ -11,18 +11,18 @@ export type HomePageProps = {
   url: URL
 }
 
-// Placeholder until the SG10_100 port (feature/remix3-home) replaces it. The
-// header's logo is the page title here, as on develop's home page.
+// Placeholder until the SG10_100 port (feature/remix3-home) replaces it. As on
+// develop's home page, the `<h1>` is in the page body, not the header's logo.
 export function HomePage(handle: Handle<HomePageProps>) {
   return () => {
     const { lang, url } = handle.props
 
     return (
       <Document lang={lang} url={url}>
-        <LayoutPublic lang={lang} url={url} isLogoTitle>
+        <LayoutPublic lang={lang} url={url}>
           <LayoutPageWrapper>
             <LayoutInner>
-              <p>Sugidama</p>
+              <h1>Sugidama</h1>
             </LayoutInner>
           </LayoutPageWrapper>
         </LayoutPublic>

@@ -12,3 +12,23 @@ export const devUiPage: StyleRecipe = {
 }
 
 export const devUiPage_heading: StyleRecipe = { margin: '0 0 32px', fontSize: '20px' }
+
+/** A dark ground for the light text button. */
+export const devUiPage_dark: StyleRecipe = {
+  background: 'var(--color-util-black)',
+  borderRadius: '6px',
+  padding: '8px 12px',
+}
+
+/**
+ * A box the header's `position: fixed` parts stay inside: a transformed
+ * element is the containing block of its fixed descendants.
+ */
+export const devUiPage_frame: StyleRecipe = {
+  blockSize: '200px',
+  inlineSize: '100%',
+  outline: '1px dashed #c3cbcb',
+  overflow: 'hidden',
+  position: 'relative',
+  transform: 'translateZ(0)',
+}

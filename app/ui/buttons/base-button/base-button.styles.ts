@@ -19,6 +19,10 @@ export const baseButton: StyleRecipe = {
   cursor: 'pointer',
   display: 'inline-flex',
   inlineSize: 'auto',
+  // The gradient layers and the label stack at z-index 1–3. Without a context
+  // of their own they would compete with the page's positioned elements (a
+  // sticky header, a popover) instead of only with each other.
+  isolation: 'isolate',
   justifyContent: 'center',
   position: 'relative',
   textAlign: 'start',
@@ -76,42 +80,51 @@ export const baseButtonVariants: Record<BaseButtonVariant, StyleRecipe> = {
   outlined: baseButton__outlined,
 }
 
+/**
+ * The primary color on the contained variant: two stacked gradients, light
+ * (`::before`) over dark (`::after`).
+ */
+export const baseButton__primaryContained: StyleRecipe = {
+  backgroundColor: 'transparent',
+  color: 'var(--color-font-light)',
+  '&::before, &::after': {
+    blockSize: '100%',
+    borderRadius: PILL,
+    content: '""',
+    inlineSize: '100%',
+    insetBlockStart: 0,
+    insetInlineStart: 0,
+    position: 'absolute',
+  },
+  '&::before': {
+    background: 'linear-gradient(90deg, var(--color-gradation-primary))',
+    transition: getTransition([{ property: 'opacity' }]),
+    zIndex: 2,
+  },
+  '&::after': {
+    background: 'linear-gradient(90deg, var(--color-gradation-primary-dark))',
+    zIndex: 1,
+  },
+}
+
+/** The primary color on the outlined variant: filled in on hover. */
+export const baseButton__primaryOutlined: StyleRecipe = {
+  backgroundColor: 'transparent',
+  borderColor: 'var(--color-border-primary)',
+  color: 'var(--color-font-primary)',
+  [MEDIA_QUERY.HOVER]: {
+    '&:hover': {
+      backgroundColor: 'var(--color-background-primary)',
+      color: 'var(--color-font-light)',
+    },
+  },
+}
+
 /** Spread after the variant; each entry fills in the colors that variant leaves open. */
 export const baseButtonColors: Record<BaseButtonColor, Record<BaseButtonVariant, StyleRecipe>> = {
   primary: {
-    contained: {
-      backgroundColor: 'transparent',
-      color: 'var(--color-font-light)',
-      '&::before, &::after': {
-        blockSize: '100%',
-        borderRadius: PILL,
-        content: '""',
-        inlineSize: '100%',
-        insetBlockStart: 0,
-        insetInlineStart: 0,
-        position: 'absolute',
-      },
-      '&::before': {
-        background: 'linear-gradient(90deg, var(--color-gradation-primary))',
-        transition: getTransition([{ property: 'opacity' }]),
-        zIndex: 2,
-      },
-      '&::after': {
-        background: 'linear-gradient(90deg, var(--color-gradation-primary-dark))',
-        zIndex: 1,
-      },
-    },
-    outlined: {
-      backgroundColor: 'transparent',
-      borderColor: 'var(--color-border-primary)',
-      color: 'var(--color-font-primary)',
-      [MEDIA_QUERY.HOVER]: {
-        '&:hover': {
-          backgroundColor: 'var(--color-background-primary)',
-          color: 'var(--color-font-light)',
-        },
-      },
-    },
+    contained: baseButton__primaryContained,
+    outlined: baseButton__primaryOutlined,
   },
 }
 

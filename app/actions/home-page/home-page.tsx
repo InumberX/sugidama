@@ -15,13 +15,15 @@ export type HomePageProps = {
 export function HomePage(handle: Handle<HomePageProps>) {
   return () => (
     <Document lang={handle.props.lang} url={handle.props.url}>
-      <LayoutPageWrapper>
-        <LayoutMain>
+      {/* develop's order: Document's LayoutWrapper > LayoutMain (the capped
+          column and its white sheet) > LayoutPageWrapper (the page's padding). */}
+      <LayoutMain>
+        <LayoutPageWrapper>
           <LayoutInner>
             <h1>Sugidama</h1>
           </LayoutInner>
-        </LayoutMain>
-      </LayoutPageWrapper>
+        </LayoutPageWrapper>
+      </LayoutMain>
     </Document>
   )
 }

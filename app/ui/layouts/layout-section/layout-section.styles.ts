@@ -9,24 +9,26 @@ export const layoutSection: StyleRecipe = {
   paddingInline: 0,
 }
 
-const SPACE: Record<LayoutSectionSpace, string | number> = {
-  none: 0,
-  small: getClampPx(24, 40),
-  medium: getClampPx(40, 80),
-}
+const SPACE_SMALL = getClampPx(24, 40)
+const SPACE_MEDIUM = getClampPx(40, 80)
 
-/**
- * develop's `layoutSection__topSpace*` / `__bottomSpace*` modifiers, as lookups
- * so each value still has a name of its own.
- */
+export const layoutSection__topSpaceNone: StyleRecipe = { paddingBlockStart: 0 }
+export const layoutSection__topSpaceSmall: StyleRecipe = { paddingBlockStart: SPACE_SMALL }
+export const layoutSection__topSpaceMedium: StyleRecipe = { paddingBlockStart: SPACE_MEDIUM }
+
+export const layoutSection__bottomSpaceNone: StyleRecipe = { paddingBlockEnd: 0 }
+export const layoutSection__bottomSpaceSmall: StyleRecipe = { paddingBlockEnd: SPACE_SMALL }
+export const layoutSection__bottomSpaceMedium: StyleRecipe = { paddingBlockEnd: SPACE_MEDIUM }
+
+/** Lookups for the `topSpace` / `bottomSpace` props; members are the modifiers above. */
 export const layoutSectionTopSpaces: Record<LayoutSectionSpace, StyleRecipe> = {
-  none: { paddingBlockStart: SPACE.none },
-  small: { paddingBlockStart: SPACE.small },
-  medium: { paddingBlockStart: SPACE.medium },
+  none: layoutSection__topSpaceNone,
+  small: layoutSection__topSpaceSmall,
+  medium: layoutSection__topSpaceMedium,
 }
 
 export const layoutSectionBottomSpaces: Record<LayoutSectionSpace, StyleRecipe> = {
-  none: { paddingBlockEnd: SPACE.none },
-  small: { paddingBlockEnd: SPACE.small },
-  medium: { paddingBlockEnd: SPACE.medium },
+  none: layoutSection__bottomSpaceNone,
+  small: layoutSection__bottomSpaceSmall,
+  medium: layoutSection__bottomSpaceMedium,
 }

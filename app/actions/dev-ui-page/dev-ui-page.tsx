@@ -51,14 +51,16 @@ export function DevUiPage(handle: Handle<{ lang: Lang; url: URL }>) {
               無効なリンク
             </PrimitiveButton>
           </Specimen>
-          <Specimen label="既定（button type=button）">
-            <PrimitiveButton>ボタン</PrimitiveButton>
+          <Specimen label="buttonType=button">
+            <PrimitiveButton buttonType="button">ボタン</PrimitiveButton>
           </Specimen>
           <Specimen label="buttonType=submit">
             <PrimitiveButton buttonType="submit">送信</PrimitiveButton>
           </Specimen>
           <Specimen label="isDisabled">
-            <PrimitiveButton isDisabled>無効</PrimitiveButton>
+            <PrimitiveButton buttonType="button" isDisabled>
+              無効
+            </PrimitiveButton>
           </Specimen>
           <Specimen label="nonClickableTag=span（不活性）">
             <PrimitiveButton nonClickableTag="span">ラベルのみ</PrimitiveButton>
@@ -67,23 +69,35 @@ export function DevUiPage(handle: Handle<{ lang: Lang; url: URL }>) {
 
         <Section title="BaseButton" note="プリミティブの上にデザイン判断を載せた層">
           <Specimen label="size=large / medium（既定）/ small">
-            <BaseButton size="large">Large</BaseButton>
-            <BaseButton>Medium</BaseButton>
-            <BaseButton size="small">Small</BaseButton>
+            <BaseButton buttonType="button" size="large">
+              Large
+            </BaseButton>
+            <BaseButton buttonType="button">Medium</BaseButton>
+            <BaseButton buttonType="button" size="small">
+              Small
+            </BaseButton>
           </Specimen>
           <Specimen label="variant=outlined">
-            <BaseButton variant="outlined">Outlined</BaseButton>
+            <BaseButton buttonType="button" variant="outlined">
+              Outlined
+            </BaseButton>
           </Specimen>
           <Specimen label="url（アンカーとして描画）">
             <BaseButton url={routes.home.href()}>トップへ</BaseButton>
           </Specimen>
           <Specimen label="leftElm / rightElm">
-            <BaseButton leftElm={<span aria-hidden="true">←</span>}>戻る</BaseButton>
-            <BaseButton rightElm={<span aria-hidden="true">→</span>}>進む</BaseButton>
+            <BaseButton buttonType="button" leftElm={<span aria-hidden="true">←</span>}>
+              戻る
+            </BaseButton>
+            <BaseButton buttonType="button" rightElm={<span aria-hidden="true">→</span>}>
+              進む
+            </BaseButton>
           </Specimen>
           <Specimen label="isDisabled（contained / outlined / url）">
-            <BaseButton isDisabled>無効</BaseButton>
-            <BaseButton variant="outlined" isDisabled>
+            <BaseButton buttonType="button" isDisabled>
+              無効
+            </BaseButton>
+            <BaseButton buttonType="button" variant="outlined" isDisabled>
               無効
             </BaseButton>
             <BaseButton url={routes.home.href()} isDisabled>

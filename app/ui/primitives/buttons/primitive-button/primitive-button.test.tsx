@@ -21,9 +21,17 @@ describe('PrimitiveButton', () => {
       'mailto:hello@example.com',
       'tel:0312345678',
       '#top',
+      '/\\evil.example',
     ]) {
       const html = await renderToString(<PrimitiveButton url={url}>Link</PrimitiveButton>)
       assert.match(html, /data-rmx-document/, url)
+    }
+  })
+
+  it('keeps client navigation for a root-relative path and a query', async () => {
+    for (const url of ['/drinks', '?page=2']) {
+      const html = await renderToString(<PrimitiveButton url={url}>Link</PrimitiveButton>)
+      assert.doesNotMatch(html, /data-rmx-document/, url)
     }
   })
 
@@ -51,14 +59,33 @@ describe('PrimitiveButton', () => {
     assert.match(html, /name="intent"/)
   })
 
-  it('renders a button by default, so a click handler in mix gets one', async () => {
-    const plain = await renderToString(<PrimitiveButton>Label</PrimitiveButton>)
-    const clickable = await renderToString(
-      <PrimitiveButton mix={on('click', () => {})}>Click</PrimitiveButton>
+  it('makes the caller choose the element: url, buttonType or nonClickableTag', () => {
+    // Type-level only, checked by `npm run typecheck`: each directive fails the
+    // build if its line ever stops being an error.
+    // @ts-expect-error -- neither a link, a button nor an inert tag
+    void (<PrimitiveButton />)
+    // @ts-expect-error -- a link and a button at once
+    void (<PrimitiveButton url="/x" buttonType="button" />)
+    // @ts-expect-error -- a button and an inert tag at once
+    void (<PrimitiveButton buttonType="button" nonClickableTag="span" />)
+  })
+
+  it('keeps the caller role and ARIA state on a disabled link', async () => {
+    const html = await renderToString(
+      <PrimitiveButton
+        url="/tab-2"
+        role="tab"
+        ariaControls="panel-2"
+        ariaSelected={false}
+        isDisabled
+      >
+        Tab 2
+      </PrimitiveButton>
     )
 
-    assert.match(plain, /<button[^>]*type="button"/)
-    assert.match(clickable, /<button[^>]*type="button"/)
+    assert.match(html, /role="tab"/)
+    assert.match(html, /aria-controls="panel-2"/)
+    assert.match(html, /aria-disabled="true"/)
   })
 
   it('renders the named inert tag, passing tabIndex through', async () => {

@@ -29,11 +29,8 @@ export type PrimitiveButtonRole =
   | 'tab'
   | 'treeitem'
 
-export type PrimitiveButtonProps = {
-  url?: string
-  target?: AnchorTarget
-  rel?: AnchorRel
-  buttonType?: ButtonType
+/** Props every element choice shares. */
+type PrimitiveButtonCommonProps = {
   isDisabled?: boolean
   children?: RemixNode
   /**
@@ -46,18 +43,58 @@ export type PrimitiveButtonProps = {
   styleOverrides?: StyleRecipe
   /** Behavior and disjoint styling for the host element, e.g. `on('click', ...)`. */
   mix?: MixInput<HTMLElement>
-  name?: string
-  value?: string
   title?: string
   role?: PrimitiveButtonRole
   tabIndex?: number
   ariaLabel?: string
   ariaControls?: string
   ariaSelected?: boolean | 'true' | 'false'
-  /**
-   * Render this inert tag instead of a button — for a label that looks like a
-   * button but does nothing. Without it and without `url`, the component is a
-   * `<button>` (`type` from `buttonType`, default `button`).
-   */
-  nonClickableTag?: NonClickableTag
 }
+
+/** A link. */
+type PrimitiveButtonLinkProps = {
+  url: string
+  target?: AnchorTarget
+  rel?: AnchorRel
+  buttonType?: never
+  name?: never
+  value?: never
+  nonClickableTag?: never
+}
+
+/** A `<button>`. */
+type PrimitiveButtonButtonProps = {
+  buttonType: ButtonType
+  name?: string
+  value?: string
+  url?: never
+  target?: never
+  rel?: never
+  nonClickableTag?: never
+}
+
+/**
+ * An inert tag: a label that looks like a button but does nothing — the right
+ * choice inside a link or a clickable card, where a `<button>` would be
+ * interactive content nested in interactive content.
+ */
+type PrimitiveButtonInertProps = {
+  nonClickableTag: NonClickableTag
+  url?: never
+  target?: never
+  rel?: never
+  buttonType?: never
+  name?: never
+  value?: never
+}
+
+/**
+ * Exactly one of `url`, `buttonType` or `nonClickableTag` decides the element,
+ * and leaving all three out is a type error. React's version picked a
+ * `<button>` when it saw an `onClick`; a Remix click handler is a
+ * `mix={on('click', …)}` the component cannot see, so it cannot guess — and
+ * either guess is wrong somewhere: a default `<span>` drops a click handler's
+ * button, a default `<button>` nests one inside a card's link.
+ */
+export type PrimitiveButtonProps = PrimitiveButtonCommonProps &
+  (PrimitiveButtonLinkProps | PrimitiveButtonButtonProps | PrimitiveButtonInertProps)

@@ -346,6 +346,8 @@
     --layout-inner-padding-sm: 4.6vi;
     --layout-inner-padding-md: 32px;
     --layout-header-height: 64px;
+    --layout-header-space: 16px;
+    --layout-main-gutter: 16px;
 
     /* The inner column's cap, padding included — develop's layout.inner.maxWidth.large */
     --layout-inner-max-width-large: calc(
@@ -407,12 +409,21 @@
   }
 
   /*
-   * ress hides every `[hidden]` in the `reset` layer, `until-found` included,
-   * and a rule here that merely excludes `until-found` cannot undo that.
-   * `revert` rolls back past the author layers to the user agent, which keeps
-   * an `until-found` element rendered (hidden by content-visibility instead) so
-   * find-in-page can reveal it.
+   * Two rules, both needed:
+   *
+   * - `[hidden]` hides here again, not only in ress's `reset` layer: any `base`
+   *   rule that sets `display` (`label`, `video`, …) would otherwise outrank
+   *   ress and show a hidden element. The attribute-plus-`:not` selector also
+   *   outweighs those element selectors within this layer.
+   * - `until-found` is excluded, and `revert` rolls it back past the author
+   *   layers to the user agent: ress hides every `[hidden]`, and excluding it
+   *   here alone could not undo that. The user agent keeps it rendered
+   *   (hidden by content-visibility instead) so find-in-page can reveal it.
    */
+  [hidden]:not([hidden='until-found']) {
+    display: none;
+  }
+
   [hidden='until-found'] {
     display: revert;
   }

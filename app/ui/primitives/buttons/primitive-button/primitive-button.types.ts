@@ -53,6 +53,11 @@ type PrimitiveButtonCommonProps = {
 
 /** A link. */
 type PrimitiveButtonLinkProps = {
+  /**
+   * A page of this app as a root-relative path from `routes.<name>.href()`;
+   * an absolute URL — even one on this site's own origin — is treated as
+   * another site and loads as a plain document.
+   */
   url: string
   target?: AnchorTarget
   rel?: AnchorRel

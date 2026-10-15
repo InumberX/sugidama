@@ -12,20 +12,18 @@ import type { BaseButtonColor, BaseButtonSize, BaseButtonVariant } from './base-
 
 const PILL = 'calc(infinity * 1px)'
 
+/**
+ * Only what differs from the primitive's reset; `display: inline-flex`,
+ * `align-items`, `position: relative` and the rest come from there.
+ */
 export const baseButton: StyleRecipe = {
-  alignItems: 'center',
-  blockSize: 'auto',
   borderRadius: PILL,
   cursor: 'pointer',
-  display: 'inline-flex',
-  inlineSize: 'auto',
   // The gradient layers and the label stack at z-index 1–3. Without a context
   // of their own they would compete with the page's positioned elements (a
   // sticky header, a popover) instead of only with each other.
   isolation: 'isolate',
   justifyContent: 'center',
-  position: 'relative',
-  textAlign: 'start',
   transition: getTransition([
     { property: 'color' },
     { property: 'opacity' },
@@ -58,16 +56,8 @@ export const baseButtonSizes: Record<BaseButtonSize, StyleRecipe> = {
   small: baseButton__small,
 }
 
-/**
- * The hover fade for the two stacked gradients the color recipe draws:
- * `::before` (the light one) sits over `::after` (the dark one) and fades out,
- * which is how develop animated between two gradients — `background` itself
- * cannot transition. The pseudo-elements live in the color recipe because the
- * spread is shallow: a `'&::before'` key there would replace one here whole.
- */
 export const baseButton__contained: StyleRecipe = {
   border: 'none',
-  [MEDIA_QUERY.HOVER]: { '&:hover::before': { opacity: 0 } },
 }
 
 export const baseButton__outlined: StyleRecipe = {
@@ -105,6 +95,11 @@ export const baseButton__primaryContained: StyleRecipe = {
     background: 'linear-gradient(90deg, var(--color-gradation-primary-dark))',
     zIndex: 1,
   },
+  // The hover fades the light layer out to reveal the dark one — `background`
+  // itself cannot transition between gradients. It lives here, beside the
+  // pseudo-elements it targets, because the spread is shallow: a
+  // `[MEDIA_QUERY.HOVER]` key here would replace one in the variant whole.
+  [MEDIA_QUERY.HOVER]: { '&:hover::before': { opacity: 0 } },
 }
 
 /** The primary color on the outlined variant: filled in on hover. */

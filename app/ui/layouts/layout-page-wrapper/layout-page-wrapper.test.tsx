@@ -4,7 +4,7 @@ import { describe, it } from 'remix/test'
 
 import { LayoutPageWrapper } from './layout-page-wrapper.tsx'
 
-const HEADER_OFFSET = /calc\(var\(--layout-header-height\) \+ 16px\)/
+const HEADER_OFFSET = /calc\(var\(--layout-header-height\) \+ var\(--layout-header-space\)\)/
 
 describe('LayoutPageWrapper', () => {
   it('pads both ends by the header offset', async () => {

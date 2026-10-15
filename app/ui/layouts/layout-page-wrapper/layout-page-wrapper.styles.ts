@@ -3,10 +3,10 @@ import type { StyleRecipe } from '../../styles/public/mixins.ts'
 
 /**
  * develop padded both ends by the header height plus 16px
- * (`getClampPx(64 + 16, 64 + 16)`, a fixed 80px). The height is a custom
- * property so the header and this offset cannot disagree.
+ * (`getClampPx(64 + 16, 64 + 16)`, a fixed 80px). Both are custom
+ * properties so the header and this offset cannot disagree.
  */
-const headerOffset = 'calc(var(--layout-header-height) + 16px)'
+const headerOffset = 'calc(var(--layout-header-height) + var(--layout-header-space))'
 
 // Longhands, not the `padding-block` shorthand: a later spread replaces the
 // key outright, so an override leaves no dead value behind in the output.

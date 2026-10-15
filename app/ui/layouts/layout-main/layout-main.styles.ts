@@ -10,9 +10,6 @@ import type { StyleRecipe } from '../../styles/public/mixins.ts'
  */
 export const LAYOUT_MAIN_CONTAINER = 'layout-main'
 
-/** develop's gutter between the viewport edge and the white sheet. */
-const GUTTER = '16px'
-
 /**
  * A centred column, capped at the inner width plus both paddings plus both
  * gutters, that grows to fill `LayoutWrapper`.
@@ -25,8 +22,9 @@ export const layoutMain: StyleRecipe = {
   flexGrow: 1,
   inlineSize: '100%',
   marginInline: 'auto',
-  maxInlineSize: `calc(var(--layout-inner-max-width-large) + (${GUTTER} * 2))`,
-  paddingInline: GUTTER,
+  // The gutter between the viewport edge and the white sheet (develop's 16px).
+  maxInlineSize: 'calc(var(--layout-inner-max-width-large) + (var(--layout-main-gutter) * 2))',
+  paddingInline: 'var(--layout-main-gutter)',
 }
 
 /** The white sheet the page sits on. */

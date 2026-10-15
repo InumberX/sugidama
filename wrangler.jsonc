@@ -33,6 +33,10 @@
   //
   // BUILD_ID and DEPLOYED_AT are per deploy, so `npm run deploy-*` passes them
   // with `--var` instead.
+  //
+  // `vars` are public — this repository is, and the dashboard shows them in plain
+  // text. Only values a visitor can already see belong here. Credentials are
+  // Worker secrets (`wrangler secret put`), never vars; see CLAUDE.md.
   "env": {
     "development": {
       "name": "dev-sugidama",

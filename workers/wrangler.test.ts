@@ -34,6 +34,16 @@ describe('wrangler.jsonc', () => {
         }
       })
 
+      it('holds no credential-looking key, since vars are public', () => {
+        for (const key of Object.keys(env.vars ?? {})) {
+          assert.doesNotMatch(
+            key,
+            /KEY|TOKEN|SECRET|PASS|CREDENTIAL/i,
+            `${key} belongs in a secret`
+          )
+        }
+      })
+
       it('uses absolute https URLs', () => {
         const vars = env.vars ?? {}
         assert.match(String(vars.SITE_URL), /^https:\/\/[^/]+$/)

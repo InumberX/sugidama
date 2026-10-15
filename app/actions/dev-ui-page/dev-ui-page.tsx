@@ -23,7 +23,7 @@ const PAGE_TITLE = 'UI ギャラリー'
 export function DevUiPage(handle: Handle<{ lang: Lang; url: URL }>) {
   return () => (
     <Document
-      lang="ja"
+      lang={handle.props.lang}
       url={handle.props.url}
       meta={{ title: PAGE_TITLE, robots: 'noindex, nofollow' }}
     >

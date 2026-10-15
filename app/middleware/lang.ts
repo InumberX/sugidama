@@ -34,15 +34,17 @@ export const lang = (): Middleware<{ key: typeof LangKey; value: Lang; property:
     }
     // The param is decoded, so `/%6Aa` arrives as `ja` and `/%65n` as `en`.
     // Redirects work from the segment as it appears in the URL.
-    const rest = context.url.pathname.replace(/^\/[^/]*/, '')
-    const rawSegment = context.url.pathname.slice(1, context.url.pathname.length - rest.length)
+    const [, rawSegment = '', rest = ''] = /^\/([^/]*)(.*)$/.exec(context.url.pathname) ?? []
+    // 302 for GET/HEAD, as develop did; 307 otherwise, so a future POST under a
+    // prefix keeps its method and body instead of turning into a GET.
+    const status = context.method === 'GET' || context.method === 'HEAD' ? 302 : 307
 
     if (param === DEFAULT_LANG) {
-      return localRedirect(context.url, `${rest || '/'}${context.url.search}`)
+      return localRedirect(context.url, `${rest || '/'}${context.url.search}`, status)
     }
     if (isLang(param)) {
       if (rawSegment !== param) {
-        return localRedirect(context.url, `/${param}${rest}${context.url.search}`)
+        return localRedirect(context.url, `/${param}${rest}${context.url.search}`, status)
       }
       context.set(LangKey, param, { property: 'lang' })
       return next()

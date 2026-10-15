@@ -48,7 +48,9 @@ describe('root controller', () => {
     const response = await router.fetch(new Request(`http://localhost${routes.devUi.href()}`))
 
     assert.equal(response.status, 200)
-    assert.match(await response.text(), /UI ギャラリー/)
+    const html = await response.text()
+    assert.match(html, /UI ギャラリー/)
+    assert.match(html, /<html lang="ja">/)
   })
 
   it('answers 404 for an unmapped path', async () => {

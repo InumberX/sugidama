@@ -1,6 +1,6 @@
 import * as assert from 'remix/assert'
 import { createRouter } from 'remix/router'
-import { get, route } from 'remix/routes'
+import { get, post, route } from 'remix/routes'
 import { describe, it } from 'remix/test'
 
 import { lang } from './lang.ts'
@@ -8,6 +8,9 @@ import { lang } from './lang.ts'
 const testRoutes = route({
   home: get('/(:lang)'),
   drinks: get('/(:lang/)drinks'),
+  // A literal single segment, like a future /robots.txt, must win over /(:lang).
+  about: get('/about'),
+  submit: post('/(:lang/)submit'),
 })
 
 const createTestRouter = () => {
@@ -17,12 +20,15 @@ const createTestRouter = () => {
     actions: {
       home: (context) => new Response(context.lang),
       drinks: (context) => new Response(context.lang),
+      about: () => new Response('about'),
+      submit: (context) => new Response(context.lang),
     },
   })
   return router
 }
 
-const fetchPath = (path: string) => createTestRouter().fetch(new Request(`http://localhost${path}`))
+const fetchPath = (path: string, method = 'GET') =>
+  createTestRouter().fetch(new Request(`http://localhost${path}`, { method }))
 
 describe('lang()', () => {
   it('treats a path without a prefix as Japanese', async () => {
@@ -66,6 +72,22 @@ describe('lang()', () => {
       assert.equal(response.status, 302, path)
       assert.equal(response.headers.get('Location'), location, path)
     }
+  })
+
+  it('keeps the method when redirecting anything but GET or HEAD', async () => {
+    for (const [path, location] of [
+      ['/ja/submit', '/submit'],
+      ['/%65n/submit', '/en/submit'],
+    ]) {
+      const response = await fetchPath(path, 'POST')
+      assert.equal(response.status, 307, path)
+      assert.equal(response.headers.get('Location'), location, path)
+    }
+  })
+
+  it('lets a literal single-segment route win over /(:lang)', async () => {
+    const response = await fetchPath('/about')
+    assert.equal(await response.text(), 'about')
   })
 
   it('answers 404 for any other prefix', async () => {

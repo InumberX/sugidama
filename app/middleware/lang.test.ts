@@ -57,6 +57,17 @@ describe('lang()', () => {
     }
   })
 
+  it('redirects a percent-encoded en to the canonical /en, keeping the rest', async () => {
+    for (const [path, location] of [
+      ['/%65n', '/en'],
+      ['/e%6E/drinks?page=2', '/en/drinks?page=2'],
+    ]) {
+      const response = await fetchPath(path)
+      assert.equal(response.status, 302, path)
+      assert.equal(response.headers.get('Location'), location, path)
+    }
+  })
+
   it('answers 404 for any other prefix', async () => {
     for (const path of ['/fr', '/EN', '/nope', '/fr/drinks']) {
       const response = await fetchPath(path)

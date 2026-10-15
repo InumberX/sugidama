@@ -8,7 +8,7 @@ const createTestRouter = () => {
   const router = createRouter({ middleware: [trailingSlash()] })
   router.get('/', () => new Response('home'))
   router.get('/en', () => new Response('en'))
-  router.post('/form/', () => new Response('posted'))
+  router.post('/form', () => new Response('posted'))
   return router
 }
 
@@ -23,7 +23,7 @@ describe('trailingSlash()', () => {
       ['/drinks/?page=2', '/drinks?page=2'],
     ]) {
       const response = await request(path)
-      assert.equal(response.status, 301, path)
+      assert.equal(response.status, 308, path)
       assert.equal(response.headers.get('Location'), location, path)
     }
   })
@@ -38,8 +38,9 @@ describe('trailingSlash()', () => {
     assert.equal(response.headers.get('Location'), '/')
   })
 
-  it('lets other methods through, since a redirect would turn them into a GET', async () => {
+  it('redirects other methods too, with a status that keeps the method', async () => {
     const response = await request('/form/', 'POST')
-    assert.equal(await response.text(), 'posted')
+    assert.equal(response.status, 308)
+    assert.equal(response.headers.get('Location'), '/form')
   })
 })

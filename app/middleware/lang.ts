@@ -11,12 +11,14 @@ import { localRedirect } from './local-redirect.ts'
 export const LangKey = createContextKey<Lang>()
 
 /**
- * Controller or action middleware for routes whose pattern carries the
- * optional `lang` param; router middleware runs before matching and has no
- * params to read.
+ * Controller middleware for routes whose pattern carries the optional `lang`
+ * param. Not router middleware, which runs before matching and has no params
+ * to read; not action middleware, since a controller's `actions` object then
+ * loses the type of `context.lang` (see CLAUDE.md, **Languages**).
  *
  * - no prefix: Japanese
- * - `/en/…`: English
+ * - `/en/…`: English; a percent-encoded spelling (`/%65n`) is redirected to
+ *   `/en/…`, so each page has one URL to be indexed under
  * - `/ja/…`: redirected to the same URL without the prefix, as develop did, so
  *   Japanese has one URL per page
  * - anything else (`/fr`, `/nope`): 404 — `/(:lang)` matches any single
@@ -30,13 +32,18 @@ export const lang = (): Middleware<{ key: typeof LangKey; value: Lang; property:
       context.set(LangKey, DEFAULT_LANG, { property: 'lang' })
       return next()
     }
+    // The param is decoded, so `/%6Aa` arrives as `ja` and `/%65n` as `en`.
+    // Redirects work from the segment as it appears in the URL.
+    const rest = context.url.pathname.replace(/^\/[^/]*/, '')
+    const rawSegment = context.url.pathname.slice(1, context.url.pathname.length - rest.length)
+
     if (param === DEFAULT_LANG) {
-      // Drop the first segment as it appears in the URL rather than a fixed
-      // `/ja`: the param is decoded, so `/%6Aa` arrives here too.
-      const rest = context.url.pathname.replace(/^\/[^/]*/, '') || '/'
-      return localRedirect(context.url, `${rest}${context.url.search}`)
+      return localRedirect(context.url, `${rest || '/'}${context.url.search}`)
     }
     if (isLang(param)) {
+      if (rawSegment !== param) {
+        return localRedirect(context.url, `/${param}${rest}${context.url.search}`)
+      }
       context.set(LangKey, param, { property: 'lang' })
       return next()
     }

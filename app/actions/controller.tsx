@@ -24,7 +24,7 @@ export default createController(routes, {
     // the route map conditional keeps `typeof routes` stable.
     devUi(context) {
       if (IS_PRODUCTION) return new Response('Not Found', { status: 404 })
-      return context.render(<DevUiPage url={context.url} />)
+      return context.render(<DevUiPage lang={context.lang} url={context.url} />)
     },
   },
 })

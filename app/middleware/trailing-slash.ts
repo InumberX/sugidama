@@ -7,18 +7,15 @@ import type { Middleware } from 'remix/router'
 import { localRedirect } from './local-redirect.ts'
 
 /**
- * Router middleware: a GET or HEAD for `/path/` is redirected (301) to
- * `/path`, query kept. Other methods pass through untouched, since a redirect
- * would turn them into a GET.
+ * Router middleware: `/path/` is redirected to `/path`, query kept, for every
+ * method. 308 rather than 301 because 308 keeps the method and body — a form
+ * POSTed to `/path/` arrives at `/path` as a POST, where a 301 would turn it
+ * into a GET.
  */
 export const trailingSlash = (): Middleware => (context, next) => {
   const { pathname, search } = context.url
-  if (
-    (context.method === 'GET' || context.method === 'HEAD') &&
-    pathname.length > 1 &&
-    pathname.endsWith('/')
-  ) {
-    return localRedirect(context.url, `${pathname.replace(/\/+$/, '')}${search}`, 301)
+  if (pathname.length > 1 && pathname.endsWith('/')) {
+    return localRedirect(context.url, `${pathname.replace(/\/+$/, '')}${search}`, 308)
   }
   return next()
 }

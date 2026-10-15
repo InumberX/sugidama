@@ -33,7 +33,7 @@ describe('root controller', () => {
   it('redirects a trailing slash before the language is resolved', async () => {
     const response = await router.fetch(new Request('http://localhost/en/'))
 
-    assert.equal(response.status, 301)
+    assert.equal(response.status, 308)
     assert.equal(response.headers.get('Location'), '/en')
   })
 

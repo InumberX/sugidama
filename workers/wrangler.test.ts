@@ -1,7 +1,10 @@
 import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import * as assert from 'remix/assert'
 import { describe, it } from 'remix/test'
 import { experimental_readRawConfig } from 'wrangler'
+
+import { API_URL } from '../app/env.ts'
 
 // wrangler.jsonc is the source of every deployed Worker's configuration, and
 // neither `define` nor `vars` is inherited by an environment. A new environment,
@@ -14,7 +17,11 @@ type RawEnvironment = {
   vars?: Record<string, unknown>
 }
 
-const { rawConfig } = experimental_readRawConfig({ config: 'wrangler.jsonc' })
+// Resolved from this file, so the suite also runs from a directory other than
+// the repository root (an editor's test runner).
+const fromRoot = (path: string) => fileURLToPath(new URL(`../${path}`, import.meta.url))
+
+const { rawConfig } = experimental_readRawConfig({ config: fromRoot('wrangler.jsonc') })
 const environments = (rawConfig.env ?? {}) as Record<string, RawEnvironment>
 const varsOf = (name: string) => environments[name]?.vars ?? {}
 
@@ -24,7 +31,7 @@ const varsOf = (name: string) => environments[name]?.vars ?? {}
 const NOT_IN_VARS = new Set(['NODE_ENV', 'BUILD_ID', 'DEPLOYED_AT'])
 const REQUIRED_VARS = [
   ...new Set(
-    [...readFileSync('app/env.ts', 'utf8').matchAll(/process\.env\.([A-Z0-9_]+)/g)].map(
+    [...readFileSync(fromRoot('app/env.ts'), 'utf8').matchAll(/process\.env\.([A-Z0-9_]+)/g)].map(
       ([, name]) => name
     )
   ),
@@ -84,6 +91,12 @@ describe('wrangler.jsonc', () => {
       })
     })
   }
+
+  it('defaults the local API to the staging endpoint', () => {
+    // app/env.ts writes the URL again as its local default; this keeps the two
+    // from drifting when staging moves. The suite runs without API_URL set.
+    assert.equal(API_URL, varsOf('development').API_URL)
+  })
 
   it('keeps staging out of search engines and production indexable', () => {
     assert.equal(varsOf('development').NO_INDEX, 'true')

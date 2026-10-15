@@ -23,8 +23,7 @@ SITE_URL=
 NO_INDEX=
 # Default: Sugidama(development)
 SITE_NAME=
-# Kuroco CMS API. Default: https://afterworks.g.kuroco.app/rcms-api/7 (the staging
-# endpoint; production uses /rcms-api/8)
+# Kuroco CMS API. Default: the staging endpoint (env.development in wrangler.jsonc)
 API_URL=
 # Google Analytics measurement id. Default: empty (no page views sent)
 GOOGLE_ANALYTICS_ID=

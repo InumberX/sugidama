@@ -5,9 +5,16 @@
 # Everything else comes from wrangler.jsonc (`env.<name>.vars`).
 #
 # Run through `npm run deploy-development` / `deploy-production`; CI does too.
+# Arguments after the environment go to wrangler, which is how CI's build job
+# runs this same script with `--dry-run --outdir=...` on every push.
 set -eu
 
-env_name=${1:?usage: scripts/deploy.sh <development|production>}
+env_name=${1:?usage: scripts/deploy.sh <development|production> [wrangler args...]}
+shift
+
+# The project's own wrangler, not whatever is on PATH: run directly, outside
+# npm, PATH may have none, or a global one of another version.
+wrangler="$(dirname "$0")/../node_modules/.bin/wrangler"
 
 # Fails the deploy rather than shipping `BUILD_ID=""`, which app/env.ts would
 # quietly turn into `dev` and so stop invalidating app.css.
@@ -36,6 +43,7 @@ fi
 
 deployed_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
-exec wrangler deploy --env="$env_name" \
+exec "$wrangler" deploy --env="$env_name" \
   --var "BUILD_ID:$build_id" \
-  --var "DEPLOYED_AT:$deployed_at"
+  --var "DEPLOYED_AT:$deployed_at" \
+  "$@"

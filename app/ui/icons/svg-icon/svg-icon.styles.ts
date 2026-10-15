@@ -16,11 +16,17 @@ export const svgIcon: StyleRecipe = {
   maskPosition: 'center',
   maskRepeat: 'no-repeat',
   maskSize: 'contain',
+  // The prefixed forms too, as develop had them: Chrome before 120 and Safari
+  // before 15.4 read only these, and would paint a solid square.
+  WebkitMaskPosition: 'center',
+  WebkitMaskRepeat: 'no-repeat',
+  WebkitMaskSize: 'contain',
   transition: getTransition([{ property: 'background-color' }, { property: 'opacity' }]),
 }
 
 const maskOf = (file: string): StyleRecipe => ({
   maskImage: `url(/assets/img/icon-${file}.svg)`,
+  WebkitMaskImage: `url(/assets/img/icon-${file}.svg)`,
 })
 
 export const svgIcon__home = maskOf('home')

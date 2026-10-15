@@ -13,8 +13,10 @@ export type * from './layout-footer.types.ts'
  * the server's own year would still read as last year until 09:00 on New
  * Year's Day.
  */
-export const getYearInJapan = (date: Date): number =>
-  Number(new Intl.DateTimeFormat('en', { timeZone: 'Asia/Tokyo', year: 'numeric' }).format(date))
+export const getYearInJapan = (date: Date): number => Number(YEAR_IN_JAPAN.format(date))
+
+/** Built once: only the date it formats depends on the request. */
+const YEAR_IN_JAPAN = new Intl.DateTimeFormat('en', { timeZone: 'Asia/Tokyo', year: 'numeric' })
 
 export function LayoutFooter(handle: Handle<LayoutFooterProps>) {
   return () => {

@@ -10,7 +10,10 @@ describe('SvgIcon', () => {
   it('masks the variant file and colors it with the background', async () => {
     const html = await renderToString(<SvgIcon variant="home" />)
 
-    assert.match(html, /mask-image: url\(\/assets\/img\/icon-home\.svg\)/)
+    assert.match(html, /[^-]mask-image: url\(\/assets\/img\/icon-home\.svg\)/)
+    // The prefixed form for Chrome before 120 and Safari before 15.4.
+    assert.match(html, /-webkit-mask-image: url\(\/assets\/img\/icon-home\.svg\)/)
+    assert.match(html, /-webkit-mask-size: contain/)
     assert.match(html, /background-color: var\(--color-util-black\)/)
   })
 

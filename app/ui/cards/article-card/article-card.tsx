@@ -78,12 +78,9 @@ function CardLink(
 ) {
   return () => {
     const { url, styleOverrides, children } = handle.props
-    return url === undefined ? (
-      <PrimitiveButton nonClickableTag="span" styleOverrides={styleOverrides}>
-        {children}
-      </PrimitiveButton>
-    ) : (
-      <PrimitiveButton url={url} styleOverrides={styleOverrides}>
+    const element = url === undefined ? { nonClickableTag: 'span' as const } : { url }
+    return (
+      <PrimitiveButton {...element} styleOverrides={styleOverrides}>
         {children}
       </PrimitiveButton>
     )

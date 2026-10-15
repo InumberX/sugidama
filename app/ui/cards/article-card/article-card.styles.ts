@@ -48,8 +48,10 @@ export const articleCardDescription: StyleRecipe = {
   gridArea: 'description',
 }
 
+/** `alignItems` back to develop's top edge: the primitive's reset centres it. */
 export const articleCardDescription_container: StyleRecipe = {
   ...fontCaption,
+  alignItems: 'flex-start',
   blockSize: '100%',
   color: 'var(--color-font-sub-dark)',
   display: 'flex',
@@ -73,7 +75,13 @@ export const articleCardThumbnail: StyleRecipe = {
   position: 'relative',
 }
 
+/**
+ * Top-aligned as in develop: a card stretched to a taller neighbour in the
+ * same grid row shares the extra height among its rows, and a centred image
+ * would leave a strip of card background above it, under the rounded corner.
+ */
 export const articleCardThumbnail_container: StyleRecipe = {
+  alignItems: 'flex-start',
   blockSize: '100%',
   display: 'flex',
   inlineSize: '100%',

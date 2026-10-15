@@ -15,9 +15,12 @@ describe('LayoutFooter', () => {
   })
 
   it('defaults to the current year in Japan', async () => {
+    // Either side of the render, so a run across New Year's midnight still passes.
+    const before = getYearInJapan(new Date())
     const html = await renderToString(<LayoutFooter />)
+    const after = getYearInJapan(new Date())
 
-    assert.match(html, new RegExp(`Copyright © ${getYearInJapan(new Date())} `))
+    assert.match(html, new RegExp(`Copyright © (${before}|${after}) `))
   })
 
   it('turns the year over at midnight in Japan, not in UTC', () => {

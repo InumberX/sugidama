@@ -33,6 +33,15 @@ describe('ArticleCard', () => {
     assert.match(html, /<h3[^>]*><span/)
   })
 
+  it('keeps the thumbnail and the date at the top of their rows', async () => {
+    const html = await renderToString(
+      <ArticleCard url="/x" title={{ text: 'A' }} description={{ text: 'd' }} />
+    )
+
+    // Both links override the primitive reset's `align-items: center`.
+    assert.equal([...html.matchAll(/align-items: flex-start/g)].length, 2)
+  })
+
   it('falls back to the empty thumbnail', async () => {
     const html = await renderToString(<ArticleCard url="/x" title={{ text: 'A' }} />)
 

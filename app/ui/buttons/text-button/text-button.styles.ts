@@ -37,10 +37,13 @@ export const textButton__disabled: StyleRecipe = {
   opacity: 'var(--opacity-disabled)',
 }
 
+/** Lifted as in develop, so the label stays above anything positioned over the button. */
 export const textButton_container: StyleRecipe = {
   alignItems: 'center',
   display: 'flex',
   justifyContent: 'flex-start',
+  position: 'relative',
+  zIndex: 3,
 }
 
 export const textButton_text: StyleRecipe = {

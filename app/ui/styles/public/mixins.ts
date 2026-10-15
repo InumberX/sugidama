@@ -35,7 +35,14 @@ const round = (value: number, digits: number): number => {
  */
 const getFluidLine = (minSize: number, maxSize: number) => {
   const slope = (maxSize - minSize) / (MAX_VIEWPORT - MIN_VIEWPORT)
-  return { slope, intercept: minSize - slope * MIN_VIEWPORT }
+  return {
+    // Ordered, so a size that shrinks on wide screens still clamps correctly.
+    lower: Math.min(minSize, maxSize),
+    upper: Math.max(minSize, maxSize),
+    intercept: minSize - slope * MIN_VIEWPORT,
+    /** The `vi` coefficient, already rounded: it is unitless, so both units share it. */
+    vi: round(slope * 100, 4),
+  }
 }
 
 /**
@@ -45,9 +52,8 @@ const getFluidLine = (minSize: number, maxSize: number) => {
  * does not pin it to the first one.
  */
 export const getClampPx = (minSize: number, maxSize: number): string => {
-  const { slope, intercept } = getFluidLine(minSize, maxSize)
-  const [lower, upper] = [Math.min(minSize, maxSize), Math.max(minSize, maxSize)]
-  return `clamp(${lower}px, ${round(intercept, 3)}px + ${round(slope * 100, 4)}vi, ${upper}px)`
+  const { lower, upper, intercept, vi } = getFluidLine(minSize, maxSize)
+  return `clamp(${lower}px, ${round(intercept, 3)}px + ${vi}vi, ${upper}px)`
 }
 
 /**
@@ -57,10 +63,9 @@ export const getClampPx = (minSize: number, maxSize: number): string => {
  * always `/ 16`, and app.css does not change the root size.)
  */
 export const getClampRem = (minSize: number, maxSize: number): string => {
-  const { slope, intercept } = getFluidLine(minSize, maxSize)
+  const { lower, upper, intercept, vi } = getFluidLine(minSize, maxSize)
   const rem = (px: number) => round(px / ROOT_FONT_SIZE, 4)
-  const [lower, upper] = [Math.min(minSize, maxSize), Math.max(minSize, maxSize)]
-  return `clamp(${rem(lower)}rem, ${rem(intercept)}rem + ${round(slope * 100, 4)}vi, ${rem(upper)}rem)`
+  return `clamp(${rem(lower)}rem, ${rem(intercept)}rem + ${vi}vi, ${rem(upper)}rem)`
 }
 
 /** A fixed px size in rem against the 16px root (develop's `getFontSize`). */

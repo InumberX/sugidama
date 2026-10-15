@@ -568,10 +568,6 @@
     display: block;
   }
 
-  optgroup {
-    font-weight: var(--font-weight-bold);
-  }
-
   button,
   input,
   optgroup,
@@ -586,6 +582,14 @@
     line-height: 1.6;
   }
 
+  /*
+   * After the shared rule, not before it as in develop: at equal specificity
+   * the later rule wins, so develop's bold group labels came out medium.
+   */
+  optgroup {
+    font-weight: var(--font-weight-bold);
+  }
+
   input:is(
       [type='text'],
       [type='tel'],
@@ -594,6 +598,7 @@
       [type='month'],
       [type='search'],
       [type='password'],
+      [type='reset'],
       [type='number']
     ),
   select,
@@ -603,6 +608,18 @@
 
   input[type='number'] {
     appearance: textfield;
+  }
+
+  /* `appearance: textfield` alone leaves the spin buttons in some WebKit builds */
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+
+  /* `appearance: none` takes the native arrow, so the pointer is the remaining cue */
+  select {
+    cursor: pointer;
   }
 
   textarea {

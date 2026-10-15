@@ -90,7 +90,7 @@ describe('getLineClamp', () => {
 // public/static/css/app.css は PostCSS を通らないため、これらの値は手書きです。
 // CSS と TS は別言語で互いに導出できず、片方だけ変えても他は何も落ちません。
 // ここで突き合わせておかないと、コメントが指す関数と実際の値が黙って食い違います。
-describe('app.css の手書き clamp 値', () => {
+describe('app.css の手書きの値', () => {
   const appCss = readFileSync(
     new URL('../../../../public/static/css/app.css', import.meta.url),
     'utf8'
@@ -98,5 +98,9 @@ describe('app.css の手書き clamp 値', () => {
 
   it('matches getClampRem(14, 16), as its own comment claims', () => {
     assert.equal(appCss.includes(`font-size: ${getClampRem(14, 16)};`), true)
+  })
+
+  it('matches getFontSize(10), as its own comment claims', () => {
+    assert.equal(appCss.includes(`font-size: ${getFontSize(10)};`), true)
   })
 })

@@ -15,10 +15,13 @@ const PILL = 'calc(infinity * 1px)'
 /**
  * Only what differs from the primitive's reset; `display: inline-flex`,
  * `align-items`, `position: relative` and the rest come from there.
+ *
+ * No `cursor`, as in develop: an `<a href>` and a `<button>` already show the
+ * pointer (user agent and app.css), while a `nonClickableTag` label inherits
+ * its parent's — the pointer inside a card's link, the default on its own.
  */
 export const baseButton: StyleRecipe = {
   borderRadius: PILL,
-  cursor: 'pointer',
   // The gradient layers and the label stack at z-index 1–3. Without a context
   // of their own they would compete with the page's positioned elements (a
   // sticky header, a popover) instead of only with each other.
@@ -128,8 +131,8 @@ export const baseButtonColors: Record<BaseButtonColor, Record<BaseButtonVariant,
 /**
  * develop dimmed a disabled button; the port had dropped it, so a disabled
  * button looked live. `cursor` and `pointer-events` come from the primitive,
- * which spreads its disabled recipe after this tier's, so `cursor: pointer`
- * above cannot win.
+ * which spreads its disabled recipe after this tier's, so nothing here can
+ * override them.
  */
 export const baseButton__disabled: StyleRecipe = {
   opacity: 'var(--opacity-disabled)',

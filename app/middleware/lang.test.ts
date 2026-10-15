@@ -46,6 +46,9 @@ describe('lang()', () => {
       ['/ja', '/'],
       ['/ja/drinks', '/drinks'],
       ['/ja/drinks?keyword=sake&page=2', '/drinks?keyword=sake&page=2'],
+      // The param is decoded, so an encoded `ja` reaches the redirect too.
+      ['/%6Aa', '/'],
+      ['/j%61/drinks', '/drinks'],
     ]
     for (const [path, location] of cases) {
       const response = await fetchPath(path)

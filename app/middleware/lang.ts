@@ -2,10 +2,10 @@
 // `/(:lang)` and `/(:lang/)…` patterns in app/routes.ts — the way develop's
 // `getLang()` did: no prefix is Japanese, `/en` is English, anything else is
 // not a page.
-import { createRedirectResponse } from 'remix/response/redirect'
 import { createContextKey, type Middleware } from 'remix/router'
 
 import { DEFAULT_LANG, isLang, type Lang } from '../utils/i18n.ts'
+import { localRedirect } from './local-redirect.ts'
 
 /** The request's language. Read it as `context.lang`. */
 export const LangKey = createContextKey<Lang>()
@@ -24,20 +24,19 @@ export const LangKey = createContextKey<Lang>()
  */
 export const lang = (): Middleware<{ key: typeof LangKey; value: Lang; property: 'lang' }> => {
   return (context, next) => {
-    const param: unknown = context.params.lang
+    const param = context.params.lang
 
     if (param === undefined) {
       context.set(LangKey, DEFAULT_LANG, { property: 'lang' })
       return next()
     }
     if (param === DEFAULT_LANG) {
-      // The pattern puts `/ja` first and follows it with `/` or the end, so
-      // what remains is a root-relative path. The `//` check is a backstop: a
-      // Location of `//host` would leave the site.
-      const path = context.url.pathname.slice(`/${DEFAULT_LANG}`.length) || '/'
-      return createRedirectResponse(path.startsWith('//') ? '/' : `${path}${context.url.search}`)
+      // Drop the first segment as it appears in the URL rather than a fixed
+      // `/ja`: the param is decoded, so `/%6Aa` arrives here too.
+      const rest = context.url.pathname.replace(/^\/[^/]*/, '') || '/'
+      return localRedirect(context.url, `${rest}${context.url.search}`)
     }
-    if (typeof param === 'string' && isLang(param)) {
+    if (isLang(param)) {
       context.set(LangKey, param, { property: 'lang' })
       return next()
     }

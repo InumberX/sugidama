@@ -30,6 +30,13 @@ describe('root controller', () => {
     assert.match(await response.text(), /<html lang="ja">/)
   })
 
+  it('redirects a trailing slash before the language is resolved', async () => {
+    const response = await router.fetch(new Request('http://localhost/en/'))
+
+    assert.equal(response.status, 301)
+    assert.equal(response.headers.get('Location'), '/en')
+  })
+
   it('redirects /ja to the unprefixed URL', async () => {
     const response = await router.fetch(new Request('http://localhost/ja'))
 

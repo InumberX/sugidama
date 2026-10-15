@@ -24,8 +24,8 @@ export const toLangParam = (lang: Lang): Exclude<Lang, typeof DEFAULT_LANG> | un
 export type Messages<T> = { readonly [L in Lang]: T }
 
 /**
- * Declares a page's or component's translations. The Japanese messages define
- * the shape; every other language must provide exactly the same keys, so a
+ * Declares a page's or component's translations. The default language's
+ * messages (Japanese) define the shape; every other language must provide exactly the same keys, so a
  * missing or misspelled translation is a type error rather than a blank on the
  * page. A message that interpolates is a function, which types its arguments:
  *
@@ -38,5 +38,7 @@ export type Messages<T> = { readonly [L in Lang]: T }
  * ```
  */
 export const defineMessages = <T>(
-  messages: { readonly ja: T } & { readonly [L in Exclude<Lang, 'ja'>]: NoInfer<T> }
+  messages: { readonly [L in typeof DEFAULT_LANG]: T } & {
+    readonly [L in Exclude<Lang, typeof DEFAULT_LANG>]: NoInfer<T>
+  }
 ): Messages<T> => messages

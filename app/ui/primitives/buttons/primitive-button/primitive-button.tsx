@@ -1,8 +1,9 @@
 // Ported from auba-general-view: app/components/primitives/buttons/PrimitiveButton
 //
-// Unstyled skeleton. It owns element selection (anchor with a `url`, button with
-// a `buttonType`, otherwise an inert tag), the accessibility attributes and the
-// user-agent reset — nothing else. Design decisions belong to the styled tier in
+// Unstyled skeleton. It owns element selection (an anchor for `url`, a button
+// for `buttonType`, the inert tag named by `nonClickableTag` — the props type
+// requires exactly one), the accessibility attributes and the user-agent
+// reset — nothing else. Design decisions belong to the styled tier in
 // `app/ui/<category>/`, which passes them down through `styleOverrides`.
 import { css, type Handle, type MixInput } from 'remix/component'
 
@@ -17,8 +18,8 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
       url,
       target,
       rel,
-      buttonType = 'button',
-      isDisabled,
+      buttonType,
+      isDisabled = false,
       children,
       styleOverrides,
       mix,
@@ -30,14 +31,8 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
       ariaLabel,
       ariaControls,
       ariaSelected,
-      nonClickableTag = 'span',
+      nonClickableTag,
     } = handle.props
-
-    // Cross-origin links are never enhanced by the client runtime, and in-page
-    // hash links should stay a plain browser jump, so both opt out explicitly.
-    const isDocumentNavigation = url
-      ? url.startsWith('http://') || url.startsWith('https://') || url.startsWith('#')
-      : false
 
     // One css(...) call: the reset, the disabled treatment and the caller's
     // recipe are merged as plain objects, so JS spread order decides which
@@ -45,25 +40,36 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
     const hostStyle: MixInput<HTMLElement> = [
       css({
         ...styles.primitiveButton,
-        ...(isDisabled ? styles.primitiveButton__disabled : null),
         ...styleOverrides,
+        // Last, so no caller recipe (a styled tier's own `cursor` or
+        // `pointer-events`) can switch the disabled treatment back off.
+        ...(isDisabled ? styles.primitiveButton__disabled : null),
       }),
       mix,
     ]
 
-    if (url) {
+    // `!== undefined`, not truthiness: an empty `url` is still a link (to the
+    // current page), not a silent fall-through to the inert tag.
+    if (url !== undefined) {
+      // A disabled link keeps its element but loses `href`: an `<a>` without
+      // one is neither focusable nor followable, so Tab and Enter cannot reach
+      // a destination that `pointer-events: none` only hid from the mouse.
+      // `aria-disabled` keeps it announced as disabled, and the caller's role
+      // (a disabled tab, say) survives; without one it stays a link. One
+      // element for both states, so an attribute added later reaches both.
       return (
         <a
-          href={url}
-          target={target}
-          rel={rel}
+          href={isDisabled ? undefined : url}
+          target={isDisabled ? undefined : target}
+          rel={isDisabled ? undefined : rel}
           title={title}
-          role={role}
-          tabIndex={tabIndex}
+          role={isDisabled ? (role ?? 'link') : role}
+          tabIndex={isDisabled ? undefined : tabIndex}
+          aria-disabled={isDisabled ? 'true' : undefined}
           aria-label={ariaLabel}
           aria-controls={ariaControls}
           aria-selected={ariaSelected}
-          data-rmx-document={isDocumentNavigation ? '' : undefined}
+          data-rmx-document={!isDisabled && isDocumentNavigation(url) ? '' : undefined}
           mix={hostStyle}
         >
           {children}
@@ -71,11 +77,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
       )
     }
 
-    // The raw prop, not the destructured `buttonType`: that one carries the
-    // 'button' default above and is therefore always truthy. What decides this
-    // branch is whether the caller asked for a button at all — with neither a
-    // `url` nor a `buttonType`, the component falls through to the inert tag.
-    if (handle.props.buttonType) {
+    if (buttonType) {
       return (
         <button
           type={buttonType}
@@ -95,12 +97,16 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
       )
     }
 
-    const Tag = nonClickableTag
+    // The props type leaves `nonClickableTag` as the only remaining choice.
+    // `?? 'span'` only keeps an untyped caller that passed none of the three
+    // from rendering nothing; typed code cannot reach it.
+    const Tag = nonClickableTag ?? 'span'
 
     return (
       <Tag
         title={title}
         role={role}
+        tabIndex={tabIndex}
         aria-label={ariaLabel}
         aria-controls={ariaControls}
         aria-selected={ariaSelected}
@@ -109,5 +115,26 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
         {children}
       </Tag>
     )
+  }
+}
+
+/** A stand-in origin to resolve relative URLs against; it never leaves this module. */
+const APP_ORIGIN = 'https://app.invalid'
+
+/**
+ * Whether a link should bypass the client runtime's navigation and load as a
+ * plain document: anything that does not resolve to this origin (another
+ * site, `mailto:`, `tel:`, a protocol-relative `//host`), and an in-page
+ * `#hash`. The URL is resolved the way the browser resolves an href rather
+ * than matched as a string, so `/\host` and a tab or newline smuggled into
+ * `/\t/host` — both of which a browser reads as `//host` — count as
+ * another origin too.
+ */
+const isDocumentNavigation = (url: string): boolean => {
+  if (url.startsWith('#')) return true
+  try {
+    return new URL(url, APP_ORIGIN).origin !== APP_ORIGIN
+  } catch {
+    return true
   }
 }

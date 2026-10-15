@@ -1,4 +1,4 @@
-// Ported from auba-general-view: app/components/ui/layouts/LayoutInner
+// Ported from develop: app/components/ui/layouts/LayoutInner
 import { css, type Handle, type MixInput } from 'remix/component'
 
 import * as styles from './layout-inner.styles.ts'
@@ -9,7 +9,7 @@ export type * from './layout-inner.types.ts'
 /** Centres content and caps its width. `full` opts out of the cap. */
 export function LayoutInner(handle: Handle<LayoutInnerProps>) {
   return () => {
-    const { children, size = 'medium', styleOverrides, mix } = handle.props
+    const { children, size = 'large', styleOverrides, mix } = handle.props
     const hostStyle: MixInput<HTMLElement> = [
       css({ ...styles.layoutInner, ...styles.layoutInnerSizes[size], ...styleOverrides }),
       mix,

@@ -1,3 +1,4 @@
+// Ported from develop: app/components/ui/layouts/LayoutMain/style.css.ts
 import type { StyleRecipe } from '../../styles/public/mixins.ts'
 
 /**
@@ -9,8 +10,25 @@ import type { StyleRecipe } from '../../styles/public/mixins.ts'
  */
 export const LAYOUT_MAIN_CONTAINER = 'layout-main'
 
+/**
+ * A centred column, capped at the inner width plus both paddings plus both
+ * gutters, that grows to fill `LayoutWrapper`.
+ */
 export const layoutMain: StyleRecipe = {
-  inlineSize: '100%',
-  containerType: 'inline-size',
   containerName: LAYOUT_MAIN_CONTAINER,
+  containerType: 'inline-size',
+  display: 'flex',
+  flexDirection: 'column',
+  flexGrow: 1,
+  inlineSize: '100%',
+  marginInline: 'auto',
+  // The gutter between the viewport edge and the white sheet (develop's 16px).
+  maxInlineSize: 'calc(var(--layout-inner-max-width-large) + (var(--layout-main-gutter) * 2))',
+  paddingInline: 'var(--layout-main-gutter)',
+}
+
+/** The white sheet the page sits on. */
+export const layoutMain_container: StyleRecipe = {
+  backgroundColor: 'var(--color-background-light)',
+  flexGrow: 1,
 }

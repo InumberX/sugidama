@@ -1,3 +1,4 @@
+// Ported from develop: app/components/ui/layouts/LayoutInner/style.css.ts
 import { MEDIA_QUERY } from '../../styles/public/media-query.ts'
 import type { StyleRecipe } from '../../styles/public/mixins.ts'
 import type { LayoutInnerSize } from './layout-inner.types.ts'
@@ -13,24 +14,14 @@ export const layoutInner: StyleRecipe = {
   [MEDIA_QUERY.MD]: { paddingInline: 'var(--layout-inner-padding-md)' },
 }
 
-/** The max width includes the horizontal padding, as in generalview. */
-const withPadding = (width: string) => `calc(${width} + (var(--layout-inner-padding-md) * 2))`
-
-export const layoutInner__small: StyleRecipe = {
-  maxInlineSize: withPadding('var(--layout-inner-width-small)'),
-}
-export const layoutInner__medium: StyleRecipe = {
-  maxInlineSize: withPadding('var(--layout-inner-width-medium)'),
-}
+/** The max width includes the horizontal padding, as in develop. */
 export const layoutInner__large: StyleRecipe = {
-  maxInlineSize: withPadding('var(--layout-inner-width-large)'),
+  maxInlineSize: 'var(--layout-inner-max-width-large)',
 }
 export const layoutInner__full: StyleRecipe = { maxInlineSize: 'none' }
 
 /** Lookup for the `size` prop; members are the modifier recipes above. */
 export const layoutInnerSizes: Record<LayoutInnerSize, StyleRecipe> = {
-  small: layoutInner__small,
-  medium: layoutInner__medium,
   large: layoutInner__large,
   full: layoutInner__full,
 }

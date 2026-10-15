@@ -8,6 +8,7 @@ import { BaseButton } from '../../ui/buttons/base-button/base-button.tsx'
 import { LayoutInner } from '../../ui/layouts/layout-inner/layout-inner.tsx'
 import { LayoutMain } from '../../ui/layouts/layout-main/layout-main.tsx'
 import { LayoutPageWrapper } from '../../ui/layouts/layout-page-wrapper/layout-page-wrapper.tsx'
+import { LayoutSection } from '../../ui/layouts/layout-section/layout-section.tsx'
 import { LayoutWrapper } from '../../ui/layouts/layout-wrapper/layout-wrapper.tsx'
 import { PrimitiveButton } from '../../ui/primitives/buttons/primitive-button/primitive-button.tsx'
 import type { Lang } from '../../utils/i18n.ts'
@@ -28,7 +29,10 @@ export function DevUiPage(handle: Handle<{ lang: Lang; url: URL }>) {
       meta={{ title: PAGE_TITLE, robots: 'noindex, nofollow' }}
     >
       <main mix={css(styles.devUiPage)}>
-        <h1 mix={css(styles.devUiPage_heading)}>{PAGE_TITLE}</h1>
+        {/* The target of the `#top` hash-link specimen below. */}
+        <h1 id="top" mix={css(styles.devUiPage_heading)}>
+          {PAGE_TITLE}
+        </h1>
 
         <Section title="PrimitiveButton" note="骨組みのみ。色・字送り・モーションを持たない">
           <Specimen label="url（内部リンク）">
@@ -42,6 +46,14 @@ export function DevUiPage(handle: Handle<{ lang: Lang; url: URL }>) {
           <Specimen label="url（ハッシュ）">
             <PrimitiveButton url="#top">ページ先頭へ</PrimitiveButton>
           </Specimen>
+          <Specimen label="url + isDisabled（href なし・キーボードでも辿れない）">
+            <PrimitiveButton url={routes.home.href()} isDisabled>
+              無効なリンク
+            </PrimitiveButton>
+          </Specimen>
+          <Specimen label="buttonType=button">
+            <PrimitiveButton buttonType="button">ボタン</PrimitiveButton>
+          </Specimen>
           <Specimen label="buttonType=submit">
             <PrimitiveButton buttonType="submit">送信</PrimitiveButton>
           </Specimen>
@@ -50,33 +62,46 @@ export function DevUiPage(handle: Handle<{ lang: Lang; url: URL }>) {
               無効
             </PrimitiveButton>
           </Specimen>
-          <Specimen label="nonClickableTag=span（既定・不活性）">
-            <PrimitiveButton>ラベルのみ</PrimitiveButton>
-          </Specimen>
-          <Specimen label="nonClickableTag=div + role">
-            <PrimitiveButton nonClickableTag="div" role="button" ariaLabel="不活性な div">
-              div として描画
-            </PrimitiveButton>
+          <Specimen label="nonClickableTag=span（不活性）">
+            <PrimitiveButton nonClickableTag="span">ラベルのみ</PrimitiveButton>
           </Specimen>
         </Section>
 
         <Section title="BaseButton" note="プリミティブの上にデザイン判断を載せた層">
-          <Specimen label="tone=neutral（既定）">
-            <BaseButton buttonType="button">Neutral</BaseButton>
-          </Specimen>
-          <Specimen label="tone=primary">
-            <BaseButton buttonType="button" tone="primary">
-              Primary
+          <Specimen label="size=large / medium（既定）/ small">
+            <BaseButton buttonType="button" size="large">
+              Large
+            </BaseButton>
+            <BaseButton buttonType="button">Medium</BaseButton>
+            <BaseButton buttonType="button" size="small">
+              Small
             </BaseButton>
           </Specimen>
-          <Specimen label="tone=primary + url（アンカーとして描画）">
-            <BaseButton url={routes.home.href()} tone="primary">
-              トップへ
+          <Specimen label="variant=outlined">
+            <BaseButton buttonType="button" variant="outlined">
+              Outlined
             </BaseButton>
           </Specimen>
-          <Specimen label="isDisabled">
-            <BaseButton buttonType="button" tone="primary" isDisabled>
+          <Specimen label="url（アンカーとして描画）">
+            <BaseButton url={routes.home.href()}>トップへ</BaseButton>
+          </Specimen>
+          <Specimen label="leftElm / rightElm">
+            <BaseButton buttonType="button" leftElm={<span aria-hidden="true">←</span>}>
+              戻る
+            </BaseButton>
+            <BaseButton buttonType="button" rightElm={<span aria-hidden="true">→</span>}>
+              進む
+            </BaseButton>
+          </Specimen>
+          <Specimen label="isDisabled（contained / outlined / url）">
+            <BaseButton buttonType="button" isDisabled>
               無効
+            </BaseButton>
+            <BaseButton buttonType="button" variant="outlined" isDisabled>
+              無効
+            </BaseButton>
+            <BaseButton url={routes.home.href()} isDisabled>
+              無効なリンク
             </BaseButton>
           </Specimen>
         </Section>
@@ -95,23 +120,16 @@ export function DevUiPage(handle: Handle<{ lang: Lang; url: URL }>) {
             </Stage>
           </Specimen>
 
-          <Specimen label="LayoutMain（tag=main・コンテナを開く）">
+          {/* tag="div": this page already has its <main>, and there may be only one. */}
+          <Specimen label="LayoutMain（コンテナを開き、白い面を敷く。ここでは tag=div）">
             <Stage>
-              <LayoutMain>
+              <LayoutMain tag="div">
                 <Block label="container-name: layout-main" />
               </LayoutMain>
             </Stage>
           </Specimen>
 
-          <Specimen label="LayoutMain tag=section">
-            <Stage>
-              <LayoutMain tag="section">
-                <Block label="section として描画" />
-              </LayoutMain>
-            </Stage>
-          </Specimen>
-
-          <Specimen label="LayoutPageWrapper（ヘッダー分の上余白 + 下余白）">
+          <Specimen label="LayoutPageWrapper（ヘッダー分の上下余白）">
             <Stage>
               <LayoutPageWrapper>
                 <Block label="page body" />
@@ -119,23 +137,34 @@ export function DevUiPage(handle: Handle<{ lang: Lang; url: URL }>) {
             </Stage>
           </Specimen>
 
-          <Specimen label="LayoutPageWrapper isTopNoSpace isBottomNoSpace">
+          <Specimen label="LayoutPageWrapper isTopNoSpace / isBottomNoSpace">
             <Stage>
-              <LayoutPageWrapper isTopNoSpace isBottomNoSpace>
-                <Block label="余白なし" />
+              <LayoutPageWrapper isTopNoSpace>
+                <Block label="上余白なし" />
+              </LayoutPageWrapper>
+              <LayoutPageWrapper isBottomNoSpace>
+                <Block label="下余白なし" />
               </LayoutPageWrapper>
             </Stage>
           </Specimen>
 
-          <Specimen label="LayoutInner size=small / medium / large / full">
+          <Specimen label="LayoutSection topSpace / bottomSpace = none / small / medium（既定）">
             <Stage>
-              <LayoutInner size="small">
+              <LayoutSection topSpace="none" bottomSpace="none">
+                <Block label="none" />
+              </LayoutSection>
+              <LayoutSection topSpace="small" bottomSpace="small">
                 <Block label="small" />
-              </LayoutInner>
-              <LayoutInner size="medium">
+              </LayoutSection>
+              <LayoutSection>
                 <Block label="medium" />
-              </LayoutInner>
-              <LayoutInner size="large">
+              </LayoutSection>
+            </Stage>
+          </Specimen>
+
+          <Specimen label="LayoutInner size=large（既定）/ full">
+            <Stage>
+              <LayoutInner>
                 <Block label="large" />
               </LayoutInner>
               <LayoutInner size="full">
@@ -144,14 +173,16 @@ export function DevUiPage(handle: Handle<{ lang: Lang; url: URL }>) {
             </Stage>
           </Specimen>
 
-          <Specimen label="入れ子（Wrapper > Main > PageWrapper > Inner）">
+          <Specimen label="入れ子（Wrapper > Main > PageWrapper > Section > Inner）">
             <Stage>
               <LayoutWrapper styleOverrides={{ minBlockSize: '0' }}>
-                <LayoutMain>
+                <LayoutMain tag="div">
                   <LayoutPageWrapper isTopNoSpace isBottomNoSpace>
-                    <LayoutInner size="small">
-                      <Block label="content" />
-                    </LayoutInner>
+                    <LayoutSection>
+                      <LayoutInner>
+                        <Block label="content" />
+                      </LayoutInner>
+                    </LayoutSection>
                   </LayoutPageWrapper>
                 </LayoutMain>
               </LayoutWrapper>

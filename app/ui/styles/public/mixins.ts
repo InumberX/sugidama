@@ -16,17 +16,60 @@ export const getTransition = (
 const MIN_VIEWPORT = BREAKPOINTS.xs
 const MAX_VIEWPORT = BREAKPOINTS.xxl
 
-/** Fluid size between two viewport widths, expressed in rem at a 62.5% root. */
-export const getClampRem = (minSize: number, maxSize: number): string => {
-  const sizeRate = maxSize - minSize
-  const viewportRate = MAX_VIEWPORT - MIN_VIEWPORT
-  const changingSize = Math.round((sizeRate / viewportRate) * 10000) / 100
-  const fixedSize = Math.round((minSize - (sizeRate / viewportRate) * MIN_VIEWPORT) * 62.5) / 1000
-  const minRemSize = Math.round(minSize * 62.5) / 1000
-  const maxRemSize = Math.round(maxSize * 62.5) / 1000
+/** The root font size `rem` resolves against: the browser default, unchanged by app.css. */
+const ROOT_FONT_SIZE = 16
 
-  return `clamp(${minRemSize}rem, ${fixedSize}rem + ${changingSize}vi, ${maxRemSize}rem)`
+const round = (value: number, digits: number): number => {
+  const scale = 10 ** digits
+  // `+ 0` turns `-0` into `0`, so a flat clamp prints `0vi`, not `-0vi`.
+  return Math.round(value * scale) / scale + 0
 }
+
+/**
+ * The straight line through (MIN_VIEWPORT, minSize) and (MAX_VIEWPORT,
+ * maxSize), in px: `intercept + slope * 100vi`. Both helpers below print it,
+ * so they cannot drift apart; only the unit differs. Nothing is rounded to an
+ * integer — develop rounded the intercept to whole pixels, which shifted the
+ * line enough that `getClampPx(10, 11)` reached its maximum at about 1000px
+ * instead of 1400px.
+ */
+const getFluidLine = (minSize: number, maxSize: number) => {
+  const slope = (maxSize - minSize) / (MAX_VIEWPORT - MIN_VIEWPORT)
+  return {
+    // Ordered, so a size that shrinks on wide screens still clamps correctly.
+    lower: Math.min(minSize, maxSize),
+    upper: Math.max(minSize, maxSize),
+    intercept: minSize - slope * MIN_VIEWPORT,
+    /** The `vi` coefficient, already rounded: it is unitless, so both units share it. */
+    vi: round(slope * 100, 4),
+  }
+}
+
+/**
+ * Fluid size between the two viewport widths, in px. `minSize` is the size at
+ * the narrow end and `maxSize` at the wide end; a size that shrinks on wide
+ * screens passes them descending, and the clamp bounds are ordered so CSS
+ * does not pin it to the first one.
+ */
+export const getClampPx = (minSize: number, maxSize: number): string => {
+  const { lower, upper, intercept, vi } = getFluidLine(minSize, maxSize)
+  return `clamp(${lower}px, ${round(intercept, 3)}px + ${vi}vi, ${upper}px)`
+}
+
+/**
+ * Fluid size between the two viewport widths, in rem — the same line as
+ * `getClampPx`, divided by the 16px root, so it scales with the user's font
+ * size setting. (develop's comment said "at a 62.5% root"; the arithmetic was
+ * always `/ 16`, and app.css does not change the root size.)
+ */
+export const getClampRem = (minSize: number, maxSize: number): string => {
+  const { lower, upper, intercept, vi } = getFluidLine(minSize, maxSize)
+  const rem = (px: number) => round(px / ROOT_FONT_SIZE, 4)
+  return `clamp(${rem(lower)}rem, ${rem(intercept)}rem + ${vi}vi, ${rem(upper)}rem)`
+}
+
+/** A fixed px size in rem against the 16px root (develop's `getFontSize`). */
+export const getFontSize = (size: number): string => `${round(size / ROOT_FONT_SIZE, 4)}rem`
 
 /**
  * Truncates to `maxLine` lines with an ellipsis. `-webkit-line-clamp` is the
@@ -39,16 +82,6 @@ export const getLineClamp = (maxLine: number): StyleRecipe => {
     overflow: 'hidden',
     WebkitLineClamp: maxLine,
   }
-}
-
-/** Fluid size between the two viewport widths, in px. */
-export const getClampPx = (minSize: number, maxSize: number): string => {
-  const sizeRate = maxSize - minSize
-  const viewportRate = MAX_VIEWPORT - MIN_VIEWPORT
-  const changingSize = Math.round((sizeRate / viewportRate) * 10000) / 100
-  const fixedSize = Math.round(minSize - (sizeRate / viewportRate) * MIN_VIEWPORT)
-
-  return `clamp(${minSize}px, ${fixedSize}px + ${changingSize}vi, ${maxSize}px)`
 }
 
 /**

@@ -1,7 +1,4 @@
-// Ported from auba-general-view: app/components/ui/layouts/LayoutPageWrapper
-//
-// The `isSignIn` variant is dropped — it offsets a taller signed-in header that
-// this project has no equivalent for.
+// Ported from develop: app/components/ui/layouts/LayoutPageWrapper
 import { css, type Handle, type MixInput } from 'remix/component'
 
 import * as styles from './layout-page-wrapper.styles.ts'

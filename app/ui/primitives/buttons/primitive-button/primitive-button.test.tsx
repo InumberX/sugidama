@@ -22,6 +22,8 @@ describe('PrimitiveButton', () => {
       'tel:0312345678',
       '#top',
       '/\\evil.example',
+      '/\t/evil.example',
+      '/\n/evil.example',
     ]) {
       const html = await renderToString(<PrimitiveButton url={url}>Link</PrimitiveButton>)
       assert.match(html, /data-rmx-document/, url)
@@ -33,6 +35,23 @@ describe('PrimitiveButton', () => {
       const html = await renderToString(<PrimitiveButton url={url}>Link</PrimitiveButton>)
       assert.doesNotMatch(html, /data-rmx-document/, url)
     }
+  })
+
+  it('treats an empty url as a link, not as the inert tag', async () => {
+    const html = await renderToString(<PrimitiveButton url="">Here</PrimitiveButton>)
+
+    assert.match(html, /<a[^>]*href=""/)
+  })
+
+  it('keeps the disabled treatment over a caller recipe that sets cursor', async () => {
+    const html = await renderToString(
+      <PrimitiveButton buttonType="button" isDisabled styleOverrides={{ cursor: 'pointer' }}>
+        Nope
+      </PrimitiveButton>
+    )
+
+    assert.match(html, /cursor: not-allowed/)
+    assert.doesNotMatch(html, /cursor: pointer/)
   })
 
   it('renders a disabled link without href, so the keyboard cannot follow it', async () => {

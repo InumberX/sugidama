@@ -9,7 +9,7 @@ describe('LayoutInner', () => {
     const large = await renderToString(<LayoutInner>x</LayoutInner>)
     const full = await renderToString(<LayoutInner size="full">x</LayoutInner>)
 
-    assert.match(large, /--layout-inner-width-large/)
+    assert.match(large, /max-inline-size: var\(--layout-inner-max-width-large\)/)
     assert.match(full, /max-inline-size: none/)
     // Responsive padding comes from the shared query constants.
     assert.match(large, /@media screen and \(width >= 768px\), print/)

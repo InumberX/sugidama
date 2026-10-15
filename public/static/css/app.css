@@ -346,6 +346,11 @@
     --layout-inner-padding-sm: 4.6vi;
     --layout-inner-padding-md: 32px;
     --layout-header-height: 64px;
+
+    /* The inner column's cap, padding included — develop's layout.inner.maxWidth.large */
+    --layout-inner-max-width-large: calc(
+      var(--layout-inner-width-large) + (var(--layout-inner-padding-md) * 2)
+    );
   }
 
   * {
@@ -443,9 +448,13 @@
    * keyboard users with no visible focus — develop only ever removed it from
    * inputs. `:focus-visible` brings it back for keyboard navigation without
    * showing it on every mouse click. A component may restyle it in `rmx`.
+   *
+   * The base text color, not the brand blue: #76a3ed reaches only about
+   * 2.5:1 against the white sheet and 2.2:1 against the body, under the 3:1
+   * a focus indicator needs (WCAG 1.4.11). #2c2c2c is above 12:1 on both.
    */
   :focus-visible {
-    outline: 2px solid var(--color-font-primary-dark);
+    outline: 2px solid var(--color-font-base);
     outline-offset: 2px;
   }
 

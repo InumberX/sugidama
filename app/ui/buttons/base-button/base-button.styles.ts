@@ -130,7 +130,9 @@ export const baseButtonColors: Record<BaseButtonColor, Record<BaseButtonVariant,
 
 /**
  * develop dimmed a disabled button; the port had dropped it, so a disabled
- * button looked live. `cursor` and `pointer-events` come from the primitive.
+ * button looked live. `cursor` and `pointer-events` come from the primitive,
+ * which spreads its disabled recipe after this tier's, so `cursor: pointer`
+ * above cannot win.
  */
 export const baseButton__disabled: StyleRecipe = {
   opacity: 'var(--opacity-disabled)',

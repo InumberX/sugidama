@@ -16,7 +16,7 @@ export const layoutInner: StyleRecipe = {
 
 /** The max width includes the horizontal padding, as in develop. */
 export const layoutInner__large: StyleRecipe = {
-  maxInlineSize: 'calc(var(--layout-inner-width-large) + (var(--layout-inner-padding-md) * 2))',
+  maxInlineSize: 'var(--layout-inner-max-width-large)',
 }
 export const layoutInner__full: StyleRecipe = { maxInlineSize: 'none' }
 

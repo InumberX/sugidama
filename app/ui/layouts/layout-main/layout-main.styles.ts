@@ -25,7 +25,7 @@ export const layoutMain: StyleRecipe = {
   flexGrow: 1,
   inlineSize: '100%',
   marginInline: 'auto',
-  maxInlineSize: `calc(var(--layout-inner-width-large) + (var(--layout-inner-padding-md) * 2) + (${GUTTER} * 2))`,
+  maxInlineSize: `calc(var(--layout-inner-max-width-large) + (${GUTTER} * 2))`,
   paddingInline: GUTTER,
 }
 

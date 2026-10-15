@@ -57,6 +57,14 @@ describe('getClampPx / getClampRem', () => {
     assert.equal(getClampRem(14, 16), 'clamp(0.875rem, 0.8317rem + 0.1923vi, 1rem)')
   })
 
+  it('orders the bounds for a size that shrinks on wide screens', () => {
+    for (const clamp of [getClampPx(80, 40), getClampRem(80, 40)]) {
+      assert.match(clamp, /^clamp\((40px|2\.5rem), /, clamp)
+      assert.ok(Math.abs(evaluateAt(clamp, 360) - 80) < 0.01, `${clamp} at 360px`)
+      assert.ok(Math.abs(evaluateAt(clamp, 1400) - 40) < 0.01, `${clamp} at 1400px`)
+    }
+  })
+
   it('collapses to a constant when both ends are equal', () => {
     assert.equal(getClampRem(16, 16), 'clamp(1rem, 1rem + 0vi, 1rem)')
   })

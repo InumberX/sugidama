@@ -16,6 +16,6 @@ describe('LayoutMain', () => {
 
     assert.match(html, /<main[^>]*><div[^>]*>x<\/div><\/main>/)
     assert.match(html, /background-color: var\(--color-background-light\)/)
-    assert.match(html, /max-inline-size: calc\(var\(--layout-inner-width-large\)/)
+    assert.match(html, /max-inline-size: calc\(var\(--layout-inner-max-width-large\)/)
   })
 })

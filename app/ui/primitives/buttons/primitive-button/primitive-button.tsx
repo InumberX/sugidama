@@ -40,13 +40,17 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
     const hostStyle: MixInput<HTMLElement> = [
       css({
         ...styles.primitiveButton,
-        ...(isDisabled ? styles.primitiveButton__disabled : null),
         ...styleOverrides,
+        // Last, so a styled tier's own `cursor` (BaseButton sets `pointer`)
+        // cannot switch the disabled treatment back off.
+        ...(isDisabled ? styles.primitiveButton__disabled : null),
       }),
       mix,
     ]
 
-    if (url) {
+    // `!== undefined`, not truthiness: an empty `url` is still a link (to the
+    // current page), not a silent fall-through to the inert tag.
+    if (url !== undefined) {
       // A disabled link keeps its element but loses `href`: an `<a>` without
       // one is neither focusable nor followable, so Tab and Enter cannot reach
       // a destination that `pointer-events: none` only hid from the mouse.
@@ -126,15 +130,23 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
   }
 }
 
+/** A stand-in origin to resolve relative URLs against; it never leaves this module. */
+const APP_ORIGIN = 'https://app.invalid'
+
 /**
  * Whether a link should bypass the client runtime's navigation and load as a
- * plain document. A root-relative path (`/drinks`) or a query on the current
- * page (`?page=2`) is this app; anything else — another origin, `mailto:`,
- * `tel:`, an in-page `#hash`, and the protocol-relative `//host` or
- * `/\host` (browsers read a backslash after the scheme-less slash as a
- * second slash) — is left to the browser.
+ * plain document: anything that does not resolve to this origin (another
+ * site, `mailto:`, `tel:`, a protocol-relative `//host`), and an in-page
+ * `#hash`. The URL is resolved the way the browser resolves an href rather
+ * than matched as a string, so `/\host` and a tab or newline smuggled into
+ * `/\t/host` — both of which a browser reads as `//host` — count as
+ * another origin too.
  */
 const isDocumentNavigation = (url: string): boolean => {
-  if (url.startsWith('?')) return false
-  return !url.startsWith('/') || url.startsWith('//') || url.startsWith('/\\')
+  if (url.startsWith('#')) return true
+  try {
+    return new URL(url, APP_ORIGIN).origin !== APP_ORIGIN
+  } catch {
+    return true
+  }
 }

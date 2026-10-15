@@ -38,10 +38,16 @@ const getFluidLine = (minSize: number, maxSize: number) => {
   return { slope, intercept: minSize - slope * MIN_VIEWPORT }
 }
 
-/** Fluid size between the two viewport widths, in px. */
+/**
+ * Fluid size between the two viewport widths, in px. `minSize` is the size at
+ * the narrow end and `maxSize` at the wide end; a size that shrinks on wide
+ * screens passes them descending, and the clamp bounds are ordered so CSS
+ * does not pin it to the first one.
+ */
 export const getClampPx = (minSize: number, maxSize: number): string => {
   const { slope, intercept } = getFluidLine(minSize, maxSize)
-  return `clamp(${minSize}px, ${round(intercept, 3)}px + ${round(slope * 100, 4)}vi, ${maxSize}px)`
+  const [lower, upper] = [Math.min(minSize, maxSize), Math.max(minSize, maxSize)]
+  return `clamp(${lower}px, ${round(intercept, 3)}px + ${round(slope * 100, 4)}vi, ${upper}px)`
 }
 
 /**
@@ -53,7 +59,8 @@ export const getClampPx = (minSize: number, maxSize: number): string => {
 export const getClampRem = (minSize: number, maxSize: number): string => {
   const { slope, intercept } = getFluidLine(minSize, maxSize)
   const rem = (px: number) => round(px / ROOT_FONT_SIZE, 4)
-  return `clamp(${rem(minSize)}rem, ${rem(intercept)}rem + ${round(slope * 100, 4)}vi, ${rem(maxSize)}rem)`
+  const [lower, upper] = [Math.min(minSize, maxSize), Math.max(minSize, maxSize)]
+  return `clamp(${rem(lower)}rem, ${rem(intercept)}rem + ${round(slope * 100, 4)}vi, ${rem(upper)}rem)`
 }
 
 /** A fixed px size in rem against the 16px root (develop's `getFontSize`). */

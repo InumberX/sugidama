@@ -28,6 +28,6 @@ SITE_NAME=
 API_URL=
 # Google Analytics measurement id. Default: empty (no page views sent)
 GOOGLE_ANALYTICS_ID=
-# Per deploy, normally set by `npm run deploy-*`. Default: BUILD_ID=dev, DEPLOYED_AT unset
+# Per deploy, normally set by scripts/deploy.sh (`npm run deploy-*`). Default: BUILD_ID=dev, DEPLOYED_AT unset
 BUILD_ID=
 DEPLOYED_AT=

@@ -91,7 +91,7 @@ jobs:
       - run: npm ci
 
       # Per-environment values (SITE_URL, NO_INDEX, ...) live in wrangler.jsonc;
-      # the npm script adds BUILD_ID (this commit) and DEPLOYED_AT, so a deploy
+      # scripts/deploy.sh adds BUILD_ID (this commit) and DEPLOYED_AT, so a deploy
       # from CI and one from a laptop produce the same Worker. WRANGLER_ENV is
       # derived from github.ref above and reaches the shell as an env var, not
       # through ${{ }} interpolation.

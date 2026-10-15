@@ -60,8 +60,8 @@ export const API_URL = (
 
 /**
  * Google Analytics measurement id. Empty locally, so `wrangler dev` sends no
- * page views — the React Router app defaulted to the real id, which counted
- * every local reload.
+ * page views — the React Router app defaulted to the staging property's id
+ * (G-P7SXGX2CCT), so every local reload was counted there.
  */
 export const GOOGLE_ANALYTICS_ID = process.env.GOOGLE_ANALYTICS_ID || ''
 

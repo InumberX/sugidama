@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy-development": "wrangler deploy --env=development --var BUILD_ID:$(git rev-parse HEAD) --var DEPLOYED_AT:$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-    "deploy-production": "wrangler deploy --env=production --var BUILD_ID:$(git rev-parse HEAD) --var DEPLOYED_AT:$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+    "deploy-development": "sh scripts/deploy.sh development",
+    "deploy-production": "sh scripts/deploy.sh production",
     "bundle": "wrangler deploy --dry-run --env=production --outdir=tmp/worker",
     "test": "NODE_ENV=test remix test",
     "typecheck": "tsc -b",

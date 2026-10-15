@@ -31,8 +31,8 @@
   // The top level sets neither: `wrangler dev` keeps wrangler's "development"
   // and app/env.ts's local defaults (overridable from `.dev.vars`).
   //
-  // BUILD_ID and DEPLOYED_AT are per deploy, so `npm run deploy-*` passes them
-  // with `--var` instead.
+  // BUILD_ID and DEPLOYED_AT are per deploy, so scripts/deploy.sh (behind
+  // `npm run deploy-*`) passes them with `--var` instead.
   //
   // `vars` are public — this repository is, and the dashboard shows them in plain
   // text. Only values a visitor can already see belong here. Credentials are

@@ -100,6 +100,10 @@ describe('app.css の手書きの値', () => {
     assert.equal(appCss.includes(`font-size: ${getClampRem(14, 16)};`), true)
   })
 
+  it('matches getFontSize(16), as its own comment claims', () => {
+    assert.equal(appCss.includes(`font-size: ${getFontSize(16)};`), true)
+  })
+
   it('matches getFontSize(10), as its own comment claims', () => {
     assert.equal(appCss.includes(`font-size: ${getFontSize(10)};`), true)
   })

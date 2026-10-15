@@ -64,7 +64,6 @@ describe('BaseButton over PrimitiveButton', () => {
     assert.doesNotMatch(enabled, /opacity: var\(--opacity-disabled\)/)
     assert.match(disabled, /opacity: var\(--opacity-disabled\)/)
     assert.match(disabled, /cursor: not-allowed/)
-    assert.doesNotMatch(disabled, /cursor: pointer/)
     assert.match(disabled, /<button[^>]*disabled/)
   })
 

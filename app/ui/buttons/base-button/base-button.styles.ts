@@ -80,11 +80,11 @@ export const baseButtonVariants: Record<BaseButtonVariant, StyleRecipe> = {
  * (`::before`) over dark (`::after`).
  */
 export const baseButton__primaryContained: StyleRecipe = {
-  backgroundColor: 'transparent',
   color: 'var(--color-font-light)',
   '&::before, &::after': {
     blockSize: '100%',
-    borderRadius: PILL,
+    // Follows the host, so a caller that changes its radius reshapes the gradients too.
+    borderRadius: 'inherit',
     content: '""',
     inlineSize: '100%',
     insetBlockStart: 0,
@@ -109,7 +109,6 @@ export const baseButton__primaryContained: StyleRecipe = {
 
 /** The primary color on the outlined variant: filled in on hover. */
 export const baseButton__primaryOutlined: StyleRecipe = {
-  backgroundColor: 'transparent',
   borderColor: 'var(--color-border-primary)',
   color: 'var(--color-font-primary)',
   [MEDIA_QUERY.HOVER]: {

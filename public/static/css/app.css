@@ -416,17 +416,20 @@
   /*
    * Two rules, both needed:
    *
-   * - `[hidden]` hides here again, not only in ress's `reset` layer: any `base`
-   *   rule that sets `display` (`label`, `video`, …) would otherwise outrank
-   *   ress and show a hidden element. The attribute-plus-`:not` selector also
-   *   outweighs those element selectors within this layer.
+   * - `[hidden]` hides here again, with `!important`, not only in ress's
+   *   `reset` layer: any later layer that sets `display` — a `base` element
+   *   rule (`label`, `video`, …) or a `css(...)` recipe in `rmx`
+   *   (`inline-flex` on every button, `flex` on the layouts) — would
+   *   otherwise outrank ress and show a hidden element. An important
+   *   declaration beats every normal one whatever its layer, so this one rule
+   *   covers them all; ress itself stays verbatim.
    * - `until-found` is excluded, and `revert` rolls it back past the author
    *   layers to the user agent: ress hides every `[hidden]`, and excluding it
    *   here alone could not undo that. The user agent keeps it rendered
    *   (hidden by content-visibility instead) so find-in-page can reveal it.
    */
   [hidden]:not([hidden='until-found']) {
-    display: none;
+    display: none !important;
   }
 
   [hidden='until-found'] {

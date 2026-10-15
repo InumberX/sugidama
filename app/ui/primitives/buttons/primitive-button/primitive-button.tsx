@@ -41,8 +41,8 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
       css({
         ...styles.primitiveButton,
         ...styleOverrides,
-        // Last, so a styled tier's own `cursor` (BaseButton sets `pointer`)
-        // cannot switch the disabled treatment back off.
+        // Last, so no caller recipe (a styled tier's own `cursor` or
+        // `pointer-events`) can switch the disabled treatment back off.
         ...(isDisabled ? styles.primitiveButton__disabled : null),
       }),
       mix,

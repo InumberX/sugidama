@@ -98,6 +98,8 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
     }
 
     // The props type leaves `nonClickableTag` as the only remaining choice.
+    // `?? 'span'` only keeps an untyped caller that passed none of the three
+    // from rendering nothing; typed code cannot reach it.
     const Tag = nonClickableTag ?? 'span'
 
     return (

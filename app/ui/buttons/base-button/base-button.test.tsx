@@ -34,6 +34,24 @@ describe('BaseButton over PrimitiveButton', () => {
     assert.doesNotMatch(html, /color: inherit/)
   })
 
+  it('merges a caller recipe last, under the disabled treatment', async () => {
+    const html = await renderToString(
+      <BaseButton
+        buttonType="submit"
+        isDisabled
+        styleOverrides={{ inlineSize: '100%', cursor: 'pointer' }}
+      >
+        Save
+      </BaseButton>
+    )
+
+    assert.equal(hostClassOf(html).split(' ').length, 1)
+    assert.match(html, /inline-size: 100%/)
+    assert.doesNotMatch(html, /inline-size: auto/)
+    assert.match(html, /cursor: not-allowed/)
+    assert.doesNotMatch(html, /cursor: pointer/)
+  })
+
   it('draws the contained primary button as two stacked gradients', async () => {
     const html = await renderToString(<BaseButton buttonType="button">Go</BaseButton>)
 

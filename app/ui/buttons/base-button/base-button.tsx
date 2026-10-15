@@ -18,6 +18,7 @@ export function BaseButton(handle: Handle<BaseButtonProps>) {
       color = 'primary',
       leftElm,
       rightElm,
+      styleOverrides,
       children,
       ...forwarded
     } = handle.props
@@ -31,6 +32,9 @@ export function BaseButton(handle: Handle<BaseButtonProps>) {
           ...styles.baseButtonVariants[variant],
           ...styles.baseButtonColors[color][variant],
           ...(forwarded.isDisabled ? styles.baseButton__disabled : null),
+          // The caller's recipe last (a full-width submit, a card's margin);
+          // the primitive still spreads its disabled treatment after it.
+          ...styleOverrides,
         }}
       >
         <span mix={css(styles.baseButton_container)}>

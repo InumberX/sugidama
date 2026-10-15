@@ -427,12 +427,14 @@
    *   layers to the user agent: ress hides every `[hidden]`, and excluding it
    *   here alone could not undo that. The user agent keeps it rendered
    *   (hidden by content-visibility instead) so find-in-page can reveal it.
+   *   The `i` flag matches the browser: an enumerated attribute's value is
+   *   ASCII case-insensitive, so `hidden="Until-Found"` is until-found too.
    */
-  [hidden]:not([hidden='until-found']) {
+  [hidden]:not([hidden='until-found' i]) {
     display: none !important;
   }
 
-  [hidden='until-found'] {
+  [hidden='until-found' i] {
     display: revert;
   }
 

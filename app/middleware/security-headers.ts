@@ -9,7 +9,7 @@ import { internalServerError } from './internal-server-error.ts'
 import { withHeaders } from './with-headers.ts'
 
 /** Sent on every router response. */
-export const ALWAYS = {
+const ALWAYS = {
   'X-Content-Type-Options': 'nosniff',
   // Kept next to CSP `frame-ancestors 'none'` for browsers that predate it.
   'X-Frame-Options': 'DENY',
@@ -19,7 +19,7 @@ export const ALWAYS = {
  * Production only (both deployed Workers): HSTS on `localhost` would pin the
  * browser to HTTPS for every local port for two years.
  */
-export const PRODUCTION_ONLY = {
+const PRODUCTION_ONLY = {
   'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
 } as const
 

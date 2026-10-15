@@ -86,6 +86,10 @@ const POLICY_TEMPLATE = Object.entries(DIRECTIVES)
 export const buildCspDirective = (nonce: string): string =>
   POLICY_TEMPLATE.replaceAll(NONCE_PLACEHOLDER, nonce)
 
+/** The same test Remix's render() applies to frame responses: media type only, any case. */
+const isHtml = (response: Response): boolean =>
+  response.headers.get('Content-Type')?.split(';', 1)[0]?.trim().toLowerCase() === 'text/html'
+
 /**
  * `render()` plus the CSP: installs the standard renderer, then replaces it with
  * one that wraps every page in `CspNonceProvider`, and sends the matching
@@ -107,17 +111,22 @@ export const renderWithCsp = (
 
   return (context, next) =>
     renderMiddleware(context, async () => {
-      const nonce = createNonce()
+      // Created on first use — a page render or the HTML header — so a
+      // redirect or a plain-text 404 never pays for one.
+      let nonce: string | undefined
+      const getNonce = () => (nonce ??= createNonce())
+
+      // AnyRenderer is all the key's type says; render() above is what put a
+      // RenderFunction there, so the cast restates what this function owns.
       const renderPage = context.get(Renderer) as RenderFunction
       const renderWithNonce: RenderFunction = (node, init) =>
-        renderPage(<CspNonceProvider nonce={nonce}>{node}</CspNonceProvider>, init)
+        renderPage(<CspNonceProvider nonce={getNonce()}>{node}</CspNonceProvider>, init)
       // Same key and property as render() used, so this replaces the renderer
       // rather than adding a second one; `context.render` now returns this.
       context.set(Renderer, renderWithNonce, { property: 'render' })
 
       const response = await next()
-      const isHtml = response.headers.get('Content-Type')?.startsWith('text/html') ?? false
-      if (!isHtml || response.headers.has('Content-Security-Policy')) return response
-      return withHeaders(response, { 'Content-Security-Policy': buildCspDirective(nonce) })
+      if (!isHtml(response) || response.headers.has('Content-Security-Policy')) return response
+      return withHeaders(response, { 'Content-Security-Policy': buildCspDirective(getNonce()) })
     })
 }

@@ -22,13 +22,15 @@ export type DocumentProps = {
    * still pass its tests, while quietly becoming indexable on staging.
    */
   url: URL
+  /** Google Analytics id. Defaults to `GOOGLE_ANALYTICS_ID`; tests pass one. */
+  analyticsId?: string
 }
 
 export function Document(handle: Handle<DocumentProps>) {
   const nonce = useCspNonce(handle)
 
   return () => {
-    const { children, head, meta = {}, url } = handle.props
+    const { analyticsId = GOOGLE_ANALYTICS_ID, children, head, meta = {}, url } = handle.props
 
     return (
       <html lang="ja">
@@ -49,7 +51,7 @@ export function Document(handle: Handle<DocumentProps>) {
           <link rel="stylesheet" href={`/static/css/app.css?${CACHE_BUSTER}`} />
           <title>{resolveTitle(meta)}</title>
           {renderMeta(meta, url)}
-          <GoogleAnalytics id={GOOGLE_ANALYTICS_ID} nonce={nonce} />
+          <GoogleAnalytics id={analyticsId} nonce={nonce} />
           {head}
         </head>
         <body>

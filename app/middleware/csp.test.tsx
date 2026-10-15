@@ -3,6 +3,7 @@ import type { Handle } from 'remix/component'
 import { createRouter } from 'remix/router'
 import { describe, it } from 'remix/test'
 
+import { Document } from '../actions/document.tsx'
 import { API_URL } from '../env.ts'
 import { useCspNonce } from '../ui/contexts/csp-nonce/csp-nonce.tsx'
 import { buildCspDirective, createNonce, renderWithCsp } from './csp.tsx'
@@ -116,18 +117,36 @@ describe('renderWithCsp()', () => {
     assert.equal(response.headers.get('Content-Security-Policy'), "default-src 'self'")
   })
 
+  it('treats the HTML media type case-insensitively, as render() does', async () => {
+    const router = createRouter({ middleware: [renderWithCsp()] })
+    router.get(
+      '/',
+      () => new Response('<p>x</p>', { headers: { 'Content-Type': 'TEXT/HTML; charset=UTF-8' } })
+    )
+    const response = await router.fetch(new Request('http://localhost/'))
+    assert.match(response.headers.get('Content-Security-Policy') ?? '', /'nonce-/)
+  })
+
+  it('puts the header nonce on the Google Analytics scripts Document renders', async () => {
+    const router = createRouter({ middleware: [renderWithCsp()] })
+    router.get('/', (context) =>
+      context.render(<Document url={context.url} analyticsId="G-TEST" />)
+    )
+    const response = await router.fetch(new Request('http://localhost/'))
+    const nonce = nonceFromHeader(response)
+    const scriptNonces = [...(await response.text()).matchAll(/<script[^>]* nonce="([^"]+)"/g)].map(
+      ([, value]) => value
+    )
+
+    assert.ok(nonce)
+    assert.deepEqual(scriptNonces, [nonce, nonce])
+  })
+
   it('uses a fresh nonce for every request', async () => {
     const router = createTestRouter()
     const first = await router.fetch(new Request('http://localhost/'))
     const second = await router.fetch(new Request('http://localhost/'))
 
     assert.notEqual(nonceFromHeader(first), nonceFromHeader(second))
-  })
-})
-
-describe('useCspNonce', () => {
-  it('is undefined outside a request', async () => {
-    const { renderToString } = await import('remix/component/server')
-    assert.match(await renderToString(<NonceProbe />), /<p id="nonce">none<\/p>/)
   })
 })

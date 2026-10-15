@@ -45,12 +45,21 @@ export type SecurityHeadersOptions = {
  * `internalServerError()`. A response without a CSP of its own gets
  * `FALLBACK_CSP`.
  *
+ * A header the response already carries is kept, for every header here alike:
+ * a route that sets its own policy (a CSP with `frame-ancestors` and the
+ * matching `X-Frame-Options`, say) has decided on it, and replacing half of a
+ * pair would contradict the other half.
+ *
  * Static files from the `ASSETS` binding never reach the router.
  */
 export const securityHeaders = ({
   production = IS_PRODUCTION,
 }: SecurityHeadersOptions = {}): Middleware => {
-  const headers = production ? { ...ALWAYS, ...PRODUCTION_ONLY } : ALWAYS
+  const headers = Object.entries({
+    ...ALWAYS,
+    ...(production ? PRODUCTION_ONLY : {}),
+    'Content-Security-Policy': FALLBACK_CSP,
+  })
 
   return async (_context, next) => {
     let response: Response
@@ -61,9 +70,7 @@ export const securityHeaders = ({
     }
     return withHeaders(
       response,
-      response.headers.has('Content-Security-Policy')
-        ? headers
-        : { ...headers, 'Content-Security-Policy': FALLBACK_CSP }
+      Object.fromEntries(headers.filter(([name]) => !response.headers.has(name)))
     )
   }
 }

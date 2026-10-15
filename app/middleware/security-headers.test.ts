@@ -12,6 +12,16 @@ const createTestRouter = (options?: SecurityHeadersOptions) => {
     '/own-policy',
     () => new Response('ok', { headers: { 'Content-Security-Policy': "default-src 'self'" } })
   )
+  router.get(
+    '/own-framing',
+    () =>
+      new Response('ok', {
+        headers: {
+          'Content-Security-Policy': "frame-ancestors 'self'",
+          'X-Frame-Options': 'SAMEORIGIN',
+        },
+      })
+  )
   router.get('/boom', () => {
     throw new Error('boom')
   })
@@ -39,6 +49,13 @@ describe('securityHeaders()', () => {
   it('keeps a policy the response already carries', async () => {
     const response = await createTestRouter().fetch(new Request('http://localhost/own-policy'))
     assert.equal(response.headers.get('Content-Security-Policy'), "default-src 'self'")
+  })
+
+  it('keeps every header the response already carries, not only the policy', async () => {
+    const response = await createTestRouter().fetch(new Request('http://localhost/own-framing'))
+    assert.equal(response.headers.get('Content-Security-Policy'), "frame-ancestors 'self'")
+    assert.equal(response.headers.get('X-Frame-Options'), 'SAMEORIGIN')
+    assert.equal(response.headers.get('X-Content-Type-Options'), 'nosniff')
   })
 
   it('sends a two-year, preload-ready HSTS policy in production', async () => {

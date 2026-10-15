@@ -86,7 +86,12 @@ const POLICY_TEMPLATE = Object.entries(DIRECTIVES)
 export const buildCspDirective = (nonce: string): string =>
   POLICY_TEMPLATE.replaceAll(NONCE_PLACEHOLDER, nonce)
 
-/** The same test Remix's render() applies to frame responses: media type only, any case. */
+/**
+ * The same test Remix's render() applies to frame responses: media type only,
+ * any case. A copy of `isHtmlResponse()` in
+ * @remix-run/render-middleware/src/lib/render-ui.ts, which is not exported;
+ * keep the two in step when Remix is upgraded.
+ */
 const isHtml = (response: Response): boolean =>
   response.headers.get('Content-Type')?.split(';', 1)[0]?.trim().toLowerCase() === 'text/html'
 

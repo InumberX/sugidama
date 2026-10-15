@@ -1,8 +1,8 @@
 // Ported from auba-general-view: app/components/primitives/buttons/PrimitiveButton
 //
-// Unstyled skeleton. It owns element selection (anchor with a `url`, button with
-// a `buttonType`, otherwise an inert tag), the accessibility attributes and the
-// user-agent reset — nothing else. Design decisions belong to the styled tier in
+// Unstyled skeleton. It owns element selection (an anchor with a `url`, the
+// inert tag named by `nonClickableTag`, otherwise a button), the accessibility
+// attributes and the user-agent reset — nothing else. Design decisions belong to the styled tier in
 // `app/ui/<category>/`, which passes them down through `styleOverrides`.
 import { css, type Handle, type MixInput } from 'remix/component'
 
@@ -18,7 +18,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
       target,
       rel,
       buttonType = 'button',
-      isDisabled,
+      isDisabled = false,
       children,
       styleOverrides,
       mix,
@@ -30,14 +30,8 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
       ariaLabel,
       ariaControls,
       ariaSelected,
-      nonClickableTag = 'span',
+      nonClickableTag,
     } = handle.props
-
-    // Cross-origin links are never enhanced by the client runtime, and in-page
-    // hash links should stay a plain browser jump, so both opt out explicitly.
-    const isDocumentNavigation = url
-      ? url.startsWith('http://') || url.startsWith('https://') || url.startsWith('#')
-      : false
 
     // One css(...) call: the reset, the disabled treatment and the caller's
     // recipe are merged as plain objects, so JS spread order decides which
@@ -52,6 +46,18 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
     ]
 
     if (url) {
+      // A disabled link keeps its element but loses `href`: an `<a>` without
+      // one is neither focusable nor followable, so Tab and Enter cannot reach
+      // a destination that `pointer-events: none` only hid from the mouse.
+      // `role="link"` and `aria-disabled` keep it announced as a disabled link.
+      if (isDisabled) {
+        return (
+          <a role="link" aria-disabled="true" title={title} aria-label={ariaLabel} mix={hostStyle}>
+            {children}
+          </a>
+        )
+      }
+
       return (
         <a
           href={url}
@@ -63,7 +69,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
           aria-label={ariaLabel}
           aria-controls={ariaControls}
           aria-selected={ariaSelected}
-          data-rmx-document={isDocumentNavigation ? '' : undefined}
+          data-rmx-document={isDocumentNavigation(url) ? '' : undefined}
           mix={hostStyle}
         >
           {children}
@@ -71,11 +77,11 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
       )
     }
 
-    // The raw prop, not the destructured `buttonType`: that one carries the
-    // 'button' default above and is therefore always truthy. What decides this
-    // branch is whether the caller asked for a button at all — with neither a
-    // `url` nor a `buttonType`, the component falls through to the inert tag.
-    if (handle.props.buttonType) {
+    // A button unless the caller asked for an inert tag. React's version made
+    // a button only when given `onClick` or `buttonType`, but a Remix click
+    // handler is a `mix={on('click', …)}` the component cannot see, so the
+    // inert case is the one that has to be named.
+    if (!nonClickableTag) {
       return (
         <button
           type={buttonType}
@@ -101,6 +107,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
       <Tag
         title={title}
         role={role}
+        tabIndex={tabIndex}
         aria-label={ariaLabel}
         aria-controls={ariaControls}
         aria-selected={ariaSelected}
@@ -111,3 +118,11 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
     )
   }
 }
+
+/**
+ * Whether a link should bypass the client runtime's navigation and load as a
+ * plain document. Only a root-relative path (`/drinks`) is a page of this
+ * app; anything else — another origin, a protocol-relative `//host`, `mailto:`,
+ * `tel:`, an in-page `#hash` — is left to the browser.
+ */
+const isDocumentNavigation = (url: string): boolean => !url.startsWith('/') || url.startsWith('//')

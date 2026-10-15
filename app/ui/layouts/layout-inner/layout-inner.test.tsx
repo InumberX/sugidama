@@ -6,13 +6,13 @@ import { LayoutInner } from './layout-inner.tsx'
 
 describe('LayoutInner', () => {
   it('caps width per size and opts out with full', async () => {
-    const medium = await renderToString(<LayoutInner>x</LayoutInner>)
+    const large = await renderToString(<LayoutInner>x</LayoutInner>)
     const full = await renderToString(<LayoutInner size="full">x</LayoutInner>)
 
-    assert.match(medium, /--layout-inner-width-medium/)
+    assert.match(large, /--layout-inner-width-large/)
     assert.match(full, /max-inline-size: none/)
     // Responsive padding comes from the shared query constants.
-    assert.match(medium, /@media screen and \(width >= 768px\), print/)
+    assert.match(large, /@media screen and \(width >= 768px\), print/)
   })
 
   it('lets a caller override through styleOverrides', async () => {

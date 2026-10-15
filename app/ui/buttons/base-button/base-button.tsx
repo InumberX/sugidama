@@ -1,6 +1,8 @@
-// Styled counterpart to the unstyled primitive: it adds tone, padding, radius
+// Ported from develop: app/components/ui/buttons/BaseButton
+//
+// Styled counterpart to the unstyled primitive: it adds size, variant, color
 // and motion, and delegates element selection and accessibility downwards.
-import type { Handle } from 'remix/component'
+import { css, type Handle } from 'remix/component'
 
 import { PrimitiveButton } from '../../primitives/buttons/primitive-button/primitive-button.tsx'
 import * as styles from './base-button.styles.ts'
@@ -10,14 +12,32 @@ export type * from './base-button.types.ts'
 
 export function BaseButton(handle: Handle<BaseButtonProps>) {
   return () => {
-    const { tone = 'neutral', children, ...forwarded } = handle.props
+    const {
+      size = 'medium',
+      variant = 'contained',
+      color = 'primary',
+      leftElm,
+      rightElm,
+      children,
+      ...forwarded
+    } = handle.props
 
     return (
       <PrimitiveButton
         {...forwarded}
-        styleOverrides={{ ...styles.baseButton, ...styles.baseButtonTones[tone] }}
+        styleOverrides={{
+          ...styles.baseButton,
+          ...styles.baseButtonSizes[size],
+          ...styles.baseButtonVariants[variant],
+          ...styles.baseButtonColors[color][variant],
+          ...(forwarded.isDisabled ? styles.baseButton__disabled : null),
+        }}
       >
-        {children}
+        <span mix={css(styles.baseButton_container)}>
+          {leftElm}
+          <span mix={css(styles.baseButton_text)}>{children}</span>
+          {rightElm}
+        </span>
       </PrimitiveButton>
     )
   }

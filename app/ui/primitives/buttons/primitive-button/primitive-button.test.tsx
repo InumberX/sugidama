@@ -13,14 +13,31 @@ describe('PrimitiveButton', () => {
     assert.doesNotMatch(html, /data-rmx-document/)
   })
 
-  it('opts out of client navigation for external and hash urls', async () => {
-    const external = await renderToString(
-      <PrimitiveButton url="https://remix.run">Remix</PrimitiveButton>
-    )
-    const hash = await renderToString(<PrimitiveButton url="#top">Top</PrimitiveButton>)
+  it('opts out of client navigation for anything but a root-relative path', async () => {
+    for (const url of [
+      'https://remix.run',
+      'http://example.com',
+      '//example.com/x',
+      'mailto:hello@example.com',
+      'tel:0312345678',
+      '#top',
+    ]) {
+      const html = await renderToString(<PrimitiveButton url={url}>Link</PrimitiveButton>)
+      assert.match(html, /data-rmx-document/, url)
+    }
+  })
 
-    assert.match(external, /data-rmx-document/)
-    assert.match(hash, /data-rmx-document/)
+  it('renders a disabled link without href, so the keyboard cannot follow it', async () => {
+    const html = await renderToString(
+      <PrimitiveButton url="/books" isDisabled tabIndex={0}>
+        Books
+      </PrimitiveButton>
+    )
+
+    assert.match(html, /<a[^>]*aria-disabled="true"/)
+    assert.match(html, /role="link"/)
+    assert.doesNotMatch(html, /href=/)
+    assert.doesNotMatch(html, /tabindex/i)
   })
 
   it('renders a button when buttonType is given', async () => {
@@ -34,12 +51,28 @@ describe('PrimitiveButton', () => {
     assert.match(html, /name="intent"/)
   })
 
-  it('falls back to an inert tag with no url and no buttonType', async () => {
-    const span = await renderToString(<PrimitiveButton>Label</PrimitiveButton>)
-    const div = await renderToString(<PrimitiveButton nonClickableTag="div">Label</PrimitiveButton>)
+  it('renders a button by default, so a click handler in mix gets one', async () => {
+    const plain = await renderToString(<PrimitiveButton>Label</PrimitiveButton>)
+    const clickable = await renderToString(
+      <PrimitiveButton mix={on('click', () => {})}>Click</PrimitiveButton>
+    )
+
+    assert.match(plain, /<button[^>]*type="button"/)
+    assert.match(clickable, /<button[^>]*type="button"/)
+  })
+
+  it('renders the named inert tag, passing tabIndex through', async () => {
+    const span = await renderToString(
+      <PrimitiveButton nonClickableTag="span">Label</PrimitiveButton>
+    )
+    const div = await renderToString(
+      <PrimitiveButton nonClickableTag="div" tabIndex={0}>
+        Label
+      </PrimitiveButton>
+    )
 
     assert.match(span, /<span/)
-    assert.match(div, /<div/)
+    assert.match(div, /<div[^>]*tabindex="0"/i)
   })
 
   it('marks a disabled button as disabled', async () => {

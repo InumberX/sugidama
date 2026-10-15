@@ -54,5 +54,10 @@ export type PrimitiveButtonProps = {
   ariaLabel?: string
   ariaControls?: string
   ariaSelected?: boolean | 'true' | 'false'
+  /**
+   * Render this inert tag instead of a button — for a label that looks like a
+   * button but does nothing. Without it and without `url`, the component is a
+   * `<button>` (`type` from `buttonType`, default `button`).
+   */
   nonClickableTag?: NonClickableTag
 }

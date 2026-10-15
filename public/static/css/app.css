@@ -282,27 +282,70 @@
  */
 @layer base {
   :root {
-    /* Font */
+    /* Font — develop's app/styles/variables/cssVariables.css.ts */
     --font-family-main:
-      'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Noto Sans JP',
+      '游ゴシック Medium', 'Yu Gothic', YuGothic, YuGothicMedium, 'Hiragino Kaku Gothic ProN', Meiryo,
       sans-serif;
     --font-weight-medium: 500;
     --font-weight-bold: 700;
 
-    /* Color */
+    /* Color: text */
+    --color-font-base: #2c2c2c;
+    --color-font-light: #fff;
+    --color-font-primary: #a2beed;
+    --color-font-primary-dark: #76a3ed;
+    --color-font-sub: #bebebe;
+    --color-font-sub-dark: #858585;
+    --color-font-mark: #fff;
+    --color-font-placeholder: #bebebe;
+    --color-font-error: #f44336;
+    --color-font-required: #d42020;
+
+    /* Color: background */
+    --color-background-body: #efefef;
+    --color-background-light: #fff;
+    --color-background-primary: #a2beed;
+    --color-background-primary-light: #dfe7f4;
+    --color-background-sub: #bebebe;
+    --color-background-sub-dark: #858585;
+    --color-background-sub-light: #efefef;
+    --color-background-mark: #000;
+    --color-background-success: #35c379;
+    --color-background-success-light: #e3f9ed;
+    --color-background-error: #f44336;
+    --color-background-error-light: #f7e3e1;
+
+    /* Color: border */
+    --color-border-primary: #a2beed;
+    --color-border-sub: #bebebe;
+    --color-border-sub-dark: #858585;
+    --color-border-error: #f44336;
+
+    /* Color: gradation stops, for linear-gradient(<angle>, var(--color-gradation-primary)) */
+    --color-gradation-primary: oklch(80.6% 0.071 260.6deg) 0, oklch(87.7% 0.084 336.7deg) 100%;
+    --color-gradation-primary-dark: oklch(76.3% 0.11 260.1deg) 0, oklch(80.7% 0.153 338.2deg) 100%;
+
+    /* Color: misc */
     --color-util-black: #000;
-    --color-util-white: #fff;
+    --color-skeleton-sub: #e7e7e7;
+
+    /* Opacity, scale, leading trim */
+    --opacity-hover: 0.6;
+    --opacity-disabled: 0.4;
+    --scale-hover: 1.16;
+    --leading-trim: calc((1em - 1lh) / 2);
+
+    /* Stacking */
+    --z-index-header-wrapper: 10000;
+    --z-index-header-global: 10100;
+    --z-index-header-bar: 10200;
 
     /* Layout — consumed by app/ui/layouts/* */
-    --layout-inner-width-small: 800px;
-    --layout-inner-width-medium: 1064px;
-    --layout-inner-width-large: 1376px;
+    --layout-inner-width-large: 1400px;
     --layout-inner-padding-xs: 4vi;
     --layout-inner-padding-sm: 4.6vi;
     --layout-inner-padding-md: 32px;
-    --layout-header-height-small: 64px;
-    --layout-header-height-medium: 72px;
-    --layout-header-space-top: 16px;
+    --layout-header-height: 64px;
   }
 
   * {
@@ -317,15 +360,14 @@
   }
 
   html {
-    background: var(--color-util-white);
+    background: var(--color-background-body);
     block-size: 100%;
-    color: var(--color-util-black);
+    color: var(--color-font-base);
     inline-size: 100%;
     line-height: 1;
   }
 
   body {
-    color: var(--color-util-black);
     font-family: var(--font-family-main);
     font-weight: var(--font-weight-medium);
     inline-size: 100%;
@@ -359,13 +401,20 @@
     display: none;
   }
 
-  [hidden]:not([hidden='until-found']),
-  template {
-    display: none;
+  /*
+   * ress hides every `[hidden]` in the `reset` layer, `until-found` included,
+   * and a rule here that merely excludes `until-found` cannot undo that.
+   * `revert` rolls back past the author layers to the user agent, which keeps
+   * an `until-found` element rendered (hidden by content-visibility instead) so
+   * find-in-page can reveal it.
+   */
+  [hidden='until-found'] {
+    display: revert;
   }
 
   a {
-    color: var(--color-util-black);
+    color: var(--color-font-primary);
+    cursor: pointer;
     text-decoration: none;
     transition:
       0.3s color,
@@ -375,15 +424,29 @@
 
     &:link,
     &:visited {
-      color: var(--color-util-black);
+      color: var(--color-font-primary);
       text-decoration: none;
     }
 
     @media (any-hover: hover) {
-      &:hover {
-        color: var(--color-util-black);
+      &:hover,
+      &:active {
+        color: var(--color-font-primary-dark);
+        text-decoration: underline;
       }
     }
+  }
+
+  /*
+   * ress removes the focus outline from links, buttons and form controls
+   * (`:focus { outline-width: 0 }`) without putting anything back, which left
+   * keyboard users with no visible focus — develop only ever removed it from
+   * inputs. `:focus-visible` brings it back for keyboard navigation without
+   * showing it on every mouse click. A component may restyle it in `rmx`.
+   */
+  :focus-visible {
+    outline: 2px solid var(--color-font-primary-dark);
+    outline-offset: 2px;
   }
 
   i,
@@ -396,6 +459,19 @@
   strong,
   em {
     font-weight: var(--font-weight-bold);
+  }
+
+  dfn {
+    font-style: italic;
+  }
+
+  mark {
+    background-color: var(--color-background-mark);
+    color: var(--color-font-mark);
+  }
+
+  small {
+    font-size: 100%;
   }
 
   img {
@@ -450,11 +526,79 @@
   ol,
   li {
     /* getClampRem(14, 16) — fluid between the 360px and 1400px viewports */
-    font-size: clamp(0.875rem, 0.832rem + 0.19vi, 1rem);
+    font-size: clamp(0.875rem, 0.8317rem + 0.1923vi, 1rem);
   }
 
   [role='tabpanel']:target {
     display: revert;
+  }
+
+  /* Forms — develop's "Reset:Form" block, minus what ress already does */
+  fieldset {
+    border: none;
+  }
+
+  label {
+    cursor: pointer;
+    display: block;
+  }
+
+  optgroup {
+    font-weight: var(--font-weight-bold);
+  }
+
+  button,
+  input,
+  optgroup,
+  select,
+  textarea {
+    color: var(--color-font-base);
+    font-family: var(--font-family-main);
+
+    /* getFontSize(16): below 16px, iOS Safari zooms into a focused field */
+    font-size: 1rem;
+    font-weight: var(--font-weight-medium);
+    line-height: 1.6;
+  }
+
+  input:is(
+      [type='text'],
+      [type='tel'],
+      [type='email'],
+      [type='date'],
+      [type='month'],
+      [type='search'],
+      [type='password'],
+      [type='number']
+    ),
+  select,
+  textarea {
+    appearance: none;
+  }
+
+  input[type='number'] {
+    appearance: textfield;
+  }
+
+  textarea {
+    field-sizing: content;
+    resize: vertical;
+  }
+
+  :is(button, input, select, textarea):disabled {
+    cursor: not-allowed;
+  }
+
+  :is(input, select, textarea)[readonly] {
+    pointer-events: none;
+  }
+
+  ::placeholder {
+    color: var(--color-font-placeholder);
+  }
+
+  :is(input, textarea):focus::placeholder {
+    color: transparent;
   }
 }
 

@@ -143,9 +143,9 @@ Create a category directory when it gets its first member; do not pre-create emp
 
 `primitives/` owns element selection, accessibility attributes and the user-agent reset, and takes **no** design decisions — no colors, no type scale, no motion. `color` and `font` are set to `inherit`, never to a token. Verified consequence: the primitive's only runtime import is its own sibling `.styles.ts`, so the whole directory can move into a `public/` directory and hydrate on its own (HTTP 200) without dragging the token layer along.
 
-`<category>/` owns the design decisions and passes them down. `buttons/base-button/` is the reference pair — it adds tone, padding, radius and motion, and forwards everything else to `primitives/buttons/primitive-button/`.
+`<category>/` owns the design decisions and passes them down. `buttons/base-button/` is the reference pair — it adds size, variant (`contained` gradient / `outlined`), color, the disabled dimming and motion, and forwards everything else to `primitives/buttons/primitive-button/`. The primitive renders an `<a>` for a `url` (without `href` when disabled, so the keyboard cannot follow it), the inert tag named by `nonClickableTag`, and otherwise a `<button>` — a Remix click handler is a `mix={on('click', …)}` the component cannot see, so the inert case is the one that has to be asked for. Only a root-relative `url` gets client navigation; anything else carries `data-rmx-document`.
 
-`layouts/` holds the structural wrappers ported from generalview — `layout-wrapper` (full-height column), `layout-main` (the `@container` container), `layout-page-wrapper` (header offset), `layout-inner` (centred, width-capped). Their measurements are `--layout-*` custom properties in `app.css` rather than TS values, so `util` can retune the grid. Each takes the same `styleOverrides` recipe as the button primitive, which is how `/dev/ui` shrinks a `100svb` wrapper to 160px for display.
+`layouts/` holds the structural wrappers ported from develop — `layout-wrapper` (full-height column), `layout-main` (the `@container` container and the white sheet inside it), `layout-page-wrapper` (header offset above and below), `layout-section` (vertical rhythm per band), `layout-inner` (centred, width-capped). Their measurements are `--layout-*` custom properties in `app.css` rather than TS values, so `util` can retune the grid. Each takes the same `styleOverrides` recipe as the button primitive, which is how `/dev/ui` shrinks a `100svb` wrapper to 160px for display.
 
 ### Rules that came from measurement, not taste
 
@@ -230,6 +230,11 @@ Three things this file has to get right, each learned the hard way:
 - **It has to be served verbatim, so it lives in root `public/`.** The asset server's CSS compiler rewrites `@layer` statements; the Workers `ASSETS` binding serves the file byte for byte. The `<link>` also has to be parsed before any `css(...)` rule — Remix appends its `<style data-rmx-style>` tags at the *end* of `<head>`, so a link written in `document.tsx` always wins that race.
 
 The link carries `?${CACHE_BUSTER}` (`app/env.ts`, from `BUILD_ID`) because root `public/` URLs never change on their own — see **Caching** below.
+
+The `base` layer carries develop's design tokens as custom properties (`--color-font-base`, `--color-gradation-primary`, `--opacity-disabled`, `--layout-*`, …) and develop's element defaults (body font and colors, link colors, form controls), adjusted only where ress needs it:
+
+- **`:focus-visible`** gets an outline back. ress removes the focus outline from links, buttons and form controls with nothing in its place; develop only ever removed it from inputs.
+- **`[hidden='until-found']`** is `display: revert`. ress hides every `[hidden]` in `reset`, and a `base` rule that merely excludes `until-found` cannot undo that; `revert` rolls back to the user agent, which keeps the element findable.
 
 There is no PostCSS here. `@mixin`, `@custom-media` and `@media (--name)` are PostCSS syntax: they survive into the served file and are then dropped or never match, silently. `getClampRem`/`getFontSize` values have to be written out as plain `clamp()` / `rem`.
 

@@ -5,7 +5,12 @@ import { describe, it } from 'remix/test'
 import { PrimitiveButton } from '../../primitives/buttons/primitive-button/primitive-button.tsx'
 import { BaseButton } from './base-button.tsx'
 
-const classesOf = (html: string) => [...html.matchAll(/class="([^"]+)"/g)].map((m) => m[1])
+/** The class on the host element: the first tag after the collected styles. */
+const hostClassOf = (html: string) => {
+  const match = /<\/head><\w+[^>]*class="([^"]+)"/.exec(html)
+  if (!match) throw new Error(`no host element in ${html}`)
+  return match[1]
+}
 
 describe('BaseButton over PrimitiveButton', () => {
   it('keeps the primitive element selection', async () => {
@@ -19,17 +24,56 @@ describe('BaseButton over PrimitiveButton', () => {
     )
   })
 
-  it('resolves the tier override inside a single class', async () => {
-    const html = await renderToString(<BaseButton tone="primary">Go</BaseButton>)
+  it('merges reset and styled recipe into a single host class', async () => {
+    const html = await renderToString(<BaseButton buttonType="button">Go</BaseButton>)
 
-    // One host class: reset and styled recipe were merged, not stacked.
-    assert.equal(classesOf(html).length, 1)
+    assert.equal(hostClassOf(html).split(' ').length, 1)
     // The styled tier's color won over the reset's `color: inherit`. It is a
     // custom property so the `util` layer can still override it.
-    assert.match(html, /color: var\(--color-util-white\)/)
+    assert.match(html, /color: var\(--color-font-light\)/)
     assert.doesNotMatch(html, /color: inherit/)
-    // Reset declarations the styled tier did not touch survive.
-    assert.match(html, /border: none/)
+  })
+
+  it('draws the contained primary button as two stacked gradients', async () => {
+    const html = await renderToString(<BaseButton buttonType="button">Go</BaseButton>)
+
+    assert.match(html, /linear-gradient\(90deg, var\(--color-gradation-primary\)\)/)
+    assert.match(html, /linear-gradient\(90deg, var\(--color-gradation-primary-dark\)\)/)
+    assert.match(html, /:hover::before/)
+  })
+
+  it('outlines the primary color for the outlined variant', async () => {
+    const html = await renderToString(
+      <BaseButton buttonType="button" variant="outlined">
+        Go
+      </BaseButton>
+    )
+
+    assert.match(html, /border-color: var\(--color-border-primary\)/)
+    assert.doesNotMatch(html, /linear-gradient/)
+  })
+
+  it('dims a disabled button', async () => {
+    const enabled = await renderToString(<BaseButton buttonType="button">Go</BaseButton>)
+    const disabled = await renderToString(
+      <BaseButton buttonType="button" isDisabled>
+        Go
+      </BaseButton>
+    )
+
+    assert.doesNotMatch(enabled, /opacity: var\(--opacity-disabled\)/)
+    assert.match(disabled, /opacity: var\(--opacity-disabled\)/)
+    assert.match(disabled, /<button[^>]*disabled/)
+  })
+
+  it('renders the elements on either side of the label', async () => {
+    const html = await renderToString(
+      <BaseButton buttonType="button" leftElm={<i>L</i>} rightElm={<i>R</i>}>
+        Label
+      </BaseButton>
+    )
+
+    assert.match(html, /<i>L<\/i><span[^>]*>Label<\/span><i>R<\/i>/)
   })
 
   it('leaves the primitive unstyled on its own', async () => {
@@ -37,6 +81,6 @@ describe('BaseButton over PrimitiveButton', () => {
 
     assert.match(html, /color: inherit/)
     assert.match(html, /font: inherit/)
-    assert.doesNotMatch(html, /#/) // no design tokens reach this tier
+    assert.doesNotMatch(html, /var\(--color/) // no design tokens reach this tier
   })
 })

@@ -4,7 +4,7 @@ import { css } from 'remix/component'
 import { renderToString } from 'remix/component/server'
 import { describe, it } from 'remix/test'
 
-import { getClampPx, getClampRem, getLineClamp, getTransition } from './mixins.ts'
+import { getClampPx, getClampRem, getFontSize, getLineClamp, getTransition } from './mixins.ts'
 
 describe('getTransition', () => {
   it('defaults the speed and omits an unset delay', () => {
@@ -20,12 +20,41 @@ describe('getTransition', () => {
   })
 })
 
-describe('getClampRem', () => {
-  // 62.5% ルート基準で、BREAKPOINTS.xs（360px）から BREAKPOINTS.xxl（1400px）
-  // までの間を補間する。丸めが 6 箇所あり、目視では追えない。
-  it('interpolates between the two ends of the breakpoint scale', () => {
-    assert.equal(getClampRem(14, 16), 'clamp(0.875rem, 0.832rem + 0.19vi, 1rem)')
-    assert.equal(getClampRem(12, 14), 'clamp(0.75rem, 0.707rem + 0.19vi, 0.875rem)')
+/**
+ * Evaluates the middle term of a clamp() at a viewport width, in px. A string
+ * comparison alone would not catch a line that misses its ends — which is the
+ * bug develop's `getClampPx` had.
+ */
+const evaluateAt = (clamp: string, viewport: number): number => {
+  const match = /^clamp\([^,]+, (-?[\d.]+)(px|rem) \+ (-?[\d.]+)vi, [^)]+\)$/.exec(clamp)
+  if (!match) throw new Error(`unexpected clamp: ${clamp}`)
+  const [, intercept, unit, slope] = match
+  return Number(intercept) * (unit === 'rem' ? 16 : 1) + (Number(slope) / 100) * viewport
+}
+
+describe('getClampPx / getClampRem', () => {
+  const pairs: [number, number][] = [
+    [10, 11],
+    [12, 14],
+    [14, 16],
+    [20, 28],
+    [24, 40],
+    [40, 80],
+    [16, 16],
+  ]
+
+  it('reaches the minimum at 360px and the maximum at 1400px, within 0.01px', () => {
+    for (const [min, max] of pairs) {
+      for (const clamp of [getClampPx(min, max), getClampRem(min, max)]) {
+        assert.ok(Math.abs(evaluateAt(clamp, 360) - min) < 0.01, `${clamp} at 360px`)
+        assert.ok(Math.abs(evaluateAt(clamp, 1400) - max) < 0.01, `${clamp} at 1400px`)
+      }
+    }
+  })
+
+  it('prints the bounds in the helper unit, against the 16px root for rem', () => {
+    assert.equal(getClampPx(40, 80), 'clamp(40px, 26.154px + 3.8462vi, 80px)')
+    assert.equal(getClampRem(14, 16), 'clamp(0.875rem, 0.8317rem + 0.1923vi, 1rem)')
   })
 
   it('collapses to a constant when both ends are equal', () => {
@@ -33,9 +62,10 @@ describe('getClampRem', () => {
   })
 })
 
-describe('getClampPx', () => {
-  it('interpolates in px rather than rem', () => {
-    assert.equal(getClampPx(40, 80), 'clamp(40px, 26px + 3.85vi, 80px)')
+describe('getFontSize', () => {
+  it('converts px to rem against the 16px root', () => {
+    assert.equal(getFontSize(10), '0.625rem')
+    assert.equal(getFontSize(12), '0.75rem')
   })
 })
 

@@ -14,6 +14,8 @@ export const specimen_label: StyleRecipe = { color: '#6b7676', fontSize: '12px' 
 
 export const specimen_stage: StyleRecipe = {
   display: 'flex',
+  flexWrap: 'wrap',
+  gap: '8px',
   alignItems: 'center',
   minHeight: '40px',
   padding: '8px',

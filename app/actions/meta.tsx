@@ -6,12 +6,13 @@
 // page overrides only what differs.
 import type { RemixNode } from 'remix/component'
 
-import { IS_PRODUCTION, NO_INDEX, SITE_URL } from '../env.ts'
+import { IS_PRODUCTION, NO_INDEX, SITE_NAME, SITE_URL } from '../env.ts'
 
-// Placeholders until feature/remix3-seo ports the localized site name and
-// description from app/locales/*/common.json on develop.
-export const SITE_NAME = 'Sugidama'
-export const BASE_TITLE = 'Sugidama'
+// BASE_TITLE and BASE_DESCRIPTION are placeholders until feature/remix3-seo.
+// develop builds the base title as `${SITE_NAME} | ${BASE_TITLE_NOTE}`, with the
+// note and the description localized in app/locales/*/common.json; keep
+// SITE_NAME in it, since that is what marks staging as "Sugidama(Staging)".
+export const BASE_TITLE = SITE_NAME
 export const BASE_DESCRIPTION = 'Sugidama'
 export const DEFAULT_OG_IMAGE = '/assets/img/img-ogp.jpg'
 

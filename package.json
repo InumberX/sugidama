@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy-development": "wrangler deploy --env=development",
-    "deploy-production": "wrangler deploy --env=production",
+    "deploy-development": "sh scripts/deploy.sh development",
+    "deploy-production": "sh scripts/deploy.sh production",
     "bundle": "wrangler deploy --dry-run --env=production --outdir=tmp/worker",
     "test": "NODE_ENV=test remix test",
     "typecheck": "tsc -b",

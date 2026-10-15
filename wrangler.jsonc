@@ -1,6 +1,11 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "sugidama",
+  // The top level is what `wrangler dev` runs, and it carries no `vars` or
+  // `define`. Its name must not be a deployed Worker's: a bare `wrangler deploy`
+  // (no --env) would otherwise replace production with a Worker that has no
+  // vars, localhost canonical URLs and the shell's NODE_ENV. Under this name it
+  // creates a stray Worker instead, and workers/wrangler.test.ts pins that.
+  "name": "sugidama-local",
   "compatibility_date": "2026-05-04",
   // `nodejs_compat` supplies the `node:` built-ins some remix packages import,
   // and (with a compatibility date of 2025-04-01 or later) fills `process.env`
@@ -24,17 +29,41 @@
   // Every deployed Worker is a production build — staging included, which is
   // kept out of search engines by NO_INDEX, not by NODE_ENV. Wrangler would
   // otherwise take NODE_ENV from the deploying shell first, so a stray
-  // `NODE_ENV=development` would ship /dev/ui to the live site. `define` is not
-  // inherited by environments, so each one repeats it; the top level is left to
-  // wrangler's default, which is "development" under `wrangler dev`.
+  // `NODE_ENV=development` would ship /dev/ui to the live site.
+  //
+  // Neither `define` nor `vars` is inherited by an environment, so each one
+  // repeats both in full, and workers/wrangler.test.ts checks that it does.
+  // The top level sets neither: `wrangler dev` keeps wrangler's "development"
+  // and app/env.ts's local defaults (overridable from `.dev.vars`).
+  //
+  // BUILD_ID and DEPLOYED_AT are per deploy, so scripts/deploy.sh (behind
+  // `npm run deploy-*`) passes them with `--var` instead.
+  //
+  // `vars` are public — this repository is, and the dashboard shows them in plain
+  // text. Only values a visitor can already see belong here. Credentials are
+  // Worker secrets (`wrangler secret put`), never vars; see CLAUDE.md.
   "env": {
     "development": {
       "name": "dev-sugidama",
       "define": { "process.env.NODE_ENV": "\"production\"" },
+      "vars": {
+        "SITE_URL": "https://dev-sugidama.afterworks.jp",
+        "NO_INDEX": "true",
+        "SITE_NAME": "Sugidama(Staging)",
+        "API_URL": "https://afterworks.g.kuroco.app/rcms-api/7",
+        "GOOGLE_ANALYTICS_ID": "G-P7SXGX2CCT",
+      },
     },
     "production": {
       "name": "sugidama",
       "define": { "process.env.NODE_ENV": "\"production\"" },
+      "vars": {
+        "SITE_URL": "https://sugidama.afterworks.jp",
+        "NO_INDEX": "false",
+        "SITE_NAME": "Sugidama",
+        "API_URL": "https://afterworks.g.kuroco.app/rcms-api/8",
+        "GOOGLE_ANALYTICS_ID": "G-VQP1LGZ7QV",
+      },
     },
   },
 }

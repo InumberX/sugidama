@@ -32,6 +32,9 @@ describe('i18n', () => {
     // The current language maps onto itself.
     assert.equal(toLangPath(at('/en/drinks'), 'en', 'en'), '/en/drinks')
     assert.equal(toLangPath(at('/drinks'), 'ja', 'ja'), '/drinks')
+    // A `from` the URL does not carry removes nothing, not a real segment.
+    assert.equal(toLangPath(at('/drinks'), 'en', 'ja'), '/drinks')
+    assert.equal(toLangPath(at('/english/a'), 'en', 'ja'), '/english/a')
   })
 
   it('returns each language its own messages, interpolation included', () => {

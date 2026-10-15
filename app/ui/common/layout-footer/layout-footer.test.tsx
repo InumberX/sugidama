@@ -2,7 +2,7 @@ import * as assert from 'remix/assert'
 import { renderToString } from 'remix/component/server'
 import { describe, it } from 'remix/test'
 
-import { LayoutFooter } from './layout-footer.tsx'
+import { getYearInJapan, LayoutFooter } from './layout-footer.tsx'
 
 describe('LayoutFooter', () => {
   it('prints the copyright as untranslated English', async () => {
@@ -14,9 +14,15 @@ describe('LayoutFooter', () => {
     )
   })
 
-  it('defaults to the current year', async () => {
+  it('defaults to the current year in Japan', async () => {
     const html = await renderToString(<LayoutFooter />)
 
-    assert.match(html, new RegExp(`Copyright © ${new Date().getFullYear()} `))
+    assert.match(html, new RegExp(`Copyright © ${getYearInJapan(new Date())} `))
+  })
+
+  it('turns the year over at midnight in Japan, not in UTC', () => {
+    // 2027-01-01 03:00 in Japan, still 2026 in UTC.
+    assert.equal(getYearInJapan(new Date('2026-12-31T18:00:00Z')), 2027)
+    assert.equal(getYearInJapan(new Date('2026-12-31T14:59:59Z')), 2026)
   })
 })

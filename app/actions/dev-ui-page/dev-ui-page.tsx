@@ -35,8 +35,8 @@ const SVG_ICON_VARIANTS = Object.keys(svgIconStyles.svgIconVariants) as SvgIconV
 
 /** Sample tags: a category and a tag, both linking to a filtered list. */
 const EXAMPLE_TAGS = [
-  { url: `${routes.drinks.index.href()}?drink=1`, children: 'ビール' },
-  { url: `${routes.drinks.index.href()}?tag=1`, children: 'すっきり' },
+  { url: routes.drinks.index.href(null, { searchParams: { drink: 1 } }), children: 'ビール' },
+  { url: routes.drinks.index.href(null, { searchParams: { tag: 1 } }), children: 'すっきり' },
 ]
 
 /** Sample cards: with and without a thumbnail, a long title, and one without a link. */

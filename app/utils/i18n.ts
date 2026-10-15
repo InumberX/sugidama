@@ -46,12 +46,17 @@ export const defineMessages = <T>(
 /**
  * The same page in another language, as a root-relative path with the query:
  * `/drinks?drink=1` in Japanese is `/en/drinks?drink=1` in English and back.
- * `from` is the request's own language (`context.lang`), whose prefix — if it
- * has one — is the URL's first segment. The fragment is never sent to the
- * server, so it cannot be carried over.
+ * `from` is the request's own language (`context.lang`); its prefix is removed
+ * only when the URL really starts with it, so a wrong `from` cannot cut off a
+ * real segment. Meant for language-prefixed routes: a route without the
+ * optional `lang` group (`/dev/ui`) has no English URL to switch to. The
+ * fragment is never sent to the server, so it cannot be carried over.
  */
 export const toLangPath = (url: URL, from: Lang, to: Lang): string => {
-  const path = from === DEFAULT_LANG ? url.pathname : url.pathname.replace(/^\/[^/]*/, '') || '/'
+  const prefix = `/${from}`
+  const isPrefixed =
+    from !== DEFAULT_LANG && (url.pathname === prefix || url.pathname.startsWith(`${prefix}/`))
+  const path = isPrefixed ? url.pathname.slice(prefix.length) || '/' : url.pathname
   const prefixed = to === DEFAULT_LANG ? path : `/${to}${path === '/' ? '' : path}`
   return `${prefixed}${url.search}`
 }

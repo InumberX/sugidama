@@ -2,7 +2,8 @@
 import { css, type Handle } from 'remix/component'
 
 import { routes } from '../../../routes.ts'
-import { defineMessages, LANGS, toLangParam, toLangPath } from '../../../utils/i18n.ts'
+import { LANGS, toLangParam, toLangPath } from '../../../utils/i18n.ts'
+import { PAGE_NAMES } from '../../../utils/page-names.ts'
 import { SvgIcon, type SvgIconVariant } from '../../icons/svg-icon/svg-icon.tsx'
 import { LayoutInner } from '../../layouts/layout-inner/layout-inner.tsx'
 import { PrimitiveButton } from '../../primitives/buttons/primitive-button/primitive-button.tsx'
@@ -10,12 +11,6 @@ import * as styles from './layout-header.styles.ts'
 import type { LayoutHeaderProps } from './layout-header.types.ts'
 
 export type * from './layout-header.types.ts'
-
-/** develop's `PAGE_INFO` names for the pages in the global menu. */
-const MESSAGES = defineMessages({
-  ja: { home: 'ホーム', drinks: 'お酒一覧' },
-  en: { home: 'Home', drinks: 'Drinks' },
-})
 
 /** How each language is labelled in the switch. */
 const LANG_LABELS = { ja: 'JA', en: 'EN' } as const
@@ -26,12 +21,12 @@ const LOGO = { src: '/assets/img/img-logo.webp', alt: 'Sugidama', width: 160, he
 export function LayoutHeader(handle: Handle<LayoutHeaderProps>) {
   return () => {
     const { lang, url, isLogoTitle } = handle.props
-    const messages = MESSAGES[lang]
+    const pageNames = PAGE_NAMES[lang]
     const langParam = { lang: toLangParam(lang) }
     const LogoTitle = isLogoTitle ? 'h1' : 'div'
     const globalMenuItems: { title: string; url: string; icon: SvgIconVariant }[] = [
-      { title: messages.home, url: routes.home.href(langParam), icon: 'home' },
-      { title: messages.drinks, url: routes.drinks.index.href(langParam), icon: 'liquor' },
+      { title: pageNames.home, url: routes.home.href(langParam), icon: 'home' },
+      { title: pageNames.drinks, url: routes.drinks.index.href(langParam), icon: 'liquor' },
     ]
 
     return (
@@ -51,7 +46,10 @@ export function LayoutHeader(handle: Handle<LayoutHeaderProps>) {
             <div mix={css(styles.layoutHeader_container)}>
               <div mix={css(styles.layoutHeaderLogo)}>
                 <LogoTitle mix={css(styles.layoutHeaderLogo_title)}>
-                  <a href={routes.home.href(langParam)} mix={css(styles.layoutHeaderLogo_link)}>
+                  <PrimitiveButton
+                    url={routes.home.href(langParam)}
+                    styleOverrides={styles.layoutHeaderLogo_link}
+                  >
                     <img
                       src={LOGO.src}
                       alt={LOGO.alt}
@@ -59,7 +57,7 @@ export function LayoutHeader(handle: Handle<LayoutHeaderProps>) {
                       height={LOGO.height}
                       mix={css(styles.layoutHeaderLogo_image)}
                     />
-                  </a>
+                  </PrimitiveButton>
                 </LogoTitle>
               </div>
 
@@ -71,7 +69,10 @@ export function LayoutHeader(handle: Handle<LayoutHeaderProps>) {
                         <ul mix={css(styles.layoutHeaderMenuGlobal_items)}>
                           {globalMenuItems.map((item) => (
                             <li key={item.url} mix={css(styles.layoutHeaderMenuGlobal_item)}>
-                              <a href={item.url} mix={css(styles.layoutHeaderMenuGlobal_link)}>
+                              <PrimitiveButton
+                                url={item.url}
+                                styleOverrides={styles.layoutHeaderMenuGlobal_link}
+                              >
                                 <SvgIcon
                                   variant={item.icon}
                                   styleOverrides={styles.layoutHeaderMenuGlobal_icon}
@@ -79,7 +80,7 @@ export function LayoutHeader(handle: Handle<LayoutHeaderProps>) {
                                 <span mix={css(styles.layoutHeaderMenuGlobal_text)}>
                                   {item.title}
                                 </span>
-                              </a>
+                              </PrimitiveButton>
                             </li>
                           ))}
                         </ul>

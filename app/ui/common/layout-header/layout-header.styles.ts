@@ -122,11 +122,10 @@ export const layoutHeaderLogo_title: StyleRecipe = {
   blockSize: '100%',
 }
 
+/** `PrimitiveButton`'s overrides, like every link in the header. */
 export const layoutHeaderLogo_link: StyleRecipe = {
-  alignItems: 'center',
   blockSize: '100%',
   display: 'flex',
-  textDecoration: 'none',
   transition: getTransition([{ property: 'opacity' }]),
   [MEDIA_QUERY.HOVER]: { '&:hover': { opacity: 'var(--opacity-hover)' } },
 }
@@ -204,7 +203,6 @@ export const layoutHeaderMenuGlobal_item: StyleRecipe = {
 
 export const layoutHeaderMenuGlobal_link: StyleRecipe = {
   ...fontSmallBold,
-  alignItems: 'center',
   blockSize: '100%',
   color: 'var(--color-font-base)',
   display: 'flex',
@@ -213,7 +211,6 @@ export const layoutHeaderMenuGlobal_link: StyleRecipe = {
   justifyContent: 'center',
   paddingBlock: '4px',
   paddingInline: '16px',
-  textDecoration: 'none',
   [MEDIA_QUERY.HOVER]: { '&:hover': { color: 'var(--color-font-primary)' } },
   [MEDIA_QUERY.SM]: { flexDirection: 'row', gap: '8px', paddingInline: '20px' },
   [MEDIA_QUERY.MD]: { paddingInline: '26px' },

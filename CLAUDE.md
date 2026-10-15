@@ -99,7 +99,7 @@ There is no file-system routing in Remix 3, so a Next-style `page.tsx` would car
 
 `url` comes from `context.url` in the action, because a component has no request of its own. `<title>` is rendered by `Document` from the shared `resolveTitle()` and is deliberately absent from `renderMeta()` — emitting it in both places would produce two `<title>` elements. Anything but production gets `noindex, nofollow`, and `NO_INDEX=true` forces it in production too.
 
-Per-page titles stay a `PAGE_TITLE` constant in the page module. A central screen registry (generalview's `app/config/paths.ts`) is not worth its weight until spec screen ids need tracing — the earlier `app/pages.ts` experiment worked, but only one route ever reads a given title.
+Per-page titles stay a `PAGE_TITLE` constant in the page module. A central screen registry (generalview's `app/config/paths.ts`) is not worth its weight until spec screen ids need tracing — the earlier `app/pages.ts` experiment worked, but only one route ever reads a given title. The exception is a name something else also shows: the header's global menu names the home and drinks pages, so those names live once in `app/utils/page-names.ts` (`PAGE_NAMES[lang].drinks`), and the page reads its title from there too.
 
 `/dev/ui` is a component gallery for development. The route is declared in every build so `typeof routes` stays stable, and the action returns 404 when `IS_PRODUCTION`. It renders every `app/ui/` variant through the real `context.render()` pipeline, so a specimen cannot diverge from what ships — which is why this exists instead of Storybook (no Remix 3 renderer exists, and a Vite builder would add a second, differently-resolving module graph).
 
@@ -349,13 +349,13 @@ Request flow: `workers/app.ts` → `workers/handler.ts` (Basic auth, then `ASSET
 
 The pieces that must stay in sync:
 
-- **`app/routes.ts`** — the single source of truth for URLs. Add routes here before wiring anything else, and build every internal URL with `routes.<name>.href(...)` rather than a string literal.
+- **`app/routes.ts`** — the single source of truth for URLs. Add routes here before wiring anything else, and build every internal URL with `routes.<name>.href(...)` rather than a string literal — a query too, through `href(params, { searchParams })`.
 - **`app/router.ts`** — builds the middleware stack, derives `AppContext` from it via `MiddlewareContext<[...]>`, publishes that type through `declare module 'remix'`, then calls `router.map(routes, controller)`. `router.map` wires only *direct leaf* routes; each nested route map needs its own `router.map(routes.<key>, controller)` line and its own `app/actions/<route-key>/controller.tsx`.
 - **`app/actions/controller.tsx`** — `createController(routes, { actions })`, one action per leaf route key. Actions return `Response` objects; UI responses go through `context.render(<Node />)`, which the `render()` middleware provides.
 - **`app/env.ts`** — the only module that reads `process.env`. Everything else imports the resolved constants (`NODE_ENV`, `IS_PRODUCTION`, `BUILD_ID`, `HAS_BUILD_ID`, `DEPLOYED_AT`, `CACHE_BUSTER`, `SITE_URL`, `NO_INDEX`, `SITE_NAME`, `API_URL`, `GOOGLE_ANALYTICS_ID`) — tests included: `app/env.test.ts` skips on `HAS_BUILD_ID` rather than reading the variable.
 - **`app/ui/`** — shared cross-route UI, organized by category (see "The `app/ui/` layout").
 - **`app/middleware/`** — request-lifecycle middleware (`security-headers.ts`, `csp.tsx`, see **Security**; `lang.ts`, `trailing-slash.ts`, `local-redirect.ts`, see **Languages**).
-- **`app/utils/i18n.ts`** — the language list and the message helper (see **Languages**).
+- **`app/utils/i18n.ts`** — the language list and the message helper (see **Languages**); `app/utils/page-names.ts` — page names shown in more than one place (see **Page metadata**).
 - **`workers/`** — the Worker entry and its env type (see **Cloudflare Workers**).
 
 ## Code Conventions

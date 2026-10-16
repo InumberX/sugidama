@@ -13,6 +13,12 @@
   "compatibility_flags": ["nodejs_compat"],
   "main": "./workers/app.ts",
   "workers_dev": false,
+  // Compiles the browser modules into public/client/ before `wrangler dev` (and
+  // again whenever app/ changes) and before every deploy, dry runs included.
+  "build": {
+    "command": "npm run build-client",
+    "watch_dir": "app",
+  },
   "assets": {
     // Root `public/` is served as-is. There is no build step, so there is no
     // `build/client` to point at.

@@ -35,9 +35,9 @@ export const loadIndexPage = async (
     }),
   ])
 
-  if ('success' in terms) return apiErrorResponse(terms)
+  if (!terms.success) return apiErrorResponse(terms)
 
-  const { categories, tagGroups } = terms
+  const { categories, tagGroups } = terms.data
   const result: DrinkSearchResult = drinks.success
     ? {
         success: true,

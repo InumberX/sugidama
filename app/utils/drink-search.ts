@@ -32,8 +32,12 @@ export type DrinkSearch = {
 export const normalizeSearchKeyword = (keyword: string | null): string =>
   (keyword ?? '').trim().replace(/\u3000/g, ' ')
 
+/** Positive integers written as plain digits; anything else (`2abc`, `1.9`, `-5`, `1e3`) is dropped. */
 const toIds = (values: string[]): number[] =>
-  values.map((value) => Number.parseInt(value, 10)).filter((id) => Number.isInteger(id))
+  values
+    .filter((value) => /^\d+$/.test(value))
+    .map(Number)
+    .filter((id) => Number.isSafeInteger(id) && id > 0)
 
 /**
  * Reads the list's query. Unknown ids are dropped, as develop dropped them;

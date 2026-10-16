@@ -31,13 +31,13 @@ export const searchDrinksFormInputs: StyleRecipe = {
   [CONTAINER_QUERY.MD]: { paddingBlockEnd: getClampPx(16, 24) },
 }
 
-export const searchDrinksFormInputs_reset: StyleRecipe = {
+export const searchDrinksFormReset: StyleRecipe = {
   display: 'flex',
   justifyContent: 'flex-end',
   [CONTAINER_QUERY.MD]: { justifyContent: 'flex-start' },
 }
 
-export const searchDrinksFormInputs_resetIcon: StyleRecipe = {
+export const searchDrinksFormReset_icon: StyleRecipe = {
   backgroundColor: 'var(--color-background-sub)',
   flexShrink: 0,
   inlineSize: '20px',
@@ -46,18 +46,25 @@ export const searchDrinksFormInputs_resetIcon: StyleRecipe = {
 
 /**
  * Below md the conditions fold away behind "Add conditions"; the grid row
- * animates between 0fr and 1fr. Without JavaScript they stay open, since
- * nothing could open them.
+ * animates between 0fr and 1fr. Folded, they are `visibility: hidden` too, so
+ * the clipped checkboxes are out of the tab order and the accessibility tree
+ * from the first paint, before the client entry hydrates (the visibility
+ * switches at the end of the closing animation, and at once when opening).
+ * Without JavaScript they stay open, since nothing could open them.
  */
 export const searchDrinksConditions: StyleRecipe = {
   display: 'grid',
   gridTemplateRows: '0fr',
-  transition: getTransition([{ property: 'grid-template-rows' }]),
-  [MEDIA_QUERY.NOT_SCRIPTING]: { gridTemplateRows: '1fr' },
-  [CONTAINER_QUERY.MD]: { gridTemplateRows: '1fr' },
+  transition: getTransition([{ property: 'grid-template-rows' }, { property: 'visibility' }]),
+  visibility: 'hidden',
+  [MEDIA_QUERY.NOT_SCRIPTING]: { gridTemplateRows: '1fr', visibility: 'visible' },
+  [CONTAINER_QUERY.MD]: { gridTemplateRows: '1fr', visibility: 'visible' },
 }
 
-export const searchDrinksConditions__open: StyleRecipe = { gridTemplateRows: '1fr' }
+export const searchDrinksConditions__open: StyleRecipe = {
+  gridTemplateRows: '1fr',
+  visibility: 'visible',
+}
 
 export const searchDrinksConditions_wrapper: StyleRecipe = { overflow: 'hidden' }
 

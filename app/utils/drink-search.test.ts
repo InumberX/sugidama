@@ -39,6 +39,13 @@ describe('parseDrinkSearch', () => {
     assert.deepEqual(search?.taste, [])
   })
 
+  it('drops ids that only start like one, and any that is not a positive safe integer', () => {
+    const values = ['2abc', '1.9', '-5', '1e3', '0', '99999999999999999999', ' 4']
+    const search = parseDrinkSearch(new URLSearchParams(values.map((v) => ['drink', v])))
+
+    assert.deepEqual(search?.drink, [])
+  })
+
   it('accepts a positive page and rejects anything else', () => {
     assert.equal(parseDrinkSearch(new URLSearchParams('page=3'))?.page, 3)
     for (const page of ['0', '-1', '1.5', 'abc', '', '99999999999999999999']) {

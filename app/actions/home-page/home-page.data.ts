@@ -25,10 +25,10 @@ export const loadHomePage = async (lang: Lang): Promise<HomePageData | Response>
     getDrinks({ page: 1, pageSize: NEW_ARRIVALS_TOTAL }),
   ])
 
-  if ('success' in terms) return apiErrorResponse(terms)
+  if (!terms.success) return apiErrorResponse(terms)
   if (!drinksResult.success) return apiErrorResponse(drinksResult)
 
-  const { categories, tagGroups } = terms
+  const { categories, tagGroups } = terms.data
   // The section title is the page's h2, so each card's title is an h3.
   // Capped here too, so a response longer than `cnt` cannot grow the page.
   const cards = drinksResult.data.list

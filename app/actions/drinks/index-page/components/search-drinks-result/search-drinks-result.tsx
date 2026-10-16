@@ -36,13 +36,17 @@ export function SearchDrinksResult(handle: Handle<SearchDrinksResultProps>) {
   return () => {
     const { result, currentPage, hrefFor, messages } = handle.props
 
+    // The id is on every branch: pagination links point at it, and a page
+    // whose search failed is still reached through one.
     if (!result.success) {
       return (
-        <BaseAlert
-          color="error"
-          title={messages.errorTitle}
-          description={`${messages.errorMessageTitle}${result.message}`}
-        />
+        <div id={SEARCH_DRINKS_RESULT_ID}>
+          <BaseAlert
+            color="error"
+            title={messages.errorTitle}
+            description={`${messages.errorMessageTitle}${result.message}`}
+          />
+        </div>
       )
     }
 

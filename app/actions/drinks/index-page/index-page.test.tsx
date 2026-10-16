@@ -17,7 +17,9 @@ const drinksRequest = (fetch: ReturnType<typeof mockKuroco>) => {
 
 describe('drinks index page', () => {
   it('passes the search to the API', async (t) => {
-    const fetch = mockKuroco(t)
+    const fetch = mockKuroco(t, {
+      '/drinks': { ...drinksFixture([drinkFixture()]), pageInfo: { totalCnt: 100 } },
+    })
     const response = await get('/drinks?keyword=%E8%BE%9B&drink=2&taste=11&drinkability=21&page=3')
     const params = drinksRequest(fetch)
 
@@ -64,6 +66,14 @@ describe('drinks index page', () => {
     assert.match(html, /aria-label="次のページへ"/)
   })
 
+  it('answers a page past the last one with a 404, but not the first page of no results', async (t) => {
+    const many = Array.from({ length: 12 }, (_, i) => drinkFixture({ topics_id: i, slug: `d${i}` }))
+    mockKuroco(t, { '/drinks': { ...drinksFixture(many), pageInfo: { totalCnt: 24 } } })
+
+    assert.equal((await get('/drinks?page=2')).status, 200)
+    assert.equal((await get('/drinks?page=3')).status, 404)
+  })
+
   it('says so when nothing matches', async (t) => {
     mockKuroco(t, { '/drinks': drinksFixture([]) })
     const html = await (await get('/drinks?keyword=none')).text()
@@ -79,6 +89,8 @@ describe('drinks index page', () => {
 
     assert.equal(response.status, 200)
     assert.match(html, /role="alert"/)
+    // Pagination links carry #search-drinks-result, so it has to exist here too.
+    assert.match(html, /id="search-drinks-result"/)
     assert.match(html, /<form action="\/drinks" method="get"/)
   })
 

@@ -5,6 +5,8 @@ import { renderToString } from 'remix/component/server'
 import { describe, it } from 'remix/test'
 
 import { clientModuleUrl } from '../../../../../../ui/public/client-module-url.ts'
+import { CONTAINER_QUERY, MEDIA_QUERY } from '../../../../../../ui/styles/public/media-query.ts'
+import * as styles from './search-drinks-form.styles.ts'
 import { SearchDrinksForm } from './search-drinks-form.tsx'
 import type { SearchDrinksFormProps } from './search-drinks-form.types.ts'
 
@@ -53,5 +55,19 @@ describe('SearchDrinksForm', () => {
 
     assert.match(html, /味わい<i[^>]*>1<\/i>/)
     assert.match(html, /name="taste" value="12" checked/)
+  })
+})
+
+describe('searchDrinksConditions', () => {
+  it('keeps folded conditions out of the tab order from the first paint, not only after hydration', () => {
+    const at = (key: string) =>
+      (styles.searchDrinksConditions as Record<string, unknown>)[key] as
+        | Record<string, unknown>
+        | undefined
+
+    assert.equal(styles.searchDrinksConditions.visibility, 'hidden')
+    assert.equal(styles.searchDrinksConditions__open.visibility, 'visible')
+    assert.equal(at(CONTAINER_QUERY.MD)?.visibility, 'visible')
+    assert.equal(at(MEDIA_QUERY.NOT_SCRIPTING)?.visibility, 'visible')
   })
 })

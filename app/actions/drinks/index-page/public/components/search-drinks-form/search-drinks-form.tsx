@@ -89,23 +89,16 @@ export const SearchDrinksForm = clientEntry(
           ),
         }
       })
-      // Folded conditions are out of reach until opened; on wide screens they
-      // never fold.
-      const isFolded = !isWide && !isOpen
-
       return (
         <form action={action} method="get" mix={[css(styles.searchDrinksForm), watchLayout]}>
           <div mix={css(styles.searchDrinksFormInputs)}>
-            <div mix={css(styles.searchDrinksFormInputs_reset)}>
+            <div mix={css(styles.searchDrinksFormReset)}>
               <TextButton
                 url={resetHref}
                 size="small"
                 color="sub"
                 leftElm={
-                  <SvgIcon
-                    variant="replay"
-                    styleOverrides={styles.searchDrinksFormInputs_resetIcon}
-                  />
+                  <SvgIcon variant="replay" styleOverrides={styles.searchDrinksFormReset_icon} />
                 }
               >
                 {messages.reset}
@@ -123,7 +116,6 @@ export const SearchDrinksForm = clientEntry(
 
             <div
               id={CONDITIONS_ID}
-              inert={isFolded ? true : undefined}
               mix={css({
                 ...styles.searchDrinksConditions,
                 ...(isOpen ? styles.searchDrinksConditions__open : null),

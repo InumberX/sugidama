@@ -37,6 +37,8 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
     } = handle.props
     // Never focusable while hidden from assistive technology.
     const focusIndex = ariaHidden ? -1 : tabIndex
+    // A boolean ARIA state has to be the string: Remix writes `true` as a bare attribute.
+    const expanded = ariaExpanded === undefined ? undefined : ariaExpanded ? 'true' : 'false'
 
     // One css(...) call: the reset, the disabled treatment and the caller's
     // recipe are merged as plain objects, so JS spread order decides which
@@ -73,7 +75,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
           aria-label={ariaLabel}
           aria-hidden={ariaHidden ? 'true' : undefined}
           aria-controls={ariaControls}
-          aria-expanded={ariaExpanded === undefined ? undefined : ariaExpanded ? 'true' : 'false'}
+          aria-expanded={expanded}
           aria-selected={ariaSelected}
           data-rmx-document={!isDisabled && isDocumentNavigation(url) ? '' : undefined}
           mix={hostStyle}
@@ -96,7 +98,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
           aria-label={ariaLabel}
           aria-hidden={ariaHidden ? 'true' : undefined}
           aria-controls={ariaControls}
-          aria-expanded={ariaExpanded === undefined ? undefined : ariaExpanded ? 'true' : 'false'}
+          aria-expanded={expanded}
           aria-selected={ariaSelected}
           mix={hostStyle}
         >
@@ -118,7 +120,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
         aria-label={ariaLabel}
         aria-hidden={ariaHidden ? 'true' : undefined}
         aria-controls={ariaControls}
-        aria-expanded={ariaExpanded === undefined ? undefined : ariaExpanded ? 'true' : 'false'}
+        aria-expanded={expanded}
         aria-selected={ariaSelected}
         mix={hostStyle}
       >

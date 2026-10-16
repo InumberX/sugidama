@@ -23,6 +23,12 @@
             "name": "node:test",
             "message": "Use `remix/test`. `remix test` does not count node:test results, so a failing node:test test still exits 0."
           }
+        ],
+        "patterns": [
+          {
+            "group": ["@remix-run/ui", "@remix-run/ui/*"],
+            "message": "Use BaseTabs / BaseAccordion from app/ui. @remix-run/ui is unstable (0.x) and is wrapped there, so a breaking release touches one place rather than every page."
+          }
         ]
       }
     ],
@@ -84,6 +90,25 @@
         "react/no-render-return-value": "off",
         "react/no-string-refs": "off",
         "react/no-unsafe": "off"
+      }
+    },
+    {
+      "files": [
+        "app/ui/tabs/public/base-tabs/base-tabs.tsx",
+        "app/ui/accordions/public/base-accordion/base-accordion.tsx"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "node:test",
+                "message": "Use `remix/test`. `remix test` does not count node:test results, so a failing node:test test still exits 0."
+              }
+            ]
+          }
+        ]
       }
     }
   ]

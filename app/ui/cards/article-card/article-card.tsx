@@ -2,7 +2,7 @@
 import { css, type Handle, type RemixNode } from 'remix/component'
 
 import { BaseTagList } from '../../lists/base-tag-list/base-tag-list.tsx'
-import { PrimitiveButton } from '../../primitives/buttons/primitive-button/primitive-button.tsx'
+import { PrimitiveButton } from '../../primitives/buttons/public/primitive-button/primitive-button.tsx'
 import type { StyleRecipe } from '../../styles/public/mixins.ts'
 import * as styles from './article-card.styles.ts'
 import type { ArticleCardProps } from './article-card.types.ts'

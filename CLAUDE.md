@@ -87,6 +87,8 @@ home-page/
 
 `public/` is a visibility boundary rather than a category (it only starts to matter once a client entry exists — see **Browser JavaScript**), so it wraps `components/` instead of replacing it. The template's `app/assets.ts` allows `app/**/public/**`, and the `**` matches at any depth — verified — so nesting inside it costs nothing and the sub-component shape stays the same on both sides of the boundary.
 
+A page that needs data before it renders loads it in `<name>-page.data.ts` beside the page (`home-page/home-page.data.ts`): one async function the action awaits, which returns the page's props or the `Response` to answer with instead. It is develop's route `loader`, minus the framework — the action decides when to call it, and the page component stays a pure function of its props.
+
 There is no file-system routing in Remix 3, so a Next-style `page.tsx` would carry no framework meaning and would need `routes.ts` kept in sync by hand anyway; naming after the action key ties the file to the unit the framework actually dispatches on, and keeps editor tabs distinguishable.
 
 ### Page metadata
@@ -201,9 +203,17 @@ Upper bounds are written as exclusive (`width < ${BREAKPOINTS.md}px`), which Med
 
 Nothing in `app/ui/styles/` may import a component.
 
+## Data
+
+`app/data/` is the Kuroco API, ported from develop's `app/server/api/`: `api-client.ts` (the one `fetch`, under `API_URL`, uncached), then one module per resource — `drinks.ts`, `drink-categories.ts`, `tags.ts` — each beside a `.types.ts` trimmed to the fields the site reads. Every call resolves to an `ApiResult` instead of throwing, so the caller decides what a failure means; a page's loader returns `apiErrorResponse(result)`, which passes the API's status through (or 500 when nothing answered), as develop's loaders threw it. That response is plain text until the error page arrives with step 9 of issue #115.
+
+The API's raw records become what the pages show in two steps: `to*Terms()` beside each fetcher turn categories and tags into one-language `Term`s, and `app/utils/drink-card.ts` turns a drink into the props both card components take. Dates are formatted with `Intl` in `app/utils/date.ts` (Japan time; Workers ship full ICU), not date-fns.
+
+The API's dates are ISO strings in JSON; develop typed them as `Date`, which they never were at runtime.
+
 ## Tests
 
-Co-locate tests beside what they test, one per component directory — `app/actions/controller.test.tsx`, `app/ui/**/<name>/<name>.test.tsx`, `app/env.test.ts`, `app/middleware/*.test.ts(x)` (`with-headers.ts` is the shared header helper), `app/utils/*.test.ts`, `workers/handler.test.ts`, `workers/wrangler.test.ts` (for the root `wrangler.jsonc`). The CLI discovers by filename pattern rather than location. Root `test/` is reserved for shared helpers, fixtures, and integration/E2E coverage, and does not exist yet.
+Co-locate tests beside what they test, one per component directory — `app/actions/controller.test.tsx`, `app/ui/**/<name>/<name>.test.tsx`, `app/env.test.ts`, `app/middleware/*.test.ts(x)` (`with-headers.ts` is the shared header helper), `app/data/*.test.ts`, `app/utils/*.test.ts`, `workers/handler.test.ts`, `workers/wrangler.test.ts` (for the root `wrangler.jsonc`). The CLI discovers by filename pattern rather than location. Root `test/` holds shared helpers and fixtures: `test/kuroco.ts` has API fixtures and `mockKuroco(t, overrides)`, which replaces the global `fetch` for one test (the test context restores it) and throws on any endpoint it does not know. **A test that renders a page backed by the API must call it** — otherwise the page fetches the real API and the test depends on the network.
 
 Drive route behavior with `router.fetch(new Request(...))` and assert on the `Response`; use `renderToString` for component specimens. See the note in **Commands** about `remix/test` vs `node:test`.
 
@@ -355,7 +365,8 @@ The pieces that must stay in sync:
 - **`app/env.ts`** — the only module that reads `process.env`. Everything else imports the resolved constants (`NODE_ENV`, `IS_PRODUCTION`, `BUILD_ID`, `HAS_BUILD_ID`, `DEPLOYED_AT`, `CACHE_BUSTER`, `SITE_URL`, `NO_INDEX`, `SITE_NAME`, `API_URL`, `GOOGLE_ANALYTICS_ID`) — tests included: `app/env.test.ts` skips on `HAS_BUILD_ID` rather than reading the variable.
 - **`app/ui/`** — shared cross-route UI, organized by category (see "The `app/ui/` layout").
 - **`app/middleware/`** — request-lifecycle middleware (`security-headers.ts`, `csp.tsx`, see **Security**; `lang.ts`, `trailing-slash.ts`, `local-redirect.ts`, see **Languages**).
-- **`app/utils/i18n.ts`** — the language list and the message helper (see **Languages**); `app/utils/page-names.ts` — page names shown in more than one place (see **Page metadata**).
+- **`app/data/`** — the Kuroco API client and its resources (see **Data**).
+- **`app/utils/i18n.ts`** — the language list and the message helper (see **Languages**); `app/utils/page-names.ts` — page names shown in more than one place (see **Page metadata**); `drink-card.ts`, `drink-search.ts`, `date.ts` — see **Data**.
 - **`workers/`** — the Worker entry and its env type (see **Cloudflare Workers**).
 
 ## Code Conventions
@@ -372,4 +383,4 @@ Follow the placement precedence in `AGENTS.md`: narrowest owner first, then `app
 
 `app/` top level is for single-instance, app-wide contracts that no narrower owner can hold — `routes.ts`, `router.ts`, `env.ts`.
 
-`app/actions/home-page/home-page.tsx` and `app/actions/drinks/index-page/index-page.tsx` are placeholders until the SG10_100 and SG20_100 ports replace them; the drinks one exists so the header's menu has a route to link to.
+`app/actions/drinks/index-page/index-page.tsx` and `app/actions/drinks/show-page/show-page.tsx` are placeholders until the SG20_100 and SG20_101 ports replace them; they exist so the header's menu and the drink cards have routes to link to.

@@ -57,7 +57,7 @@ export function ArticleCard(handle: Handle<ArticleCardProps>) {
         )}
 
         <div {...linkAttributes} mix={css(styles.articleCardThumbnail)}>
-          <CardLink url={url} styleOverrides={styles.articleCardThumbnail_container}>
+          <CardLink url={url} styleOverrides={styles.articleCardThumbnail_container} isRedundant>
             <span mix={css(styles.articleCardThumbnail_contents)}>
               <img
                 src={thumbnail?.src ?? EMPTY_THUMBNAIL}
@@ -72,15 +72,31 @@ export function ArticleCard(handle: Handle<ArticleCardProps>) {
   }
 }
 
-/** A link to the card's page, or an inert span when the card has none. */
+/**
+ * A link to the card's page, or an inert span when the card has none.
+ * `isRedundant` marks a second link to the same page (the thumbnail): it is
+ * kept for the mouse but skipped by the keyboard and by screen readers, which
+ * would otherwise meet an unnamed link whenever the image has no alt text. An
+ * inert part keeps its content, alt text included, for there is no title link
+ * it repeats. The home page's ArticleCompactCard has its own copy; keep the two in step.
+ */
 function CardLink(
-  handle: Handle<{ url?: string; styleOverrides: StyleRecipe; children?: RemixNode }>
+  handle: Handle<{
+    url?: string
+    styleOverrides: StyleRecipe
+    isRedundant?: boolean
+    children?: RemixNode
+  }>
 ) {
   return () => {
-    const { url, styleOverrides, children } = handle.props
+    const { url, styleOverrides, isRedundant, children } = handle.props
     const element = url === undefined ? { nonClickableTag: 'span' as const } : { url }
     return (
-      <PrimitiveButton {...element} styleOverrides={styleOverrides}>
+      <PrimitiveButton
+        {...element}
+        ariaHidden={isRedundant && url !== undefined}
+        styleOverrides={styleOverrides}
+      >
         {children}
       </PrimitiveButton>
     )

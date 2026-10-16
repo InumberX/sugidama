@@ -47,6 +47,14 @@ type PrimitiveButtonCommonProps = {
   role?: PrimitiveButtonRole
   tabIndex?: number
   ariaLabel?: string
+  /**
+   * Hides the element from assistive technology, e.g. a second link to the same
+   * page, and takes it out of the tab order with it: focus must never land on
+   * an element screen readers are told to ignore. Rendered as
+   * `aria-hidden="true"`: Remix writes a boolean `true` as a bare attribute,
+   * which ARIA reads as unset.
+   */
+  ariaHidden?: boolean
   ariaControls?: string
   ariaSelected?: boolean | 'true' | 'false'
 }

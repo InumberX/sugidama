@@ -13,9 +13,10 @@ import { get, route } from 'remix/routes'
 export const routes = route({
   home: get('/(:lang)'),
   // A route area: its own controller (app/actions/drinks/) and router.map line.
-  // The detail page (`show`) joins it with the SG20_101 port.
+  // `drinkId` is the drink's slug, or its topics_id when it has none.
   drinks: {
     index: get('/(:lang/)drinks'),
+    show: get('/(:lang/)drinks/:drinkId'),
   },
   // Development-only component gallery. Declared unconditionally so the route
   // map stays a stable type; the action returns 404 outside development.

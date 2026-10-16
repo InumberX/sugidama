@@ -4,6 +4,7 @@ import { IS_PRODUCTION } from '../env.ts'
 import { lang } from '../middleware/lang.ts'
 import { routes } from '../routes.ts'
 import { DevUiPage } from './dev-ui-page/dev-ui-page.tsx'
+import { loadHomePage } from './home-page/home-page.data.ts'
 import { HomePage } from './home-page/home-page.tsx'
 
 // Only the direct leaves of the root route map. A nested route map gets its own
@@ -16,8 +17,10 @@ export default createController(routes, {
   // controller middleware does not reach other controllers.
   middleware: [lang()],
   actions: {
-    home(context) {
-      return context.render(<HomePage lang={context.lang} url={context.url} />)
+    async home(context) {
+      const data = await loadHomePage(context.lang)
+      if (data instanceof Response) return data
+      return context.render(<HomePage lang={context.lang} url={context.url} {...data} />)
     },
     // The gallery is a development tool, so the route exists in every build but
     // only answers outside production. Keeping the 404 here rather than making

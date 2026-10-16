@@ -1,26 +1,30 @@
 import * as assert from 'remix/assert'
 import { describe, it } from 'remix/test'
 
+import { mockKuroco } from '../../test/kuroco.ts'
 import { router } from '../router.ts'
 import { routes } from '../routes.ts'
 import { toLangParam } from '../utils/i18n.ts'
 
 describe('root controller', () => {
-  it('renders the home page', async () => {
+  it('renders the home page', async (t) => {
+    mockKuroco(t)
     const response = await router.fetch(new Request(`http://localhost${routes.home.href()}`))
 
     assert.equal(response.status, 200)
     assert.match(response.headers.get('Content-Type') ?? '', /^text\/html/)
   })
 
-  it('gives the home page one <h1>, in the page body as on develop', async () => {
+  it('gives the home page one <h1>, in the page body as on develop', async (t) => {
+    mockKuroco(t)
     const html = await (await router.fetch(new Request('http://localhost/'))).text()
 
     assert.equal([...html.matchAll(/<h1\b/g)].length, 1)
     assert.doesNotMatch(html, /<h1[^>]*><a\b/)
   })
 
-  it('renders the home page in English under /en', async () => {
+  it('renders the home page in English under /en', async (t) => {
+    mockKuroco(t)
     const response = await router.fetch(
       new Request(`http://localhost${routes.home.href({ lang: toLangParam('en') })}`)
     )
@@ -29,7 +33,8 @@ describe('root controller', () => {
     assert.match(await response.text(), /<html lang="en">/)
   })
 
-  it('renders the home page in Japanese without a prefix', async () => {
+  it('renders the home page in Japanese without a prefix', async (t) => {
+    mockKuroco(t)
     const href = routes.home.href({ lang: toLangParam('ja') })
     const response = await router.fetch(new Request(`http://localhost${href}`))
 
@@ -68,7 +73,8 @@ describe('root controller', () => {
     }
   })
 
-  it('sends the security headers and a nonce-based CSP with the page', async () => {
+  it('sends the security headers and a nonce-based CSP with the page', async (t) => {
+    mockKuroco(t)
     const response = await router.fetch(new Request(`http://localhost${routes.home.href()}`))
 
     assert.equal(response.headers.get('X-Content-Type-Options'), 'nosniff')

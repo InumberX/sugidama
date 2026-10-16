@@ -82,6 +82,8 @@ web_modules/
 .cache
 /build
 /public/build
+# scripts/build-client.ts output, rebuilt by wrangler before dev and deploy
+/public/client
 
 # macOS
 .DS_Store

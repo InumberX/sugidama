@@ -39,15 +39,26 @@ describe('apiClient', () => {
     })
   })
 
-  it('reports a body that is not JSON', async (t) => {
+  it('falls back to the status when there is no status text, as over HTTP/2', async (t) => {
     t.mock.method(console, 'error', () => {})
-    t.mock.method(globalThis, 'fetch', async () => new Response('<html>'))
+    t.mock.method(globalThis, 'fetch', async () => new Response(null, { status: 503 }))
 
     assert.deepEqual(await apiClient('/x'), {
       success: false,
-      status: 200,
-      message: 'JSON parse error',
+      status: 503,
+      message: 'API error 503',
     })
+  })
+
+  it('reports a body that is not JSON without its success status', async (t) => {
+    t.mock.method(console, 'error', () => {})
+    for (const response of [new Response('<html>'), new Response(null, { status: 204 })]) {
+      t.mock.method(globalThis, 'fetch', async () => response)
+      const result = await apiClient('/x')
+
+      assert.deepEqual(result, { success: false, status: null, message: 'JSON parse error' })
+      if (!result.success) assert.equal(apiErrorResponse(result).status, 500)
+    }
   })
 })
 

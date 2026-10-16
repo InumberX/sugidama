@@ -21,4 +21,4 @@ export const toDrinkCategoryTerms = (items: DrinkCategoryItem[], lang: Lang): Te
       label: lang === 'en' ? item.name_en : item.name,
       slug: item.slug,
     }))
-    .filter((term) => !Number.isNaN(term.id) && term.slug !== '')
+    .filter((term) => !Number.isNaN(term.id) && Boolean(term.slug))

@@ -9,8 +9,8 @@ import type { ArticleCardProps } from './article-card.types.ts'
 
 export type * from './article-card.types.ts'
 
-/** Shown when a drink has no thumbnail. */
-const EMPTY_THUMBNAIL = '/assets/img/img-empty-16-9.avif'
+/** Shown when a drink has no thumbnail. Shared with the home page's compact card. */
+export const EMPTY_THUMBNAIL = '/assets/img/img-empty-16-9.avif'
 
 /**
  * A drink card. As in develop, the title, the description and the thumbnail are three
@@ -72,8 +72,11 @@ export function ArticleCard(handle: Handle<ArticleCardProps>) {
   }
 }
 
-/** A link to the card's page, or an inert span when the card has none. */
-function CardLink(
+/**
+ * A link to the card's page, or an inert span when the card has none. Shared
+ * with the home page's compact card, so both cards render a link the same way.
+ */
+export function CardLink(
   handle: Handle<{ url?: string; styleOverrides: StyleRecipe; children?: RemixNode }>
 ) {
   return () => {

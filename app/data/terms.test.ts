@@ -26,7 +26,11 @@ describe('toDrinkCategoryTerms', () => {
 
   it('drops an entry without a slug, since its image is named after it', () => {
     const terms = toDrinkCategoryTerms(
-      [{ id: '3', order: '1', name: 'ジン', name_en: 'Gin', slug: '' }],
+      [
+        { id: '3', order: '1', name: 'ジン', name_en: 'Gin', slug: '' },
+        // The API is untyped JSON; a missing slug must not become `img-category-undefined`.
+        { id: '4', order: '2', name: 'ラム', name_en: 'Rum', slug: null as unknown as string },
+      ],
       'ja'
     )
     assert.deepEqual(terms, [])

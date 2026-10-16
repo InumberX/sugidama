@@ -25,7 +25,7 @@ describe('toDrinkCardProps', () => {
 
     assert.equal(card.url, '/drinks/kubota')
     assert.equal(card.title.text, '久保田')
-    assert.equal(card.description.text, '2024/03/01')
+    assert.equal(card.description?.text, '2024/03/01')
     assert.deepEqual(card.thumbnail, { src: 'https://example.com/kubota.webp', alt: '久保田の瓶' })
   })
 
@@ -61,12 +61,35 @@ describe('toDrinkCardProps', () => {
     ])
   })
 
+  it('leaves the date row out when the date cannot be read', () => {
+    const card = toDrinkCardProps({
+      drink: drinkFixture({ inst_ymdhi: '' }),
+      lang: 'ja',
+      categories,
+      tagGroups,
+    })
+
+    assert.equal(card.description, undefined)
+  })
+
+  it('survives a drink with no category and no tags', () => {
+    for (const drink_category of [null, ''] as const) {
+      const card = toDrinkCardProps({
+        drink: drinkFixture({ drink_category, tags: null }),
+        lang: 'ja',
+        categories,
+        tagGroups,
+      })
+      assert.deepEqual(card.tags, [])
+    }
+  })
+
   it('uses the English title, date and URLs in English', () => {
     const card = toDrinkCardProps({ drink: drinkFixture(), lang: 'en', categories, tagGroups })
 
     assert.equal(card.url, '/en/drinks/kubota')
     assert.equal(card.title.text, 'Kubota')
-    assert.equal(card.description.text, 'March 1, 2024')
+    assert.equal(card.description?.text, 'March 1, 2024')
     assert.equal(card.tags?.[0]?.url, '/en/drinks?drink=2')
   })
 })

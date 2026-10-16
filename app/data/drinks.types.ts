@@ -39,8 +39,9 @@ export type Drink = {
   manufacturer: string
   manufacturer_en: string
   abv: number | null
-  drink_category: DrinkCategoryRef
-  tags: DrinkTag[]
+  /** Guarded as possibly empty: one unfinished drink must not take a page down. */
+  drink_category: DrinkCategoryRef | null | ''
+  tags: DrinkTag[] | null
   links: DrinkLink[]
   comment: string
   comment_en: string

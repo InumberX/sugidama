@@ -8,7 +8,7 @@ type ApiSuccess<T> = { success: true; data: T }
 
 export type ApiError = {
   success: false
-  /** The API's status, or `null` when no response came back (network failure). */
+  /** The API's error status, or `null` when there is none to pass on (no response, or a body that is not JSON). */
   status: number | null
   message: string
 }
@@ -31,20 +31,27 @@ export const apiClient = async <T>(path: string, options?: RequestInit): Promise
 
   if (!response.ok) {
     console.error(`[API] ${response.status}: ${path}`)
-    return { success: false, status: response.status, message: response.statusText }
+    // HTTP/2 has no reason phrase, so statusText is usually empty.
+    return {
+      success: false,
+      status: response.status,
+      message: response.statusText || `API error ${response.status}`,
+    }
   }
 
   try {
     return { success: true, data: (await response.json()) as T }
   } catch {
     console.error(`[API] JSON parse error: ${path}`)
-    return { success: false, status: response.status, message: 'JSON parse error' }
+    // The status was a success (or a 204 that cannot carry a body), so passing it on
+    // would answer an error with 200; develop did. Treat it as no usable answer.
+    return { success: false, status: null, message: 'JSON parse error' }
   }
 }
 
 /**
  * The response an action returns for a failed call, as develop's loaders
- * threw it: the API's own status, or a 500 when nothing answered. Plain text
+ * threw it: the API's own status, or a 500 when nothing usable answered. Plain text
  * for now; the site's error page comes with step 9 of issue #115.
  */
 export const apiErrorResponse = (error: ApiError): Response =>

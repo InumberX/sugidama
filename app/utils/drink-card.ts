@@ -14,8 +14,8 @@ import { SEARCH_DRINKS_CONDITION_KEY, type SearchDrinksConditionKey } from './dr
 import { type Lang, toLangParam } from './i18n.ts'
 
 /** The props both card components accept: everything but layout choices. */
-export type DrinkCardProps = Required<Pick<ArticleCardProps, 'url' | 'title' | 'description'>> &
-  Pick<ArticleCardProps, 'tags' | 'thumbnail'>
+export type DrinkCardProps = Required<Pick<ArticleCardProps, 'url' | 'title'>> &
+  Pick<ArticleCardProps, 'description' | 'tags' | 'thumbnail'>
 
 /** A tag vocabulary and the list's query parameter that filters by it. */
 export type TagGroup = { name: SearchDrinksConditionKey; terms: Term[] }
@@ -36,21 +36,24 @@ export const toDrinkCardProps = ({
     routes.drinks.index.href(langParam, { searchParams: { [name]: id } })
 
   const categoryTags: BaseTagProps[] = categories
-    .filter((category) => drink.drink_category.key === String(category.id))
+    .filter((category) => drink.drink_category && drink.drink_category.key === String(category.id))
     .map((category) => ({
       url: listUrl(SEARCH_DRINKS_CONDITION_KEY.DRINK, category.id),
       children: category.label,
     }))
   const drinkTags: BaseTagProps[] = tagGroups.flatMap((group) =>
     group.terms
-      .filter((term) => drink.tags.some((tag) => tag.tag_id === term.id))
+      .filter((term) => drink.tags?.some((tag) => tag.tag_id === term.id))
       .map((term) => ({ url: listUrl(group.name, term.id), children: term.label }))
   )
+
+  const postedDate = formatPostedDate(drink.inst_ymdhi, lang)
 
   return {
     url: routes.drinks.show.href({ ...langParam, drinkId: drink.slug || drink.topics_id }),
     title: { text: lang === 'en' ? drink.subject_en : drink.subject },
-    description: { text: formatPostedDate(drink.inst_ymdhi, lang) },
+    // No date, no row: an empty one would still be a focusable link.
+    ...(postedDate && { description: { text: postedDate } }),
     ...(drink.thumbnail && {
       thumbnail: { src: drink.thumbnail.url, alt: drink.thumbnail.desc },
     }),

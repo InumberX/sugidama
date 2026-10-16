@@ -3,12 +3,10 @@
 // The home page's data, fetched in parallel. A failed call ends the request
 // with that call's error response, as develop's loader threw it.
 import { apiErrorResponse } from '../../data/api-client.ts'
-import { getDrinkCategories, toDrinkCategoryTerms } from '../../data/drink-categories.ts'
+import { getDrinkTerms } from '../../data/drink-terms.ts'
 import { getDrinks } from '../../data/drinks.ts'
-import { getDrinkabilityTags, getTasteTags, toTagTerms } from '../../data/tags.ts'
 import type { Term } from '../../data/terms.types.ts'
 import { type DrinkCardProps, toDrinkCardProps } from '../../utils/drink-card.ts'
-import { SEARCH_DRINKS_CONDITION_KEY } from '../../utils/drink-search.ts'
 import type { Lang } from '../../utils/i18n.ts'
 
 /** The newest drinks: two large cards, then up to four compact ones. */
@@ -22,26 +20,15 @@ export type HomePageData = {
 }
 
 export const loadHomePage = async (lang: Lang): Promise<HomePageData | Response> => {
-  const [categoriesResult, tasteResult, drinkabilityResult, drinksResult] = await Promise.all([
-    getDrinkCategories(),
-    getTasteTags(),
-    getDrinkabilityTags(),
+  const [terms, drinksResult] = await Promise.all([
+    getDrinkTerms(lang),
     getDrinks({ page: 1, pageSize: NEW_ARRIVALS_TOTAL }),
   ])
 
-  if (!categoriesResult.success) return apiErrorResponse(categoriesResult)
-  if (!tasteResult.success) return apiErrorResponse(tasteResult)
-  if (!drinkabilityResult.success) return apiErrorResponse(drinkabilityResult)
+  if (!terms.success) return apiErrorResponse(terms)
   if (!drinksResult.success) return apiErrorResponse(drinksResult)
 
-  const categories = toDrinkCategoryTerms(categoriesResult.data.list, lang)
-  const tagGroups = [
-    { name: SEARCH_DRINKS_CONDITION_KEY.TASTE, terms: toTagTerms(tasteResult.data.list, lang) },
-    {
-      name: SEARCH_DRINKS_CONDITION_KEY.DRINKABILITY,
-      terms: toTagTerms(drinkabilityResult.data.list, lang),
-    },
-  ]
+  const { categories, tagGroups } = terms.data
   // The section title is the page's h2, so each card's title is an h3.
   // Capped here too, so a response longer than `cnt` cannot grow the page.
   const cards = drinksResult.data.list

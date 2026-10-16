@@ -1,12 +1,14 @@
 import * as assert from 'remix/assert'
 import { describe, it } from 'remix/test'
 
+import { mockKuroco } from '../../../test/kuroco.ts'
 import { router } from '../../router.ts'
 import { routes } from '../../routes.ts'
 import { toLangParam } from '../../utils/i18n.ts'
 
 describe('drinks controller', () => {
-  it('renders the drinks page in Japanese without a prefix', async () => {
+  it('renders the drinks page in Japanese without a prefix', async (t) => {
+    mockKuroco(t)
     const href = routes.drinks.index.href({ lang: toLangParam('ja') })
     const response = await router.fetch(new Request(`http://localhost${href}`))
     const html = await response.text()
@@ -17,7 +19,8 @@ describe('drinks controller', () => {
     assert.match(html, /<h1[^>]*><span[^>]*>お酒一覧<\/span><\/h1>/)
   })
 
-  it('renders the drinks page in English under /en', async () => {
+  it('renders the drinks page in English under /en', async (t) => {
+    mockKuroco(t)
     const href = routes.drinks.index.href({ lang: toLangParam('en') })
     const response = await router.fetch(new Request(`http://localhost${href}`))
     const html = await response.text()

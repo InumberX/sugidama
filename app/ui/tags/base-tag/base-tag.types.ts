@@ -1,6 +1,6 @@
 import type { RemixNode } from 'remix/component'
 
-import type { PrimitiveButtonProps } from '../../primitives/buttons/primitive-button/primitive-button.types.ts'
+import type { PrimitiveButtonProps } from '../../primitives/buttons/public/primitive-button/primitive-button.types.ts'
 
 export type BaseTagVariant = 'contained' | 'outlined'
 export type BaseTagColor = 'sub'

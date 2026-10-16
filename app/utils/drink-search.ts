@@ -22,6 +22,10 @@ export const toDrinkSearchHref = (lang: Lang, key: SearchDrinksConditionKey, id:
 /** Drinks per page of the list. */
 export const DRINKS_PAGE_SIZE = 12
 
+/** How many pages `totalSize` drinks fill; at least one, which may be empty. */
+export const countDrinkPages = (totalSize: number): number =>
+  Math.max(1, Math.ceil(totalSize / DRINKS_PAGE_SIZE))
+
 /** What the list was asked for: the search form's values and the page. */
 export type DrinkSearch = {
   keyword: string
@@ -33,16 +37,22 @@ export const normalizeSearchKeyword = (keyword: string | null): string =>
   (keyword ?? '').trim().replace(/\u3000/g, ' ')
 
 /** Positive integers written as plain digits; anything else (`2abc`, `1.9`, `-5`, `1e3`) is dropped. */
-const toIds = (values: string[]): number[] =>
-  values
-    .filter((value) => /^\d+$/.test(value))
-    .map(Number)
-    .filter((id) => Number.isSafeInteger(id) && id > 0)
+const toIds = (values: string[]): number[] => [
+  ...new Set(
+    values
+      .filter((value) => /^\d+$/.test(value))
+      .map(Number)
+      .filter((id) => Number.isSafeInteger(id) && id > 0)
+  ),
+]
 
 /**
- * Reads the list's query. Unknown ids are dropped, as develop dropped them;
- * a page that is not a positive integer gives `null`, which the page answers
- * with a 404 (develop 404'd a non-number and passed 0 or -1 to the API).
+ * Reads the list's query. Ids that are not positive integers are dropped and
+ * repeats collapse; an id outside the vocabularies is kept, since the
+ * vocabularies load alongside the search (the API simply matches nothing for
+ * it, and the form shows only the ids it has a checkbox for). A page that is
+ * not a positive integer gives `null`, which the page answers with a 404
+ * (develop 404'd a non-number and passed 0 or -1 to the API).
  */
 export const parseDrinkSearch = (searchParams: URLSearchParams): DrinkSearch | null => {
   const pageParam = searchParams.get('page') ?? '1'

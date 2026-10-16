@@ -108,7 +108,9 @@ export const mockKuroco = (t: TestContext, overrides: Record<string, KurocoAnswe
     // `body.cancel()` on an error status would never settle.
     if (answer instanceof Response) {
       const { status, statusText, headers } = answer
-      return new Response(await answer.clone().arrayBuffer(), { status, statusText, headers })
+      // A null-body status (204, 205, 304) rejects any body, an empty one included.
+      const body = [204, 205, 304].includes(status) ? null : await answer.clone().arrayBuffer()
+      return new Response(body, { status, statusText, headers })
     }
     return Response.json(answer)
   })

@@ -120,7 +120,8 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
         aria-label={ariaLabel}
         aria-hidden={ariaHidden ? 'true' : undefined}
         aria-controls={ariaControls}
-        aria-expanded={expanded}
+        // aria-expanded is not allowed on a generic element: only with a role.
+        aria-expanded={role ? expanded : undefined}
         aria-selected={ariaSelected}
         mix={hostStyle}
       >

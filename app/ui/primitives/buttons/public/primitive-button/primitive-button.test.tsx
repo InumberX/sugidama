@@ -131,6 +131,22 @@ describe('PrimitiveButton', () => {
     assert.match(div, /<div[^>]*tabindex="0"/i)
   })
 
+  it('writes aria-expanded as a string, and leaves it off a generic element', async () => {
+    const button = await renderToString(
+      <PrimitiveButton buttonType="button" ariaExpanded={false}>
+        x
+      </PrimitiveButton>
+    )
+    const span = await renderToString(
+      <PrimitiveButton nonClickableTag="span" ariaExpanded>
+        x
+      </PrimitiveButton>
+    )
+
+    assert.match(button, /aria-expanded="false"/)
+    assert.doesNotMatch(span, /aria-expanded/)
+  })
+
   it('marks a disabled button as disabled', async () => {
     const html = await renderToString(
       <PrimitiveButton buttonType="button" isDisabled>

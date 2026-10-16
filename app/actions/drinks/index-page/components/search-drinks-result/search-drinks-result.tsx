@@ -5,7 +5,6 @@ import { css, type Handle } from 'remix/component'
 
 import { ArticleCardList } from '../../../../../ui/lists/article-card-list/article-card-list.tsx'
 import { ReplaceNewLineText } from '../../../../../ui/typographies/replace-new-line-text/replace-new-line-text.tsx'
-import { DRINKS_PAGE_SIZE } from '../../../../../utils/drink-search.ts'
 import type { DrinkSearchResult } from '../../index-page.data.ts'
 import { BaseAlert } from '../base-alert/base-alert.tsx'
 import { BasePagination } from '../base-pagination/base-pagination.tsx'
@@ -58,8 +57,7 @@ export function SearchDrinksResult(handle: Handle<SearchDrinksResultProps>) {
             <div mix={css(styles.searchDrinksResult_pagination)}>
               <BasePagination
                 currentPage={currentPage}
-                totalSize={result.totalSize}
-                perPageSize={DRINKS_PAGE_SIZE}
+                totalPage={result.totalPage}
                 hrefFor={(page) => `${hrefFor(page)}#${SEARCH_DRINKS_RESULT_ID}`}
                 label={messages.paginationLabel}
                 prevLabel={messages.prevPage}

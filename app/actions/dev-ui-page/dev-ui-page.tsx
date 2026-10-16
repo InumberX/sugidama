@@ -4,6 +4,7 @@
 import { css, type Handle } from 'remix/component'
 
 import { routes } from '../../routes.ts'
+import { BaseAccordion } from '../../ui/accordions/public/base-accordion/base-accordion.tsx'
 import { BaseButton } from '../../ui/buttons/public/base-button/base-button.tsx'
 import { TextButton } from '../../ui/buttons/public/text-button/text-button.tsx'
 import { ArticleCard } from '../../ui/cards/article-card/article-card.tsx'
@@ -20,6 +21,7 @@ import { LayoutWrapper } from '../../ui/layouts/layout-wrapper/layout-wrapper.ts
 import { ArticleCardList } from '../../ui/lists/article-card-list/article-card-list.tsx'
 import { BaseTagList } from '../../ui/lists/base-tag-list/base-tag-list.tsx'
 import { PrimitiveButton } from '../../ui/primitives/buttons/public/primitive-button/primitive-button.tsx'
+import { BaseTabs } from '../../ui/tabs/public/base-tabs/base-tabs.tsx'
 import { BaseTag } from '../../ui/tags/base-tag/base-tag.tsx'
 import { PageTitle } from '../../ui/typographies/page-title/page-title.tsx'
 import { ReplaceNewLineText } from '../../ui/typographies/replace-new-line-text/replace-new-line-text.tsx'
@@ -62,6 +64,12 @@ const EXAMPLE_CARDS = [
     title: { text: 'url なし（リンクにならない）' },
     description: { text: '2024/03/03' },
   },
+]
+
+const SPECIMEN_PANELS = [
+  { value: 'drink', label: 'カテゴリ', content: <p>カテゴリのパネル</p> },
+  { value: 'taste', label: '味わい', content: <p>味わいのパネル</p> },
+  { value: 'drinkability', label: '飲みやすさ', content: <p>飲みやすさのパネル</p> },
 ]
 
 export function DevUiPage(handle: Handle<{ lang: Lang; url: URL }>) {
@@ -207,6 +215,25 @@ export function DevUiPage(handle: Handle<{ lang: Lang; url: URL }>) {
               <TextButton buttonType="button" isDisabled>
                 無効
               </TextButton>
+            </Specimen>
+          </Section>
+
+          <Section
+            title="BaseAccordion"
+            note="ネイティブの details / summary。JS なしで開閉でき、複数を同時に開ける"
+          >
+            <Specimen label="閉じた状態 / defaultValue で開いた状態" isWide>
+              <BaseAccordion items={SPECIMEN_PANELS} defaultValue={['taste']} />
+            </Specimen>
+          </Section>
+
+          <Section
+            title="BaseTabs"
+            note="WAI-ARIA の Tabs パターン。切り替えは clientEntry の中で動く(ここはサーバー描画のみ)"
+          >
+            <Specimen label="先頭のタブ / defaultValue" isWide>
+              <BaseTabs label="見本のタブ" items={SPECIMEN_PANELS} />
+              <BaseTabs label="見本のタブ" items={SPECIMEN_PANELS} defaultValue="taste" />
             </Specimen>
           </Section>
 

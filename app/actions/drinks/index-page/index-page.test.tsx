@@ -87,11 +87,36 @@ describe('drinks index page', () => {
     const response = await get('/drinks')
     const html = await response.text()
 
-    assert.equal(response.status, 200)
+    // The page still renders, but with the API's status: not cached or indexed as content.
+    assert.equal(response.status, 503)
     assert.match(html, /role="alert"/)
     // Pagination links carry #search-drinks-result, so it has to exist here too.
     assert.match(html, /id="search-drinks-result"/)
     assert.match(html, /<form action="\/drinks" method="get"/)
+  })
+
+  it('answers a search that reached nothing with a 500, still rendering the form', async (t) => {
+    mockKuroco(t, { '/drinks': new Error('connection lost') })
+    t.mock.method(console, 'error', () => {})
+    const response = await get('/drinks')
+
+    assert.equal(response.status, 500)
+    assert.match(await response.text(), /<form action="\/drinks" method="get"/)
+  })
+
+  it('counts only the ids the form has a checkbox for', async (t) => {
+    mockKuroco(t)
+    const html = await (await get('/drinks?drink=99999&taste=11&taste=11')).text()
+    const data = JSON.parse(
+      /<script type="application\/json" id="rmx-data">(.*?)<\/script>/.exec(html)![1]!
+    )
+    const [entry] = Object.values(data.h) as {
+      props: { conditions: { name: string; selected: string[] }[] }
+    }[]
+    const selected = Object.fromEntries(entry!.props.conditions.map((c) => [c.name, c.selected]))
+
+    assert.deepEqual(selected.drink, [])
+    assert.deepEqual(selected.taste, ['11'])
   })
 
   it('answers with the API error when the conditions cannot be loaded', async (t) => {

@@ -2,6 +2,7 @@ import * as assert from 'remix/assert'
 import { describe, it } from 'remix/test'
 
 import {
+  countDrinkPages,
   type DrinkSearch,
   normalizeSearchKeyword,
   parseDrinkSearch,
@@ -46,6 +47,13 @@ describe('parseDrinkSearch', () => {
     assert.deepEqual(search?.drink, [])
   })
 
+  it('collapses repeated ids', () => {
+    assert.deepEqual(
+      parseDrinkSearch(new URLSearchParams('taste=11&taste=11&taste=12'))?.taste,
+      [11, 12]
+    )
+  })
+
   it('accepts a positive page and rejects anything else', () => {
     assert.equal(parseDrinkSearch(new URLSearchParams('page=3'))?.page, 3)
     for (const page of ['0', '-1', '1.5', 'abc', '', '99999999999999999999']) {
@@ -74,5 +82,13 @@ describe('toDrinkSearchListHref', () => {
     const href = toDrinkSearchListHref('ja', search, search.page)
 
     assert.deepEqual(parseDrinkSearch(new URL(href, 'http://localhost').searchParams), search)
+  })
+})
+
+describe('countDrinkPages', () => {
+  it('rounds up, and is at least one page', () => {
+    assert.equal(countDrinkPages(0), 1)
+    assert.equal(countDrinkPages(12), 1)
+    assert.equal(countDrinkPages(13), 2)
   })
 })

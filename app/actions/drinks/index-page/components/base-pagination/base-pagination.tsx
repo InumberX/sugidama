@@ -22,9 +22,7 @@ const visibility = (narrow: boolean, wide: boolean): StyleRecipe | null =>
 
 export function BasePagination(handle: Handle<BasePaginationProps>) {
   return () => {
-    const { currentPage, totalSize, perPageSize, hrefFor, label, prevLabel, nextLabel } =
-      handle.props
-    const totalPage = Math.max(1, Math.ceil(totalSize / perPageSize))
+    const { currentPage, totalPage, hrefFor, label, prevLabel, nextLabel } = handle.props
 
     const step = (page: number, text: string, icon: 'keyboardArrowLeft' | 'keyboardArrowRight') => {
       const enabled = page >= 1 && page <= totalPage

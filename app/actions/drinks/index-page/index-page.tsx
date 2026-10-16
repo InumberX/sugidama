@@ -89,12 +89,19 @@ export function IndexPage(handle: Handle<IndexPageProps>) {
                     action={listHref}
                     resetHref={listHref}
                     keyword={search.keyword}
-                    conditions={vocabularies.map(({ name, terms }) => ({
-                      name,
-                      label: messages[name],
-                      options: toOptions(terms),
-                      selected: search[name].map(String),
-                    }))}
+                    conditions={vocabularies.map(({ name, terms }) => {
+                      const options = toOptions(terms)
+                      return {
+                        name,
+                        label: messages[name],
+                        options,
+                        // Only what a checkbox can show: an id with no option
+                        // would be counted but could never be unchecked.
+                        selected: search[name]
+                          .map(String)
+                          .filter((id) => options.some((option) => option.value === id)),
+                      }
+                    })}
                     messages={{
                       reset: messages.reset,
                       keywordTitle: messages.keywordTitle,

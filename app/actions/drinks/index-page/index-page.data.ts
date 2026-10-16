@@ -8,12 +8,12 @@ import { apiErrorResponse } from '../../../data/api-client.ts'
 import { type DrinkTerms, getDrinkTerms } from '../../../data/drink-terms.ts'
 import { getDrinks } from '../../../data/drinks.ts'
 import { type DrinkCardProps, toDrinkCardProps } from '../../../utils/drink-card.ts'
-import { DRINKS_PAGE_SIZE, type DrinkSearch } from '../../../utils/drink-search.ts'
+import { countDrinkPages, DRINKS_PAGE_SIZE, type DrinkSearch } from '../../../utils/drink-search.ts'
 import type { Lang } from '../../../utils/i18n.ts'
 
 export type DrinkSearchResult =
-  | { success: true; cards: DrinkCardProps[]; totalSize: number }
-  | { success: false; message: string }
+  | { success: true; cards: DrinkCardProps[]; totalPage: number }
+  | { success: false; status: number | null; message: string }
 
 export type IndexPageData = DrinkTerms & {
   search: DrinkSearch
@@ -46,9 +46,9 @@ export const loadIndexPage = async (
         cards: drinks.data.list
           .slice(0, DRINKS_PAGE_SIZE)
           .map((drink) => toDrinkCardProps({ drink, lang, categories, tagGroups })),
-        totalSize: drinks.data.pageInfo.totalCnt,
+        totalPage: countDrinkPages(drinks.data.pageInfo.totalCnt),
       }
-    : { success: false, message: drinks.message }
+    : { success: false, status: drinks.status, message: drinks.message }
 
   return { categories, tagGroups, search, result }
 }

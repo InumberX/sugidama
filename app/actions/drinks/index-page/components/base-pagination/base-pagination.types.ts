@@ -1,7 +1,7 @@
 export type BasePaginationProps = {
   currentPage: number
-  totalSize: number
-  perPageSize: number
+  /** At least 1. */
+  totalPage: number
   /** The URL of a page; the pages are plain links. */
   hrefFor: (page: number) => string
   /** The navigation landmark's name. */

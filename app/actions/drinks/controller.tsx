@@ -2,7 +2,7 @@ import { createController } from 'remix/router'
 
 import { lang } from '../../middleware/lang.ts'
 import { routes } from '../../routes.ts'
-import { DRINKS_PAGE_SIZE, parseDrinkSearch } from '../../utils/drink-search.ts'
+import { parseDrinkSearch } from '../../utils/drink-search.ts'
 import { loadIndexPage } from './index-page/index-page.data.ts'
 import { IndexPage } from './index-page/index-page.tsx'
 import { ShowPage } from './show-page/show-page.tsx'
@@ -21,14 +21,14 @@ export default createController(routes.drinks, {
       if (data instanceof Response) return data
       // Past the last page there is nothing to show and no pagination to lead
       // back, so it is a 404 too rather than an empty page a crawler can index.
-      if (
-        data.result.success &&
-        search.page > 1 &&
-        search.page > Math.ceil(data.result.totalSize / DRINKS_PAGE_SIZE)
-      ) {
+      if (data.result.success && search.page > data.result.totalPage) {
         return new Response('Not Found', { status: 404 })
       }
-      return context.render(<IndexPage lang={context.lang} url={context.url} {...data} />)
+      // A failed search still renders the form, with the API's status (500
+      // when nothing answered), so the error page is not cached or indexed as
+      // the page's content.
+      const init = data.result.success ? undefined : { status: data.result.status ?? 500 }
+      return context.render(<IndexPage lang={context.lang} url={context.url} {...data} />, init)
     },
     show(context) {
       return context.render(

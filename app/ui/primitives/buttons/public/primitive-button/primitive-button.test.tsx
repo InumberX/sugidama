@@ -147,6 +147,16 @@ describe('PrimitiveButton', () => {
     assert.doesNotMatch(span, /aria-expanded/)
   })
 
+  it('writes aria-selected as a string too', async () => {
+    const html = await renderToString(
+      <PrimitiveButton buttonType="button" role="tab" ariaSelected>
+        x
+      </PrimitiveButton>
+    )
+
+    assert.match(html, /aria-selected="true"/)
+  })
+
   it('marks a disabled button as disabled', async () => {
     const html = await renderToString(
       <PrimitiveButton buttonType="button" isDisabled>

@@ -87,15 +87,28 @@ export const searchDrinksConditions_contents: StyleRecipe = {
 export const searchDrinksConditionCount: StyleRecipe = {
   ...fontMinimumBold,
   alignItems: 'center',
-  aspectRatio: '1 / 1',
   backgroundColor: 'var(--color-background-primary-light)',
+  blockSize: '20px',
   borderRadius: 'calc(infinity * 1px)',
   color: 'var(--color-font-sub-dark)',
   display: 'inline-flex',
   fontStyle: 'normal',
-  inlineSize: '20px',
   justifyContent: 'center',
   marginInlineStart: '8px',
+  // A circle for one digit; "12" and "99+" widen it into a pill (develop's
+  // fixed 20px let them spill out).
+  minInlineSize: '20px',
+  paddingInline: '4px',
+}
+
+/** The count as words, for assistive technology; the digits are hidden from it. */
+export const searchDrinksConditionCount_label: StyleRecipe = {
+  blockSize: '1px',
+  clipPath: 'inset(50%)',
+  inlineSize: '1px',
+  overflow: 'hidden',
+  position: 'absolute',
+  whiteSpace: 'nowrap',
 }
 
 export const searchDrinksFormBottom: StyleRecipe = {

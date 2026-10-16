@@ -32,9 +32,26 @@ export const SearchDrinksForm = clientEntry(
   ),
   function SearchDrinksForm(handle: Handle<SearchDrinksFormProps>) {
     // The checked values per condition, kept here so the counts follow them and
-    // nothing is lost when the layout swaps tabs for the accordion.
+    // nothing is lost when the layout swaps tabs for the accordion. Seeded from
+    // the server's HTML when there is one: the conditions are <details>, usable
+    // before the client entry hydrates, and whatever was ticked by then (or
+    // restored by the browser on Back) would otherwise be reset by hydration,
+    // which writes `checked` from these values. Setup runs before that write.
+    const ticked = (name: string, fallback: string[]) => {
+      const container =
+        typeof document === 'undefined' ? null : document.getElementById(CONDITIONS_ID)
+      if (container === null) return fallback
+      return [
+        ...container.querySelectorAll<HTMLInputElement>(`input[type="checkbox"][name="${name}"]`),
+      ]
+        .filter((input) => input.checked)
+        .map((input) => input.value)
+    }
     const selected = new Map(
-      handle.props.conditions.map((condition) => [condition.name, [...condition.selected]])
+      handle.props.conditions.map((condition) => [
+        condition.name,
+        ticked(condition.name, [...condition.selected]),
+      ])
     )
     let isOpen = false
     // The server cannot measure, so it renders the wide layout; the browser
@@ -68,7 +85,14 @@ export const SearchDrinksForm = clientEntry(
           <>
             {condition.label}
             {values.length > 0 && (
-              <i mix={css(styles.searchDrinksConditionCount)}>{formatCount(values.length)}</i>
+              <>
+                <i aria-hidden="true" mix={css(styles.searchDrinksConditionCount)}>
+                  {formatCount(values.length)}
+                </i>
+                <span mix={css(styles.searchDrinksConditionCount_label)}>
+                  {messages.selectedCount.replace('{count}', String(values.length))}
+                </span>
+              </>
             )}
           </>
         )

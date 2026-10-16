@@ -1,8 +1,9 @@
 import * as assert from 'remix/assert'
+import { renderToString } from 'remix/component/server'
 import { describe, it } from 'remix/test'
 
+import { BasePagination, paginationEntries } from './base-pagination.tsx'
 import type { PaginationEntry } from './base-pagination.types.ts'
-import { paginationEntries } from './pagination-entries.ts'
 
 /** What one width shows: page numbers, and `…` for a gap. */
 const at = (entries: PaginationEntry[], width: 'narrow' | 'wide') =>
@@ -31,5 +32,35 @@ describe('paginationEntries', () => {
 
   it('has a single page for a single page of results', () => {
     assert.deepEqual(at(paginationEntries(1, 1), 'wide'), [1])
+  })
+})
+
+describe('BasePagination', () => {
+  const render = (currentPage: number, totalPage: number) =>
+    renderToString(
+      <BasePagination
+        currentPage={currentPage}
+        totalPage={totalPage}
+        hrefFor={(page) => `/drinks?page=${page}`}
+        label="ページ送り"
+        prevLabel="前へ"
+        nextLabel="次へ"
+      />
+    )
+
+  it('marks the current page and links the others', async () => {
+    const html = await render(2, 3)
+
+    assert.match(html, /<nav aria-label="ページ送り">/)
+    assert.match(html, /<span aria-current="page"[^>]*>2<\/span>/)
+    assert.match(html, /<a href="\/drinks\?page=1"[^>]*>1<\/a>/)
+    assert.match(html, /<a href="\/drinks\?page=3" aria-label="次へ"/)
+  })
+
+  it('turns a step past either end into a span hidden from assistive technology', async () => {
+    const html = await render(1, 1)
+
+    assert.doesNotMatch(html, /aria-label="前へ"|aria-label="次へ"/)
+    assert.equal(html.match(/<span aria-hidden="true"/g)?.length, 2)
   })
 })

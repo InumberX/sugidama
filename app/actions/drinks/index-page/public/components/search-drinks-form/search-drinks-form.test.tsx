@@ -33,6 +33,7 @@ const props: SearchDrinksFormProps = {
     conditionsLabel: '条件',
     showConditions: '条件を追加',
     hideConditions: '閉じる',
+    selectedCount: '（{count}件選択中）',
   },
 }
 
@@ -53,7 +54,8 @@ describe('SearchDrinksForm', () => {
   it('counts the selected options of each condition', async () => {
     const html = await renderToString(<SearchDrinksForm {...props} />)
 
-    assert.match(html, /味わい<i[^>]*>1<\/i>/)
+    // The digits are for the eye; the count is spoken as words.
+    assert.match(html, /味わい<i aria-hidden="true"[^>]*>1<\/i><span[^>]*>（1件選択中）<\/span>/)
     assert.match(html, /name="taste" value="12" checked/)
   })
 })

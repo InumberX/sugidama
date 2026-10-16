@@ -12,6 +12,9 @@ import type { PrimitiveButtonProps } from './primitive-button.types.ts'
 
 export type * from './primitive-button.types.ts'
 
+const toAriaBoolean = (value: boolean | 'true' | 'false' | undefined) =>
+  value === undefined ? undefined : value === true || value === 'true' ? 'true' : 'false'
+
 export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
   return () => {
     const {
@@ -37,8 +40,10 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
     } = handle.props
     // Never focusable while hidden from assistive technology.
     const focusIndex = ariaHidden ? -1 : tabIndex
-    // A boolean ARIA state has to be the string: Remix writes `true` as a bare attribute.
-    const expanded = ariaExpanded === undefined ? undefined : ariaExpanded ? 'true' : 'false'
+    // A boolean ARIA state has to be the string: Remix writes `true` as a bare
+    // attribute, which ARIA reads as unset.
+    const expanded = toAriaBoolean(ariaExpanded)
+    const selected = toAriaBoolean(ariaSelected)
 
     // One css(...) call: the reset, the disabled treatment and the caller's
     // recipe are merged as plain objects, so JS spread order decides which
@@ -76,7 +81,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
           aria-hidden={ariaHidden ? 'true' : undefined}
           aria-controls={ariaControls}
           aria-expanded={expanded}
-          aria-selected={ariaSelected}
+          aria-selected={selected}
           data-rmx-document={!isDisabled && isDocumentNavigation(url) ? '' : undefined}
           mix={hostStyle}
         >
@@ -99,7 +104,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
           aria-hidden={ariaHidden ? 'true' : undefined}
           aria-controls={ariaControls}
           aria-expanded={expanded}
-          aria-selected={ariaSelected}
+          aria-selected={selected}
           mix={hostStyle}
         >
           {children}
@@ -122,7 +127,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
         aria-controls={ariaControls}
         // aria-expanded is not allowed on a generic element: only with a role.
         aria-expanded={role ? expanded : undefined}
-        aria-selected={ariaSelected}
+        aria-selected={selected}
         mix={hostStyle}
       >
         {children}

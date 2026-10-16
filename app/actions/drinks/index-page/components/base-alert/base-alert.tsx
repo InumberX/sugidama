@@ -12,6 +12,9 @@ export type BaseAlertProps = {
 }
 
 /** A message box. `role="alert"` so a screen reader hears it with the page. */
+/** develop always drew the error icon, even on a success alert. */
+const ICONS = { success: 'check', error: 'error' } as const
+
 export function BaseAlert(handle: Handle<BaseAlertProps>) {
   return () => {
     const { color = 'success', title, description } = handle.props
@@ -19,7 +22,7 @@ export function BaseAlert(handle: Handle<BaseAlertProps>) {
     return (
       <div role="alert" mix={css({ ...styles.baseAlert, ...styles.baseAlertColors[color] })}>
         <SvgIcon
-          variant="error"
+          variant={ICONS[color]}
           styleOverrides={{ ...styles.baseAlert_icon, ...styles.baseAlertIconColors[color] }}
         />
         {title && <p mix={css(styles.baseAlert_title)}>{title}</p>}

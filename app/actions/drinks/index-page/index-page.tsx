@@ -32,6 +32,7 @@ const MESSAGES = defineMessages({
     conditionsLabel: '検索条件',
     showConditions: '条件を追加',
     hideConditions: '閉じる',
+    selectedCount: '（{count}件選択中）',
     drink: 'カテゴリ',
     taste: '味わい',
     drinkability: '飲みやすさ',
@@ -51,6 +52,7 @@ const MESSAGES = defineMessages({
     conditionsLabel: 'Search conditions',
     showConditions: 'Add conditions',
     hideConditions: 'Close',
+    selectedCount: ' ({count} selected)',
     drink: 'Category',
     taste: 'Taste',
     drinkability: 'Drinkability',
@@ -110,6 +112,7 @@ export function IndexPage(handle: Handle<IndexPageProps>) {
                       conditionsLabel: messages.conditionsLabel,
                       showConditions: messages.showConditions,
                       hideConditions: messages.hideConditions,
+                      selectedCount: messages.selectedCount,
                     }}
                   />
                 </div>

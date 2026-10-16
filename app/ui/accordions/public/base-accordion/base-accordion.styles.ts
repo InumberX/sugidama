@@ -20,10 +20,13 @@ export const baseAccordionTrigger: StyleRecipe = {
   cursor: 'pointer',
   display: 'flex',
   inlineSize: '100%',
+  listStyle: 'none',
   paddingBlock: '12px',
   paddingInline: 0,
   textAlign: 'start',
   transition: getTransition([{ property: 'color' }]),
+  // Safari still draws the disclosure triangle without `list-style: none`.
+  '&::-webkit-details-marker': { display: 'none' },
   [MEDIA_QUERY.HOVER]: {
     '&:hover': { color: 'var(--color-font-primary)' },
   },
@@ -42,18 +45,10 @@ export const baseAccordionTrigger_arrow: StyleRecipe = {
   inlineSize: '24px',
   marginInlineStart: '16px',
   transition: getTransition([{ property: 'background-color' }, { property: 'rotate' }]),
-  '[data-state="open"] > &': { rotate: '-180deg' },
+  '[open] > summary > &': { rotate: '-180deg' },
   [MEDIA_QUERY.HOVER]: {
-    'button:hover > &': { backgroundColor: 'var(--color-background-primary)' },
+    'summary:hover > &': { backgroundColor: 'var(--color-background-primary)' },
   },
-  // Every panel is open without script, and no trigger can close one.
-  [MEDIA_QUERY.NOT_SCRIPTING]: { display: 'none' },
 }
 
-/** Closed panels are hidden here rather than with `hidden`; see BaseAccordion. */
-export const baseAccordionContent: StyleRecipe = {
-  '&[data-state="closed"]': { display: 'none' },
-  [MEDIA_QUERY.NOT_SCRIPTING]: {
-    '&[data-state="closed"]': { display: 'block' },
-  },
-}
+export const baseAccordionContent: StyleRecipe = {}

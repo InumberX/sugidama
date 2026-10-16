@@ -26,7 +26,7 @@ const assets = createAssetServer({
   basePath: `/${CLIENT_BASE_PATH}`,
   rootDir,
   allowFiles: ['app/**/public/**'],
-  allowPackages: ['remix', '@remix-run/ui'],
+  allowPackages: ['remix'],
   denyFiles: ['app/**/*.test.*'],
   minify: true,
   watch: false,

@@ -13,6 +13,7 @@ import type { Lang } from '../../utils/i18n.ts'
 
 /** The newest drinks: two large cards, then up to four compact ones. */
 export const NEW_ARRIVALS_COUNT = { cards: 2, compactCards: 4 } as const
+const NEW_ARRIVALS_TOTAL = NEW_ARRIVALS_COUNT.cards + NEW_ARRIVALS_COUNT.compactCards
 
 export type HomePageData = {
   cards: DrinkCardProps[]
@@ -25,7 +26,7 @@ export const loadHomePage = async (lang: Lang): Promise<HomePageData | Response>
     getDrinkCategories(),
     getTasteTags(),
     getDrinkabilityTags(),
-    getDrinks({ page: 1, pageSize: NEW_ARRIVALS_COUNT.cards + NEW_ARRIVALS_COUNT.compactCards }),
+    getDrinks({ page: 1, pageSize: NEW_ARRIVALS_TOTAL }),
   ])
 
   if (!categoriesResult.success) return apiErrorResponse(categoriesResult)
@@ -42,16 +43,14 @@ export const loadHomePage = async (lang: Lang): Promise<HomePageData | Response>
     },
   ]
   // The section title is the page's h2, so each card's title is an h3.
-  const cards = drinksResult.data.list.map((drink) =>
-    toDrinkCardProps({ drink, lang, categories, tagGroups, titleTag: 'h3' })
-  )
+  // Capped here too, so a response longer than `cnt` cannot grow the page.
+  const cards = drinksResult.data.list
+    .slice(0, NEW_ARRIVALS_TOTAL)
+    .map((drink) => toDrinkCardProps({ drink, lang, categories, tagGroups, titleTag: 'h3' }))
 
   return {
     cards: cards.slice(0, NEW_ARRIVALS_COUNT.cards),
-    compactCards: cards.slice(
-      NEW_ARRIVALS_COUNT.cards,
-      NEW_ARRIVALS_COUNT.cards + NEW_ARRIVALS_COUNT.compactCards
-    ),
+    compactCards: cards.slice(NEW_ARRIVALS_COUNT.cards),
     categories,
   }
 }

@@ -6,6 +6,16 @@ import { describe, it } from 'remix/test'
 import { PrimitiveButton } from './primitive-button.tsx'
 
 describe('PrimitiveButton', () => {
+  it('takes an element hidden from assistive technology out of the tab order', async () => {
+    for (const html of [
+      await renderToString(<PrimitiveButton url="/a" ariaHidden tabIndex={0} />),
+      await renderToString(<PrimitiveButton buttonType="button" ariaHidden />),
+    ]) {
+      assert.match(html, /aria-hidden="true"/)
+      assert.match(html, /tabindex="-1"/)
+    }
+  })
+
   it('renders an enhanced anchor for an internal url', async () => {
     const html = await renderToString(<PrimitiveButton url="/books">Books</PrimitiveButton>)
 

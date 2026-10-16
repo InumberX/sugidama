@@ -52,13 +52,18 @@ export const homeNewArrivalsList_sub: StyleRecipe = {
 }
 
 /** Centres the button under a section. */
-export const homeSection_bottom: StyleRecipe = {
+/** Each section ends with its button centred below it. */
+const SECTION_BOTTOM: StyleRecipe = {
   alignItems: 'center',
   display: 'flex',
   justifyContent: 'center',
 }
 
+export const homeNewArrivals_bottom: StyleRecipe = SECTION_BOTTOM
+
 export const homeSearchCategory_container: StyleRecipe = SECTION_STACK
+
+export const homeSearchCategory_bottom: StyleRecipe = SECTION_BOTTOM
 
 export const homeSearchCategoryList_items: StyleRecipe = {
   display: 'grid',

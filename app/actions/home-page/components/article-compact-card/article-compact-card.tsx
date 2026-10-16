@@ -2,7 +2,8 @@
 // home page uses it, so it lives with the home page.
 import { css, type Handle } from 'remix/component'
 
-import { CardLink, EMPTY_THUMBNAIL } from '../../../../ui/cards/article-card/article-card.tsx'
+import { EMPTY_THUMBNAIL } from '../../../../ui/cards/article-card/article-card.tsx'
+import { CardLink } from '../../../../ui/cards/card-link/card-link.tsx'
 import { BaseTagList } from '../../../../ui/lists/base-tag-list/base-tag-list.tsx'
 import * as styles from './article-compact-card.styles.ts'
 import type { ArticleCompactCardProps } from './article-compact-card.types.ts'

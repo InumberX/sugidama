@@ -89,17 +89,19 @@ const DEFAULT_ANSWERS: Record<string, KurocoAnswer> = {
  * unmocked instead of getting the wrong fixture. Returns the mock, whose
  * `calls` record each requested URL.
  */
+const API_BASE_PATH = new URL(API_URL).pathname
+
 export const mockKuroco = (t: TestContext, overrides: Record<string, KurocoAnswer> = {}) => {
   const answers = { ...DEFAULT_ANSWERS, ...overrides }
 
   return t.mock.method(globalThis, 'fetch', async (input: RequestInfo | URL) => {
     const url = new URL(input instanceof Request ? input.url : String(input))
-    const base = new URL(API_URL).pathname
-    const path = url.pathname.startsWith(base) ? url.pathname.slice(base.length) : url.pathname
-    const endpoint = Object.keys(answers).find((key) => key === path)
-    if (endpoint === undefined) throw new Error(`unmocked Kuroco request: ${url}`)
+    const path = url.pathname.startsWith(API_BASE_PATH)
+      ? url.pathname.slice(API_BASE_PATH.length)
+      : url.pathname
+    if (!Object.hasOwn(answers, path)) throw new Error(`unmocked Kuroco request: ${url}`)
 
-    const answer = answers[endpoint]
+    const answer = answers[path]
     if (answer instanceof Error) throw answer
     if (answer instanceof Response) return answer.clone()
     return Response.json(answer)

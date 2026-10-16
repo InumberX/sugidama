@@ -34,6 +34,8 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
       ariaSelected,
       nonClickableTag,
     } = handle.props
+    // Never focusable while hidden from assistive technology.
+    const focusIndex = ariaHidden ? -1 : tabIndex
 
     // One css(...) call: the reset, the disabled treatment and the caller's
     // recipe are merged as plain objects, so JS spread order decides which
@@ -65,7 +67,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
           rel={isDisabled ? undefined : rel}
           title={title}
           role={isDisabled ? (role ?? 'link') : role}
-          tabIndex={isDisabled ? undefined : tabIndex}
+          tabIndex={isDisabled ? undefined : focusIndex}
           aria-disabled={isDisabled ? 'true' : undefined}
           aria-label={ariaLabel}
           aria-hidden={ariaHidden ? 'true' : undefined}
@@ -88,7 +90,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
           value={value}
           title={title}
           role={role}
-          tabIndex={tabIndex}
+          tabIndex={focusIndex}
           aria-label={ariaLabel}
           aria-hidden={ariaHidden ? 'true' : undefined}
           aria-controls={ariaControls}
@@ -109,7 +111,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
       <Tag
         title={title}
         role={role}
-        tabIndex={tabIndex}
+        tabIndex={focusIndex}
         aria-label={ariaLabel}
         aria-hidden={ariaHidden ? 'true' : undefined}
         aria-controls={ariaControls}

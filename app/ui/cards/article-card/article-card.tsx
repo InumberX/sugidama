@@ -1,9 +1,8 @@
 // Ported from develop: app/components/ui/cards/ArticleCard
-import { css, type Handle, type RemixNode } from 'remix/component'
+import { css, type Handle } from 'remix/component'
 
 import { BaseTagList } from '../../lists/base-tag-list/base-tag-list.tsx'
-import { PrimitiveButton } from '../../primitives/buttons/primitive-button/primitive-button.tsx'
-import type { StyleRecipe } from '../../styles/public/mixins.ts'
+import { CardLink } from '../card-link/card-link.tsx'
 import * as styles from './article-card.styles.ts'
 import type { ArticleCardProps } from './article-card.types.ts'
 
@@ -68,34 +67,6 @@ export function ArticleCard(handle: Handle<ArticleCardProps>) {
           </CardLink>
         </div>
       </ArticleTag>
-    )
-  }
-}
-
-/**
- * A link to the card's page, or an inert span when the card has none. Shared
- * with the home page's compact card, so both cards render a link the same way.
- * `isRedundant` marks a second link to the same page (the thumbnail): it is
- * kept for the mouse but skipped by the keyboard and by screen readers, which
- * would otherwise meet an unnamed link whenever the image has no alt text.
- */
-export function CardLink(
-  handle: Handle<{
-    url?: string
-    styleOverrides: StyleRecipe
-    isRedundant?: boolean
-    children?: RemixNode
-  }>
-) {
-  return () => {
-    const { url, styleOverrides, isRedundant, children } = handle.props
-    const element = url === undefined ? { nonClickableTag: 'span' as const } : { url }
-    // Only a link can repeat the title link; an inert thumbnail keeps its alt text.
-    const hidden = isRedundant && url !== undefined ? { ariaHidden: true, tabIndex: -1 } : {}
-    return (
-      <PrimitiveButton {...element} {...hidden} styleOverrides={styleOverrides}>
-        {children}
-      </PrimitiveButton>
     )
   }
 }

@@ -94,7 +94,7 @@ export function HomePage(handle: Handle<HomePageProps>) {
                         </div>
                       )}
                     </div>
-                    <div mix={css(styles.homeSection_bottom)}>
+                    <div mix={css(styles.homeNewArrivals_bottom)}>
                       <BaseButton url={drinksUrl} size="large">
                         {messages.newArrivalsMore}
                       </BaseButton>
@@ -136,7 +136,7 @@ export function HomePage(handle: Handle<HomePageProps>) {
                         ))}
                       </ul>
                     </div>
-                    <div mix={css(styles.homeSection_bottom)}>
+                    <div mix={css(styles.homeSearchCategory_bottom)}>
                       <BaseButton url={drinksUrl} size="large">
                         {messages.searchCategoryMore}
                       </BaseButton>

@@ -29,6 +29,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
       role,
       tabIndex,
       ariaLabel,
+      ariaHidden,
       ariaControls,
       ariaSelected,
       nonClickableTag,
@@ -67,6 +68,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
           tabIndex={isDisabled ? undefined : tabIndex}
           aria-disabled={isDisabled ? 'true' : undefined}
           aria-label={ariaLabel}
+          aria-hidden={ariaHidden ? 'true' : undefined}
           aria-controls={ariaControls}
           aria-selected={ariaSelected}
           data-rmx-document={!isDisabled && isDocumentNavigation(url) ? '' : undefined}
@@ -88,6 +90,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
           role={role}
           tabIndex={tabIndex}
           aria-label={ariaLabel}
+          aria-hidden={ariaHidden ? 'true' : undefined}
           aria-controls={ariaControls}
           aria-selected={ariaSelected}
           mix={hostStyle}
@@ -108,6 +111,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
         role={role}
         tabIndex={tabIndex}
         aria-label={ariaLabel}
+        aria-hidden={ariaHidden ? 'true' : undefined}
         aria-controls={ariaControls}
         aria-selected={ariaSelected}
         mix={hostStyle}

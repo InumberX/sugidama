@@ -15,7 +15,7 @@ export const getDrinkabilityTags = (): Promise<ApiResult<Tags>> =>
 /** Every tag of every category, in one language. */
 export const toTagTerms = (categories: TagCategory[], lang: Lang): Term[] =>
   categories.flatMap((category) =>
-    Object.values(category.tags).map((tag) => ({
+    Object.values(category.tags ?? {}).map((tag) => ({
       id: tag.tag_id,
       label: lang === 'en' ? tag.ext_col_01 : tag.tag_nm,
     }))

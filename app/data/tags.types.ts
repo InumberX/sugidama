@@ -11,7 +11,8 @@ export type TagItem = {
 export type TagCategory = {
   tag_category_id: number
   tag_category_nm: string
-  tags: Record<string, TagItem>
+  /** Guarded as possibly empty, like a drink's own tags. */
+  tags: Record<string, TagItem> | null
 }
 
 export type Tags = {

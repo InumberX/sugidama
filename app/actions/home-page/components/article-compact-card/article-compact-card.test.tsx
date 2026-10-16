@@ -5,6 +5,23 @@ import { describe, it } from 'remix/test'
 import { ArticleCompactCard } from './article-compact-card.tsx'
 
 describe('ArticleCompactCard', () => {
+  it('keeps the thumbnail link from keyboards and screen readers, as a repeat of the title', async () => {
+    const html = await renderToString(
+      <ArticleCompactCard
+        url="/drinks/sake"
+        title={{ text: '日本酒' }}
+        description={{ text: '2024/01/01' }}
+      />
+    )
+    const links = [...html.matchAll(/<a href="\/drinks\/sake"[^>]*>/g)].map(([tag]) => tag)
+
+    assert.equal(links.length, 3)
+    assert.deepEqual(
+      links.map((tag) => /aria-hidden="true"/.test(tag) && /tabindex="-1"/.test(tag)),
+      [false, false, true]
+    )
+  })
+
   it('links the title, the description and the thumbnail to the card page', async () => {
     const html = await renderToString(
       <ArticleCompactCard

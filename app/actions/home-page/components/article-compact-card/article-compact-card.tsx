@@ -59,7 +59,11 @@ export function ArticleCompactCard(handle: Handle<ArticleCompactCardProps>) {
         )}
 
         <div {...linkAttributes} mix={css(styles.articleCompactCardThumbnail)}>
-          <CardLink url={url} styleOverrides={styles.articleCompactCardThumbnail_container}>
+          <CardLink
+            url={url}
+            styleOverrides={styles.articleCompactCardThumbnail_container}
+            isRedundant
+          >
             <span mix={css(styles.articleCompactCardThumbnail_contents)}>
               <img
                 src={thumbnail?.src ?? EMPTY_THUMBNAIL}

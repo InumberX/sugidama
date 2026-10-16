@@ -1,10 +1,11 @@
-import type { Drink } from '../data/drinks.types.ts'
 // Ported from develop: app/utils/article.ts (`convertDrinkToArticleCardProps`
 // and its compact twin, which were identical)
 //
 // A drink as a card: the home page, the drinks list and a drink's related
 // drinks all show the same card, so the mapping lives here rather than with
 // one of them. It imports UI types only.
+
+import type { Drink } from '../data/drinks.types.ts'
 import type { Term } from '../data/terms.types.ts'
 import { routes } from '../routes.ts'
 import type { ArticleCardProps } from '../ui/cards/article-card/article-card.types.ts'

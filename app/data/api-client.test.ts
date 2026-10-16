@@ -39,6 +39,16 @@ describe('apiClient', () => {
     })
   })
 
+  it('cancels an error body nothing reads, so the connection is released', async (t) => {
+    t.mock.method(console, 'error', () => {})
+    const cancel = t.mock.fn()
+    const body = new ReadableStream({ cancel })
+    t.mock.method(globalThis, 'fetch', async () => new Response(body, { status: 503 }))
+    await apiClient('/x')
+
+    assert.equal(cancel.mock.calls.length, 1)
+  })
+
   it('falls back to the status when there is no status text, as over HTTP/2', async (t) => {
     t.mock.method(console, 'error', () => {})
     t.mock.method(globalThis, 'fetch', async () => new Response(null, { status: 503 }))

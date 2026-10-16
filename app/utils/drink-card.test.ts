@@ -61,6 +61,17 @@ describe('toDrinkCardProps', () => {
     ])
   })
 
+  it('sets the title heading level when asked, and leaves it to the card otherwise', () => {
+    const drink = drinkFixture()
+    const card = toDrinkCardProps({ drink, lang: 'ja', categories, tagGroups, titleTag: 'h3' })
+
+    assert.equal(card.title.titleTag, 'h3')
+    assert.equal(
+      toDrinkCardProps({ drink, lang: 'ja', categories, tagGroups }).title.titleTag,
+      undefined
+    )
+  })
+
   it('leaves the date row out when the date cannot be read', () => {
     const card = toDrinkCardProps({
       drink: drinkFixture({ inst_ymdhi: '' }),

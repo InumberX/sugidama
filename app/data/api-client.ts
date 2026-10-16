@@ -31,6 +31,8 @@ export const apiClient = async <T>(path: string, options?: RequestInit): Promise
 
   if (!response.ok) {
     console.error(`[API] ${response.status}: ${path}`)
+    // Nothing reads an error body; release the connection instead of leaving it to GC.
+    await response.body?.cancel()
     // HTTP/2 has no reason phrase, so statusText is usually empty.
     return {
       success: false,

@@ -12,7 +12,7 @@ import { ArticleCardList } from '../../ui/lists/article-card-list/article-card-l
 import { PrimitiveButton } from '../../ui/primitives/buttons/primitive-button/primitive-button.tsx'
 import { PageTitle } from '../../ui/typographies/page-title/page-title.tsx'
 import { ReplaceNewLineText } from '../../ui/typographies/replace-new-line-text/replace-new-line-text.tsx'
-import { SEARCH_DRINKS_CONDITION_KEY } from '../../utils/drink-search.ts'
+import { SEARCH_DRINKS_CONDITION_KEY, toDrinkSearchHref } from '../../utils/drink-search.ts'
 import { defineMessages, type Lang, toLangParam } from '../../utils/i18n.ts'
 import { Document } from '../document.tsx'
 import { ArticleCompactCardList } from './components/article-compact-card-list/article-compact-card-list.tsx'
@@ -112,11 +112,11 @@ export function HomePage(handle: Handle<HomePageProps>) {
                         {categories.map((category) => (
                           <li key={category.id}>
                             <PrimitiveButton
-                              url={routes.drinks.index.href(langParam, {
-                                searchParams: {
-                                  [SEARCH_DRINKS_CONDITION_KEY.DRINK]: category.id,
-                                },
-                              })}
+                              url={toDrinkSearchHref(
+                                lang,
+                                SEARCH_DRINKS_CONDITION_KEY.DRINK,
+                                category.id
+                              )}
                               styleOverrides={styles.homeSearchCategoryListLink}
                             >
                               <div mix={css(styles.homeSearchCategoryListLink_container)}>

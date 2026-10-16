@@ -2,8 +2,8 @@
 // half of app/utils/tags.ts
 import type { Lang } from '../utils/i18n.ts'
 import { apiClient, type ApiResult } from './api-client.ts'
-import type { Term } from './drink-categories.ts'
 import type { TagCategory, Tags } from './tags.types.ts'
+import type { Term } from './terms.types.ts'
 
 export type * from './tags.types.ts'
 

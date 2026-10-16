@@ -3,9 +3,10 @@
 // The home page's data, fetched in parallel. A failed call ends the request
 // with that call's error response, as develop's loader threw it.
 import { apiErrorResponse } from '../../data/api-client.ts'
-import { getDrinkCategories, type Term, toDrinkCategoryTerms } from '../../data/drink-categories.ts'
+import { getDrinkCategories, toDrinkCategoryTerms } from '../../data/drink-categories.ts'
 import { getDrinks } from '../../data/drinks.ts'
 import { getDrinkabilityTags, getTasteTags, toTagTerms } from '../../data/tags.ts'
+import type { Term } from '../../data/terms.types.ts'
 import { type DrinkCardProps, toDrinkCardProps } from '../../utils/drink-card.ts'
 import { SEARCH_DRINKS_CONDITION_KEY } from '../../utils/drink-search.ts'
 import type { Lang } from '../../utils/i18n.ts'
@@ -41,10 +42,9 @@ export const loadHomePage = async (lang: Lang): Promise<HomePageData | Response>
     },
   ]
   // The section title is the page's h2, so each card's title is an h3.
-  const cards = drinksResult.data.list.map((drink) => {
-    const card = toDrinkCardProps({ drink, lang, categories, tagGroups })
-    return { ...card, title: { ...card.title, titleTag: 'h3' as const } }
-  })
+  const cards = drinksResult.data.list.map((drink) =>
+    toDrinkCardProps({ drink, lang, categories, tagGroups, titleTag: 'h3' })
+  )
 
   return {
     cards: cards.slice(0, NEW_ARRIVALS_COUNT.cards),

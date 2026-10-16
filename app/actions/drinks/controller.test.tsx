@@ -37,4 +37,13 @@ describe('drinks controller', () => {
     assert.equal(ja.headers.get('Location'), '/drinks')
     assert.equal(fr.status, 404)
   })
+
+  it('renders the drink placeholder page under its slug', async () => {
+    const href = routes.drinks.show.href({ lang: toLangParam('en'), drinkId: 'kubota' })
+    const response = await router.fetch(new Request(`http://localhost${href}`))
+
+    assert.equal(href, '/en/drinks/kubota')
+    assert.equal(response.status, 200)
+    assert.match(await response.text(), /<html lang="en">/)
+  })
 })

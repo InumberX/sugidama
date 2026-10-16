@@ -1,0 +1,47 @@
+import * as assert from 'remix/assert'
+import { renderToString } from 'remix/component/server'
+import { describe, it } from 'remix/test'
+
+import { ArticleCompactCard } from './article-compact-card.tsx'
+
+describe('ArticleCompactCard', () => {
+  it('links the title, the description and the thumbnail to the card page', async () => {
+    const html = await renderToString(
+      <ArticleCompactCard
+        url="/drinks/a"
+        title={{ text: 'A', titleTag: 'h3' }}
+        description={{ text: '2024/03/01' }}
+      />
+    )
+
+    assert.match(html, /<article data-article-compact-card=""/)
+    assert.match(html, /<h3 data-article-compact-card-link=""[^>]*><a href="\/drinks\/a"/)
+    assert.equal([...html.matchAll(/href="\/drinks\/a"/g)].length, 3)
+    assert.match(html, /<img src="\/assets\/img\/img-empty-16-9\.avif" alt=""/)
+  })
+
+  it("trims the title's padding next to a description and above tags", async () => {
+    const plain = await renderToString(<ArticleCompactCard url="/a" title={{ text: 'A' }} />)
+    const full = await renderToString(
+      <ArticleCompactCard
+        url="/a"
+        title={{ text: 'A' }}
+        description={{ text: 'd' }}
+        tags={[{ url: '/drinks?drink=1', children: 'ビール' }]}
+      />
+    )
+
+    assert.doesNotMatch(plain, /padding-block-start: 4px/)
+    assert.doesNotMatch(plain, /padding-block-end: 0/)
+    assert.match(full, /padding-block-start: 4px/)
+    assert.match(full, /padding-block-end: 0/)
+  })
+
+  it('recolors the title and zooms the image while one of its links is hovered', async () => {
+    const html = await renderToString(<ArticleCompactCard url="/a" title={{ text: 'A' }} />)
+
+    const hover =
+      /\[data-article-compact-card\]:has\(\[data-article-compact-card-link\] > a:hover\) &/g
+    assert.equal([...html.matchAll(hover)].length, 2)
+  })
+})

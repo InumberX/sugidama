@@ -4,6 +4,7 @@
 // unless an override says otherwise.
 import type { TestContext } from 'remix/test'
 
+import { API_URL } from '../app/env.ts'
 import type { DrinkCategories } from '../app/data/drink-categories.types.ts'
 import type { Drink, Drinks } from '../app/data/drinks.types.ts'
 import type { Tags } from '../app/data/tags.types.ts'
@@ -83,16 +84,19 @@ const DEFAULT_ANSWERS: Record<string, KurocoAnswer> = {
 }
 
 /**
- * Replaces `fetch` for this test. Endpoints are matched by the end of the
- * URL's path, so the API base in `API_URL` does not matter. Returns the mock,
- * whose `calls` record each requested URL.
+ * Replaces `fetch` for this test. Endpoints are matched exactly, as the path
+ * under `API_URL`, so a new endpoint that merely ends the same way fails as
+ * unmocked instead of getting the wrong fixture. Returns the mock, whose
+ * `calls` record each requested URL.
  */
 export const mockKuroco = (t: TestContext, overrides: Record<string, KurocoAnswer> = {}) => {
   const answers = { ...DEFAULT_ANSWERS, ...overrides }
 
   return t.mock.method(globalThis, 'fetch', async (input: RequestInfo | URL) => {
     const url = new URL(input instanceof Request ? input.url : String(input))
-    const endpoint = Object.keys(answers).find((path) => url.pathname.endsWith(path))
+    const base = new URL(API_URL).pathname
+    const path = url.pathname.startsWith(base) ? url.pathname.slice(base.length) : url.pathname
+    const endpoint = Object.keys(answers).find((key) => key === path)
     if (endpoint === undefined) throw new Error(`unmocked Kuroco request: ${url}`)
 
     const answer = answers[endpoint]

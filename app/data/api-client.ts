@@ -19,11 +19,11 @@ const getErrorMessage = (error: unknown): string =>
   error instanceof Error ? error.message : typeof error === 'string' ? error : 'unexpected error'
 
 /** GETs `${API_URL}${path}` and parses the JSON body, never cached. */
-export const apiClient = async <T>(path: string, options?: RequestInit): Promise<ApiResult<T>> => {
+export const apiClient = async <T>(path: string): Promise<ApiResult<T>> => {
   let response: Response
 
   try {
-    response = await fetch(`${API_URL}${path}`, { cache: 'no-store', ...options })
+    response = await fetch(`${API_URL}${path}`, { cache: 'no-store' })
   } catch (error) {
     console.error(`[API] Network error: ${path}`, error)
     return { success: false, status: null, message: getErrorMessage(error) }
@@ -32,7 +32,8 @@ export const apiClient = async <T>(path: string, options?: RequestInit): Promise
   if (!response.ok) {
     console.error(`[API] ${response.status}: ${path}`)
     // Nothing reads an error body; release the connection instead of leaving it to GC.
-    await response.body?.cancel()
+    // A body that already failed rejects here; that must not turn into a throw.
+    await response.body?.cancel().catch(() => {})
     // HTTP/2 has no reason phrase, so statusText is usually empty.
     return {
       success: false,

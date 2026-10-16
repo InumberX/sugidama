@@ -49,6 +49,20 @@ describe('apiClient', () => {
     assert.equal(cancel.mock.calls.length, 1)
   })
 
+  it('still reports the status when cancelling a broken error body rejects', async (t) => {
+    t.mock.method(console, 'error', () => {})
+    const body = new ReadableStream({
+      cancel: () => Promise.reject(new Error('connection reset')),
+    })
+    t.mock.method(globalThis, 'fetch', async () => new Response(body, { status: 503 }))
+
+    assert.deepEqual(await apiClient('/x'), {
+      success: false,
+      status: 503,
+      message: 'API error 503',
+    })
+  })
+
   it('falls back to the status when there is no status text, as over HTTP/2', async (t) => {
     t.mock.method(console, 'error', () => {})
     t.mock.method(globalThis, 'fetch', async () => new Response(null, { status: 503 }))

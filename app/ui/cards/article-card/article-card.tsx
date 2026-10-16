@@ -90,7 +90,8 @@ export function CardLink(
   return () => {
     const { url, styleOverrides, isRedundant, children } = handle.props
     const element = url === undefined ? { nonClickableTag: 'span' as const } : { url }
-    const hidden = isRedundant ? { ariaHidden: true, tabIndex: -1 } : {}
+    // Only a link can repeat the title link; an inert thumbnail keeps its alt text.
+    const hidden = isRedundant && url !== undefined ? { ariaHidden: true, tabIndex: -1 } : {}
     return (
       <PrimitiveButton {...element} {...hidden} styleOverrides={styleOverrides}>
         {children}

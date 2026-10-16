@@ -42,6 +42,15 @@ describe('ArticleCard', () => {
     assert.equal([...html.matchAll(/href="\/drinks\/sake"/g)].length, 3)
   })
 
+  it('leaves an inert thumbnail and its alt text to screen readers', async () => {
+    const html = await renderToString(
+      <ArticleCard title={{ text: 'A' }} thumbnail={{ src: '/img/a.webp', alt: 'Aの瓶' }} />
+    )
+
+    assert.doesNotMatch(html, /aria-hidden|tabindex/)
+    assert.match(html, /alt="Aの瓶"/)
+  })
+
   it('renders inert parts and no link markers without a url', async () => {
     const html = await renderToString(<ArticleCard title={{ text: 'A', titleTag: 'h3' }} />)
 

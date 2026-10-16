@@ -48,7 +48,10 @@ export const loadHomePage = async (lang: Lang): Promise<HomePageData | Response>
 
   return {
     cards: cards.slice(0, NEW_ARRIVALS_COUNT.cards),
-    compactCards: cards.slice(NEW_ARRIVALS_COUNT.cards),
+    compactCards: cards.slice(
+      NEW_ARRIVALS_COUNT.cards,
+      NEW_ARRIVALS_COUNT.cards + NEW_ARRIVALS_COUNT.compactCards
+    ),
     categories,
   }
 }

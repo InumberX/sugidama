@@ -13,7 +13,7 @@ const SECTION_STACK: StyleRecipe = {
   gridTemplateColumns: '1fr',
 }
 
-export const homeTitle_container: StyleRecipe = { ...SECTION_STACK }
+export const homeTitle_container: StyleRecipe = SECTION_STACK
 
 export const homeTitleLogo: StyleRecipe = {
   display: 'flex',
@@ -30,7 +30,7 @@ export const homeTitleLead_paragraph: StyleRecipe = {
   color: 'var(--color-font-sub-dark)',
 }
 
-export const homeNewArrivals_container: StyleRecipe = { ...SECTION_STACK }
+export const homeNewArrivals_container: StyleRecipe = SECTION_STACK
 
 /** Side by side from the `md` container width: the large cards, then the compact ones. */
 export const homeNewArrivalsList: StyleRecipe = {
@@ -58,7 +58,7 @@ export const homeSection_bottom: StyleRecipe = {
   justifyContent: 'center',
 }
 
-export const homeSearchCategory_container: StyleRecipe = { ...SECTION_STACK }
+export const homeSearchCategory_container: StyleRecipe = SECTION_STACK
 
 export const homeSearchCategoryList_items: StyleRecipe = {
   display: 'grid',

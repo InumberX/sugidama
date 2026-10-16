@@ -39,6 +39,14 @@ describe('home page', () => {
     assert.match(html, /新着のお酒/)
   })
 
+  it('shows no more than four compact cards even if the API returns more', async (t) => {
+    const many = Array.from({ length: 10 }, (_, i) => drinkFixture({ slug: `d${i}` }))
+    mockKuroco(t, { '/drinks': drinksFixture(many) })
+    const { html } = await home()
+
+    assert.equal([...html.matchAll(/<article data-article-compact-card=""/g)].length, 4)
+  })
+
   it('leaves the compact column out when there are only two drinks', async (t) => {
     mockKuroco(t, { '/drinks': drinksFixture([drinkFixture(), drinkFixture({ slug: 'b' })]) })
     const { html } = await home()

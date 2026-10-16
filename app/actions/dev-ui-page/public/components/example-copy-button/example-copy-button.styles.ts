@@ -39,10 +39,10 @@ export const exampleCopyButton: StyleRecipe = {
  */
 export const exampleCopyButton__active: StyleRecipe = {
   background: 'var(--color-util-black)',
-  color: 'var(--color-util-white)',
+  color: 'var(--color-font-light)',
   '&:hover, &:focus-visible': {
     background: 'var(--color-util-black)',
-    color: 'var(--color-util-white)',
+    color: 'var(--color-font-light)',
     outline: 'none',
   },
 }

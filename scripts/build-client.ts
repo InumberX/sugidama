@@ -34,16 +34,35 @@ const assets = createAssetServer({
 
 // Every module under a public/ directory is a possible entry; the runtime
 // entry and each `clientEntry` load the rest through their imports.
-const entries: string[] = []
+const sources: string[] = []
 for await (const file of glob('app/**/public/**/*.{ts,tsx}', { cwd: rootDir })) {
   if (/\.test\.tsx?$/.test(file) || /\.types\.ts$/.test(file)) continue
-  entries.push(`/${CLIENT_BASE_PATH}/${file.split(path.sep).join('/')}`)
+  sources.push(file.split(path.sep).join('/'))
+}
+const entries = sources.map((source) => `/${CLIENT_BASE_PATH}/${source}`)
+
+// The asset server writes `remix/*` imports as URLs but leaves other packages
+// as authored (`"@remix-run/ui/tabs"`) for an import map to resolve. There is
+// no import map here (a Worker page would need one per document, nonce'd), so
+// the map is applied now: each bare specifier becomes the URL the map gives it
+// for the importing module.
+const importMap = await assets.getImportMap(sources)
+const resolveBare = (specifier: string, importer: string): string | undefined => {
+  const scopes = Object.entries(importMap.scopes ?? {})
+    .filter(([scope]) => importer.startsWith(scope))
+    .sort(([a], [b]) => b.length - a.length)
+  for (const [, mapping] of scopes) {
+    if (Object.hasOwn(mapping, specifier)) return mapping[specifier]
+  }
+  return importMap.imports?.[specifier]
 }
 
 // Absolute module specifiers (`"/client/npm/…"`) and relative ones
 // (`from"./frame.js"`, `import("../x.ts")`) in the asset server's output.
 const SPECIFIER = new RegExp(`(["'])(/${CLIENT_BASE_PATH}/[^"'?#]+)\\1`, 'g')
 const RELATIVE_SPECIFIER = /(?:\bfrom|\bimport)\s*\(?\s*(["'`])(\.{1,2}\/[^"'`]+)\1/g
+// Bare package specifiers (`from"@remix-run/ui/tabs"`), resolved through the import map.
+const BARE_SPECIFIER = /(?:\bfrom|\bimport)\s*\(?\s*(["'`])([^"'`./][^"'`]*)\1/g
 
 const seen = new Set<string>()
 const queue = [...entries]
@@ -66,6 +85,15 @@ while (queue.length > 0) {
   // absolute path; both are followed.
   const base = new URL(url, 'http://build.local')
   const source = (await response.text())
+    .replace(BARE_SPECIFIER, (match, quote, specifier) => {
+      // A template literal with an interpolation is a runtime URL (`import(`${moduleUrl}`)`).
+      if (specifier.includes('${')) return match
+      const resolved = resolveBare(specifier, url)
+      if (resolved === undefined) {
+        throw new Error(`build-client: ${url} imports ${specifier}, which the import map does not resolve`)
+      }
+      return match.replace(`${quote}${specifier}${quote}`, `${quote}${resolved}${quote}`)
+    })
     .replace(SPECIFIER, (_match, quote, specifier) => {
       queue.push(specifier)
       return `${quote}${toClientUrlPath(specifier)}${quote}`

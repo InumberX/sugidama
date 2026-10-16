@@ -41,6 +41,6 @@ describe('exampleCopyButton__active', () => {
   it('inverts against the base rather than tinting it', () => {
     assert.equal(styles.exampleCopyButton.background, 'transparent')
     assert.equal(styles.exampleCopyButton__active.background, 'var(--color-util-black)')
-    assert.equal(styles.exampleCopyButton__active.color, 'var(--color-util-white)')
+    assert.equal(styles.exampleCopyButton__active.color, 'var(--color-font-light)')
   })
 })

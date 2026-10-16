@@ -1,15 +1,16 @@
 // Ported from develop: app/components/ui/cards/ArticleCard
-import { css, type Handle } from 'remix/component'
+import { css, type Handle, type RemixNode } from 'remix/component'
 
 import { BaseTagList } from '../../lists/base-tag-list/base-tag-list.tsx'
-import { CardLink } from '../card-link/card-link.tsx'
+import { PrimitiveButton } from '../../primitives/buttons/primitive-button/primitive-button.tsx'
+import type { StyleRecipe } from '../../styles/public/mixins.ts'
 import * as styles from './article-card.styles.ts'
 import type { ArticleCardProps } from './article-card.types.ts'
 
 export type * from './article-card.types.ts'
 
-/** Shown when a drink has no thumbnail. Shared with the home page's compact card. */
-export const EMPTY_THUMBNAIL = '/assets/img/img-empty-16-9.avif'
+/** Shown when a drink has no thumbnail. */
+const EMPTY_THUMBNAIL = '/assets/img/img-empty-16-9.avif'
 
 /**
  * A drink card. As in develop, the title, the description and the thumbnail are three
@@ -67,6 +68,37 @@ export function ArticleCard(handle: Handle<ArticleCardProps>) {
           </CardLink>
         </div>
       </ArticleTag>
+    )
+  }
+}
+
+/**
+ * A link to the card's page, or an inert span when the card has none.
+ * `isRedundant` marks a second link to the same page (the thumbnail): it is
+ * kept for the mouse but skipped by the keyboard and by screen readers, which
+ * would otherwise meet an unnamed link whenever the image has no alt text. An
+ * inert part keeps its content, alt text included, for there is no title link
+ * it repeats. The home page's ArticleCompactCard has its own copy; keep the two in step.
+ */
+function CardLink(
+  handle: Handle<{
+    url?: string
+    styleOverrides: StyleRecipe
+    isRedundant?: boolean
+    children?: RemixNode
+  }>
+) {
+  return () => {
+    const { url, styleOverrides, isRedundant, children } = handle.props
+    const element = url === undefined ? { nonClickableTag: 'span' as const } : { url }
+    return (
+      <PrimitiveButton
+        {...element}
+        ariaHidden={isRedundant && url !== undefined}
+        styleOverrides={styleOverrides}
+      >
+        {children}
+      </PrimitiveButton>
     )
   }
 }

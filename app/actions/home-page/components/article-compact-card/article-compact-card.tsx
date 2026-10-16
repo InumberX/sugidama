@@ -1,14 +1,17 @@
 // Ported from develop: app/components/ui/cards/ArticleCompactCard. Only the
 // home page uses it, so it lives with the home page.
-import { css, type Handle } from 'remix/component'
+import { css, type Handle, type RemixNode } from 'remix/component'
 
-import { EMPTY_THUMBNAIL } from '../../../../ui/cards/article-card/article-card.tsx'
-import { CardLink } from '../../../../ui/cards/card-link/card-link.tsx'
 import { BaseTagList } from '../../../../ui/lists/base-tag-list/base-tag-list.tsx'
+import { PrimitiveButton } from '../../../../ui/primitives/buttons/primitive-button/primitive-button.tsx'
+import type { StyleRecipe } from '../../../../ui/styles/public/mixins.ts'
 import * as styles from './article-compact-card.styles.ts'
 import type { ArticleCompactCardProps } from './article-compact-card.types.ts'
 
 export type * from './article-compact-card.types.ts'
+
+/** Shown when a drink has no thumbnail. */
+const EMPTY_THUMBNAIL = '/assets/img/img-empty-16-9.avif'
 
 /** A drink as a row: the thumbnail on the left, the date, title and tags beside it. */
 export function ArticleCompactCard(handle: Handle<ArticleCompactCardProps>) {
@@ -75,6 +78,37 @@ export function ArticleCompactCard(handle: Handle<ArticleCompactCardProps>) {
           </CardLink>
         </div>
       </ArticleTag>
+    )
+  }
+}
+
+/**
+ * A link to the card's page, or an inert span when the card has none.
+ * `isRedundant` marks a second link to the same page (the thumbnail): it is
+ * kept for the mouse but skipped by the keyboard and by screen readers, which
+ * would otherwise meet an unnamed link whenever the image has no alt text. An
+ * inert part keeps its content, alt text included, for there is no title link
+ * it repeats. ArticleCard (`app/ui/cards/article-card/`) has its own copy; keep the two in step.
+ */
+function CardLink(
+  handle: Handle<{
+    url?: string
+    styleOverrides: StyleRecipe
+    isRedundant?: boolean
+    children?: RemixNode
+  }>
+) {
+  return () => {
+    const { url, styleOverrides, isRedundant, children } = handle.props
+    const element = url === undefined ? { nonClickableTag: 'span' as const } : { url }
+    return (
+      <PrimitiveButton
+        {...element}
+        ariaHidden={isRedundant && url !== undefined}
+        styleOverrides={styleOverrides}
+      >
+        {children}
+      </PrimitiveButton>
     )
   }
 }

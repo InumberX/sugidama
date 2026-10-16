@@ -22,6 +22,15 @@ describe('ArticleCompactCard', () => {
     )
   })
 
+  it('leaves an inert thumbnail and its alt text to screen readers', async () => {
+    const html = await renderToString(
+      <ArticleCompactCard title={{ text: 'A' }} thumbnail={{ src: '/img/a.webp', alt: 'Aの瓶' }} />
+    )
+
+    assert.doesNotMatch(html, /aria-hidden|tabindex/)
+    assert.match(html, /alt="Aの瓶"/)
+  })
+
   it('links the title, the description and the thumbnail to the card page', async () => {
     const html = await renderToString(
       <ArticleCompactCard

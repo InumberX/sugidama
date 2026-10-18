@@ -16,15 +16,16 @@ export default createController(routes.drinks, {
   middleware: [lang()],
   actions: {
     async index(context) {
-      const search = parseDrinkSearch(context.url.searchParams)
-      // A page that is not a positive integer names no page of results.
-      if (search === null) return new Response('Not Found', { status: 404 })
+      const parsed = parseDrinkSearch(context.url.searchParams)
+      // A page that is not a positive integer, or a keyword longer than any
+      // form submits, names no page of results.
+      if (parsed === null) return new Response('Not Found', { status: 404 })
 
-      const data = await loadIndexPage(context.lang, search)
+      const data = await loadIndexPage(context.lang, context.url, parsed)
       if (data instanceof Response) return data
       // Past the last page there is nothing to show and no pagination to lead
       // back, so it is a 404 too rather than an empty page a crawler can index.
-      if (data.result.success && search.page > data.result.totalPage) {
+      if (data.result.success && data.search.page > data.result.totalPage) {
         return new Response('Not Found', { status: 404 })
       }
       // A failed search still renders the form, with an error status so the

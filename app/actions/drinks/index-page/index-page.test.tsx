@@ -111,19 +111,27 @@ describe('drinks index page', () => {
     assert.match(await response.text(), /<form action="\/drinks" method="get"/)
   })
 
-  it('counts only the ids the form has a checkbox for', async (t) => {
+  it('redirects a malformed or unknown id to the same search without it', async (t) => {
     mockKuroco(t)
-    const html = await (await get('/drinks?drink=99999&taste=11&taste=11')).text()
-    const data = JSON.parse(
-      /<script type="application\/json" id="rmx-data">(.*?)<\/script>/.exec(html)![1]!
-    )
-    const [entry] = Object.values(data.h) as {
-      props: { conditions: { name: string; selected: string[] }[] }
-    }[]
-    const selected = Object.fromEntries(entry!.props.conditions.map((c) => [c.name, c.selected]))
+    const response = await get('/en/drinks?drink=99999&drink=2&taste=02&taste=11&taste=11&page=2')
 
-    assert.deepEqual(selected.drink, [])
-    assert.deepEqual(selected.taste, ['11'])
+    assert.equal(response.status, 302)
+    assert.equal(response.headers.get('Location'), '/en/drinks?drink=2&taste=11&page=2')
+  })
+
+  it('keeps the parameters the page does not read across that redirect', async (t) => {
+    mockKuroco(t)
+    const response = await get('/drinks?utm_source=x&taste=abc&keyword=%E8%BE%9B')
+
+    assert.equal(response.status, 302)
+    assert.equal(response.headers.get('Location'), '/drinks?keyword=%E8%BE%9B&utm_source=x')
+  })
+
+  it('answers the redirected search with the page', async (t) => {
+    mockKuroco(t)
+    const response = await get('/drinks?drink=2&taste=11')
+
+    assert.equal(response.status, 200)
   })
 
   it('answers with the API error when the conditions cannot be loaded', async (t) => {

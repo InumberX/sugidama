@@ -38,39 +38,48 @@ export const normalizeSearchKeyword = (keyword: string | null): string =>
 
 /**
  * A positive integer written the one way links write it: no sign, no leading
- * zero, nothing after it. Anything else in the query (`page=01`, `drink=02`,
- * `taste=2abc`) is no URL this site links to, and is a 404 rather than a
- * second URL for some other search: dropping a bad id would answer 200 with
- * the list unfiltered.
+ * zero, nothing after it. A page written any other way (`page=01`, `page=0`)
+ * names no page of results and is a 404; an id written any other way
+ * (`drink=02`, `taste=2abc`) is ignored, as develop dropped what was not a
+ * number.
  */
 const CANONICAL_INTEGER = /^[1-9]\d*$/
 
 /**
  * Caps on what the query may carry. They are far above anything the form can
  * submit (a few dozen terms, a short keyword) and keep a crafted query from
- * growing the API request past what Kuroco accepts.
+ * growing the API request past what Kuroco accepts. Ids past the cap are
+ * ignored; a longer keyword is a 404, since cutting it would search for
+ * something else.
  */
 const MAX_IDS_PER_CONDITION = 50
 const MAX_KEYWORD_LENGTH = 100
 
-/** Distinct ids, or `null` when any value is not a canonical id or there are too many. */
-const toIds = (values: string[]): number[] | null => {
-  if (values.length > MAX_IDS_PER_CONDITION) return null
-  if (!values.every((value) => CANONICAL_INTEGER.test(value))) return null
-  const ids = values.map(Number)
-  return ids.every(Number.isSafeInteger) ? [...new Set(ids)] : null
+/** The canonical ids among `values`, each once, up to the cap. */
+const toIds = (values: string[]): number[] => {
+  const ids = values
+    .filter((value) => CANONICAL_INTEGER.test(value))
+    .map(Number)
+    .filter(Number.isSafeInteger)
+  return [...new Set(ids)].slice(0, MAX_IDS_PER_CONDITION)
 }
 
 /**
- * Reads the list's query, or `null` for one that no link of this site writes,
- * which the page answers with a 404: a page or id that is not a canonical
- * positive integer (develop 404'd a non-number page but passed 0 or -1 to the
- * API), too many ids, or too long a keyword. Repeated ids collapse. An id
- * outside the vocabularies is kept, since the vocabularies load alongside the
- * search (the API simply matches nothing for it, and the form shows only the
- * ids it has a checkbox for).
+ * What the list's query asks for. `ignored` is set when an id was dropped —
+ * malformed, repeated or past the cap — so the page can redirect to the URL
+ * of the search it actually runs instead of answering under a second URL.
  */
-export const parseDrinkSearch = (searchParams: URLSearchParams): DrinkSearch | null => {
+export type ParsedDrinkSearch = { search: DrinkSearch; ignored: boolean }
+
+/**
+ * Reads the list's query, or `null` for one that names no page of results,
+ * which the page answers with a 404: a page that is not a canonical positive
+ * integer (develop 404'd a non-number page but passed 0 or -1 to the API), or
+ * too long a keyword. Ids are forgiving instead; see `toIds`. An id outside the
+ * vocabularies is not checked here, because the vocabularies load alongside
+ * the search (`index-page.data.ts` drops it).
+ */
+export const parseDrinkSearch = (searchParams: URLSearchParams): ParsedDrinkSearch | null => {
   const pageParam = searchParams.get('page') ?? '1'
   if (!CANONICAL_INTEGER.test(pageParam)) return null
   const page = Number(pageParam)
@@ -79,18 +88,21 @@ export const parseDrinkSearch = (searchParams: URLSearchParams): DrinkSearch | n
   const keyword = normalizeSearchKeyword(searchParams.get('keyword'))
   if (keyword.length > MAX_KEYWORD_LENGTH) return null
 
-  const drink = toIds(searchParams.getAll(SEARCH_DRINKS_CONDITION_KEY.DRINK))
-  const taste = toIds(searchParams.getAll(SEARCH_DRINKS_CONDITION_KEY.TASTE))
-  const drinkability = toIds(searchParams.getAll(SEARCH_DRINKS_CONDITION_KEY.DRINKABILITY))
-  if (drink === null || taste === null || drinkability === null) return null
-
-  return {
+  let ignored = false
+  const read = (key: SearchDrinksConditionKey): number[] => {
+    const values = searchParams.getAll(key)
+    const ids = toIds(values)
+    if (ids.length !== values.length) ignored = true
+    return ids
+  }
+  const search: DrinkSearch = {
     keyword,
     page,
-    [SEARCH_DRINKS_CONDITION_KEY.DRINK]: drink,
-    [SEARCH_DRINKS_CONDITION_KEY.TASTE]: taste,
-    [SEARCH_DRINKS_CONDITION_KEY.DRINKABILITY]: drinkability,
+    [SEARCH_DRINKS_CONDITION_KEY.DRINK]: read(SEARCH_DRINKS_CONDITION_KEY.DRINK),
+    [SEARCH_DRINKS_CONDITION_KEY.TASTE]: read(SEARCH_DRINKS_CONDITION_KEY.TASTE),
+    [SEARCH_DRINKS_CONDITION_KEY.DRINKABILITY]: read(SEARCH_DRINKS_CONDITION_KEY.DRINKABILITY),
   }
+  return { search, ignored }
 }
 
 /**
@@ -111,3 +123,28 @@ export const toDrinkSearchListHref = (lang: Lang, search: DrinkSearch, page: num
       },
     }
   )
+
+/** The query keys the list reads; `toDrinkSearchRedirectHref` keeps every other one. */
+const SEARCH_KEYS: readonly string[] = [
+  'keyword',
+  'page',
+  ...Object.values(SEARCH_DRINKS_CONDITION_KEY),
+]
+
+/**
+ * Where a search with ignored ids redirects: its own list URL, plus whatever
+ * else the query carried (`utm_*`), which the page does not read but Google
+ * Analytics does, after the redirect.
+ */
+export const toDrinkSearchRedirectHref = (
+  lang: Lang,
+  search: DrinkSearch,
+  searchParams: URLSearchParams
+): string => {
+  const href = toDrinkSearchListHref(lang, search, search.page)
+  const rest = new URLSearchParams(
+    [...searchParams].filter(([key]) => !SEARCH_KEYS.includes(key))
+  ).toString()
+  if (rest === '') return href
+  return `${href}${href.includes('?') ? '&' : '?'}${rest}`
+}

@@ -97,11 +97,8 @@ export function IndexPage(handle: Handle<IndexPageProps>) {
                         name,
                         label: messages[name],
                         options,
-                        // Only what a checkbox can show: an id with no option
-                        // would be counted but could never be unchecked.
-                        selected: search[name]
-                          .map(String)
-                          .filter((id) => options.some((option) => option.value === id)),
+                        // The loader has dropped every id without an option.
+                        selected: search[name].map(String),
                       }
                     })}
                     messages={{

@@ -7,6 +7,7 @@ import {
   normalizeSearchKeyword,
   parseDrinkSearch,
   toDrinkSearchListHref,
+  toDrinkSearchRedirectHref,
 } from './drink-search.ts'
 
 const EMPTY: DrinkSearch = { keyword: '', page: 1, drink: [], taste: [], drinkability: [] }
@@ -25,15 +26,18 @@ describe('parseDrinkSearch', () => {
     )
 
     assert.deepEqual(search, {
-      keyword: '辛',
-      page: 1,
-      drink: [2, 1],
-      taste: [11],
-      drinkability: [21],
+      ignored: false,
+      search: {
+        keyword: '辛',
+        page: 1,
+        drink: [2, 1],
+        taste: [11],
+        drinkability: [21],
+      },
     })
   })
 
-  it('rejects a query with any id that is not a canonical positive integer', () => {
+  it('ignores any id that is not a canonical positive integer', () => {
     for (const value of [
       'abc',
       '',
@@ -46,30 +50,42 @@ describe('parseDrinkSearch', () => {
       ' 4',
       '99999999999999999999',
     ]) {
-      assert.equal(parseDrinkSearch(new URLSearchParams({ drink: value })), null, `drink=${value}`)
+      assert.deepEqual(
+        parseDrinkSearch(
+          new URLSearchParams([
+            ['drink', value],
+            ['drink', '3'],
+          ])
+        ),
+        { search: { ...EMPTY, drink: [3] }, ignored: true },
+        `drink=${value}`
+      )
     }
-    assert.equal(parseDrinkSearch(new URLSearchParams('page=02')), null)
   })
 
-  it('rejects more ids or a longer keyword than any form can submit', () => {
+  it('ignores ids past the cap and rejects a longer keyword than any form can submit', () => {
     const many = new URLSearchParams(Array.from({ length: 51 }, (_, i) => ['taste', String(i + 1)]))
-    assert.equal(parseDrinkSearch(many), null)
+    const parsed = parseDrinkSearch(many)
+    assert.equal(parsed?.search.taste.length, 50)
+    assert.equal(parsed?.ignored, true)
     assert.equal(parseDrinkSearch(new URLSearchParams({ keyword: 'あ'.repeat(101) })), null)
     assert.equal(
-      parseDrinkSearch(new URLSearchParams({ keyword: 'あ'.repeat(100) }))?.keyword.length,
+      parseDrinkSearch(new URLSearchParams({ keyword: 'あ'.repeat(100) }))?.search.keyword.length,
       100
     )
   })
 
-  it('collapses repeated ids', () => {
-    assert.deepEqual(
-      parseDrinkSearch(new URLSearchParams('taste=11&taste=11&taste=12'))?.taste,
-      [11, 12]
-    )
+  it('collapses repeated ids, and says so', () => {
+    assert.deepEqual(parseDrinkSearch(new URLSearchParams('taste=11&taste=11&taste=12')), {
+      search: { ...EMPTY, taste: [11, 12] },
+      ignored: true,
+    })
+    assert.equal(parseDrinkSearch(new URLSearchParams('taste=11&taste=12'))?.ignored, false)
   })
 
   it('accepts a positive page and rejects anything else', () => {
-    assert.equal(parseDrinkSearch(new URLSearchParams('page=3'))?.page, 3)
+    assert.equal(parseDrinkSearch(new URLSearchParams('page=3'))?.search.page, 3)
+    assert.equal(parseDrinkSearch(new URLSearchParams('page=02')), null)
     for (const page of ['0', '-1', '1.5', 'abc', '', '99999999999999999999']) {
       assert.equal(parseDrinkSearch(new URLSearchParams({ page })), null, `page=${page}`)
     }
@@ -95,7 +111,10 @@ describe('toDrinkSearchListHref', () => {
     const search = { keyword: 'a b', page: 4, drink: [1], taste: [], drinkability: [21] }
     const href = toDrinkSearchListHref('ja', search, search.page)
 
-    assert.deepEqual(parseDrinkSearch(new URL(href, 'http://localhost').searchParams), search)
+    assert.deepEqual(parseDrinkSearch(new URL(href, 'http://localhost').searchParams), {
+      search,
+      ignored: false,
+    })
   })
 })
 
@@ -104,5 +123,21 @@ describe('countDrinkPages', () => {
     assert.equal(countDrinkPages(0), 1)
     assert.equal(countDrinkPages(12), 1)
     assert.equal(countDrinkPages(13), 2)
+  })
+})
+
+describe('toDrinkSearchRedirectHref', () => {
+  it('keeps the parameters the list does not read', () => {
+    const search = { ...EMPTY, taste: [11], page: 2 }
+    const original = new URLSearchParams('utm_source=x&taste=02&taste=11&page=2&utm_medium=y')
+
+    assert.equal(
+      toDrinkSearchRedirectHref('ja', search, original),
+      '/drinks?taste=11&page=2&utm_source=x&utm_medium=y'
+    )
+    assert.equal(
+      toDrinkSearchRedirectHref('en', EMPTY, new URLSearchParams('utm_source=x&drink=0')),
+      '/en/drinks?utm_source=x'
+    )
   })
 })

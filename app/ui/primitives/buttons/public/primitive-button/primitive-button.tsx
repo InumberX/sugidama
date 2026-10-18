@@ -81,7 +81,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
           aria-hidden={ariaHidden ? 'true' : undefined}
           aria-controls={ariaControls}
           aria-expanded={expanded}
-          aria-selected={selected}
+          aria-selected={role ? selected : undefined}
           data-rmx-document={!isDisabled && isDocumentNavigation(url) ? '' : undefined}
           mix={hostStyle}
         >
@@ -104,7 +104,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
           aria-hidden={ariaHidden ? 'true' : undefined}
           aria-controls={ariaControls}
           aria-expanded={expanded}
-          aria-selected={selected}
+          aria-selected={role ? selected : undefined}
           mix={hostStyle}
         >
           {children}
@@ -127,7 +127,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
         aria-controls={ariaControls}
         // aria-expanded is not allowed on a generic element: only with a role.
         aria-expanded={role ? expanded : undefined}
-        aria-selected={selected}
+        aria-selected={role ? selected : undefined}
         mix={hostStyle}
       >
         {children}

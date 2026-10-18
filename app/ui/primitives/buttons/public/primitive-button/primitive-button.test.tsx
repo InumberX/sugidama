@@ -157,6 +157,16 @@ describe('PrimitiveButton', () => {
     assert.match(html, /aria-selected="true"/)
   })
 
+  it('leaves aria-selected off an element without a role', async () => {
+    const html = await renderToString(
+      <PrimitiveButton nonClickableTag="span" ariaSelected>
+        x
+      </PrimitiveButton>
+    )
+
+    assert.doesNotMatch(html, /aria-selected/)
+  })
+
   it('marks a disabled button as disabled', async () => {
     const html = await renderToString(
       <PrimitiveButton buttonType="button" isDisabled>

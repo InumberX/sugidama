@@ -33,23 +33,32 @@ describe('parseDrinkSearch', () => {
     })
   })
 
-  it('drops ids that are not integers', () => {
-    const search = parseDrinkSearch(new URLSearchParams('drink=abc&drink=3&taste='))
-
-    assert.deepEqual(search?.drink, [3])
-    assert.deepEqual(search?.taste, [])
-  })
-
-  it('drops ids that only start like one, and any that is not a positive safe integer', () => {
-    const values = ['2abc', '1.9', '-5', '1e3', '0', '99999999999999999999', ' 4']
-    const search = parseDrinkSearch(new URLSearchParams(values.map((v) => ['drink', v])))
-
-    assert.deepEqual(search?.drink, [])
-  })
-
-  it('rejects a leading zero, which would be a second URL for the same search', () => {
+  it('rejects a query with any id that is not a canonical positive integer', () => {
+    for (const value of [
+      'abc',
+      '',
+      '2abc',
+      '1.9',
+      '-5',
+      '1e3',
+      '0',
+      '02',
+      ' 4',
+      '99999999999999999999',
+    ]) {
+      assert.equal(parseDrinkSearch(new URLSearchParams({ drink: value })), null, `drink=${value}`)
+    }
     assert.equal(parseDrinkSearch(new URLSearchParams('page=02')), null)
-    assert.deepEqual(parseDrinkSearch(new URLSearchParams('drink=02&drink=3'))?.drink, [3])
+  })
+
+  it('rejects more ids or a longer keyword than any form can submit', () => {
+    const many = new URLSearchParams(Array.from({ length: 51 }, (_, i) => ['taste', String(i + 1)]))
+    assert.equal(parseDrinkSearch(many), null)
+    assert.equal(parseDrinkSearch(new URLSearchParams({ keyword: 'あ'.repeat(101) })), null)
+    assert.equal(
+      parseDrinkSearch(new URLSearchParams({ keyword: 'あ'.repeat(100) }))?.keyword.length,
+      100
+    )
   })
 
   it('collapses repeated ids', () => {

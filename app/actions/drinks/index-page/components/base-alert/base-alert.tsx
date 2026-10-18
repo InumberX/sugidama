@@ -15,7 +15,6 @@ export type BaseAlertProps = {
 const ICONS = { success: 'check', error: 'error' } as const
 
 /** A message box. `role="alert"` so a screen reader hears it with the page. */
-
 export function BaseAlert(handle: Handle<BaseAlertProps>) {
   return () => {
     const { color = 'success', title, description } = handle.props

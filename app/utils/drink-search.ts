@@ -38,46 +38,58 @@ export const normalizeSearchKeyword = (keyword: string | null): string =>
 
 /**
  * A positive integer written the one way links write it: no sign, no leading
- * zero. `page=01` or `drink=02` would otherwise be another URL for the same
- * results.
+ * zero, nothing after it. Anything else in the query (`page=01`, `drink=02`,
+ * `taste=2abc`) is no URL this site links to, and is a 404 rather than a
+ * second URL for some other search: dropping a bad id would answer 200 with
+ * the list unfiltered.
  */
 const CANONICAL_INTEGER = /^[1-9]\d*$/
 
-/** Positive integers written as plain digits; anything else (`2abc`, `1.9`, `-5`, `1e3`) is dropped. */
-const toIds = (values: string[]): number[] => [
-  ...new Set(
-    values
-      .filter((value) => CANONICAL_INTEGER.test(value))
-      .map(Number)
-      .filter((id) => Number.isSafeInteger(id) && id > 0)
-  ),
-]
+/**
+ * Caps on what the query may carry. They are far above anything the form can
+ * submit (a few dozen terms, a short keyword) and keep a crafted query from
+ * growing the API request past what Kuroco accepts.
+ */
+const MAX_IDS_PER_CONDITION = 50
+const MAX_KEYWORD_LENGTH = 100
+
+/** Distinct ids, or `null` when any value is not a canonical id or there are too many. */
+const toIds = (values: string[]): number[] | null => {
+  if (values.length > MAX_IDS_PER_CONDITION) return null
+  if (!values.every((value) => CANONICAL_INTEGER.test(value))) return null
+  const ids = values.map(Number)
+  return ids.every(Number.isSafeInteger) ? [...new Set(ids)] : null
+}
 
 /**
- * Reads the list's query. Ids that are not positive integers are dropped and
- * repeats collapse; an id outside the vocabularies is kept, since the
- * vocabularies load alongside the search (the API simply matches nothing for
- * it, and the form shows only the ids it has a checkbox for). A page that is
- * not a positive integer gives `null`, which the page answers with a 404
- * (develop 404'd a non-number and passed 0 or -1 to the API).
+ * Reads the list's query, or `null` for one that no link of this site writes,
+ * which the page answers with a 404: a page or id that is not a canonical
+ * positive integer (develop 404'd a non-number page but passed 0 or -1 to the
+ * API), too many ids, or too long a keyword. Repeated ids collapse. An id
+ * outside the vocabularies is kept, since the vocabularies load alongside the
+ * search (the API simply matches nothing for it, and the form shows only the
+ * ids it has a checkbox for).
  */
 export const parseDrinkSearch = (searchParams: URLSearchParams): DrinkSearch | null => {
   const pageParam = searchParams.get('page') ?? '1'
-  const page = CANONICAL_INTEGER.test(pageParam) ? Number(pageParam) : NaN
-  if (!Number.isSafeInteger(page) || page < 1) return null
+  if (!CANONICAL_INTEGER.test(pageParam)) return null
+  const page = Number(pageParam)
+  if (!Number.isSafeInteger(page)) return null
+
+  const keyword = normalizeSearchKeyword(searchParams.get('keyword'))
+  if (keyword.length > MAX_KEYWORD_LENGTH) return null
+
+  const drink = toIds(searchParams.getAll(SEARCH_DRINKS_CONDITION_KEY.DRINK))
+  const taste = toIds(searchParams.getAll(SEARCH_DRINKS_CONDITION_KEY.TASTE))
+  const drinkability = toIds(searchParams.getAll(SEARCH_DRINKS_CONDITION_KEY.DRINKABILITY))
+  if (drink === null || taste === null || drinkability === null) return null
 
   return {
-    keyword: normalizeSearchKeyword(searchParams.get('keyword')),
+    keyword,
     page,
-    [SEARCH_DRINKS_CONDITION_KEY.DRINK]: toIds(
-      searchParams.getAll(SEARCH_DRINKS_CONDITION_KEY.DRINK)
-    ),
-    [SEARCH_DRINKS_CONDITION_KEY.TASTE]: toIds(
-      searchParams.getAll(SEARCH_DRINKS_CONDITION_KEY.TASTE)
-    ),
-    [SEARCH_DRINKS_CONDITION_KEY.DRINKABILITY]: toIds(
-      searchParams.getAll(SEARCH_DRINKS_CONDITION_KEY.DRINKABILITY)
-    ),
+    [SEARCH_DRINKS_CONDITION_KEY.DRINK]: drink,
+    [SEARCH_DRINKS_CONDITION_KEY.TASTE]: taste,
+    [SEARCH_DRINKS_CONDITION_KEY.DRINKABILITY]: drinkability,
   }
 }
 

@@ -95,6 +95,13 @@ describe('drinks index page', () => {
     assert.match(html, /<form action="\/drinks" method="get"/)
   })
 
+  it('answers an API client error with a 502, since the visitor did nothing wrong', async (t) => {
+    mockKuroco(t, { '/drinks': new Response('denied', { status: 401 }) })
+    t.mock.method(console, 'error', () => {})
+
+    assert.equal((await get('/drinks')).status, 502)
+  })
+
   it('answers a search that reached nothing with a 500, still rendering the form', async (t) => {
     mockKuroco(t, { '/drinks': new Error('connection lost') })
     t.mock.method(console, 'error', () => {})

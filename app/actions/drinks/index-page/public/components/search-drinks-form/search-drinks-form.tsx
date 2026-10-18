@@ -6,12 +6,12 @@
 // JavaScript too.
 import { clientEntry, css, on, ref, type Handle, type RemixNode } from 'remix/component'
 
-import { BaseAccordion } from '../../../../../../ui/accordions/public/base-accordion/base-accordion.tsx'
 import { BaseButton } from '../../../../../../ui/buttons/public/base-button/base-button.tsx'
 import { TextButton } from '../../../../../../ui/buttons/public/text-button/text-button.tsx'
 import { SvgIcon } from '../../../../../../ui/icons/public/svg-icon/svg-icon.tsx'
 import { clientModuleUrl } from '../../../../../../ui/public/client-module-url.ts'
-import { BaseTabs } from '../../../../../../ui/tabs/public/base-tabs/base-tabs.tsx'
+import { BaseAccordion } from '../base-accordion/base-accordion.tsx'
+import { BaseTabs } from '../base-tabs/base-tabs.tsx'
 import { FormSubSet } from '../form-sub-set/form-sub-set.tsx'
 import { InputCheckbox } from '../input-checkbox/input-checkbox.tsx'
 import { InputText } from '../input-text/input-text.tsx'
@@ -22,6 +22,7 @@ export type * from './search-drinks-form.types.ts'
 
 const KEYWORD_ID = 'search-drinks-keyword'
 const CONDITIONS_ID = 'search-drinks-conditions'
+const ACCORDION_ID = 'search-drinks-accordion'
 
 /** develop capped the count at two digits. */
 const formatCount = (count: number): string => (count > 99 ? '99+' : String(count))
@@ -90,7 +91,9 @@ export const SearchDrinksForm = clientEntry(
                   {formatCount(values.length)}
                 </i>
                 <span mix={css(styles.searchDrinksConditionCount_label)}>
-                  {messages.selectedCount.replace('{count}', String(values.length))}
+                  {messages.selectedCount.before}
+                  {values.length}
+                  {messages.selectedCount.after}
                 </span>
               </>
             )}
@@ -148,7 +151,7 @@ export const SearchDrinksForm = clientEntry(
               <div mix={css(styles.searchDrinksConditions_wrapper)}>
                 <div mix={css(styles.searchDrinksConditions_container)}>
                   {isWide ? (
-                    <BaseAccordion items={items} />
+                    <BaseAccordion id={ACCORDION_ID} items={items} />
                   ) : (
                     <BaseTabs label={messages.conditionsLabel} items={items} />
                   )}

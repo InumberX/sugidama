@@ -1,5 +1,5 @@
-import { CONTAINER_QUERY } from '../../../ui/styles/public/media-query.ts'
 // Ported from develop: app/routes/($lang)._public._layout.drinks._index/style.css.ts
+import { CONTAINER_QUERY } from '../../../ui/styles/public/media-query.ts'
 import { getClampPx, type StyleRecipe } from '../../../ui/styles/public/mixins.ts'
 
 export const drinks_container: StyleRecipe = {

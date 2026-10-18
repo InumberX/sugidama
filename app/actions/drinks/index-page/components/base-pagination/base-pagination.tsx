@@ -32,18 +32,17 @@ const WINDOWS: Record<Width, Window> = {
 }
 
 const listedPages = (current: number, total: number, { showAllUpTo, around }: Window) => {
-  const pages: number[] = []
-  for (let page = 1; page <= total; page++) {
-    if (
-      total <= showAllUpTo ||
-      page === 1 ||
-      page === total ||
-      Math.abs(page - current) <= around
-    ) {
-      pages.push(page)
-    }
+  if (total <= showAllUpTo) return Array.from({ length: total }, (_, i) => i + 1)
+
+  const candidates = new Set([1, total])
+  for (let page = current - around; page <= current + around; page++) {
+    if (page >= 1 && page <= total) candidates.add(page)
   }
-  return pages
+  const pages = [...candidates].sort((x, y) => x - y)
+
+  // A gap that would stand for a single page shows that page instead: an
+  // ellipsis takes the same room and hides the one link it replaces.
+  return pages.flatMap((page, i) => (pages[i + 1] === page + 2 ? [page, page + 1] : [page]))
 }
 
 export const paginationEntries = (current: number, total: number): PaginationEntry[] => {

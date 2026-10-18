@@ -30,6 +30,22 @@ describe('paginationEntries', () => {
     assert.deepEqual(at(paginationEntries(8, 10), 'wide'), [1, '…', 7, 8, 9, 10])
   })
 
+  it('shows the page an ellipsis would stand for alone', () => {
+    assert.deepEqual(at(paginationEntries(4, 6), 'wide'), [1, 2, 3, 4, 5, 6])
+    assert.deepEqual(at(paginationEntries(3, 5), 'narrow'), [1, 2, 3, 4, 5])
+    assert.deepEqual(at(paginationEntries(5, 9), 'narrow'), [1, '…', 5, '…', 9])
+  })
+
+  it('does not walk every page of a huge result', () => {
+    assert.deepEqual(at(paginationEntries(500_000, 1_000_000), 'narrow'), [
+      1,
+      '…',
+      500_000,
+      '…',
+      1_000_000,
+    ])
+  })
+
   it('has a single page for a single page of results', () => {
     assert.deepEqual(at(paginationEntries(1, 1), 'wide'), [1])
   })

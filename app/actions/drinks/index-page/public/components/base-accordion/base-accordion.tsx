@@ -2,7 +2,7 @@
 // accordion develop had.
 import { css, on, type Handle } from 'remix/component'
 
-import { SvgIcon } from '../../../icons/public/svg-icon/svg-icon.tsx'
+import { SvgIcon } from '../../../../../../ui/icons/public/svg-icon/svg-icon.tsx'
 import * as styles from './base-accordion.styles.ts'
 import type { BaseAccordionProps } from './base-accordion.types.ts'
 
@@ -19,16 +19,28 @@ export type * from './base-accordion.types.ts'
  * opened would otherwise close again on the next update.
  */
 export function BaseAccordion(handle: Handle<BaseAccordionProps>) {
-  const open = new Set(handle.props.defaultValue ?? [])
+  // Seeded from the server's HTML when there is one: an item opened before
+  // the client entry hydrated has no `toggle` listener to record it yet, and
+  // the next update would close it again. Found by the caller's `id`, because
+  // `handle.id` differs between the server and the browser (measured).
+  const root = typeof document === 'undefined' ? null : document.getElementById(handle.props.id)
+  const open = new Set(
+    root === null
+      ? (handle.props.defaultValue ?? [])
+      : [...root.querySelectorAll<HTMLDetailsElement>(':scope > details[open]')].map(
+          (details) => details.dataset.value ?? ''
+        )
+  )
 
   return () => {
     const { items, styleOverrides } = handle.props
 
     return (
-      <div mix={css({ ...styles.baseAccordion, ...styleOverrides })}>
+      <div id={handle.props.id} mix={css({ ...styles.baseAccordion, ...styleOverrides })}>
         {items.map((item) => (
           <details
             key={item.value}
+            data-value={item.value}
             open={open.has(item.value) || undefined}
             mix={[
               css(styles.baseAccordionItem),

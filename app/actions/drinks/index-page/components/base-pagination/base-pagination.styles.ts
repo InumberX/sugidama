@@ -1,5 +1,5 @@
-import { MEDIA_QUERY } from '../../../../../ui/styles/public/media-query.ts'
 // Ported from develop: app/components/ui/paginations/BasePagination.
+import { MEDIA_QUERY } from '../../../../../ui/styles/public/media-query.ts'
 import { getTransition, type StyleRecipe } from '../../../../../ui/styles/public/mixins.ts'
 import { fontMediumBold } from '../../../../../ui/styles/public/tokens.ts'
 

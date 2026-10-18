@@ -1,8 +1,12 @@
-import { MEDIA_QUERY } from '../../../styles/public/media-query.ts'
 // Ported from develop's searchDrinksConditionsButtons (the drinks search tabs),
 // the only tabs develop had.
-import { getClampPx, getTransition, type StyleRecipe } from '../../../styles/public/mixins.ts'
-import { fontSmall, fontSmallBold } from '../../../styles/public/tokens.ts'
+import { MEDIA_QUERY } from '../../../../../../ui/styles/public/media-query.ts'
+import {
+  getClampPx,
+  getTransition,
+  type StyleRecipe,
+} from '../../../../../../ui/styles/public/mixins.ts'
+import { fontSmall, fontSmallBold } from '../../../../../../ui/styles/public/tokens.ts'
 
 export const baseTabs: StyleRecipe = {}
 

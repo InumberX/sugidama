@@ -2,7 +2,7 @@
 // component in public/ without adding to the client build.
 import type { RemixNode } from 'remix/component'
 
-import type { StyleRecipe } from '../../../styles/public/mixins.ts'
+import type { StyleRecipe } from '../../../../../../ui/styles/public/mixins.ts'
 
 export type BaseAccordionItem = {
   /** Identifies the item; unique within one accordion. */
@@ -14,6 +14,8 @@ export type BaseAccordionItem = {
 }
 
 export type BaseAccordionProps = {
+  /** Unique on the page; lets the browser find the server's HTML before hydration. */
+  id: string
   items: BaseAccordionItem[]
   /** Items open on first render. Several may be open at once. */
   defaultValue?: string[]

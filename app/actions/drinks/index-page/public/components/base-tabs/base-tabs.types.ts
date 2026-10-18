@@ -2,7 +2,7 @@
 // component in public/ without adding to the client build.
 import type { RemixNode } from 'remix/component'
 
-import type { StyleRecipe } from '../../../styles/public/mixins.ts'
+import type { StyleRecipe } from '../../../../../../ui/styles/public/mixins.ts'
 
 export type BaseTabsItem = {
   /** Identifies the tab; unique within one set. */

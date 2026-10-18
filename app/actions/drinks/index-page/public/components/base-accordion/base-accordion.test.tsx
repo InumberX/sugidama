@@ -13,7 +13,7 @@ const details = (html: string) => [...html.matchAll(/<details[^>]*>/g)].map(([ta
 
 describe('BaseAccordion', () => {
   it('renders each item as a closed details element with the label in its summary', async () => {
-    const html = await renderToString(<BaseAccordion items={ITEMS} />)
+    const html = await renderToString(<BaseAccordion id="a" items={ITEMS} />)
 
     assert.equal(details(html).length, 2)
     for (const tag of details(html)) assert.doesNotMatch(tag, / open[ >=]/)
@@ -22,7 +22,9 @@ describe('BaseAccordion', () => {
   })
 
   it('opens the items it is given', async () => {
-    const html = await renderToString(<BaseAccordion items={ITEMS} defaultValue={['taste']} />)
+    const html = await renderToString(
+      <BaseAccordion id="a" items={ITEMS} defaultValue={['taste']} />
+    )
     const [drink, taste] = details(html)
 
     assert.doesNotMatch(drink!, / open[ >=]/)
@@ -31,7 +33,7 @@ describe('BaseAccordion', () => {
 
   it('leaves several items open independently, with no name grouping them', async () => {
     const html = await renderToString(
-      <BaseAccordion items={ITEMS} defaultValue={['drink', 'taste']} />
+      <BaseAccordion id="a" items={ITEMS} defaultValue={['drink', 'taste']} />
     )
 
     for (const tag of details(html)) {

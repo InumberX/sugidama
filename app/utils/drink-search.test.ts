@@ -47,6 +47,11 @@ describe('parseDrinkSearch', () => {
     assert.deepEqual(search?.drink, [])
   })
 
+  it('rejects a leading zero, which would be a second URL for the same search', () => {
+    assert.equal(parseDrinkSearch(new URLSearchParams('page=02')), null)
+    assert.deepEqual(parseDrinkSearch(new URLSearchParams('drink=02&drink=3'))?.drink, [3])
+  })
+
   it('collapses repeated ids', () => {
     assert.deepEqual(
       parseDrinkSearch(new URLSearchParams('taste=11&taste=11&taste=12'))?.taste,

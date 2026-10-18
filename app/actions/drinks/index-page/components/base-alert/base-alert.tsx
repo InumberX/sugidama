@@ -11,9 +11,10 @@ export type BaseAlertProps = {
   description?: RemixNode
 }
 
-/** A message box. `role="alert"` so a screen reader hears it with the page. */
 /** develop always drew the error icon, even on a success alert. */
 const ICONS = { success: 'check', error: 'error' } as const
+
+/** A message box. `role="alert"` so a screen reader hears it with the page. */
 
 export function BaseAlert(handle: Handle<BaseAlertProps>) {
   return () => {

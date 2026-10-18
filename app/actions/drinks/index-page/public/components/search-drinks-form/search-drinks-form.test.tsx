@@ -33,7 +33,7 @@ const props: SearchDrinksFormProps = {
     conditionsLabel: '条件',
     showConditions: '条件を追加',
     hideConditions: '閉じる',
-    selectedCount: '（{count}件選択中）',
+    selectedCount: { before: '（', after: '件選択中）' },
   },
 }
 

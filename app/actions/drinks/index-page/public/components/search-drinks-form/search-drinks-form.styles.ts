@@ -1,7 +1,7 @@
-import { CONTAINER_QUERY, MEDIA_QUERY } from '../../../../../../ui/styles/public/media-query.ts'
 // Ported from develop: SearchDrinksForm/style.css.ts. The tabs and the
 // accordion triggers are BaseTabs / BaseAccordion now; what is left here is
 // the form's own layout.
+import { CONTAINER_QUERY, MEDIA_QUERY } from '../../../../../../ui/styles/public/media-query.ts'
 import {
   getClampPx,
   getTransition,

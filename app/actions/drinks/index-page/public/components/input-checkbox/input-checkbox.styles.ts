@@ -1,6 +1,6 @@
-import { MEDIA_QUERY } from '../../../../../../ui/styles/public/media-query.ts'
 // Ported from develop: app/components/ui/forms/InputCheckbox, keeping the
 // states the drinks search reaches (focus, hover, checked).
+import { MEDIA_QUERY } from '../../../../../../ui/styles/public/media-query.ts'
 import {
   getFontSize,
   getTransition,

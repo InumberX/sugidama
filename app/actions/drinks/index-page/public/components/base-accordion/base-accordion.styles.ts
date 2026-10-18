@@ -1,8 +1,8 @@
-import { MEDIA_QUERY } from '../../../styles/public/media-query.ts'
 // Ported from develop's searchDrinksConditionsContentsHeader (the drinks search
 // condition groups), the only accordion develop had.
-import { getTransition, type StyleRecipe } from '../../../styles/public/mixins.ts'
-import { fontSmallBold } from '../../../styles/public/tokens.ts'
+import { MEDIA_QUERY } from '../../../../../../ui/styles/public/media-query.ts'
+import { getTransition, type StyleRecipe } from '../../../../../../ui/styles/public/mixins.ts'
+import { fontSmallBold } from '../../../../../../ui/styles/public/tokens.ts'
 
 export const baseAccordion: StyleRecipe = {}
 

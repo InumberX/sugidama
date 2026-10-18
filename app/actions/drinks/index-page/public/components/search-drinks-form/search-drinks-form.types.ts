@@ -18,8 +18,12 @@ export type SearchDrinksFormMessages = {
   conditionsLabel: string
   showConditions: string
   hideConditions: string
-  /** Spoken after a condition's name; `{count}` is replaced. A string, not a function: props must serialize. */
-  selectedCount: string
+  /**
+   * Spoken after a condition's name, around the count. Two strings rather
+   * than a function (props must serialize) or a `{count}` placeholder (which
+   * a translation could misspell and still typecheck).
+   */
+  selectedCount: { before: string; after: string }
 }
 
 /** Serializable: the form is a client entry. */

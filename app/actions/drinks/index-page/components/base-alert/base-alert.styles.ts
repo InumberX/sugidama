@@ -1,5 +1,5 @@
-import { CONTAINER_QUERY } from '../../../../../ui/styles/public/media-query.ts'
 // Ported from develop: app/components/ui/alerts/BaseAlert.
+import { CONTAINER_QUERY } from '../../../../../ui/styles/public/media-query.ts'
 import { getClampPx, type StyleRecipe } from '../../../../../ui/styles/public/mixins.ts'
 import { fontCaption, fontSmall } from '../../../../../ui/styles/public/tokens.ts'
 

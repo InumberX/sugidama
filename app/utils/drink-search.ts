@@ -36,11 +36,18 @@ export type DrinkSearch = {
 export const normalizeSearchKeyword = (keyword: string | null): string =>
   (keyword ?? '').trim().replace(/\u3000/g, ' ')
 
+/**
+ * A positive integer written the one way links write it: no sign, no leading
+ * zero. `page=01` or `drink=02` would otherwise be another URL for the same
+ * results.
+ */
+const CANONICAL_INTEGER = /^[1-9]\d*$/
+
 /** Positive integers written as plain digits; anything else (`2abc`, `1.9`, `-5`, `1e3`) is dropped. */
 const toIds = (values: string[]): number[] => [
   ...new Set(
     values
-      .filter((value) => /^\d+$/.test(value))
+      .filter((value) => CANONICAL_INTEGER.test(value))
       .map(Number)
       .filter((id) => Number.isSafeInteger(id) && id > 0)
   ),
@@ -56,7 +63,7 @@ const toIds = (values: string[]): number[] => [
  */
 export const parseDrinkSearch = (searchParams: URLSearchParams): DrinkSearch | null => {
   const pageParam = searchParams.get('page') ?? '1'
-  const page = /^\d+$/.test(pageParam) ? Number(pageParam) : NaN
+  const page = CANONICAL_INTEGER.test(pageParam) ? Number(pageParam) : NaN
   if (!Number.isSafeInteger(page) || page < 1) return null
 
   return {

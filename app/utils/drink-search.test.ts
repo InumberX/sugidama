@@ -59,9 +59,9 @@ describe('parseDrinkSearch', () => {
     }
   })
 
-  it('ignores ids past the cap and rejects a longer keyword than any form can submit', () => {
-    const many = new URLSearchParams(Array.from({ length: 51 }, (_, i) => ['taste', String(i + 1)]))
-    assert.equal(parseDrinkSearch(many)?.taste.length, 50)
+  it('keeps every canonical id and rejects a longer keyword than the form allows', () => {
+    const many = new URLSearchParams(Array.from({ length: 60 }, (_, i) => ['taste', String(i + 1)]))
+    assert.equal(parseDrinkSearch(many)?.taste.length, 60)
     assert.equal(parseDrinkSearch(new URLSearchParams({ keyword: 'あ'.repeat(101) })), null)
     assert.equal(
       parseDrinkSearch(new URLSearchParams({ keyword: 'あ'.repeat(100) }))?.keyword.length,

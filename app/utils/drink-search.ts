@@ -46,31 +46,32 @@ export const normalizeSearchKeyword = (keyword: string | null): string =>
 const CANONICAL_INTEGER = /^[1-9]\d*$/
 
 /**
- * Caps on what the query may carry. They are far above anything the form can
- * submit (a few dozen terms, a short keyword) and keep a crafted query from
- * growing the API request past what Kuroco accepts. Ids past the cap are
- * ignored; a longer keyword is a 404, since cutting it would search for
- * something else.
+ * The longest keyword the list accepts. It is far above anything a visitor
+ * types, the form's field stops there (`maxlength`), and it keeps a crafted
+ * query from growing the API request past what Kuroco accepts. A longer one is
+ * a 404, since cutting it would search for something else. Ids need no cap:
+ * the list keeps only those the vocabularies have (`index-page.data.ts`), so
+ * no more reach the API than there are terms.
  */
-const MAX_IDS_PER_CONDITION = 50
-const MAX_KEYWORD_LENGTH = 100
+export const MAX_KEYWORD_LENGTH = 100
 
-/** The canonical ids among `values`, each once, up to the cap. */
-const toIds = (values: string[]): number[] => {
-  const ids = values
-    .filter((value) => CANONICAL_INTEGER.test(value))
-    .map(Number)
-    .filter(Number.isSafeInteger)
-  return [...new Set(ids)].slice(0, MAX_IDS_PER_CONDITION)
-}
+/** The canonical ids among `values`, each once. */
+const toIds = (values: string[]): number[] => [
+  ...new Set(
+    values
+      .filter((value) => CANONICAL_INTEGER.test(value))
+      .map(Number)
+      .filter(Number.isSafeInteger)
+  ),
+]
 
 /**
  * Reads the list's query, or `null` for one that names no page of results,
  * which the page answers with a 404: a page that is not a canonical positive
  * integer (develop 404'd a non-number page but passed 0 or -1 to the API), or
- * too long a keyword. Ids are forgiving instead: a malformed, repeated or
- * surplus one is left out of the search (see `toIds`), and so is one outside
- * the vocabularies, which `index-page.data.ts` drops once they have loaded.
+ * too long a keyword. Ids are forgiving instead: a malformed or repeated one
+ * is left out of the search (see `toIds`), and so is one outside the
+ * vocabularies, which `index-page.data.ts` drops once they have loaded.
  */
 export const parseDrinkSearch = (searchParams: URLSearchParams): DrinkSearch | null => {
   const pageParam = searchParams.get('page') ?? '1'
@@ -81,19 +82,11 @@ export const parseDrinkSearch = (searchParams: URLSearchParams): DrinkSearch | n
   const keyword = normalizeSearchKeyword(searchParams.get('keyword'))
   if (keyword.length > MAX_KEYWORD_LENGTH) return null
 
-  return {
-    keyword,
-    page,
-    [SEARCH_DRINKS_CONDITION_KEY.DRINK]: toIds(
-      searchParams.getAll(SEARCH_DRINKS_CONDITION_KEY.DRINK)
-    ),
-    [SEARCH_DRINKS_CONDITION_KEY.TASTE]: toIds(
-      searchParams.getAll(SEARCH_DRINKS_CONDITION_KEY.TASTE)
-    ),
-    [SEARCH_DRINKS_CONDITION_KEY.DRINKABILITY]: toIds(
-      searchParams.getAll(SEARCH_DRINKS_CONDITION_KEY.DRINKABILITY)
-    ),
-  }
+  const ids = Object.fromEntries(
+    Object.values(SEARCH_DRINKS_CONDITION_KEY).map((key) => [key, toIds(searchParams.getAll(key))])
+  ) as Record<SearchDrinksConditionKey, number[]>
+
+  return { keyword, page, ...ids }
 }
 
 /**

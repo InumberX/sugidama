@@ -10,12 +10,13 @@ export type InputTextProps = {
   name: string
   defaultValue?: string
   placeholder?: string
+  maxLength?: number
 }
 
 /** A single-line text field, uncontrolled: the form submits whatever it holds. */
 export function InputText(handle: Handle<InputTextProps>) {
   return () => {
-    const { id, name, defaultValue, placeholder } = handle.props
+    const { id, name, defaultValue, placeholder, maxLength } = handle.props
 
     return (
       <input
@@ -24,6 +25,7 @@ export function InputText(handle: Handle<InputTextProps>) {
         name={name}
         defaultValue={defaultValue}
         placeholder={placeholder}
+        maxLength={maxLength}
         mix={css(styles.inputText)}
       />
     )

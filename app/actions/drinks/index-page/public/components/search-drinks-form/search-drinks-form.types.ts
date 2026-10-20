@@ -33,6 +33,8 @@ export type SearchDrinksFormProps = {
   /** The list URL without a search: where "reset" leads. */
   resetHref: string
   keyword: string
+  /** The longest keyword the list accepts; a longer one is a 404, so the field stops there. */
+  keywordMaxLength: number
   conditions: SearchDrinksCondition[]
   messages: SearchDrinksFormMessages
 }

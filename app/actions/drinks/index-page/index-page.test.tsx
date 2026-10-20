@@ -134,6 +134,25 @@ describe('drinks index page', () => {
     assert.deepEqual(selected.taste, ['11'])
   })
 
+  it('keeps a known id however many unknown ones come before it', async (t) => {
+    const fetch = mockKuroco(t)
+    const junk = Array.from({ length: 60 }, (_, i) => `taste=${9000 + i}`).join('&')
+    const response = await get(`/drinks?${junk}&taste=11`)
+    const [search] = fetch.mock.calls
+      .map((c) => new URL(String(c.arguments[0])))
+      .filter((url) => url.pathname.endsWith('/drinks'))
+
+    assert.equal(response.status, 200)
+    assert.deepEqual(search!.searchParams.getAll('tag_id'), ['11'])
+  })
+
+  it('stops the keyword field at the longest keyword the list accepts', async (t) => {
+    mockKuroco(t)
+    const html = await (await get('/drinks')).text()
+
+    assert.match(html, /<input type="text" id="search-drinks-keyword"[^>]*maxlength="100"/)
+  })
+
   it('does not search when the conditions cannot be checked', async (t) => {
     const fetch = mockKuroco(t, { '/tags/taste': new Response('down', { status: 503 }) })
     const response = await get('/drinks?taste=11')

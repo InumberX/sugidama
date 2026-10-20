@@ -79,7 +79,7 @@ export const SearchDrinksForm = clientEntry(
     })
 
     return () => {
-      const { action, resetHref, keyword, conditions, messages } = handle.props
+      const { action, resetHref, keyword, keywordMaxLength, conditions, messages } = handle.props
       const items = conditions.map((condition) => {
         const values = selected.get(condition.name) ?? []
         const label: RemixNode = (
@@ -138,6 +138,7 @@ export const SearchDrinksForm = clientEntry(
                 name="keyword"
                 defaultValue={keyword}
                 placeholder={messages.keywordPlaceholder}
+                maxLength={keywordMaxLength}
               />
             </FormSubSet>
 

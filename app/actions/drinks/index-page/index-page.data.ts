@@ -29,7 +29,8 @@ export type IndexPageData = DrinkTerms & {
 const toKnownSearch = (search: DrinkSearch, terms: DrinkTerms): DrinkSearch => {
   const known = { ...search }
   for (const { name, terms: vocabulary } of toSearchVocabularies(terms)) {
-    known[name] = search[name].filter((id) => vocabulary.some((term) => term.id === id))
+    const termIds = new Set(vocabulary.map((term) => term.id))
+    known[name] = search[name].filter((id) => termIds.has(id))
   }
   return known
 }

@@ -7,7 +7,7 @@ import { LayoutInner } from '../../../ui/layouts/layout-inner/layout-inner.tsx'
 import { LayoutPageWrapper } from '../../../ui/layouts/layout-page-wrapper/layout-page-wrapper.tsx'
 import { LayoutPublic } from '../../../ui/layouts/layout-public/layout-public.tsx'
 import { PageTitle } from '../../../ui/typographies/page-title/page-title.tsx'
-import { toDrinkSearchListHref } from '../../../utils/drink-search.ts'
+import { MAX_KEYWORD_LENGTH, toDrinkSearchListHref } from '../../../utils/drink-search.ts'
 import { defineMessages, type Lang, toLangParam } from '../../../utils/i18n.ts'
 import { PAGE_NAMES } from '../../../utils/page-names.ts'
 import { Document } from '../../document.tsx'
@@ -89,6 +89,7 @@ export function IndexPage(handle: Handle<IndexPageProps>) {
                     action={listHref}
                     resetHref={listHref}
                     keyword={search.keyword}
+                    keywordMaxLength={MAX_KEYWORD_LENGTH}
                     conditions={vocabularies.map(({ name, terms }) => {
                       const options = toOptions(terms)
                       return {

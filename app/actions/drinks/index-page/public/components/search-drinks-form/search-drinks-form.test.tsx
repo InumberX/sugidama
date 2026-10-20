@@ -14,6 +14,7 @@ const props: SearchDrinksFormProps = {
   action: '/drinks',
   resetHref: '/drinks',
   keyword: '',
+  keywordMaxLength: 100,
   conditions: [
     {
       name: 'taste',

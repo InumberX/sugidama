@@ -4,10 +4,10 @@
 // unless an override says otherwise.
 import type { TestContext } from 'remix/test'
 
-import { API_URL } from '../app/env.ts'
 import type { DrinkCategories } from '../app/data/drink-categories.types.ts'
-import type { Drink, Drinks } from '../app/data/drinks.types.ts'
+import type { Drink, DrinkDetail, Drinks } from '../app/data/drinks.types.ts'
 import type { Tags } from '../app/data/tags.types.ts'
+import { API_URL } from '../app/env.ts'
 
 export const drinkCategoriesFixture: DrinkCategories = {
   errors: [],
@@ -66,10 +66,22 @@ export const drinksFixture = (list: Drink[]): Drinks => ({
   pageInfo: { totalCnt: list.length, perPage: 12, totalPageCnt: 1, pageNo: 1 },
 })
 
+/** `/drinks/<slug>`'s answer; mock it under that path (`'/drinks/kubota'`). */
+export const drinkDetailFixture = (drink: Drink = drinkFixture()): DrinkDetail => ({
+  errors: [],
+  messages: [],
+  details: drink,
+})
+
 /** Six drinks, newest first: two large cards and four compact ones on the home page. */
 export const newArrivalsFixture = drinksFixture(
   Array.from({ length: 6 }, (_, i) =>
-    drinkFixture({ topics_id: 100 + i, slug: `drink-${i}`, subject: `お酒${i}`, subject_en: `Drink ${i}` })
+    drinkFixture({
+      topics_id: 100 + i,
+      slug: `drink-${i}`,
+      subject: `お酒${i}`,
+      subject_en: `Drink ${i}`,
+    })
   )
 )
 

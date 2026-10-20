@@ -43,7 +43,7 @@ export const normalizeSearchKeyword = (keyword: string | null): string =>
  * (`drink=02`, `taste=2abc`) is ignored, as develop dropped what was not a
  * number.
  */
-const CANONICAL_INTEGER = /^[1-9]\d*$/
+export const CANONICAL_INTEGER = /^[1-9]\d*$/
 
 /**
  * The longest keyword the list accepts. It is far above anything a visitor

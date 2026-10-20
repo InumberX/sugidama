@@ -26,7 +26,7 @@ const assets = createAssetServer({
   basePath: `/${CLIENT_BASE_PATH}`,
   rootDir,
   allowFiles: ['app/**/public/**'],
-  allowPackages: ['remix'],
+  allowPackages: ['remix', 'keen-slider'],
   denyFiles: ['app/**/*.test.*'],
   minify: true,
   watch: false,
@@ -90,7 +90,9 @@ while (queue.length > 0) {
       if (specifier.includes('${')) return match
       const resolved = resolveBare(specifier, url)
       if (resolved === undefined) {
-        throw new Error(`build-client: ${url} imports ${specifier}, which the import map does not resolve`)
+        throw new Error(
+          `build-client: ${url} imports ${specifier}, which the import map does not resolve`
+        )
       }
       return match.replace(`${quote}${specifier}${quote}`, `${quote}${resolved}${quote}`)
     })

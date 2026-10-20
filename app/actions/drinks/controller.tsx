@@ -5,6 +5,7 @@ import { routes } from '../../routes.ts'
 import { parseDrinkSearch } from '../../utils/drink-search.ts'
 import { loadIndexPage } from './index-page/index-page.data.ts'
 import { IndexPage } from './index-page/index-page.tsx'
+import { loadShowPage } from './show-page/show-page.data.ts'
 import { ShowPage } from './show-page/show-page.tsx'
 
 // The drinks route area. Controller middleware does not reach other
@@ -37,10 +38,10 @@ export default createController(routes.drinks, {
         : { status: searchFailureStatus(data.result.status) }
       return context.render(<IndexPage lang={context.lang} url={context.url} {...data} />, init)
     },
-    show(context) {
-      return context.render(
-        <ShowPage lang={context.lang} url={context.url} drinkId={context.params.drinkId} />
-      )
+    async show(context) {
+      const data = await loadShowPage(context.lang, context.params.drinkId)
+      if (data instanceof Response) return data
+      return context.render(<ShowPage lang={context.lang} url={context.url} {...data} />)
     },
   },
 })

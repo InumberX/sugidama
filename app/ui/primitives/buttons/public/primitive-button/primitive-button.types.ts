@@ -59,6 +59,8 @@ type PrimitiveButtonCommonProps = {
   /** Whether what `ariaControls` names is shown; written as the string ARIA expects. */
   ariaExpanded?: boolean
   ariaSelected?: boolean | 'true' | 'false'
+  /** Marks the current item of a set (a slider's thumbnail); written as `aria-current="true"` or left out. */
+  ariaCurrent?: boolean
 }
 
 /** A link. */

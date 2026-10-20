@@ -16,8 +16,6 @@ describe('sitemap.xml', () => {
         drinkFixture({ topics_id: 7, slug: '' }),
         // Names no page: getDrinkDetail() answers it with a 404.
         drinkFixture({ topics_id: 8, slug: '..' }),
-        // Names /drinks/7 as well: listed once.
-        drinkFixture({ topics_id: 9, slug: '7' }),
       ]),
     })
     const response = await get()

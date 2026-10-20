@@ -9,7 +9,7 @@ import { LayoutInner } from '../../../ui/layouts/layout-inner/layout-inner.tsx'
 import { LayoutPageWrapper } from '../../../ui/layouts/layout-page-wrapper/layout-page-wrapper.tsx'
 import { LayoutPublic } from '../../../ui/layouts/layout-public/layout-public.tsx'
 import { LayoutSection } from '../../../ui/layouts/layout-section/layout-section.tsx'
-import { toDrinkTags } from '../../../utils/drink-card.ts'
+import { toDrinkHref, toDrinkTags } from '../../../utils/drink-card.ts'
 import { defineMessages, type Lang, toLangParam } from '../../../utils/i18n.ts'
 import { Document } from '../../document.tsx'
 import type { ArticleInfoItem } from './components/article-info/article-info.types.ts'
@@ -75,10 +75,7 @@ export function ShowPage(handle: Handle<ShowPageProps>) {
           // One URL per drink, the one the cards link to: the slug, else the
           // topics_id. /drinks/123 for a drink with a slug, or the slug
           // percent-encoded, is the same page under another name.
-          canonical: routes.drinks.show.href({
-            lang: toLangParam(lang),
-            drinkId: drink.slug || String(drink.topics_id),
-          }),
+          canonical: toDrinkHref(drink, lang),
         }}
         hasClientEntries={hasArticleSlider(article.mainVisuals)}
       >

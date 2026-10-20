@@ -8,10 +8,14 @@ import { robotsTxt } from './robots.ts'
 describe('robots.txt', () => {
   it('names the sitemap and disallows everything outside an indexable production', () => {
     const closed = robotsTxt({ indexable: false })
+    const open = robotsTxt({ indexable: true })
 
     assert.match(closed, new RegExp(`^Sitemap: ${SITE_URL}/sitemap\\.xml$`, 'm'))
+    // One group: a named one would let that crawler ignore `User-agent: *`.
+    assert.equal(closed.match(/^User-agent:/gm)?.length, 1)
     assert.match(closed, /^User-agent: \*\nDisallow: \/$/m)
-    assert.doesNotMatch(robotsTxt({ indexable: true }), /Disallow/)
+    assert.doesNotMatch(open, /Disallow/)
+    assert.match(open, /^User-agent: CCBot\nCrawl-delay: 10$/m)
   })
 
   it('is served as plain text, ahead of the /(:lang) home route', async () => {

@@ -51,6 +51,8 @@ describe('absoluteUrl', () => {
     assert.equal(absoluteUrl('https://cdn.example/a.webp'), 'https://cdn.example/a.webp')
     assert.equal(absoluteUrl('/a'), `${SITE_URL}/a`)
     assert.equal(absoluteUrl('a'), `${SITE_URL}/a`)
+    // Unparseable: left as it came, rather than throwing mid-render.
+    assert.equal(absoluteUrl('http://exa mple/x'), 'http://exa mple/x')
     assert.equal(
       absoluteUrl('//cdn.example/a.webp'),
       `${new URL(SITE_URL).protocol}//cdn.example/a.webp`

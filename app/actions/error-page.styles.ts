@@ -1,5 +1,5 @@
-import { getClampPx, type StyleRecipe } from '../../ui/styles/public/mixins.ts'
-import { fontMedium } from '../../ui/styles/public/tokens.ts'
+import { getClampPx, type StyleRecipe } from '../ui/styles/public/mixins.ts'
+import { fontMedium } from '../ui/styles/public/tokens.ts'
 
 export const errorPage_container: StyleRecipe = {
   alignItems: 'center',

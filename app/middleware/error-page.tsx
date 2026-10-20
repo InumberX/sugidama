@@ -11,7 +11,7 @@
 import { Renderer, type RenderFunction } from 'remix/middleware/render'
 import type { Middleware } from 'remix/router'
 
-import { ErrorPage } from '../actions/error-page/error-page.tsx'
+import { ErrorPage } from '../actions/error-page.tsx'
 import { DEFAULT_LANG, isLang, type Lang } from '../utils/i18n.ts'
 
 /** No content type, or plain text: what this app's error responses carry. */
@@ -21,13 +21,27 @@ const isPlain = (response: Response): boolean => {
 }
 
 /**
- * The page's language from its path, as lang() would read it — the router's
- * 404 has matched no route, so there is no `context.lang` to ask.
+ * The page's language from its path, as lang() would read it — decoded, so
+ * `/%65n/…` is English there too — since the router's 404 has matched no
+ * route and there is no `context.lang` to ask.
  */
 export const langOfPath = (pathname: string): Lang => {
-  const first = pathname.split('/')[1] ?? ''
+  let first = pathname.split('/')[1] ?? ''
+  try {
+    first = decodeURIComponent(first)
+  } catch {
+    // A malformed escape names no language.
+  }
   return isLang(first) ? first : DEFAULT_LANG
 }
+
+/**
+ * Headers the error page sets for itself: its type and length, and its CSP —
+ * a policy carried over from the plain response (a `default-src 'none'`, say)
+ * would stop renderWithCsp() from adding the nonce one, and block the page's
+ * own scripts.
+ */
+const OWN_HEADERS = new Set(['content-type', 'content-length', 'content-security-policy'])
 
 export const errorPage = (): Middleware => async (context, next) => {
   const response = await next()
@@ -44,9 +58,7 @@ export const errorPage = (): Middleware => async (context, next) => {
   )
   // Keep what the error said besides its body: `Allow` on a 405, say.
   response.headers.forEach((value, name) => {
-    if (name.toLowerCase() !== 'content-type' && name.toLowerCase() !== 'content-length') {
-      page.headers.set(name, value)
-    }
+    if (!OWN_HEADERS.has(name.toLowerCase())) page.headers.set(name, value)
   })
   return page
 }

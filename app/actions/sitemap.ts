@@ -8,6 +8,7 @@ import { toVisitorStatus } from '../data/api-client.ts'
 import { getDrinks } from '../data/drinks.ts'
 import { DEPLOYED_AT, SITE_URL } from '../env.ts'
 import { routes } from '../routes.ts'
+import { toDrinkHref } from '../utils/drink-card.ts'
 import { LANGS, toLangParam } from '../utils/i18n.ts'
 
 type Changefreq = 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'
@@ -68,10 +69,7 @@ export const sitemapResponse = async (): Promise<Response> => {
   for (const drink of drinks.data.list) {
     for (const lang of LANGS) {
       entries.push({
-        path: routes.drinks.show.href({
-          lang: toLangParam(lang),
-          drinkId: drink.slug || String(drink.topics_id),
-        }),
+        path: toDrinkHref(drink, lang),
         priority: 0.5,
         changefreq: 'weekly',
       })

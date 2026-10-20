@@ -52,18 +52,35 @@ export const apiClient = async <T>(path: string): Promise<ApiResult<T>> => {
   }
 }
 
+export type VisitorStatusOptions = {
+  /**
+   * Whether the API's 404 means the page itself is not there — true only for
+   * a lookup by the URL's own id (a drink). Anywhere else a 404 is the API's
+   * problem (a renamed endpoint, a wrong API_URL), and passing it on would
+   * turn the home page into a "not found" that crawlers drop.
+   */
+  notFound?: boolean
+}
+
 /**
- * The status a visitor gets for a failed call. The API's 404 is the page's
- * 404 (the drink is not there); any other 4xx — a key it rejects, a limit it
- * hit — is not the visitor's fault and becomes a 502; its 5xx passes through;
- * no usable answer is a 500. develop passed every status through.
+ * The status a visitor gets for a failed call: a 404 the page itself owns
+ * (`notFound`) stays a 404; any other 4xx — a key it rejects, a limit it hit,
+ * an endpoint it no longer has — is not the visitor's fault and becomes a 502;
+ * its 5xx passes through; no usable answer is a 500. develop passed every
+ * status through.
  */
-export const toVisitorStatus = ({ status }: ApiError): number =>
-  status === null ? 500 : status === 404 || status >= 500 ? status : 502
+export const toVisitorStatus = (
+  { status }: Pick<ApiError, 'status'>,
+  { notFound = false }: VisitorStatusOptions = {}
+): number => {
+  if (status === null) return 500
+  if (status === 404 && notFound) return 404
+  return status >= 500 ? status : 502
+}
 
 /**
  * The response an action returns for a failed call. Plain text with no detail
  * from the API — the error page middleware turns it into the site's page.
  */
-export const apiErrorResponse = (error: ApiError): Response =>
-  new Response(null, { status: toVisitorStatus(error) })
+export const apiErrorResponse = (error: ApiError, options?: VisitorStatusOptions): Response =>
+  new Response(null, { status: toVisitorStatus(error, options) })

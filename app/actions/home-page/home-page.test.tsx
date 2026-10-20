@@ -95,6 +95,14 @@ describe('home page', () => {
     assert.equal(response.headers.get('X-Content-Type-Options'), 'nosniff')
   })
 
+  it('does not turn the home page into a 404 when an API endpoint is missing', async (t) => {
+    t.mock.method(console, 'error', () => {})
+    mockKuroco(t, { '/drinks': new Response(null, { status: 404 }) })
+    const { response } = await home()
+
+    assert.equal(response.status, 502)
+  })
+
   it('answers 500 when the API cannot be reached', async (t) => {
     t.mock.method(console, 'error', () => {})
     mockKuroco(t, { '/drinks': new Error('connection refused') })

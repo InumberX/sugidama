@@ -40,9 +40,14 @@ describe('errorPage()', () => {
       headers: { 'Sec-Fetch-Site': 'same-origin' },
     })
 
+    const html = await response.text()
+
     assert.equal(response.status, 405)
     assert.equal(response.headers.get('Allow'), 'GET, HEAD')
     assert.match(response.headers.get('Content-Type') ?? '', /^text\/html/)
+    // The page exists; it only refused the method.
+    assert.doesNotMatch(titleOf(html), /見つかりません/)
+    assert.match(html, /このページを表示できませんでした。/)
   })
 
   it('shows an API failure as an error, with its status and none of its words', async (t) => {
@@ -76,5 +81,7 @@ describe('langOfPath', () => {
     assert.equal(langOfPath('/'), 'ja')
     assert.equal(langOfPath('/english'), 'ja')
     assert.equal(langOfPath('/fr/drinks'), 'ja')
+    assert.equal(langOfPath('/%65n/drinks/x'), 'en')
+    assert.equal(langOfPath('/%E0%A4%A/x'), 'ja')
   })
 })

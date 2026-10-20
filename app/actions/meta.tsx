@@ -52,7 +52,16 @@ export type PageMeta = {
  * with or without its leading slash lands under the site. Prefixing the string,
  * as before, made `https://site//host/x` and `https://sitex`.
  */
-export const absoluteUrl = (pathOrUrl: string): string => new URL(pathOrUrl, `${SITE_URL}/`).href
+export const absoluteUrl = (pathOrUrl: string): string => {
+  try {
+    return new URL(pathOrUrl, `${SITE_URL}/`).href
+  } catch {
+    // A value from the CMS that no browser could resolve either. Rendering
+    // streams, so a throw here would cut the page off mid-way rather than
+    // become a 500; the value is left as it came instead.
+    return pathOrUrl
+  }
+}
 
 /** The page's title, or the site's base title; both name the site, overridden or not. */
 export const resolveTitle = (meta: PageMeta, lang: Lang): string => {

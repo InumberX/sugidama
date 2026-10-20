@@ -7,6 +7,7 @@
 // that names it (RFC 9309), so CCBot, Nutch and Baidu kept crawling staging.
 // A closed site therefore has the one group.
 import { IS_PRODUCTION, NO_INDEX, SITE_URL } from '../env.ts'
+import { routes } from '../routes.ts'
 
 export const robotsTxt = ({
   indexable = IS_PRODUCTION && !NO_INDEX,
@@ -22,7 +23,7 @@ export const robotsTxt = ({
           'Crawl-delay: 10',
         ]
       : ['User-agent: *', 'Disallow: /']),
-    `Sitemap: ${SITE_URL}/sitemap.xml`,
+    `Sitemap: ${SITE_URL}${routes.sitemap.href()}`,
     '',
   ].join('\n')
 

@@ -48,7 +48,7 @@ export const getDrinks = ({
 }
 
 /** Whether an id can name a drink's page: a dot segment would climb out of `/drinks/`. */
-export const isDrinkId = (id: string): boolean => id !== '' && id !== '.' && id !== '..'
+const isDrinkId = (id: string): boolean => id !== '' && id !== '.' && id !== '..'
 
 /**
  * One drink, by its slug or its topics_id — whichever the route carried. The

@@ -1,7 +1,7 @@
 // Ported from develop: app/components/ui/tags/BaseTag
 import { css, type Handle } from 'remix/component'
 
-import { PrimitiveButton } from '../../primitives/buttons/primitive-button/primitive-button.tsx'
+import { PrimitiveButton } from '../../primitives/buttons/public/primitive-button/primitive-button.tsx'
 import * as styles from './base-tag.styles.ts'
 import type { BaseTagProps } from './base-tag.types.ts'
 

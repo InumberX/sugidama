@@ -103,7 +103,15 @@ export const mockKuroco = (t: TestContext, overrides: Record<string, KurocoAnswe
 
     const answer = answers[path]
     if (answer instanceof Error) throw answer
-    if (answer instanceof Response) return answer.clone()
+    // A fresh Response rather than `answer.clone()`: a clone tees the body, and
+    // cancelling one branch of a tee waits for the other, so the API client's
+    // `body.cancel()` on an error status would never settle.
+    if (answer instanceof Response) {
+      const { status, statusText, headers } = answer
+      // A null-body status (204, 205, 304) rejects any body, an empty one included.
+      const body = [204, 205, 304].includes(status) ? null : await answer.clone().arrayBuffer()
+      return new Response(body, { status, statusText, headers })
+    }
     return Response.json(answer)
   })
 }

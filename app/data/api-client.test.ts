@@ -87,12 +87,45 @@ describe('apiClient', () => {
 })
 
 describe('apiErrorResponse', () => {
-  it("passes the API's status through, and makes a missing one a 500", async () => {
-    const notFound = apiErrorResponse({ success: false, status: 404, message: 'Not Found' })
-    const unreachable = apiErrorResponse({ success: false, status: null, message: 'x' })
+  it("passes a page's own 404 and the API's 5xx through, and tells the visitor nothing of the API", async () => {
+    const notFound = apiErrorResponse(
+      { success: false, status: 404, message: 'Not Found' },
+      { notFound: true }
+    )
+    const down = apiErrorResponse({ success: false, status: 503, message: 'API error 503' })
 
     assert.equal(notFound.status, 404)
-    assert.equal(await notFound.text(), 'Not Found')
-    assert.equal(unreachable.status, 500)
+    assert.equal(await notFound.text(), '')
+    assert.equal(down.status, 503)
+  })
+
+  it('keeps a missing or gone id as it is, but not one it rejects', () => {
+    for (const status of [404, 410]) {
+      const response = apiErrorResponse(
+        { success: false, status, message: 'x' },
+        { notFound: true }
+      )
+      assert.equal(response.status, status)
+    }
+    const forbidden = apiErrorResponse(
+      { success: false, status: 403, message: 'x' },
+      { notFound: true }
+    )
+    assert.equal(forbidden.status, 502)
+  })
+
+  it("makes the API's 404 a 502 where it names no missing page", () => {
+    assert.equal(apiErrorResponse({ success: false, status: 404, message: 'x' }).status, 502)
+  })
+
+  it('makes any other 4xx a 502 and no usable answer a 500', () => {
+    for (const status of [400, 401, 403, 429]) {
+      assert.equal(
+        apiErrorResponse({ success: false, status, message: 'x' }).status,
+        502,
+        String(status)
+      )
+    }
+    assert.equal(apiErrorResponse({ success: false, status: null, message: 'x' }).status, 500)
   })
 })

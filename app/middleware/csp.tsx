@@ -18,7 +18,7 @@ import type { Middleware } from 'remix/router'
 
 import { API_URL } from '../env.ts'
 import { CspNonceProvider } from '../ui/contexts/csp-nonce/csp-nonce.tsx'
-import { withHeaders } from './with-headers.ts'
+import { mediaTypeOf, withHeaders } from './with-headers.ts'
 
 /** 128 random bits, base64 — the size the CSP spec recommends at minimum. */
 export const createNonce = (): string => {
@@ -92,8 +92,7 @@ export const buildCspDirective = (nonce: string): string =>
  * @remix-run/render-middleware/src/lib/render-ui.ts, which is not exported;
  * keep the two in step when Remix is upgraded.
  */
-const isHtml = (response: Response): boolean =>
-  response.headers.get('Content-Type')?.split(';', 1)[0]?.trim().toLowerCase() === 'text/html'
+const isHtml = (response: Response): boolean => mediaTypeOf(response) === 'text/html'
 
 /**
  * `render()` plus the CSP: installs the standard renderer, then replaces it with

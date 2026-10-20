@@ -21,9 +21,10 @@ export type IndexPageProps = IndexPageData & {
   url: URL
 }
 
-// develop's locales/<lang>/pages/SG20_100.json and the error title from
-// common.json. The pagination labels are new: develop wrote 「前のページへ」
-// in both languages.
+// develop's locales/<lang>/pages/SG20_100.json. The pagination labels are
+// new: develop wrote 「前のページへ」 in both languages. So is the error
+// description, which replaces develop's 「エラーメッセージ：」 and the API's own
+// words after it.
 const MESSAGES = defineMessages({
   ja: {
     reset: '検索条件をリセット',
@@ -40,7 +41,7 @@ const MESSAGES = defineMessages({
     noResultTitle: '検索結果がありません。',
     noResultDescription: '検索結果は0件です。\n条件を再度設定して検索してください。',
     errorTitle: '検索結果の取得に失敗しました',
-    errorMessageTitle: 'エラーメッセージ：',
+    errorDescription: '時間をおいて、もう一度お試しください。',
     paginationLabel: 'ページ送り',
     prevPage: '前のページへ',
     nextPage: '次のページへ',
@@ -60,7 +61,7 @@ const MESSAGES = defineMessages({
     noResultTitle: 'No search results.',
     noResultDescription: 'No search results.\nPlease set the conditions again and search again.',
     errorTitle: 'Failed to get search results',
-    errorMessageTitle: 'Error message: ',
+    errorDescription: 'Please try again later.',
     paginationLabel: 'Pagination',
     prevPage: 'Previous page',
     nextPage: 'Next page',

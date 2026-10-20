@@ -73,8 +73,8 @@ export function Document(handle: Handle<DocumentProps>) {
               css(...) rule lands. Root public/ URLs never change on their own,
               hence the cache buster. */}
           <link rel="stylesheet" href={`/static/css/app.css?${CACHE_BUSTER}`} />
-          <title>{resolveTitle(meta)}</title>
-          {renderMeta(meta, url)}
+          <title>{resolveTitle(meta, lang)}</title>
+          {renderMeta(meta, url, lang)}
           <GoogleAnalytics id={analyticsId} nonce={nonce} />
           {/* A module script is deferred; the nonce lets it through the CSP,
               and 'strict-dynamic' extends that to every module it imports. */}

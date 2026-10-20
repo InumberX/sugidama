@@ -8,7 +8,7 @@ const MESSAGES = {
   noResultTitle: '検索結果がありません。',
   noResultDescription: '条件を変えてください。',
   errorTitle: '取得できませんでした',
-  errorMessageTitle: 'エラーメッセージ:',
+  errorDescription: '時間をおいてください。',
   paginationLabel: 'ページ送り',
   prevPage: '前へ',
   nextPage: '次へ',
@@ -33,10 +33,10 @@ describe('SearchDrinksResult', () => {
   })
 
   it('shows a failed search as an alert, still carrying the id pagination links point at', async () => {
-    const html = await render({ success: false, status: 503, message: 'down' })
+    const html = await render({ success: false, status: 503 })
 
     assert.match(html, new RegExp(`<div id="${SEARCH_DRINKS_RESULT_ID}">`))
     assert.match(html, /role="alert"/)
-    assert.match(html, /エラーメッセージ:down/)
+    assert.match(html, /時間をおいてください。/)
   })
 })

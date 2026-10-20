@@ -18,7 +18,7 @@ import type { Lang } from '../../../utils/i18n.ts'
 
 export type DrinkSearchResult =
   | { success: true; cards: DrinkCardProps[]; totalPage: number }
-  | { success: false; status: number | null; message: string }
+  | { success: false; status: number | null }
 
 export type IndexPageData = DrinkTerms & {
   search: DrinkSearch
@@ -65,7 +65,7 @@ export const loadIndexPage = async (
           .map((drink) => toDrinkCardProps({ drink, lang, categories, tagGroups })),
         totalPage: countDrinkPages(drinks.data.pageInfo.totalCnt),
       }
-    : { success: false, status: drinks.status, message: drinks.message }
+    : { success: false, status: drinks.status }
 
   return { categories, tagGroups, search, result }
 }

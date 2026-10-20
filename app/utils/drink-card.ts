@@ -32,6 +32,16 @@ type DrinkVocabularies = {
   tagGroups: TagGroup[]
 }
 
+/**
+ * A drink's page: by its slug, else its topics_id. The one URL a drink has —
+ * the cards link to it, the page names it as canonical, the sitemap lists it.
+ */
+export const toDrinkHref = (drink: Drink, lang: Lang): string =>
+  routes.drinks.show.href({ lang: toLangParam(lang), drinkId: toDrinkId(drink) })
+
+/** The id in a drink's URL: its slug, else its topics_id. */
+export const toDrinkId = (drink: Drink): string => drink.slug || String(drink.topics_id)
+
 /** The drink's category from the master, if it names one the master has. */
 export const findDrinkCategory = (drink: Drink, categories: Term[]): Term | undefined =>
   categories.find(
@@ -73,12 +83,10 @@ export const toDrinkCardProps = ({
   titleTag?: NonNullable<ArticleCardProps['title']['titleTag']>
 }): DrinkCardProps => {
   const { drink, lang } = vocabularies
-  const langParam = { lang: toLangParam(lang) }
-
   const postedDate = formatPostedDate(drink.inst_ymdhi, lang)
 
   return {
-    url: routes.drinks.show.href({ ...langParam, drinkId: drink.slug || drink.topics_id }),
+    url: toDrinkHref(drink, lang),
     title: {
       text: lang === 'en' ? drink.subject_en : drink.subject,
       ...(titleTag && { titleTag }),

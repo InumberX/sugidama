@@ -1,5 +1,6 @@
 import { createController } from 'remix/router'
 
+import { toVisitorStatus } from '../../data/api-client.ts'
 import { lang } from '../../middleware/lang.ts'
 import { routes } from '../../routes.ts'
 import { parseDrinkSearch } from '../../utils/drink-search.ts'
@@ -10,9 +11,6 @@ import { ShowPage } from './show-page/show-page.tsx'
 
 // The drinks route area. Controller middleware does not reach other
 // controllers, so lang() is added again here.
-const searchFailureStatus = (status: number | null): number =>
-  status === null ? 500 : status >= 500 ? status : 502
-
 export default createController(routes.drinks, {
   middleware: [lang()],
   actions: {
@@ -30,12 +28,10 @@ export default createController(routes.drinks, {
         return new Response('Not Found', { status: 404 })
       }
       // A failed search still renders the form, with an error status so the
-      // error page is not cached or indexed as the page's content. The API's
-      // 5xx passes through; its 4xx (a key it rejects, a filter it refuses) is
-      // not the visitor's fault and becomes a 502; nothing answered is a 500.
-      const init = data.result.success
-        ? undefined
-        : { status: searchFailureStatus(data.result.status) }
+      // error page is not cached or indexed as the page's content, by the same
+      // rule as every other API failure (`toVisitorStatus()`): a search that
+      // fails names no missing page, so even its 404 is a 502.
+      const init = data.result.success ? undefined : { status: toVisitorStatus(data.result) }
       return context.render(<IndexPage lang={context.lang} url={context.url} {...data} />, init)
     },
     async show(context) {

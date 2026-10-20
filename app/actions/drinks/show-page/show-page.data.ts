@@ -74,7 +74,7 @@ export const loadShowPage = async (
   // unread (none of them rejects).
   const detail = await detailRequest
   // getDrinkDetail answers anything that is not a drink as a 404.
-  if (!detail.success) return apiErrorResponse(detail)
+  if (!detail.success) return apiErrorResponse(detail, { notFound: true })
   const terms = await termsRequest
   if (!terms.success) return apiErrorResponse(terms)
 

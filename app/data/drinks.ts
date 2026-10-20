@@ -47,6 +47,9 @@ export const getDrinks = ({
   return apiClient<Drinks>(`/drinks?${searchParams.toString()}`)
 }
 
+/** Whether an id can name a drink's page: a dot segment would climb out of `/drinks/`. */
+const isDrinkId = (id: string): boolean => id !== '' && id !== '.' && id !== '..'
+
 /**
  * One drink, by its slug or its topics_id — whichever the route carried. The
  * id comes from the URL, so it is encoded: a `/` or `?` in it must not reach
@@ -55,7 +58,7 @@ export const getDrinks = ({
  * names no drink and is answered as a 404 without asking the API.
  */
 export const getDrinkDetail = async (id: string): Promise<ApiResult<DrinkDetail>> => {
-  if (id === '' || id === '.' || id === '..') {
+  if (!isDrinkId(id)) {
     return { success: false, status: 404, message: 'Not Found' }
   }
   const result = await apiClient<{ details?: unknown }>(`/drinks/${encodeURIComponent(id)}`)

@@ -52,12 +52,39 @@ export const apiClient = async <T>(path: string): Promise<ApiResult<T>> => {
   }
 }
 
+export type VisitorStatusOptions = {
+  /**
+   * Whether the API's 404 means the page itself is not there — true only for
+   * a lookup by the URL's own id (a drink). Anywhere else a 404 is the API's
+   * problem (a renamed endpoint, a wrong API_URL), and passing it on would
+   * turn the home page into a "not found" that crawlers drop.
+   */
+  notFound?: boolean
+}
+
 /**
- * The response an action returns for a failed call, as develop's loaders
- * threw it: the API's own status, or a 500 when nothing usable answered. Plain text
- * for now; the site's error page comes with step 9 of issue #115.
+ * The status a visitor gets for a failed call: a 404 the page itself owns
+ * (`notFound`) stays a 404, and a 410 a 410; any other 4xx — a key it
+ * rejects, a limit it hit, an endpoint it no longer has — is not the
+ * visitor's fault and becomes a 502; its 5xx passes through; no usable answer
+ * is a 500. develop passed every status through.
  */
-export const apiErrorResponse = (error: ApiError): Response =>
-  error.status === null
-    ? new Response('Internal server error. Please try again later.', { status: 500 })
-    : new Response(error.message, { status: error.status })
+export const toVisitorStatus = (
+  { status }: Pick<ApiError, 'status'>,
+  { notFound = false }: VisitorStatusOptions = {}
+): number => {
+  if (status === null) return 500
+  // A lookup by the URL's own id: an id the API no longer has (410) is a
+  // missing page too, and stays a 410 so crawlers drop it. A 400 is not: it
+  // can as well be the API's own fault (a key, a changed rule), and as a 404
+  // it would drop every drink at once.
+  if (notFound && (status === 404 || status === 410)) return status
+  return status >= 500 ? status : 502
+}
+
+/**
+ * The response an action returns for a failed call. Plain text with no detail
+ * from the API — the error page middleware turns it into the site's page.
+ */
+export const apiErrorResponse = (error: ApiError, options?: VisitorStatusOptions): Response =>
+  new Response(null, { status: toVisitorStatus(error, options) })

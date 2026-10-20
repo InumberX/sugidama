@@ -85,14 +85,22 @@ describe('home page', () => {
     assert.match(html, /March 1, 2024/)
   })
 
-  it('passes an API error status through, as develop did', async (t) => {
+  it("passes the API's 5xx through, without the API's own words", async (t) => {
     t.mock.method(console, 'error', () => {})
     mockKuroco(t, { '/tags/taste': new Response(null, { status: 503, statusText: 'Down' }) })
     const { response, html } = await home()
 
     assert.equal(response.status, 503)
-    assert.equal(html, 'Down')
+    assert.doesNotMatch(html, /Down/)
     assert.equal(response.headers.get('X-Content-Type-Options'), 'nosniff')
+  })
+
+  it('does not turn the home page into a 404 when an API endpoint is missing', async (t) => {
+    t.mock.method(console, 'error', () => {})
+    mockKuroco(t, { '/drinks': new Response(null, { status: 404 }) })
+    const { response } = await home()
+
+    assert.equal(response.status, 502)
   })
 
   it('answers 500 when the API cannot be reached', async (t) => {

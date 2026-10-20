@@ -70,7 +70,7 @@ export function ShowPage(handle: Handle<ShowPageProps>) {
         lang={lang}
         url={url}
         meta={{ title: article.title, ogImage: drink.thumbnail ? drink.thumbnail.url : undefined }}
-        // The slider does nothing for one image, so it ships no JavaScript then.
+        // BaseArticle renders the slider only from two images.
         hasClientEntries={article.mainVisuals.length > 1}
       >
         <LayoutPublic lang={lang} url={url}>

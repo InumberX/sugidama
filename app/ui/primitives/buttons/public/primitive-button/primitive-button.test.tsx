@@ -186,4 +186,20 @@ describe('PrimitiveButton', () => {
 
     assert.match(html, /<button/)
   })
+
+  it('writes aria-current as the string ARIA reads, and leaves it out otherwise', async () => {
+    const current = await renderToString(
+      <PrimitiveButton buttonType="button" ariaCurrent>
+        a
+      </PrimitiveButton>
+    )
+    const other = await renderToString(
+      <PrimitiveButton buttonType="button" ariaCurrent={false}>
+        a
+      </PrimitiveButton>
+    )
+
+    assert.match(current, /<button[^>]* aria-current="true"/)
+    assert.doesNotMatch(other, /aria-current/)
+  })
 })

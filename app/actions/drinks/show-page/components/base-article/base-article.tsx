@@ -3,6 +3,7 @@ import { css, type Handle } from 'remix/component'
 
 import { BaseTagList } from '../../../../../ui/lists/base-tag-list/base-tag-list.tsx'
 import { PageTitle } from '../../../../../ui/typographies/page-title/page-title.tsx'
+import * as sliderStyles from '../../public/components/article-slider/article-slider.styles.ts'
 import { ArticleSlider } from '../../public/components/article-slider/article-slider.tsx'
 import { ArticleInfo } from '../article-info/article-info.tsx'
 import * as styles from './base-article.styles.ts'
@@ -23,7 +24,19 @@ export function BaseArticle(handle: Handle<BaseArticleProps>) {
           </div>
           {mainVisuals.length > 0 && (
             <div mix={css(styles.baseArticleMainVisual)}>
-              <ArticleSlider slides={mainVisuals} messages={sliderMessages} />
+              {mainVisuals.length > 1 ? (
+                <ArticleSlider slides={mainVisuals} messages={sliderMessages} />
+              ) : (
+                // One image needs no slider: the slider's image, without the
+                // client entry and its hydration data.
+                <div mix={css(sliderStyles.articleSliderMainImage)}>
+                  <img
+                    src={mainVisuals[0]!.src}
+                    alt={mainVisuals[0]!.alt}
+                    mix={css(sliderStyles.articleSliderMainImage_image)}
+                  />
+                </div>
+              )}
             </div>
           )}
           {info.length > 0 && (

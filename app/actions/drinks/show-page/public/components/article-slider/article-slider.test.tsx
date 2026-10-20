@@ -34,7 +34,7 @@ describe('ArticleSlider', () => {
     assert.match(html, /scroll-snap-type:\s*x mandatory/)
     assert.equal(html.match(/<button type="button"[^>]* disabled/g)?.length, 2)
     // Thumbnails stay out of the tab order while they do nothing.
-    assert.equal(html.match(/aria-label="\d枚目"[^>]*tabindex="-1"/g)?.length, 2)
+    assert.equal(html.match(/<button[^>]*tabindex="-1"[^>]*aria-label="\d枚目"/g)?.length, 2)
   })
 
   it('has no thumbnails for a single image', async () => {

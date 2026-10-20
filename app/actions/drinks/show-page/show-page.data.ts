@@ -74,8 +74,11 @@ export const loadShowPage = async (
   // unread (none of them rejects).
   const detail = await detailRequest
   if (!detail.success) return apiErrorResponse(detail)
-  // An answer without a drink names none, whatever its status said.
-  if (!detail.data?.details) return new Response('Not Found', { status: 404 })
+  // An answer without a drink names none, whatever its status said: no
+  // details at all, or an empty object or array where the drink should be.
+  if (typeof detail.data?.details?.topics_id !== 'number') {
+    return new Response('Not Found', { status: 404 })
+  }
   const terms = await termsRequest
   if (!terms.success) return apiErrorResponse(terms)
 

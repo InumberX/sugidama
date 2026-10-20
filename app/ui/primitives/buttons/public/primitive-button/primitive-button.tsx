@@ -36,6 +36,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
       ariaControls,
       ariaExpanded,
       ariaSelected,
+      ariaCurrent,
       nonClickableTag,
     } = handle.props
     // Never focusable while hidden from assistive technology.
@@ -82,6 +83,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
           aria-controls={ariaControls}
           aria-expanded={expanded}
           aria-selected={role ? selected : undefined}
+          aria-current={ariaCurrent ? 'true' : undefined}
           data-rmx-document={!isDisabled && isDocumentNavigation(url) ? '' : undefined}
           mix={hostStyle}
         >
@@ -105,6 +107,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
           aria-controls={ariaControls}
           aria-expanded={expanded}
           aria-selected={role ? selected : undefined}
+          aria-current={ariaCurrent ? 'true' : undefined}
           mix={hostStyle}
         >
           {children}
@@ -128,6 +131,7 @@ export function PrimitiveButton(handle: Handle<PrimitiveButtonProps>) {
         // aria-expanded is not allowed on a generic element: only with a role.
         aria-expanded={role ? expanded : undefined}
         aria-selected={role ? selected : undefined}
+        aria-current={ariaCurrent ? 'true' : undefined}
         mix={hostStyle}
       >
         {children}

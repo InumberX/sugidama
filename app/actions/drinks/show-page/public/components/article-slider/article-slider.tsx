@@ -7,6 +7,7 @@
 import keenSlider, { type KeenSliderInstance, type KeenSliderOptions } from 'keen-slider'
 import { clientEntry, css, on, ref, type Handle } from 'remix/component'
 
+import { PrimitiveButton } from '../../../../../../ui/primitives/buttons/public/primitive-button/primitive-button.tsx'
 import { clientModuleUrl } from '../../../../../../ui/public/client-module-url.ts'
 import { BREAKPOINTS } from '../../../../../../ui/styles/public/breakpoints.ts'
 import { SvgIconCircleButton } from '../svg-icon-circle-button/svg-icon-circle-button.tsx'
@@ -154,8 +155,13 @@ export const ArticleSlider = clientEntry(
         },
         slideChanged: (slider) => {
           const { rel } = slider.track.details
-          if (thumbnails && !isLeading && thumbnails.track.details.rel !== rel) {
-            thumbnails.moveToIdx(rel)
+          // Where the main slider is going, not each slide it passes on the
+          // way: a long move would otherwise drag the thumbnails through every
+          // slide between, backwards too if they had already arrived.
+          const { targetIdx } = slider.animator
+          const target = targetIdx === null ? rel : slider.track.absToRel(targetIdx)
+          if (thumbnails && !isLeading && thumbnails.track.details.rel !== target) {
+            thumbnails.moveToIdx(target)
             // After the call: redirecting a running animation stops it, which
             // fires `animationStopped` synchronously and would clear the flag.
             isFollowing = true
@@ -193,7 +199,10 @@ export const ArticleSlider = clientEntry(
         items = toPlainItems(slides)
         isStarted = false
         isFailed = true
-        void handle.update()
+        // The strip comes back where the visitor had left it.
+        void handle.update().then(() => {
+          mainNode.scrollLeft = initial * mainNode.clientWidth
+        })
         return
       }
 
@@ -278,27 +287,25 @@ export const ArticleSlider = clientEntry(
                         : styles.articleSliderSub_slide
                     )}
                   >
-                    <button
-                      type="button"
-                      aria-label={item.thumbnailLabel}
-                      aria-current={isCurrent(i) && !item.isCopy ? 'true' : undefined}
-                      aria-hidden={item.isCopy ? 'true' : undefined}
-                      tabIndex={item.isCopy || !isStarted ? -1 : undefined}
-                      mix={[
-                        css({
-                          ...styles.articleSliderSubImage,
-                          ...(isCurrent(i) ? styles.articleSliderSubImage__current : null),
-                        }),
-                        on(
-                          'click',
-                          press((slider) => slider.moveToIdx(i))
-                        ),
-                      ]}
+                    <PrimitiveButton
+                      buttonType="button"
+                      ariaLabel={item.thumbnailLabel}
+                      ariaCurrent={isCurrent(i) && !item.isCopy}
+                      ariaHidden={item.isCopy}
+                      tabIndex={isStarted ? undefined : -1}
+                      styleOverrides={{
+                        ...styles.articleSliderSubImage,
+                        ...(isCurrent(i) ? styles.articleSliderSubImage__current : null),
+                      }}
+                      mix={on(
+                        'click',
+                        press((slider) => slider.moveToIdx(i))
+                      )}
                     >
                       <span mix={css(styles.articleSliderSubImage_contents)}>
                         <img src={item.src} alt="" mix={css(styles.articleSliderSubImage_image)} />
                       </span>
-                    </button>
+                    </PrimitiveButton>
                   </div>
                 ))}
               </div>

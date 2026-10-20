@@ -114,15 +114,13 @@ export const articleSliderSub_slide: StyleRecipe = {
 /** keen-slider positions the slides itself; the static row's sizes would only get in its way. */
 export const articleSliderSub_slide__started: StyleRecipe = keenSlide
 
-/** The thumbnail button; its `::after` is the gradient frame of the current one. */
+/**
+ * The thumbnail button, over PrimitiveButton's reset; its `::after` is the
+ * gradient frame of the current one.
+ */
 export const articleSliderSubImage: StyleRecipe = {
-  alignItems: 'center',
-  background: 'transparent',
-  border: 'none',
   borderRadius: '4px',
-  color: 'inherit',
   display: 'flex',
-  font: 'inherit',
   inlineSize: '100%',
   justifyContent: 'center',
   overflow: 'hidden',

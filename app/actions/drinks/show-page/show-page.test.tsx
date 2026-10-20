@@ -108,6 +108,7 @@ describe('drink page', () => {
 
     assert.ok(!none.includes(CLIENT_RUNTIME_URL))
     assert.ok(!single.includes(CLIENT_RUNTIME_URL))
+    assert.doesNotMatch(single, /rmx-data/)
     assert.match(single, /<img src="https:\/\/example\.com\/a\.webp" alt="瓶"/)
   })
 
@@ -169,8 +170,13 @@ describe('drink page', () => {
   })
 
   it('answers a body without a drink as a 404', async (t) => {
-    mockKuroco(t, { '/drinks/kubota': { errors: [], messages: [], details: null } })
+    const empty = (details: unknown) => ({ errors: [], messages: [], details })
+    mockKuroco(t, {
+      '/drinks/a': empty(null),
+      '/drinks/b': empty({}),
+      '/drinks/c': empty([]),
+    })
 
-    assert.equal((await get('/drinks/kubota')).status, 404)
+    for (const id of ['a', 'b', 'c']) assert.equal((await get(`/drinks/${id}`)).status, 404)
   })
 })

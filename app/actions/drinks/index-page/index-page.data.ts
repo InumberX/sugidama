@@ -5,20 +5,15 @@
 // threw it; a failed search is shown in place of the results instead, and the
 // form stays usable.
 //
-// An id outside the vocabularies is left out of the search like a malformed
-// one, so the API is only ever asked for ids it has. A query with ids waits for
-// the vocabularies before it searches; one without (the bare list, a keyword)
-// has nothing to check and loads both at once.
+// The vocabularies load first, as the form needs them anyway; the query's ids
+// are then checked against them, and the search runs once with the ids they
+// have. An id outside them is left out like a malformed one, so the API is
+// never asked for an id it does not know.
 import { apiErrorResponse } from '../../../data/api-client.ts'
 import { type DrinkTerms, getDrinkTerms, toSearchVocabularies } from '../../../data/drink-terms.ts'
 import { getDrinks } from '../../../data/drinks.ts'
 import { type DrinkCardProps, toDrinkCardProps } from '../../../utils/drink-card.ts'
-import {
-  countDrinkPages,
-  DRINKS_PAGE_SIZE,
-  type DrinkSearch,
-  SEARCH_DRINKS_CONDITION_KEY,
-} from '../../../utils/drink-search.ts'
+import { countDrinkPages, DRINKS_PAGE_SIZE, type DrinkSearch } from '../../../utils/drink-search.ts'
 import type { Lang } from '../../../utils/i18n.ts'
 
 export type DrinkSearchResult =
@@ -52,16 +47,11 @@ export const loadIndexPage = async (
   lang: Lang,
   requested: DrinkSearch
 ): Promise<IndexPageData | Response> => {
-  const hasIds = Object.values(SEARCH_DRINKS_CONDITION_KEY).some((key) => requested[key].length > 0)
-  const [terms, unfiltered] = await Promise.all([
-    getDrinkTerms(lang),
-    hasIds ? undefined : searchDrinks(requested),
-  ])
-
+  const terms = await getDrinkTerms(lang)
   if (!terms.success) return apiErrorResponse(terms)
 
   const search = toKnownSearch(requested, terms.data)
-  const drinks = unfiltered ?? (await searchDrinks(search))
+  const drinks = await searchDrinks(search)
 
   const { categories, tagGroups } = terms.data
   const result: DrinkSearchResult = drinks.success

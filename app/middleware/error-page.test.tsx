@@ -96,10 +96,10 @@ describe('errorPage() and files', () => {
     assert.match(page.headers.get('Content-Type') ?? '', /^text\/html/)
   })
 
-  it('says the answer for a file varies by Accept, and keeps a dotted slug a page', async () => {
+  it('says the answer for a file varies by Accept, and keeps any other dotted path a page', async () => {
     const asset = await fetchPath('/client/app/gone.js', { headers: { Accept: '*/*' } })
     const page = await fetchPath('/client/app/gone.js', { headers: { Accept: 'text/html' } })
-    const dotted = await fetchPath('/a/dassai.23', { headers: { Accept: '*/*' } })
+    const dotted = await fetchPath('/a/b.23', { headers: { Accept: '*/*' } })
 
     assert.equal(asset.headers.get('Vary'), 'Accept')
     assert.match(page.headers.get('Vary') ?? '', /Accept/)

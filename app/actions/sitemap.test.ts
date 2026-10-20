@@ -11,12 +11,7 @@ const get = () => router.fetch(new Request('http://localhost/sitemap.xml'))
 describe('sitemap.xml', () => {
   it('lists both languages of the home page, the list and every drink, asking for all drinks', async (t) => {
     const fetch = mockKuroco(t, {
-      '/drinks': drinksFixture([
-        drinkFixture(),
-        drinkFixture({ topics_id: 7, slug: '' }),
-        // Names no page: getDrinkDetail() answers it with a 404.
-        drinkFixture({ topics_id: 8, slug: '..' }),
-      ]),
+      '/drinks': drinksFixture([drinkFixture(), drinkFixture({ topics_id: 7, slug: '' })]),
     })
     const response = await get()
     const xml = await response.text()

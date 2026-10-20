@@ -47,8 +47,8 @@ const OWN_HEADERS = new Set(['content-type', 'content-length', 'content-security
 /**
  * The files the site serves from `ASSETS`. A request for one that missed it
  * and fell through to the router gets the plain error, not a whole page it
- * cannot use. Named rather than "anything with a dot", so a slug such as
- * `dassai.23` is still a page.
+ * cannot use. Named rather than "anything with a dot", so only what `ASSETS`
+ * would have answered keeps the plain error.
  */
 const FILE = /\.(?:js|mjs|css|map|json|xml|txt|png|jpe?g|gif|webp|avif|svg|ico|woff2?)$/i
 

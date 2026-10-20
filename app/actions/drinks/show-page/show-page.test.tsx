@@ -1,7 +1,12 @@
 import * as assert from 'remix/assert'
 import { describe, it } from 'remix/test'
 
-import { drinkDetailFixture, drinkFixture, mockKuroco } from '../../../../test/kuroco.ts'
+import {
+  drinkDetailFixture,
+  drinkFixture,
+  drinksFixture,
+  mockKuroco,
+} from '../../../../test/kuroco.ts'
 import { router } from '../../../router.ts'
 import { CLIENT_RUNTIME_URL } from '../../document.tsx'
 
@@ -80,7 +85,23 @@ describe('drink page', () => {
     assert.ok(!html.includes(CLIENT_RUNTIME_URL))
   })
 
-  it('asks for drinks of the same category and the newest, four each', async (t) => {
+  it('leaves the drink itself out of its related row, but not out of the newest', async (t) => {
+    const others = [1, 2, 3, 4].map((i) =>
+      drinkFixture({ topics_id: i, slug: `d${i}`, subject: `お酒${i}` })
+    )
+    mockKuroco(t, {
+      '/drinks/kubota': drinkDetailFixture(),
+      '/drinks': drinksFixture([drinkFixture(), ...others]),
+    })
+    const html = await (await get('/drinks/kubota')).text()
+    const [related, latest] = html.split('新着のお酒</h2>')
+
+    assert.doesNotMatch(related!.split('日本酒のお酒</h2>')[1]!, /href="\/drinks\/kubota"/)
+    assert.equal(related!.match(/<h3/g)?.length, 4)
+    assert.match(latest!, /href="\/drinks\/kubota"/)
+  })
+
+  it('asks for five of the same category and the four newest', async (t) => {
     const fetch = mockKuroco(t, { '/drinks/kubota': drinkDetailFixture() })
     const html = await (await get('/drinks/kubota')).text()
     const rows = fetch.mock.calls
@@ -90,7 +111,7 @@ describe('drink page', () => {
 
     assert.deepEqual(rows.map((query) => [query.get('cnt'), query.get('filter')]).sort(), [
       ['4', null],
-      ['4', 'drink_category = "2"'],
+      ['5', 'drink_category = "2"'],
     ])
     assert.match(html, /日本酒のお酒<\/h2>/)
     assert.match(html, /新着のお酒<\/h2>/)

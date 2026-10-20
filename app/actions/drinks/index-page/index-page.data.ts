@@ -6,9 +6,9 @@
 // form stays usable.
 //
 // An id outside the vocabularies is left out of the search like a malformed
-// one. The search and the vocabularies load together, so a query that carries
-// one is searched a second time without it; that costs a request only for a
-// URL no link of this site writes.
+// one, so the API is only ever asked for ids it has. A query with ids waits for
+// the vocabularies before it searches; one without (the bare list, a keyword)
+// has nothing to check and loads both at once.
 import { apiErrorResponse } from '../../../data/api-client.ts'
 import { type DrinkTerms, getDrinkTerms, toSearchVocabularies } from '../../../data/drink-terms.ts'
 import { getDrinks } from '../../../data/drinks.ts'
@@ -52,15 +52,16 @@ export const loadIndexPage = async (
   lang: Lang,
   requested: DrinkSearch
 ): Promise<IndexPageData | Response> => {
-  const [terms, firstSearch] = await Promise.all([getDrinkTerms(lang), searchDrinks(requested)])
+  const hasIds = Object.values(SEARCH_DRINKS_CONDITION_KEY).some((key) => requested[key].length > 0)
+  const [terms, unfiltered] = await Promise.all([
+    getDrinkTerms(lang),
+    hasIds ? undefined : searchDrinks(requested),
+  ])
 
   if (!terms.success) return apiErrorResponse(terms)
 
   const search = toKnownSearch(requested, terms.data)
-  const hasUnknown = Object.values(SEARCH_DRINKS_CONDITION_KEY).some(
-    (key) => search[key].length !== requested[key].length
-  )
-  const drinks = hasUnknown ? await searchDrinks(search) : firstSearch
+  const drinks = unfiltered ?? (await searchDrinks(search))
 
   const { categories, tagGroups } = terms.data
   const result: DrinkSearchResult = drinks.success

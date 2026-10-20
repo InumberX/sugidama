@@ -13,7 +13,7 @@ import type { Middleware } from 'remix/router'
 
 import { ErrorPage } from '../actions/error-page.tsx'
 import { DEFAULT_LANG, isLang, type Lang } from '../utils/i18n.ts'
-import { mediaTypeOf, withHeaders } from './with-headers.ts'
+import { mediaTypeOf } from './with-headers.ts'
 
 /** No content type, or plain text: what this app's error responses carry. */
 const isPlain = (response: Response): boolean => {
@@ -63,7 +63,17 @@ export const errorPage = (): Middleware => async (context, next) => {
   if (response.status < 400 || !isPlain(response)) return response
   // For a file, the answer depends on `Accept`; say so to any cache between.
   const isFile = isFileRequest(context.url)
-  if (isFile && !acceptsHtml(context.request)) return withHeaders(response, { Vary: 'Accept' })
+  if (isFile && !acceptsHtml(context.request)) {
+    // Appended, like the page's below: a `Vary` the response already has stays.
+    try {
+      response.headers.append('Vary', 'Accept')
+      return response
+    } catch {
+      const copy = new Response(response.body, response)
+      copy.headers.append('Vary', 'Accept')
+      return copy
+    }
+  }
   // The plain body is replaced, never read; release it.
   await response.body?.cancel().catch(() => {})
 
@@ -77,7 +87,9 @@ export const errorPage = (): Middleware => async (context, next) => {
     { status: response.status }
   )
   // Keep what the error said besides its body: `Allow` on a 405, say.
-  // `append`, not `set`: a repeated header (two `Set-Cookie`s) must survive.
+  // The error's own headers win over the page's (an `Allow`, a `Cache-Control`
+  // it chose); `Set-Cookie` is appended, as it may repeat and `set` would keep
+  // only the last.
   response.headers.forEach((value, name) => {
     if (OWN_HEADERS.has(name.toLowerCase())) return
     if (name.toLowerCase() === 'set-cookie') return

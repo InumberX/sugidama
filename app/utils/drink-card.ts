@@ -37,10 +37,10 @@ type DrinkVocabularies = {
  * the cards link to it, the page names it as canonical, the sitemap lists it.
  */
 export const toDrinkHref = (drink: Drink, lang: Lang): string =>
-  routes.drinks.show.href({
-    lang: toLangParam(lang),
-    drinkId: drink.slug || String(drink.topics_id),
-  })
+  routes.drinks.show.href({ lang: toLangParam(lang), drinkId: toDrinkId(drink) })
+
+/** The id in a drink's URL: its slug, else its topics_id. */
+export const toDrinkId = (drink: Drink): string => drink.slug || String(drink.topics_id)
 
 /** The drink's category from the master, if it names one the master has. */
 export const findDrinkCategory = (drink: Drink, categories: Term[]): Term | undefined =>

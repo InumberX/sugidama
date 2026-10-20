@@ -55,7 +55,10 @@ export type PageMeta = {
  */
 export const absoluteUrl = (pathOrUrl: string): string => {
   try {
-    return new URL(pathOrUrl, `${SITE_URL}/`).href
+    const url = new URL(pathOrUrl, `${SITE_URL}/`)
+    // Only a web address belongs in a canonical or og:image; a `javascript:`
+    // or `data:` value from the CMS becomes the site's own root instead.
+    return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : `${SITE_URL}/`
   } catch {
     // A value from the CMS that no browser could resolve either. Rendering
     // streams, so a throw here would cut the page off mid-way rather than

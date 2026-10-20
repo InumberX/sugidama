@@ -5,10 +5,10 @@
 // which stands in for develop's Vite build time, and is left out where there
 // is no deploy to date (wrangler dev, tests) rather than invented.
 import { toVisitorStatus } from '../data/api-client.ts'
-import { getDrinks } from '../data/drinks.ts'
+import { getDrinks, isDrinkId } from '../data/drinks.ts'
 import { DEPLOYED_AT, SITE_URL } from '../env.ts'
 import { routes } from '../routes.ts'
-import { toDrinkHref } from '../utils/drink-card.ts'
+import { toDrinkHref, toDrinkId } from '../utils/drink-card.ts'
 import { LANGS, toLangParam } from '../utils/i18n.ts'
 
 type Changefreq = 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'
@@ -68,13 +68,16 @@ export const sitemapResponse = async (): Promise<Response> => {
       { path: routes.drinks.index.href(langParam), priority: 0.5, changefreq: 'weekly' },
     ]
   })
-  const drinkPages = drinks.data.list.flatMap((drink) =>
-    LANGS.map((lang): SitemapEntry => ({
-      path: toDrinkHref(drink, lang),
-      priority: 0.5,
-      changefreq: 'weekly',
-    }))
-  )
+  // A drink whose id names no page (a slug of `.`) would only list a 404.
+  const drinkPages = drinks.data.list
+    .filter((drink) => isDrinkId(toDrinkId(drink)))
+    .flatMap((drink) =>
+      LANGS.map((lang): SitemapEntry => ({
+        path: toDrinkHref(drink, lang),
+        priority: 0.5,
+        changefreq: 'weekly',
+      }))
+    )
   const entries = [...pages, ...drinkPages]
 
   return new Response(toSitemapXml(entries), {

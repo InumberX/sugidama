@@ -67,7 +67,10 @@ export function ErrorPage(handle: Handle<ErrorPageProps>) {
         url={url}
         meta={{ title, robots: 'noindex, nofollow', canonical: null }}
       >
-        <LayoutPublic lang={lang} url={url}>
+        {/* The header's language switch rewrites the current path, which for
+            an error is the broken one (`/ja/nope` would become `/en/ja/nope`);
+            from an error page it leads to the other language's home. */}
+        <LayoutPublic lang={lang} url={new URL(routes.home.href({ lang: toLangParam(lang) }), url)}>
           <LayoutPageWrapper>
             <PageTitle title={title} color="primary" isWrap />
             <LayoutInner>

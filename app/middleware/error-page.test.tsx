@@ -37,6 +37,14 @@ describe('errorPage()', () => {
     assert.match(html, /<a href="\/en"[^>]*>.*Back to Home/s)
   })
 
+  it("switches language to the other language's home, not the broken path", async () => {
+    const ja = await (await fetchPath('/ja/nope/x')).text()
+    const en = await (await fetchPath('/en/nope/x')).text()
+
+    assert.match(ja, /<a href="\/en"[^>]*><span[^>]*>EN<\/span>/)
+    assert.match(en, /<a href="\/"[^>]*><span[^>]*>JA<\/span>/)
+  })
+
   it('keeps the status and the Allow header of a 405', async () => {
     const response = await fetchPath('/nope', {
       method: 'POST',

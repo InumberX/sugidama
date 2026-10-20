@@ -13,7 +13,7 @@ import { toDrinkTags } from '../../../utils/drink-card.ts'
 import { defineMessages, type Lang, toLangParam } from '../../../utils/i18n.ts'
 import { Document } from '../../document.tsx'
 import type { ArticleInfoItem } from './components/article-info/article-info.types.ts'
-import { BaseArticle } from './components/base-article/base-article.tsx'
+import { BaseArticle, hasArticleSlider } from './components/base-article/base-article.tsx'
 import type { BaseArticleProps } from './components/base-article/base-article.types.ts'
 import { CardRow } from './components/card-row/card-row.tsx'
 import type { ShowPageData } from './show-page.data.ts'
@@ -70,8 +70,7 @@ export function ShowPage(handle: Handle<ShowPageProps>) {
         lang={lang}
         url={url}
         meta={{ title: article.title, ogImage: drink.thumbnail ? drink.thumbnail.url : undefined }}
-        // BaseArticle renders the slider only from two images.
-        hasClientEntries={article.mainVisuals.length > 1}
+        hasClientEntries={hasArticleSlider(article.mainVisuals)}
       >
         <LayoutPublic lang={lang} url={url}>
           <LayoutPageWrapper isBottomNoSpace>

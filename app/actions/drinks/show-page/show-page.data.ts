@@ -64,7 +64,7 @@ export const loadShowPage = async (
   // as the drink arrives instead of waiting for the vocabularies too; the key
   // is checked against the master once both are in.
   const relatedRequest = detailRequest.then((detail) => {
-    const categoryId = detail.success && detail.data?.details && toCategoryId(detail.data.details)
+    const categoryId = detail.success && toCategoryId(detail.data.details)
     return categoryId
       ? getDrinks({ page: 1, pageSize: ROW_SIZE, drinkCategoryIds: [categoryId] })
       : undefined
@@ -73,12 +73,8 @@ export const loadShowPage = async (
   // A missing drink answers at once; the other requests are left to finish
   // unread (none of them rejects).
   const detail = await detailRequest
+  // getDrinkDetail answers anything that is not a drink as a 404.
   if (!detail.success) return apiErrorResponse(detail)
-  // An answer without a drink names none, whatever its status said: no
-  // details at all, or an empty object or array where the drink should be.
-  if (typeof detail.data?.details?.topics_id !== 'number') {
-    return new Response('Not Found', { status: 404 })
-  }
   const terms = await termsRequest
   if (!terms.success) return apiErrorResponse(terms)
 

@@ -1,7 +1,7 @@
 import * as assert from 'remix/assert'
 import { describe, it } from 'remix/test'
 
-import { drinksFixture, mockKuroco } from '../../test/kuroco.ts'
+import { drinkDetailFixture, drinksFixture, mockKuroco } from '../../test/kuroco.ts'
 import { getDrinkDetail, getDrinks } from './drinks.ts'
 
 const queryOf = async (
@@ -49,7 +49,7 @@ describe('getDrinks', () => {
 
 describe('getDrinkDetail', () => {
   it('asks for the drink under /drinks, with the id encoded', async (t) => {
-    const fetch = mockKuroco(t, { '/drinks/a%2Fb%3Fc': { errors: [], messages: [], details: {} } })
+    const fetch = mockKuroco(t, { '/drinks/a%2Fb%3Fc': drinkDetailFixture() })
     const result = await getDrinkDetail('a/b?c')
 
     assert.equal(result.success, true)
@@ -65,5 +65,15 @@ describe('getDrinkDetail', () => {
       assert.equal(!result.success && result.status, 404)
     }
     assert.equal(fetch.mock.calls.length, 0)
+  })
+
+  it('answers anything but a drink as a 404', async (t) => {
+    const empty = (details: unknown) => ({ errors: [], messages: [], details })
+    mockKuroco(t, { '/drinks/a': empty(null), '/drinks/b': empty({}), '/drinks/c': empty([]) })
+
+    for (const id of ['a', 'b', 'c']) {
+      const result = await getDrinkDetail(id)
+      assert.equal(!result.success && result.status, 404)
+    }
   })
 })

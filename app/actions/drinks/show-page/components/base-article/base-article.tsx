@@ -11,6 +11,14 @@ import type { BaseArticleProps } from './base-article.types.ts'
 
 export type * from './base-article.types.ts'
 
+/**
+ * Whether the images need the slider — and so the page the client runtime.
+ * One image is shown as it is; the page asks this too rather than repeating
+ * the rule.
+ */
+export const hasArticleSlider = (mainVisuals: BaseArticleProps['mainVisuals']): boolean =>
+  mainVisuals.length > 1
+
 /** A drink: its name, images, facts and tags. Each part is left out when empty. */
 export function BaseArticle(handle: Handle<BaseArticleProps>) {
   return () => {
@@ -24,7 +32,7 @@ export function BaseArticle(handle: Handle<BaseArticleProps>) {
           </div>
           {mainVisuals.length > 0 && (
             <div mix={css(styles.baseArticleMainVisual)}>
-              {mainVisuals.length > 1 ? (
+              {hasArticleSlider(mainVisuals) ? (
                 <ArticleSlider slides={mainVisuals} messages={sliderMessages} />
               ) : (
                 // One image needs no slider: the slider's image, without the

@@ -1,4 +1,15 @@
 /**
+ * The response's media type, lower-cased and without parameters
+ * (`text/html; charset=UTF-8` is `text/html`), or `null` without one. The same
+ * parse as `isHtmlResponse()` in @remix-run/render-middleware's render-ui.ts,
+ * which is not exported; keep the two in step when Remix is upgraded.
+ */
+export const mediaTypeOf = (response: Response): string | null => {
+  const type = response.headers.get('Content-Type')
+  return type === null ? null : (type.split(';', 1)[0] ?? '').trim().toLowerCase()
+}
+
+/**
  * Sets headers on a response, copying it first when its headers are immutable
  * (`Response.redirect()` and some fetched responses throw on `set`).
  */

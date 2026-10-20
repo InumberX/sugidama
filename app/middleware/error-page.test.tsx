@@ -1,9 +1,12 @@
 import * as assert from 'remix/assert'
+import { createRouter } from 'remix/router'
+import { get, route } from 'remix/routes'
 import { describe, it } from 'remix/test'
 
 import { drinkDetailFixture, mockKuroco } from '../../test/kuroco.ts'
 import { router } from '../router.ts'
-import { langOfPath } from './error-page.tsx'
+import { renderWithCsp } from './csp.tsx'
+import { errorPage, langOfPath } from './error-page.tsx'
 
 const fetchPath = (path: string, init?: RequestInit) =>
   router.fetch(new Request(`http://localhost${path}`, init))
@@ -83,6 +86,34 @@ describe('errorPage() and files', () => {
     assert.doesNotMatch(asset.headers.get('Content-Type') ?? '', /html/)
     assert.equal(page.status, 404)
     assert.match(page.headers.get('Content-Type') ?? '', /^text\/html/)
+  })
+
+  it('says the answer for a file varies by Accept, and keeps a dotted slug a page', async () => {
+    const asset = await fetchPath('/client/app/gone.js', { headers: { Accept: '*/*' } })
+    const page = await fetchPath('/client/app/gone.js', { headers: { Accept: 'text/html' } })
+    const dotted = await fetchPath('/a/dassai.23', { headers: { Accept: '*/*' } })
+
+    assert.equal(asset.headers.get('Vary'), 'Accept')
+    assert.match(page.headers.get('Vary') ?? '', /Accept/)
+    assert.match(dotted.headers.get('Content-Type') ?? '', /^text\/html/)
+  })
+
+  it('keeps every Set-Cookie of the plain response', async () => {
+    const testRouter = createRouter({ middleware: [renderWithCsp(), errorPage()] })
+    testRouter.map(route({ gone: get('/gone') }), {
+      actions: {
+        gone: () => {
+          const headers = new Headers()
+          headers.append('Set-Cookie', 'a=1')
+          headers.append('Set-Cookie', 'b=2')
+          return new Response(null, { status: 404, headers })
+        },
+      },
+    })
+    const response = await testRouter.fetch(new Request('http://localhost/gone'))
+
+    assert.match(response.headers.get('Content-Type') ?? '', /^text\/html/)
+    assert.deepEqual(response.headers.getSetCookie(), ['a=1', 'b=2'])
   })
 
   it('names no canonical URL for an error', async () => {

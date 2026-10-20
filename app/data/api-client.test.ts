@@ -99,8 +99,8 @@ describe('apiErrorResponse', () => {
     assert.equal(down.status, 503)
   })
 
-  it('makes an id the API rejects or no longer has a 404 too, for a page of its own', () => {
-    for (const status of [400, 404, 410]) {
+  it('makes an id the API no longer has a 404 too, but not one it rejects', () => {
+    for (const status of [404, 410]) {
       const response = apiErrorResponse(
         { success: false, status, message: 'x' },
         { notFound: true }

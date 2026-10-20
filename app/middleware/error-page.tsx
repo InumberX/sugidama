@@ -13,11 +13,12 @@ import type { Middleware } from 'remix/router'
 
 import { ErrorPage } from '../actions/error-page.tsx'
 import { DEFAULT_LANG, isLang, type Lang } from '../utils/i18n.ts'
+import { mediaTypeOf, withHeaders } from './with-headers.ts'
 
 /** No content type, or plain text: what this app's error responses carry. */
 const isPlain = (response: Response): boolean => {
-  const type = response.headers.get('Content-Type')
-  return type === null || type.split(';')[0]!.trim().toLowerCase() === 'text/plain'
+  const type = mediaTypeOf(response)
+  return type === null || type === 'text/plain'
 }
 
 /**
@@ -44,19 +45,25 @@ export const langOfPath = (pathname: string): Lang => {
 const OWN_HEADERS = new Set(['content-type', 'content-length', 'content-security-policy'])
 
 /**
- * Whether the request wants a page. A browser navigating says `text/html`; a
- * module, an image or a stylesheet that missed the `ASSETS` binding and fell
- * through to the router names a file, and gets the plain error rather than a
- * whole page it cannot use.
+ * The files the site serves from `ASSETS`. A request for one that missed it
+ * and fell through to the router gets the plain error, not a whole page it
+ * cannot use. Named rather than "anything with a dot", so a slug such as
+ * `dassai.23` is still a page.
  */
-const wantsPage = (request: Request, url: URL): boolean =>
-  (request.headers.get('Accept') ?? '').includes('text/html') ||
-  !/\.[a-z0-9]+$/i.test(url.pathname.split('/').pop() ?? '')
+const FILE = /\.(?:js|mjs|css|map|json|xml|txt|png|jpe?g|gif|webp|avif|svg|ico|woff2?)$/i
+
+const isFileRequest = (url: URL): boolean => FILE.test(url.pathname)
+
+/** A browser navigating says `text/html`; a module or an image does not. */
+const acceptsHtml = (request: Request): boolean =>
+  (request.headers.get('Accept') ?? '').includes('text/html')
 
 export const errorPage = (): Middleware => async (context, next) => {
   const response = await next()
   if (response.status < 400 || !isPlain(response)) return response
-  if (!wantsPage(context.request, context.url)) return response
+  // For a file, the answer depends on `Accept`; say so to any cache between.
+  const isFile = isFileRequest(context.url)
+  if (isFile && !acceptsHtml(context.request)) return withHeaders(response, { Vary: 'Accept' })
   // The plain body is replaced, never read; release it.
   await response.body?.cancel().catch(() => {})
 
@@ -70,8 +77,13 @@ export const errorPage = (): Middleware => async (context, next) => {
     { status: response.status }
   )
   // Keep what the error said besides its body: `Allow` on a 405, say.
+  // `append`, not `set`: a repeated header (two `Set-Cookie`s) must survive.
   response.headers.forEach((value, name) => {
-    if (!OWN_HEADERS.has(name.toLowerCase())) page.headers.set(name, value)
+    if (OWN_HEADERS.has(name.toLowerCase())) return
+    if (name.toLowerCase() === 'set-cookie') return
+    page.headers.set(name, value)
   })
+  for (const cookie of response.headers.getSetCookie()) page.headers.append('Set-Cookie', cookie)
+  if (isFile) page.headers.append('Vary', 'Accept')
   return page
 }

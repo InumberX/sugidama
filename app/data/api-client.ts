@@ -74,9 +74,10 @@ export const toVisitorStatus = (
   { notFound = false }: VisitorStatusOptions = {}
 ): number => {
   if (status === null) return 500
-  // A lookup by the URL's own id: an id the API rejects (400) or no longer
-  // has (410) is a missing page too.
-  if (notFound && (status === 400 || status === 404 || status === 410)) return 404
+  // A lookup by the URL's own id: an id the API no longer has (410) is a
+  // missing page too. A 400 is not: it can as well be the API's own fault (a
+  // key, a changed rule), and as a 404 it would drop every drink at once.
+  if (notFound && (status === 404 || status === 410)) return 404
   return status >= 500 ? status : 502
 }
 

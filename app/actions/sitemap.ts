@@ -61,22 +61,21 @@ export const sitemapResponse = async (): Promise<Response> => {
     return new Response(null, { status: toVisitorStatus(drinks), headers: XML_HEADERS })
   }
 
-  const entries: SitemapEntry[] = LANGS.flatMap((lang) => {
+  const pages = LANGS.flatMap((lang): SitemapEntry[] => {
     const langParam = { lang: toLangParam(lang) }
     return [
-      { path: routes.home.href(langParam), priority: 1, changefreq: 'weekly' as const },
-      { path: routes.drinks.index.href(langParam), priority: 0.5, changefreq: 'weekly' as const },
+      { path: routes.home.href(langParam), priority: 1, changefreq: 'weekly' },
+      { path: routes.drinks.index.href(langParam), priority: 0.5, changefreq: 'weekly' },
     ]
   })
-  for (const drink of drinks.data.list) {
-    for (const lang of LANGS) {
-      entries.push({
-        path: toDrinkHref(drink, lang),
-        priority: 0.5,
-        changefreq: 'weekly',
-      })
-    }
-  }
+  const drinkPages = drinks.data.list.flatMap((drink) =>
+    LANGS.map((lang): SitemapEntry => ({
+      path: toDrinkHref(drink, lang),
+      priority: 0.5,
+      changefreq: 'weekly',
+    }))
+  )
+  const entries = [...pages, ...drinkPages]
 
   return new Response(toSitemapXml(entries), {
     headers: {

@@ -116,7 +116,7 @@ const toArticleProps = ({
   const en = lang === 'en'
   const manufacturer = en ? drink.manufacturer_en : drink.manufacturer
   const comment = en ? drink.comment_en : drink.comment
-  const links = drink.links
+  const links = (drink.links ?? [])
     .map((link) => ({
       text: en ? link.link_text_en : link.link_text,
       url: en ? link.link_url_en : link.link_url,
@@ -133,11 +133,19 @@ const toArticleProps = ({
 
   return {
     title: en ? drink.subject_en : drink.subject,
-    mainVisuals: drink.main_visuals.map((visual, i) => ({
-      src: visual.main_visual_image.url,
-      alt: (en ? visual.main_visual_title_en : visual.main_visual_title) ?? '',
-      thumbnailLabel: messages.showSlide(i + 1),
-    })),
+    // A row saved without an image is left out rather than drawn empty.
+    mainVisuals: (drink.main_visuals ?? [])
+      .flatMap((visual) =>
+        visual.main_visual_image
+          ? [
+              {
+                src: visual.main_visual_image.url,
+                alt: (en ? visual.main_visual_title_en : visual.main_visual_title) ?? '',
+              },
+            ]
+          : []
+      )
+      .map((visual, i) => ({ ...visual, thumbnailLabel: messages.showSlide(i + 1) })),
     info,
     tags: toDrinkTags({ drink, lang, categories, tagGroups }),
     sliderMessages: { prev: messages.prevSlide, next: messages.nextSlide },

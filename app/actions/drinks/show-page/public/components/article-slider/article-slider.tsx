@@ -28,9 +28,21 @@ const KeenSlider: KeenSliderClass =
   (keenSlider as unknown as KeenSliderClass)
 
 type Item = ArticleSliderSlide & {
-  /** A copy made for the loop: hidden from assistive technology and the tab order. */
+  /** A copy made for the loop: its thumbnail is hidden from assistive technology and the tab order. */
   isCopy: boolean
 }
+
+/** One item per image, none of them copies: the strip the server renders. */
+const toPlainItems = (slides: ArticleSliderSlide[]): Item[] =>
+  slides.map((slide) => ({ ...slide, isCopy: false }))
+
+/**
+ * keen-slider's default export is a plain function that logs and returns
+ * nothing when it cannot start, and `new` turns that nothing into an empty
+ * object — truthy, but no slider. Only an instance has a track.
+ */
+const isInstance = (value: object | undefined): value is KeenSliderInstance =>
+  value !== undefined && 'track' in value
 
 /**
  * keen-slider's loop needs more slides than fit in view, or it shows gaps; four
@@ -77,13 +89,21 @@ export const ArticleSlider = clientEntry(
     // The server renders the slides once each; the copies the loop needs are
     // added only when keen-slider starts, so the strip without it shows no
     // image twice.
-    let items: Item[] = handle.props.slides.map((slide) => ({ ...slide, isCopy: false }))
+    let items = toPlainItems(handle.props.slides)
     let isStarted = false
     /** keen-slider could not start: the strip stays, and the thumbnails go. */
     let isFailed = false
     let current = 0
     let main: KeenSliderInstance | undefined
     let thumbnails: KeenSliderInstance | undefined
+    /** The visitor is dragging the thumbnails, so the main slider must not send them back. */
+    let isLeading = false
+
+    /** A button moved the slider: whatever drag led before is over. */
+    const press = (move: (slider: KeenSliderInstance) => void) => () => {
+      isLeading = false
+      if (main) move(main)
+    }
 
     const select = (index: number) => {
       if (index === current) return
@@ -120,17 +140,16 @@ export const ArticleSlider = clientEntry(
       // are ignored; only the visitor dragging them moves the main slider,
       // and while they lead, the main slider does not send them back.
       let isFollowing = false
-      let isLeading = false
       const stopFollowing = () => {
         isFollowing = false
       }
       // keen-slider logs and returns nothing when it cannot start.
-      main = new KeenSlider(mainNode, {
+      const mainSlider: object | undefined = new KeenSlider(mainNode, {
         initial,
         loop: true,
         selector: children,
         slides: { perView: 1, spacing: 0 },
-        dragStarted: () => {
+        dragged: () => {
           isLeading = false
         },
         slideChanged: (slider) => {
@@ -143,17 +162,19 @@ export const ArticleSlider = clientEntry(
           }
           select(rel)
         },
-      }) as KeenSliderInstance | undefined
-      thumbnails = thumbnailNode
-        ? (new KeenSlider(thumbnailNode, {
+      })
+      const thumbnailSlider: object | undefined = thumbnailNode
+        ? new KeenSlider(thumbnailNode, {
             ...THUMBNAIL_OPTIONS,
             initial,
             selector: children,
             slideChanged: (slider) => {
               if (!isFollowing) main?.moveToIdx(slider.track.details.rel)
             },
-            // A drag leads until the snap after it settles.
-            dragStarted: () => {
+            // A drag leads until the snap after it settles. `dragged`, not
+            // `dragStarted`: keen-slider starts a drag on every pointer
+            // down, so a click on a thumbnail would count as one.
+            dragged: () => {
               isFollowing = false
               isLeading = true
             },
@@ -162,20 +183,22 @@ export const ArticleSlider = clientEntry(
               isLeading = false
             },
             animationStopped: stopFollowing,
-          }) as KeenSliderInstance | undefined)
+          })
         : undefined
 
-      if (!main || !thumbnails) {
+      if (!isInstance(mainSlider) || !isInstance(thumbnailSlider)) {
         // Back to the strip, which works on its own.
-        main?.destroy()
-        thumbnails?.destroy()
-        main = thumbnails = undefined
-        items = slides.map((slide) => ({ ...slide, isCopy: false }))
+        if (isInstance(mainSlider)) mainSlider.destroy()
+        if (isInstance(thumbnailSlider)) thumbnailSlider.destroy()
+        items = toPlainItems(slides)
         isStarted = false
         isFailed = true
         void handle.update()
         return
       }
+
+      main = mainSlider
+      thumbnails = thumbnailSlider
 
       // A focused thumbnail scrolls its `overflow: hidden` row to show itself,
       // which keen-slider does not know about; put the row back.
@@ -206,7 +229,9 @@ export const ArticleSlider = clientEntry(
             {items.map((item, i) => (
               <div
                 key={i}
-                aria-hidden={item.isCopy ? 'true' : undefined}
+                // Once started, only the image on screen is announced: it may
+                // well be a copy, and the others are off screen.
+                aria-hidden={isStarted && i !== current ? 'true' : undefined}
                 mix={css(
                   isStarted
                     ? styles.articleSliderMain_slide__started
@@ -237,7 +262,10 @@ export const ArticleSlider = clientEntry(
                   title={messages.prev}
                   icon="keyboardArrowLeft"
                   isDisabled={!isStarted}
-                  mix={on('click', () => main?.prev())}
+                  mix={on(
+                    'click',
+                    press((slider) => slider.prev())
+                  )}
                 />
               </div>
               <div data-slider="thumbnails" mix={css(styles.articleSliderSub_slider)}>
@@ -261,7 +289,10 @@ export const ArticleSlider = clientEntry(
                           ...styles.articleSliderSubImage,
                           ...(isCurrent(i) ? styles.articleSliderSubImage__current : null),
                         }),
-                        on('click', () => main?.moveToIdx(i)),
+                        on(
+                          'click',
+                          press((slider) => slider.moveToIdx(i))
+                        ),
                       ]}
                     >
                       <span mix={css(styles.articleSliderSubImage_contents)}>
@@ -277,7 +308,10 @@ export const ArticleSlider = clientEntry(
                   title={messages.next}
                   icon="keyboardArrowRight"
                   isDisabled={!isStarted}
-                  mix={on('click', () => main?.next())}
+                  mix={on(
+                    'click',
+                    press((slider) => slider.next())
+                  )}
                 />
               </div>
             </div>

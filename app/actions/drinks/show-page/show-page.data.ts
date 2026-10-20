@@ -18,6 +18,7 @@ import {
   findDrinkCategory,
   toDrinkCardProps,
 } from '../../../utils/drink-card.ts'
+import { CANONICAL_INTEGER } from '../../../utils/drink-search.ts'
 import type { Lang } from '../../../utils/i18n.ts'
 
 /** develop's row length: one line of small cards on a wide screen. */
@@ -49,7 +50,7 @@ const toRow = (
 /** The category id a drink names, if it is one the API could have: a canonical positive integer. */
 const toCategoryId = (drink: Drink): number | undefined => {
   const key = drink.drink_category ? drink.drink_category.key : ''
-  return /^[1-9]\d*$/.test(key) ? Number(key) : undefined
+  return CANONICAL_INTEGER.test(key) ? Number(key) : undefined
 }
 
 export const loadShowPage = async (

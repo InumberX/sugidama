@@ -73,8 +73,32 @@ describe('drink page', () => {
     assert.match(html, /aria-label="2枚目の画像を表示"/)
   })
 
+  it('leaves out an image row without an image, and survives missing lists', async (t) => {
+    const unfinished = drinkFixture({
+      main_visuals: [
+        { main_visual_image: '', main_visual_title: '未設定', main_visual_title_en: '' },
+        ...kubota.main_visuals!,
+      ],
+      links: null,
+    })
+    const bare = drinkFixture({ main_visuals: null, links: null })
+    mockKuroco(t, {
+      '/drinks/kubota': drinkDetailFixture(unfinished),
+      '/drinks/bare': drinkDetailFixture(bare),
+    })
+    const response = await get('/drinks/kubota')
+    const html = await response.text()
+
+    assert.equal(response.status, 200)
+    assert.doesNotMatch(html, /alt="未設定"/)
+    // The first image keeps the first label: the empty row takes no number.
+    assert.match(html, /aria-label="1枚目の画像を表示"/)
+    assert.doesNotMatch(html, /3枚目の画像を表示/)
+    assert.equal((await get('/drinks/bare')).status, 200)
+  })
+
   it('ships no JavaScript for a drink with fewer than two images', async (t) => {
-    const one = drinkFixture({ main_visuals: kubota.main_visuals.slice(0, 1) })
+    const one = drinkFixture({ main_visuals: kubota.main_visuals!.slice(0, 1) })
     mockKuroco(t, {
       '/drinks/kubota': drinkDetailFixture(),
       '/drinks/one': drinkDetailFixture(one),

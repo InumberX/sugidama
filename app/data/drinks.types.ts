@@ -14,7 +14,8 @@ export type DrinkLink = {
 export type DrinkImage = { id: string; url: string; desc: string; url_org: string }
 
 export type DrinkMainVisual = {
-  main_visual_image: DrinkImage
+  /** Empty when the row was saved without an image. */
+  main_visual_image: DrinkImage | null | ''
   main_visual_title: string
   main_visual_title_en: string
 }
@@ -35,14 +36,15 @@ export type Drink = {
   contents_en: string
   /** Empty (`null` or `''`) when the drink has no thumbnail. */
   thumbnail: DrinkImage | null | ''
-  main_visuals: DrinkMainVisual[]
+  /** Guarded like the fields below: develop read these unguarded, but one unfinished drink must not take a page down. */
+  main_visuals: DrinkMainVisual[] | null
   manufacturer: string
   manufacturer_en: string
   abv: number | null
   /** Guarded as possibly empty: one unfinished drink must not take a page down. */
   drink_category: DrinkCategoryRef | null | ''
   tags: DrinkTag[] | null
-  links: DrinkLink[]
+  links: DrinkLink[] | null
   comment: string
   comment_en: string
 }

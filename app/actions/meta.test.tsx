@@ -54,8 +54,9 @@ describe('absoluteUrl', () => {
     // Not a web address: the site's root rather than a `javascript:` og:image.
     assert.equal(absoluteUrl('javascript:alert(1)'), `${SITE_URL}/`)
     assert.equal(absoluteUrl('data:image/png;base64,AA'), `${SITE_URL}/`)
-    // Unparseable: left as it came, rather than throwing mid-render.
-    assert.equal(absoluteUrl('http://exa mple/x'), 'http://exa mple/x')
+    // Unparseable: the site's root too, rather than throwing mid-render.
+    assert.equal(absoluteUrl('http://exa mple/x'), `${SITE_URL}/`)
+    assert.equal(absoluteUrl('http://[broken'), `${SITE_URL}/`)
     assert.equal(
       absoluteUrl('//cdn.example/a.webp'),
       `${new URL(SITE_URL).protocol}//cdn.example/a.webp`

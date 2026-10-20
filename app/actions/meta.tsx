@@ -62,8 +62,8 @@ export const absoluteUrl = (pathOrUrl: string): string => {
   } catch {
     // A value from the CMS that no browser could resolve either. Rendering
     // streams, so a throw here would cut the page off mid-way rather than
-    // become a 500; the value is left as it came instead.
-    return pathOrUrl
+    // become a 500; it becomes the site's root, like any other non-address.
+    return `${SITE_URL}/`
   }
 }
 

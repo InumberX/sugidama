@@ -99,13 +99,13 @@ describe('apiErrorResponse', () => {
     assert.equal(down.status, 503)
   })
 
-  it('makes an id the API no longer has a 404 too, but not one it rejects', () => {
+  it('keeps a missing or gone id as it is, but not one it rejects', () => {
     for (const status of [404, 410]) {
       const response = apiErrorResponse(
         { success: false, status, message: 'x' },
         { notFound: true }
       )
-      assert.equal(response.status, 404, String(status))
+      assert.equal(response.status, status)
     }
     const forbidden = apiErrorResponse(
       { success: false, status: 403, message: 'x' },

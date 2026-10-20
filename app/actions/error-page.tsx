@@ -52,12 +52,14 @@ export function ErrorPage(handle: Handle<ErrorPageProps>) {
   return () => {
     const { lang, url, status } = handle.props
     const messages = MESSAGES[lang]
-    const title = isNotFound(status) ? messages.notFoundTitle : messages.errorTitle
-    const description = isNotFound(status)
+    const notFound = isNotFound(status)
+    const title = notFound ? messages.notFoundTitle : messages.errorTitle
+    const description = notFound
       ? messages.notFoundDescription
       : status >= 500
         ? messages.errorDescription
         : messages.rejectedDescription
+    const homeHref = routes.home.href({ lang: toLangParam(lang) })
 
     // No canonical: an error at /drinks?page=0 must not name /drinks, a live
     // page, as the URL it stands for.
@@ -70,7 +72,7 @@ export function ErrorPage(handle: Handle<ErrorPageProps>) {
         {/* The header's language switch rewrites the current path, which for
             an error is the broken one (`/ja/nope` would become `/en/ja/nope`);
             from an error page it leads to the other language's home. */}
-        <LayoutPublic lang={lang} url={new URL(routes.home.href({ lang: toLangParam(lang) }), url)}>
+        <LayoutPublic lang={lang} url={new URL(homeHref, url)}>
           <LayoutPageWrapper>
             <PageTitle title={title} color="primary" isWrap />
             <LayoutInner>
@@ -78,7 +80,7 @@ export function ErrorPage(handle: Handle<ErrorPageProps>) {
                 <p mix={css(styles.errorPage_description)}>
                   <ReplaceNewLineText text={description} />
                 </p>
-                <BaseButton url={routes.home.href({ lang: toLangParam(lang) })} size="large">
+                <BaseButton url={homeHref} size="large">
                   {messages.backToHome}
                 </BaseButton>
               </div>

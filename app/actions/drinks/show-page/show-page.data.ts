@@ -33,16 +33,14 @@ export type ShowPageData = DrinkTerms & {
   latest: DrinkCardProps[]
 }
 
-/** A row's cards, without the drink on the page, or none when its fetch failed. */
+/** A row's cards, or none when its fetch failed. */
 const toRow = (
   result: Awaited<ReturnType<typeof getDrinks>>,
   lang: Lang,
-  terms: DrinkTerms,
-  exclude?: Drink
+  terms: DrinkTerms
 ): DrinkCardProps[] =>
   result.success
     ? result.data.list
-        .filter((drink) => drink.topics_id !== exclude?.topics_id)
         .slice(0, ROW_SIZE)
         // The rows sit under an h2 each, so a card's title is an h3.
         .map((drink) => toDrinkCardProps({ drink, lang, ...terms, titleTag: 'h3' }))
@@ -64,16 +62,11 @@ export const loadShowPage = async (
 
   const drink = detail.data.details
   const category = findDrinkCategory(drink, terms.data.categories)
-  // The drink itself is of its own category, so the row asks for one more and
-  // leaves it out here: develop listed it among its own related drinks. Kuroco's
-  // filter syntax for "not this topic" is not confirmed, and a filter the API
-  // rejects would lose the whole row.
   const related = category
     ? toRow(
-        await getDrinks({ page: 1, pageSize: ROW_SIZE + 1, drinkCategoryIds: [category.id] }),
+        await getDrinks({ page: 1, pageSize: ROW_SIZE, drinkCategoryIds: [category.id] }),
         lang,
-        terms.data,
-        drink
+        terms.data
       )
     : []
 

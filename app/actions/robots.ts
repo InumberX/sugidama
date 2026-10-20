@@ -30,6 +30,9 @@ export const robotsResponse = (): Response =>
   new Response(robotsTxt(), {
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
-      'Cache-Control': 'public, max-age=86400, s-maxage=604800',
+      // A day everywhere: whether the site is closed changes with a deploy
+      // (NO_INDEX), and develop's week for shared caches would keep a launched
+      // site disallowed for up to that long.
+      'Cache-Control': 'public, max-age=86400',
     },
   })

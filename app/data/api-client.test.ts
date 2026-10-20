@@ -99,6 +99,21 @@ describe('apiErrorResponse', () => {
     assert.equal(down.status, 503)
   })
 
+  it('makes an id the API rejects or no longer has a 404 too, for a page of its own', () => {
+    for (const status of [400, 404, 410]) {
+      const response = apiErrorResponse(
+        { success: false, status, message: 'x' },
+        { notFound: true }
+      )
+      assert.equal(response.status, 404, String(status))
+    }
+    const forbidden = apiErrorResponse(
+      { success: false, status: 403, message: 'x' },
+      { notFound: true }
+    )
+    assert.equal(forbidden.status, 502)
+  })
+
   it("makes the API's 404 a 502 where it names no missing page", () => {
     assert.equal(apiErrorResponse({ success: false, status: 404, message: 'x' }).status, 502)
   })

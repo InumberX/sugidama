@@ -43,6 +43,12 @@ describe('sitemap.xml', () => {
       /<lastmod>2026-10-20T00:00:00Z<\/lastmod>/
     )
     assert.match(toSitemapXml([entry], undefined), /<loc>[^<]*\/drinks\/a&amp;b<\/loc>/)
+    // The schema's sequence: loc, lastmod, changefreq, priority.
+    const order = [...toSitemapXml([entry], 'x').matchAll(/<(loc|lastmod|changefreq|priority)>/g)]
+    assert.deepEqual(
+      order.map(([, name]) => name),
+      ['loc', 'lastmod', 'changefreq', 'priority']
+    )
   })
 
   it('keeps the XML type on failure, without a page around it', async (t) => {

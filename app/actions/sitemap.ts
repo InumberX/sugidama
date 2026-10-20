@@ -35,9 +35,11 @@ export const toSitemapXml = (
       [
         '  <url>',
         `    <loc>${escapeXml(`${SITE_URL}${path}`)}</loc>`,
-        `    <priority>${priority}</priority>`,
+        // The schema's order (a sequence: loc, lastmod, changefreq,
+        // priority); develop wrote priority second, which validators reject.
         ...(lastmod ? [`    <lastmod>${escapeXml(lastmod)}</lastmod>`] : []),
         `    <changefreq>${changefreq}</changefreq>`,
+        `    <priority>${priority}</priority>`,
         '  </url>',
       ].join('\n')
     ),

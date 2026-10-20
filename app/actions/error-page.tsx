@@ -59,8 +59,14 @@ export function ErrorPage(handle: Handle<ErrorPageProps>) {
         ? messages.errorDescription
         : messages.rejectedDescription
 
+    // No canonical: an error at /drinks?page=0 must not name /drinks, a live
+    // page, as the URL it stands for.
     return (
-      <Document lang={lang} url={url} meta={{ title, robots: 'noindex, nofollow' }}>
+      <Document
+        lang={lang}
+        url={url}
+        meta={{ title, robots: 'noindex, nofollow', canonical: null }}
+      >
         <LayoutPublic lang={lang} url={url}>
           <LayoutPageWrapper>
             <PageTitle title={title} color="primary" isWrap />

@@ -43,9 +43,22 @@ export const langOfPath = (pathname: string): Lang => {
  */
 const OWN_HEADERS = new Set(['content-type', 'content-length', 'content-security-policy'])
 
+/**
+ * Whether the request wants a page. A browser navigating says `text/html`; a
+ * module, an image or a stylesheet that missed the `ASSETS` binding and fell
+ * through to the router names a file, and gets the plain error rather than a
+ * whole page it cannot use.
+ */
+const wantsPage = (request: Request, url: URL): boolean =>
+  (request.headers.get('Accept') ?? '').includes('text/html') ||
+  !/\.[a-z0-9]+$/i.test(url.pathname.split('/').pop() ?? '')
+
 export const errorPage = (): Middleware => async (context, next) => {
   const response = await next()
   if (response.status < 400 || !isPlain(response)) return response
+  if (!wantsPage(context.request, context.url)) return response
+  // The plain body is replaced, never read; release it.
+  await response.body?.cancel().catch(() => {})
 
   const render = context.get(Renderer) as RenderFunction
   const page = await render(

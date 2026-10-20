@@ -74,6 +74,25 @@ describe('errorPage()', () => {
   })
 })
 
+describe('errorPage() and files', () => {
+  it('leaves a missing file a plain 404, unless a browser asks for a page', async () => {
+    const asset = await fetchPath('/client/app/gone.js', { headers: { Accept: '*/*' } })
+    const page = await fetchPath('/old.html', { headers: { Accept: 'text/html' } })
+
+    assert.equal(asset.status, 404)
+    assert.doesNotMatch(asset.headers.get('Content-Type') ?? '', /html/)
+    assert.equal(page.status, 404)
+    assert.match(page.headers.get('Content-Type') ?? '', /^text\/html/)
+  })
+
+  it('names no canonical URL for an error', async () => {
+    const html = await (await fetchPath('/drinks?page=0')).text()
+
+    assert.doesNotMatch(html, /rel="canonical"/)
+    assert.doesNotMatch(html, /og:url/)
+  })
+})
+
 describe('langOfPath', () => {
   it('reads the prefix as lang() does, Japanese otherwise', () => {
     assert.equal(langOfPath('/en'), 'en')

@@ -13,13 +13,22 @@ export const mediaTypeOf = (response: Response): string | null => {
  * Sets headers on a response, copying it first when its headers are immutable
  * (`Response.redirect()` and some fetched responses throw on `set`).
  */
-export const withHeaders = (response: Response, headers: Record<string, string>): Response => {
+export const withHeaders = (response: Response, headers: Record<string, string>): Response =>
+  editHeaders(response, (target) => {
+    for (const [name, value] of Object.entries(headers)) target.set(name, value)
+  })
+
+/** Appends a header value, keeping any the response already has (`Vary`). */
+export const appendHeader = (response: Response, name: string, value: string): Response =>
+  editHeaders(response, (target) => target.append(name, value))
+
+const editHeaders = (response: Response, edit: (headers: Headers) => void): Response => {
   try {
-    for (const [name, value] of Object.entries(headers)) response.headers.set(name, value)
+    edit(response.headers)
     return response
   } catch {
     const copy = new Response(response.body, response)
-    for (const [name, value] of Object.entries(headers)) copy.headers.set(name, value)
+    edit(copy.headers)
     return copy
   }
 }

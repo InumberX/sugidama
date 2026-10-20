@@ -16,13 +16,13 @@ import { routes } from './routes.ts'
 //   arrive, add session() and then csrf() after it (see CLAUDE.md).
 // - trailingSlash() redirects `/en/` to `/en` before matching: route patterns
 //   are exact, and develop answered both.
+// - renderWithCsp() is render() plus a per-request CSP nonce. No `assets`
+//   option: client entries name their own public URLs (`clientModuleUrl()`),
+//   and there is no asset server on Workers. Static files never reach this
+//   router — the Worker hands GET/HEAD to the `ASSETS` binding first.
 // - errorPage() last, inside the renderer: it turns every plain-text error
 //   below it into the site's error page, which then gets its CSP on the way
 //   out through renderWithCsp().
-// - renderWithCsp() is render() plus a per-request CSP nonce. No `assets`
-//   option: there is no asset server on Workers, and no page hydrates a client
-//   entry yet. Static files never reach this router — the Worker hands GET/HEAD
-//   to the `ASSETS` binding first.
 const securityHeadersMiddleware = securityHeaders()
 const copMiddleware = cop()
 const trailingSlashMiddleware = trailingSlash()

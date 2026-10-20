@@ -13,7 +13,7 @@ import type { Middleware } from 'remix/router'
 
 import { ErrorPage } from '../actions/error-page.tsx'
 import { DEFAULT_LANG, isLang, type Lang } from '../utils/i18n.ts'
-import { mediaTypeOf } from './with-headers.ts'
+import { appendHeader, mediaTypeOf } from './with-headers.ts'
 
 /** No content type, or plain text: what this app's error responses carry. */
 const isPlain = (response: Response): boolean => {
@@ -65,14 +65,7 @@ export const errorPage = (): Middleware => async (context, next) => {
   const isFile = isFileRequest(context.url)
   if (isFile && !acceptsHtml(context.request)) {
     // Appended, like the page's below: a `Vary` the response already has stays.
-    try {
-      response.headers.append('Vary', 'Accept')
-      return response
-    } catch {
-      const copy = new Response(response.body, response)
-      copy.headers.append('Vary', 'Accept')
-      return copy
-    }
+    return appendHeader(response, 'Vary', 'Accept')
   }
   // The plain body is replaced, never read; release it.
   await response.body?.cancel().catch(() => {})

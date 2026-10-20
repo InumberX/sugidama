@@ -64,10 +64,10 @@ export type VisitorStatusOptions = {
 
 /**
  * The status a visitor gets for a failed call: a 404 the page itself owns
- * (`notFound`) stays a 404, and a 410 a 410; any other 4xx — a key it rejects, a limit it hit,
- * an endpoint it no longer has — is not the visitor's fault and becomes a 502;
- * its 5xx passes through; no usable answer is a 500. develop passed every
- * status through.
+ * (`notFound`) stays a 404, and a 410 a 410; any other 4xx — a key it
+ * rejects, a limit it hit, an endpoint it no longer has — is not the
+ * visitor's fault and becomes a 502; its 5xx passes through; no usable answer
+ * is a 500. develop passed every status through.
  */
 export const toVisitorStatus = (
   { status }: Pick<ApiError, 'status'>,
@@ -75,8 +75,9 @@ export const toVisitorStatus = (
 ): number => {
   if (status === null) return 500
   // A lookup by the URL's own id: an id the API no longer has (410) is a
-  // missing page too, and stays a 410 so crawlers drop it. A 400 is not: it can as well be the API's own fault (a
-  // key, a changed rule), and as a 404 it would drop every drink at once.
+  // missing page too, and stays a 410 so crawlers drop it. A 400 is not: it
+  // can as well be the API's own fault (a key, a changed rule), and as a 404
+  // it would drop every drink at once.
   if (notFound && (status === 404 || status === 410)) return status
   return status >= 500 ? status : 502
 }

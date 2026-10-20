@@ -27,7 +27,7 @@ Refer to ./.agents/skills/remix/SKILL.md for the Remix mental model and how to f
 - `app/ui/` holds cross-route UI: `primitives/` (unstyled skeletons), `<category>/` (styled components), `styles/public/` (tokens and query constants), `types/`
 - Root `public/` contains static files served unchanged by the Workers `ASSETS` binding, including the cascade layer order in `static/css/app.css`
 - `workers/app.ts` is the Worker entry; `workers/handler.ts` adds Basic auth and static-file routing in front of `router.fetch`
-- No page ships browser JavaScript yet, so there is no `app/assets.ts` or `app/actions/public/entry.ts` (see CLAUDE.md, **Browser JavaScript**)
+- Browser modules are compiled ahead of time by `scripts/build-client.ts` into `public/client/` (git-ignored); `app/actions/public/entry.ts` is the runtime entry. There is no `app/assets.ts` (see CLAUDE.md, **Browser JavaScript**)
 
 ## Route Ownership
 

@@ -3,6 +3,7 @@ import { type Handle, type RemixNode, unsafeHTML } from 'remix/component'
 import { CACHE_BUSTER, GOOGLE_ANALYTICS_ID } from '../env.ts'
 import { useCspNonce } from '../ui/contexts/csp-nonce/csp-nonce.tsx'
 import { LayoutWrapper } from '../ui/layouts/layout-wrapper/layout-wrapper.tsx'
+import { clientModuleUrl } from '../ui/public/client-module-url.ts'
 import type { Lang } from '../utils/i18n.ts'
 import { type PageMeta, renderMeta, resolveTitle } from './meta.tsx'
 
@@ -30,13 +31,30 @@ export type DocumentProps = {
   url: URL
   /** Google Analytics id. Defaults to `GOOGLE_ANALYTICS_ID`; tests pass one. */
   analyticsId?: string
+  /**
+   * Loads the browser runtime, which hydrates the page's `clientEntry`
+   * components. Only pages that render one pass it, so every other page stays
+   * free of JavaScript of its own.
+   */
+  hasClientEntries?: boolean
 }
+
+/** The browser runtime, compiled by scripts/build-client.ts. */
+export const CLIENT_RUNTIME_URL = clientModuleUrl('app/actions/public/entry.ts')
 
 export function Document(handle: Handle<DocumentProps>) {
   const nonce = useCspNonce(handle)
 
   return () => {
-    const { analyticsId = GOOGLE_ANALYTICS_ID, children, head, lang, meta = {}, url } = handle.props
+    const {
+      analyticsId = GOOGLE_ANALYTICS_ID,
+      children,
+      hasClientEntries = false,
+      head,
+      lang,
+      meta = {},
+      url,
+    } = handle.props
 
     return (
       <html lang={lang}>
@@ -58,6 +76,11 @@ export function Document(handle: Handle<DocumentProps>) {
           <title>{resolveTitle(meta)}</title>
           {renderMeta(meta, url)}
           <GoogleAnalytics id={analyticsId} nonce={nonce} />
+          {/* A module script is deferred; the nonce lets it through the CSP,
+              and 'strict-dynamic' extends that to every module it imports. */}
+          {hasClientEntries && (
+            <script type="module" nonce={nonce} src={CLIENT_RUNTIME_URL}></script>
+          )}
           {head}
         </head>
         <body>

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
+    "build-client": "node --import remix/node-tsx scripts/build-client.ts",
     "deploy-development": "sh scripts/deploy.sh development",
     "deploy-production": "sh scripts/deploy.sh production",
     "bundle": "wrangler deploy --dry-run --env=production --outdir=tmp/worker",

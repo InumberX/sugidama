@@ -2,15 +2,28 @@ import * as assert from 'remix/assert'
 import { renderToString } from 'remix/component/server'
 import { describe, it } from 'remix/test'
 
-import { Document, GoogleAnalytics } from './document.tsx'
+import { CspNonceProvider } from '../ui/contexts/csp-nonce/csp-nonce.tsx'
+import { CLIENT_RUNTIME_URL, Document, GoogleAnalytics } from './document.tsx'
 
 describe('Document', () => {
-  it('renders no module script of its own', async () => {
-    // No page hydrates a client entry yet, and Workers has no asset server to
-    // compile one. A module script here would 404 in production.
+  it('renders no module script unless the page hydrates something', async () => {
     const html = await renderToString(<Document lang="ja" url={new URL('http://localhost/')} />)
 
     assert.doesNotMatch(html, /<script[^>]* type="(module|importmap)"/)
+  })
+
+  it('loads the compiled browser runtime, with the nonce, for a page with client entries', async () => {
+    const html = await renderToString(
+      <CspNonceProvider nonce="abc">
+        <Document lang="ja" url={new URL('http://localhost/')} hasClientEntries />
+      </CspNonceProvider>
+    )
+
+    assert.equal(CLIENT_RUNTIME_URL, '/client/app/actions/public/entry.js')
+    assert.match(
+      html,
+      /<script type="module" nonce="abc" src="\/client\/app\/actions\/public\/entry\.js"><\/script>/
+    )
   })
 
   it('renders the page head slot after the stylesheet and the metadata', async () => {

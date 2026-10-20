@@ -30,6 +30,7 @@ import { Section } from './components/section/section.tsx'
 import { Specimen } from './components/specimen/specimen.tsx'
 import { Stage } from './components/stage/stage.tsx'
 import * as styles from './dev-ui-page.styles.ts'
+import { ExampleCopyButton } from './public/components/example-copy-button/example-copy-button.tsx'
 
 const PAGE_TITLE = 'UI ギャラリー'
 
@@ -68,12 +69,29 @@ export function DevUiPage(handle: Handle<{ lang: Lang; url: URL }>) {
     const { lang, url } = handle.props
 
     return (
-      <Document lang={lang} url={url} meta={{ title: PAGE_TITLE, robots: 'noindex, nofollow' }}>
+      <Document
+        lang={lang}
+        url={url}
+        meta={{ title: PAGE_TITLE, robots: 'noindex, nofollow' }}
+        hasClientEntries
+      >
         <main mix={css(styles.devUiPage)}>
           {/* The target of the `#top` hash-link specimen below. */}
           <h1 id="top" mix={css(styles.devUiPage_heading)}>
             {PAGE_TITLE}
           </h1>
+
+          <Section
+            title="ExampleCopyButton"
+            note="ハイドレーションの見本。クリックでテキストをコピーするため、確認はブラウザ(wrangler dev)でのみ可能"
+          >
+            <Specimen label="短いテキスト">
+              <ExampleCopyButton text="npm run dev" />
+            </Specimen>
+            <Specimen label="長いテキスト(1行に収まらない場合の折り返し)">
+              <ExampleCopyButton text="この文字列はクリックするとクリップボードにコピーされます。コピー後は 1.2 秒だけ完了表示に変わり、元に戻ります。" />
+            </Specimen>
+          </Section>
 
           <Section title="PrimitiveButton" note="骨組みのみ。色・字送り・モーションを持たない">
             <Specimen label="url（内部リンク）">

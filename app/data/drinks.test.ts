@@ -2,7 +2,7 @@ import * as assert from 'remix/assert'
 import { describe, it } from 'remix/test'
 
 import { drinksFixture, mockKuroco } from '../../test/kuroco.ts'
-import { getDrinks } from './drinks.ts'
+import { getDrinkDetail, getDrinks } from './drinks.ts'
 
 const queryOf = async (
   t: Parameters<typeof mockKuroco>[0],
@@ -44,5 +44,26 @@ describe('getDrinks', () => {
     const query = await queryOf(t, { tags: [11, 21] })
 
     assert.deepEqual(query.getAll('tag_id'), ['11', '21'])
+  })
+})
+
+describe('getDrinkDetail', () => {
+  it('asks for the drink under /drinks, with the id encoded', async (t) => {
+    const fetch = mockKuroco(t, { '/drinks/a%2Fb%3Fc': { errors: [], messages: [], details: {} } })
+    const result = await getDrinkDetail('a/b?c')
+
+    assert.equal(result.success, true)
+    assert.equal(new URL(String(fetch.mock.calls[0]?.arguments[0])).search, '')
+  })
+
+  it('answers a dot segment as a 404 without asking the API', async (t) => {
+    const fetch = mockKuroco(t)
+
+    for (const id of ['', '.', '..']) {
+      const result = await getDrinkDetail(id)
+      assert.equal(result.success, false)
+      assert.equal(!result.success && result.status, 404)
+    }
+    assert.equal(fetch.mock.calls.length, 0)
   })
 })

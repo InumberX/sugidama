@@ -60,3 +60,9 @@ export type Drinks = {
   list: Drink[]
   pageInfo: DrinksPageInfo
 }
+
+export type DrinkDetail = {
+  errors: string[]
+  messages: string[]
+  details: Drink
+}

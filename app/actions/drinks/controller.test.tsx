@@ -1,7 +1,7 @@
 import * as assert from 'remix/assert'
 import { describe, it } from 'remix/test'
 
-import { mockKuroco } from '../../../test/kuroco.ts'
+import { drinkDetailFixture, mockKuroco } from '../../../test/kuroco.ts'
 import { router } from '../../router.ts'
 import { routes } from '../../routes.ts'
 import { toLangParam } from '../../utils/i18n.ts'
@@ -41,7 +41,8 @@ describe('drinks controller', () => {
     assert.equal(fr.status, 404)
   })
 
-  it('renders the drink placeholder page under its slug', async () => {
+  it('renders a drink under its slug', async (t) => {
+    mockKuroco(t, { '/drinks/kubota': drinkDetailFixture() })
     const href = routes.drinks.show.href({ lang: toLangParam('en'), drinkId: 'kubota' })
     const response = await router.fetch(new Request(`http://localhost${href}`))
 

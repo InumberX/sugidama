@@ -25,33 +25,55 @@ export type DrinkCardProps = Required<Pick<ArticleCardProps, 'url' | 'title'>> &
 /** A tag vocabulary and the list's query parameter that filters by it. */
 export type TagGroup = { name: SearchDrinksConditionKey; terms: Term[] }
 
-export const toDrinkCardProps = ({
-  drink,
-  lang,
-  categories,
-  tagGroups,
-  titleTag,
-}: {
+type DrinkVocabularies = {
   drink: Drink
   lang: Lang
   categories: Term[]
   tagGroups: TagGroup[]
-  /** The title's heading level, one below the section the cards sit in. */
-  titleTag?: NonNullable<ArticleCardProps['title']['titleTag']>
-}): DrinkCardProps => {
-  const langParam = { lang: toLangParam(lang) }
+}
 
-  const categoryTags: BaseTagProps[] = categories
-    .filter((category) => drink.drink_category && drink.drink_category.key === String(category.id))
-    .map((category) => ({
-      url: toDrinkSearchHref(lang, SEARCH_DRINKS_CONDITION_KEY.DRINK, category.id),
-      children: category.label,
-    }))
+/** The drink's category from the master, if it names one the master has. */
+export const findDrinkCategory = (drink: Drink, categories: Term[]): Term | undefined =>
+  categories.find(
+    (category) => drink.drink_category && drink.drink_category.key === String(category.id)
+  )
+
+/**
+ * The drink's category, then its tags in the groups' order, each linking to
+ * the list filtered by it. A card and the drink's own page list the same tags.
+ */
+export const toDrinkTags = ({
+  drink,
+  lang,
+  categories,
+  tagGroups,
+}: DrinkVocabularies): BaseTagProps[] => {
+  const category = findDrinkCategory(drink, categories)
+  const categoryTags: BaseTagProps[] = category
+    ? [
+        {
+          url: toDrinkSearchHref(lang, SEARCH_DRINKS_CONDITION_KEY.DRINK, category.id),
+          children: category.label,
+        },
+      ]
+    : []
   const drinkTags: BaseTagProps[] = tagGroups.flatMap((group) =>
     group.terms
       .filter((term) => drink.tags?.some((tag) => tag.tag_id === term.id))
       .map((term) => ({ url: toDrinkSearchHref(lang, group.name, term.id), children: term.label }))
   )
+  return [...categoryTags, ...drinkTags]
+}
+
+export const toDrinkCardProps = ({
+  titleTag,
+  ...vocabularies
+}: DrinkVocabularies & {
+  /** The title's heading level, one below the section the cards sit in. */
+  titleTag?: NonNullable<ArticleCardProps['title']['titleTag']>
+}): DrinkCardProps => {
+  const { drink, lang } = vocabularies
+  const langParam = { lang: toLangParam(lang) }
 
   const postedDate = formatPostedDate(drink.inst_ymdhi, lang)
 
@@ -66,6 +88,6 @@ export const toDrinkCardProps = ({
     ...(drink.thumbnail && {
       thumbnail: { src: drink.thumbnail.url, alt: drink.thumbnail.desc },
     }),
-    tags: [...categoryTags, ...drinkTags],
+    tags: toDrinkTags(vocabularies),
   }
 }

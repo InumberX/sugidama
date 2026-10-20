@@ -69,7 +69,17 @@ export function ShowPage(handle: Handle<ShowPageProps>) {
       <Document
         lang={lang}
         url={url}
-        meta={{ title: article.title, ogImage: drink.thumbnail ? drink.thumbnail.url : undefined }}
+        meta={{
+          title: article.title,
+          ogImage: drink.thumbnail ? drink.thumbnail.url : undefined,
+          // One URL per drink, the one the cards link to: the slug, else the
+          // topics_id. /drinks/123 for a drink with a slug, or the slug
+          // percent-encoded, is the same page under another name.
+          canonical: routes.drinks.show.href({
+            lang: toLangParam(lang),
+            drinkId: drink.slug || String(drink.topics_id),
+          }),
+        }}
         hasClientEntries={hasArticleSlider(article.mainVisuals)}
       >
         <LayoutPublic lang={lang} url={url}>

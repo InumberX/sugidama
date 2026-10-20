@@ -9,7 +9,7 @@ import { clientEntry, css, on, ref, type Handle } from 'remix/component'
 
 import { PrimitiveButton } from '../../../../../../ui/primitives/buttons/public/primitive-button/primitive-button.tsx'
 import { clientModuleUrl } from '../../../../../../ui/public/client-module-url.ts'
-import { BREAKPOINTS } from '../../../../../../ui/styles/public/breakpoints.ts'
+import { MEDIA_QUERY } from '../../../../../../ui/styles/public/media-query.ts'
 import { SvgIconCircleButton } from '../svg-icon-circle-button/svg-icon-circle-button.tsx'
 import * as styles from './article-slider.styles.ts'
 import type { ArticleSliderProps, ArticleSliderSlide } from './article-slider.types.ts'
@@ -56,6 +56,19 @@ const toLoopItems = (slides: ArticleSliderSlide[]): Item[] => {
   ).flat()
 }
 
+/**
+ * Where a slider is going: its animation's target, or where it is when still.
+ * Asking only where it is would restart the thumbnails' move at every slide the
+ * main slider passes, so they would stutter and arrive late.
+ */
+const heading = (slider: KeenSliderInstance): number => {
+  const { targetIdx } = slider.animator
+  return targetIdx === null ? slider.track.details.rel : slider.track.absToRel(targetIdx)
+}
+
+/** keen-slider takes a bare media query; the at-rule's condition is the same one the static row uses. */
+const toMediaCondition = (atRule: string): string => atRule.replace(/^@media\s+/, '')
+
 const thumbnailSlides = (perView: number) => ({
   origin: 'center' as const,
   perView,
@@ -66,9 +79,9 @@ const THUMBNAIL_OPTIONS: KeenSliderOptions = {
   loop: true,
   slides: thumbnailSlides(2),
   breakpoints: {
-    [`(width >= ${BREAKPOINTS.md}px)`]: { slides: thumbnailSlides(2.4) },
-    [`(width >= ${BREAKPOINTS.lg}px)`]: { slides: thumbnailSlides(3) },
-    [`(width >= ${BREAKPOINTS.xl}px)`]: { slides: thumbnailSlides(4) },
+    [toMediaCondition(MEDIA_QUERY.MD)]: { slides: thumbnailSlides(2.4) },
+    [toMediaCondition(MEDIA_QUERY.LG)]: { slides: thumbnailSlides(3) },
+    [toMediaCondition(MEDIA_QUERY.XL)]: { slides: thumbnailSlides(4) },
   },
 }
 
@@ -160,7 +173,7 @@ export const ArticleSlider = clientEntry(
           // slide between, backwards too if they had already arrived.
           const { targetIdx } = slider.animator
           const target = targetIdx === null ? rel : slider.track.absToRel(targetIdx)
-          if (thumbnails && !isLeading && thumbnails.track.details.rel !== target) {
+          if (thumbnails && !isLeading && heading(thumbnails) !== target) {
             thumbnails.moveToIdx(target)
             // After the call: redirecting a running animation stops it, which
             // fires `animationStopped` synchronously and would clear the flag.

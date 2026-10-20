@@ -8,14 +8,12 @@ export type * from './section-title.types.ts'
 
 export function SectionTitle(handle: Handle<SectionTitleProps>) {
   return () => {
-    const { title, titleTag: Title = 'h2', id } = handle.props
+    const { title } = handle.props
 
     return (
       <div mix={css(styles.sectionTitle)}>
         <span aria-hidden="true" mix={css(styles.sectionTitle_divider)} />
-        <Title id={id} mix={css(styles.sectionTitle_text)}>
-          {title}
-        </Title>
+        <h2 mix={css(styles.sectionTitle_text)}>{title}</h2>
       </div>
     )
   }

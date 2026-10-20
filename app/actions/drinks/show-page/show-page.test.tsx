@@ -51,6 +51,26 @@ describe('drink page', () => {
     assert.match(html, /href="\/drinks\?taste=11"/)
   })
 
+  it('names the slug as canonical, whichever URL reached the drink', async (t) => {
+    mockKuroco(t, {
+      '/drinks/100': drinkDetailFixture(),
+      '/drinks/kubota': drinkDetailFixture(),
+    })
+
+    for (const path of ['/drinks/100', '/drinks/%6Bubota', '/en/drinks/kubota']) {
+      const html = await (await get(path)).text()
+      const expected = path.startsWith('/en') ? '/en/drinks/kubota' : '/drinks/kubota'
+      assert.match(html, new RegExp(`<link rel="canonical" href="[^"]*${expected}"`))
+    }
+  })
+
+  it('names the topics_id as canonical for a drink without a slug', async (t) => {
+    mockKuroco(t, { '/drinks/100': drinkDetailFixture(drinkFixture({ slug: '' })) })
+    const html = await (await get('/drinks/100')).text()
+
+    assert.match(html, /<link rel="canonical" href="[^"]*\/drinks\/100"/)
+  })
+
   it('renders the English drink under /en', async (t) => {
     mockKuroco(t, { '/drinks/kubota': drinkDetailFixture(kubota) })
     const html = await (await get('/en/drinks/kubota')).text()

@@ -15,6 +15,17 @@ export type DrinkTerms = {
   tagGroups: TagGroup[]
 }
 
+/**
+ * The vocabulary behind each search condition, in the form's order: the
+ * category master for `drink`, then the tag groups. The form draws its
+ * checkboxes from it and the list's loader drops ids outside it, so the two
+ * cannot disagree on what a condition offers.
+ */
+export const toSearchVocabularies = ({ categories, tagGroups }: DrinkTerms): TagGroup[] => [
+  { name: SEARCH_DRINKS_CONDITION_KEY.DRINK, terms: categories },
+  ...tagGroups,
+]
+
 /** Loads the three in parallel; the first failure, if any, is the result. */
 export const getDrinkTerms = async (lang: Lang): Promise<ApiResult<DrinkTerms>> => {
   const [categories, taste, drinkability] = await Promise.all([

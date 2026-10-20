@@ -1,12 +1,13 @@
 // Ported from develop: app/routes/($lang)._public._layout.drinks._index (SG20_100)
 import { css, type Handle } from 'remix/component'
 
+import { toSearchVocabularies } from '../../../data/drink-terms.ts'
 import { routes } from '../../../routes.ts'
 import { LayoutInner } from '../../../ui/layouts/layout-inner/layout-inner.tsx'
 import { LayoutPageWrapper } from '../../../ui/layouts/layout-page-wrapper/layout-page-wrapper.tsx'
 import { LayoutPublic } from '../../../ui/layouts/layout-public/layout-public.tsx'
 import { PageTitle } from '../../../ui/typographies/page-title/page-title.tsx'
-import { SEARCH_DRINKS_CONDITION_KEY, toDrinkSearchListHref } from '../../../utils/drink-search.ts'
+import { toDrinkSearchListHref } from '../../../utils/drink-search.ts'
 import { defineMessages, type Lang, toLangParam } from '../../../utils/i18n.ts'
 import { PAGE_NAMES } from '../../../utils/page-names.ts'
 import { Document } from '../../document.tsx'
@@ -74,10 +75,7 @@ export function IndexPage(handle: Handle<IndexPageProps>) {
     const listHref = routes.drinks.index.href({ lang: toLangParam(lang) })
     const toOptions = (terms: { id: number; label: string }[]) =>
       terms.map((term) => ({ value: String(term.id), label: term.label }))
-    const vocabularies = [
-      { name: SEARCH_DRINKS_CONDITION_KEY.DRINK, terms: categories },
-      ...tagGroups,
-    ] as const
+    const vocabularies = toSearchVocabularies({ categories, tagGroups })
 
     return (
       <Document lang={lang} url={url} meta={{ title }} hasClientEntries>

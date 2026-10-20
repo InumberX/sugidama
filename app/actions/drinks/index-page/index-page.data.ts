@@ -10,7 +10,7 @@
 // one is searched a second time without it; that costs a request only for a
 // URL no link of this site writes.
 import { apiErrorResponse } from '../../../data/api-client.ts'
-import { type DrinkTerms, getDrinkTerms } from '../../../data/drink-terms.ts'
+import { type DrinkTerms, getDrinkTerms, toSearchVocabularies } from '../../../data/drink-terms.ts'
 import { getDrinks } from '../../../data/drinks.ts'
 import { type DrinkCardProps, toDrinkCardProps } from '../../../utils/drink-card.ts'
 import {
@@ -31,13 +31,10 @@ export type IndexPageData = DrinkTerms & {
 }
 
 /** `search` with only the ids the vocabularies have a term for. */
-const toKnownSearch = (search: DrinkSearch, { categories, tagGroups }: DrinkTerms): DrinkSearch => {
+const toKnownSearch = (search: DrinkSearch, terms: DrinkTerms): DrinkSearch => {
   const known = { ...search }
-  for (const { name, terms } of [
-    { name: SEARCH_DRINKS_CONDITION_KEY.DRINK, terms: categories },
-    ...tagGroups,
-  ]) {
-    known[name] = search[name].filter((id) => terms.some((term) => term.id === id))
+  for (const { name, terms: vocabulary } of toSearchVocabularies(terms)) {
+    known[name] = search[name].filter((id) => vocabulary.some((term) => term.id === id))
   }
   return known
 }

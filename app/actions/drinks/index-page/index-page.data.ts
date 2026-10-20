@@ -5,23 +5,19 @@
 // threw it; a failed search is shown in place of the results instead, and the
 // form stays usable.
 //
-// An id outside the vocabularies is ignored like a malformed one. The search
-// and the vocabularies load together, so a query that carries either is
-// redirected, once, to the same search without them rather than answered
-// under a second URL (and an unknown id would have matched nothing). The
-// redirect is a 302 because a term added later makes the id valid.
+// An id outside the vocabularies is left out of the search like a malformed
+// one. The search and the vocabularies load together, so a query that carries
+// one is searched a second time without it; that costs a request only for a
+// URL no link of this site writes.
 import { apiErrorResponse } from '../../../data/api-client.ts'
 import { type DrinkTerms, getDrinkTerms } from '../../../data/drink-terms.ts'
 import { getDrinks } from '../../../data/drinks.ts'
-import { localRedirect } from '../../../middleware/local-redirect.ts'
 import { type DrinkCardProps, toDrinkCardProps } from '../../../utils/drink-card.ts'
 import {
   countDrinkPages,
   DRINKS_PAGE_SIZE,
   type DrinkSearch,
-  type ParsedDrinkSearch,
   SEARCH_DRINKS_CONDITION_KEY,
-  toDrinkSearchRedirectHref,
 } from '../../../utils/drink-search.ts'
 import type { Lang } from '../../../utils/i18n.ts'
 
@@ -46,31 +42,28 @@ const toKnownSearch = (search: DrinkSearch, { categories, tagGroups }: DrinkTerm
   return known
 }
 
+const searchDrinks = (search: DrinkSearch) =>
+  getDrinks({
+    page: search.page,
+    pageSize: DRINKS_PAGE_SIZE,
+    keyword: search.keyword || undefined,
+    drinkCategoryIds: search.drink,
+    tags: [...search.taste, ...search.drinkability],
+  })
+
 export const loadIndexPage = async (
   lang: Lang,
-  url: URL,
-  { search, ignored }: ParsedDrinkSearch
+  requested: DrinkSearch
 ): Promise<IndexPageData | Response> => {
-  const [terms, drinks] = await Promise.all([
-    getDrinkTerms(lang),
-    getDrinks({
-      page: search.page,
-      pageSize: DRINKS_PAGE_SIZE,
-      keyword: search.keyword || undefined,
-      drinkCategoryIds: search.drink,
-      tags: [...search.taste, ...search.drinkability],
-    }),
-  ])
+  const [terms, firstSearch] = await Promise.all([getDrinkTerms(lang), searchDrinks(requested)])
 
   if (!terms.success) return apiErrorResponse(terms)
 
-  const known = toKnownSearch(search, terms.data)
-  const unknown = Object.values(SEARCH_DRINKS_CONDITION_KEY).some(
-    (key) => known[key].length !== search[key].length
+  const search = toKnownSearch(requested, terms.data)
+  const hasUnknown = Object.values(SEARCH_DRINKS_CONDITION_KEY).some(
+    (key) => search[key].length !== requested[key].length
   )
-  if (ignored || unknown) {
-    return localRedirect(url, toDrinkSearchRedirectHref(lang, known, url.searchParams))
-  }
+  const drinks = hasUnknown ? await searchDrinks(search) : firstSearch
 
   const { categories, tagGroups } = terms.data
   const result: DrinkSearchResult = drinks.success

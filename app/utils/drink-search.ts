@@ -65,21 +65,14 @@ const toIds = (values: string[]): number[] => {
 }
 
 /**
- * What the list's query asks for. `ignored` is set when an id was dropped —
- * malformed, repeated or past the cap — so the page can redirect to the URL
- * of the search it actually runs instead of answering under a second URL.
- */
-export type ParsedDrinkSearch = { search: DrinkSearch; ignored: boolean }
-
-/**
  * Reads the list's query, or `null` for one that names no page of results,
  * which the page answers with a 404: a page that is not a canonical positive
  * integer (develop 404'd a non-number page but passed 0 or -1 to the API), or
- * too long a keyword. Ids are forgiving instead; see `toIds`. An id outside the
- * vocabularies is not checked here, because the vocabularies load alongside
- * the search (`index-page.data.ts` drops it).
+ * too long a keyword. Ids are forgiving instead: a malformed, repeated or
+ * surplus one is left out of the search (see `toIds`), and so is one outside
+ * the vocabularies, which `index-page.data.ts` drops once they have loaded.
  */
-export const parseDrinkSearch = (searchParams: URLSearchParams): ParsedDrinkSearch | null => {
+export const parseDrinkSearch = (searchParams: URLSearchParams): DrinkSearch | null => {
   const pageParam = searchParams.get('page') ?? '1'
   if (!CANONICAL_INTEGER.test(pageParam)) return null
   const page = Number(pageParam)
@@ -88,21 +81,19 @@ export const parseDrinkSearch = (searchParams: URLSearchParams): ParsedDrinkSear
   const keyword = normalizeSearchKeyword(searchParams.get('keyword'))
   if (keyword.length > MAX_KEYWORD_LENGTH) return null
 
-  let ignored = false
-  const read = (key: SearchDrinksConditionKey): number[] => {
-    const values = searchParams.getAll(key)
-    const ids = toIds(values)
-    if (ids.length !== values.length) ignored = true
-    return ids
-  }
-  const search: DrinkSearch = {
+  return {
     keyword,
     page,
-    [SEARCH_DRINKS_CONDITION_KEY.DRINK]: read(SEARCH_DRINKS_CONDITION_KEY.DRINK),
-    [SEARCH_DRINKS_CONDITION_KEY.TASTE]: read(SEARCH_DRINKS_CONDITION_KEY.TASTE),
-    [SEARCH_DRINKS_CONDITION_KEY.DRINKABILITY]: read(SEARCH_DRINKS_CONDITION_KEY.DRINKABILITY),
+    [SEARCH_DRINKS_CONDITION_KEY.DRINK]: toIds(
+      searchParams.getAll(SEARCH_DRINKS_CONDITION_KEY.DRINK)
+    ),
+    [SEARCH_DRINKS_CONDITION_KEY.TASTE]: toIds(
+      searchParams.getAll(SEARCH_DRINKS_CONDITION_KEY.TASTE)
+    ),
+    [SEARCH_DRINKS_CONDITION_KEY.DRINKABILITY]: toIds(
+      searchParams.getAll(SEARCH_DRINKS_CONDITION_KEY.DRINKABILITY)
+    ),
   }
-  return { search, ignored }
 }
 
 /**
@@ -123,28 +114,3 @@ export const toDrinkSearchListHref = (lang: Lang, search: DrinkSearch, page: num
       },
     }
   )
-
-/** The query keys the list reads; `toDrinkSearchRedirectHref` keeps every other one. */
-const SEARCH_KEYS: readonly string[] = [
-  'keyword',
-  'page',
-  ...Object.values(SEARCH_DRINKS_CONDITION_KEY),
-]
-
-/**
- * Where a search with ignored ids redirects: its own list URL, plus whatever
- * else the query carried (`utm_*`), which the page does not read but Google
- * Analytics does, after the redirect.
- */
-export const toDrinkSearchRedirectHref = (
-  lang: Lang,
-  search: DrinkSearch,
-  searchParams: URLSearchParams
-): string => {
-  const href = toDrinkSearchListHref(lang, search, search.page)
-  const rest = new URLSearchParams(
-    [...searchParams].filter(([key]) => !SEARCH_KEYS.includes(key))
-  ).toString()
-  if (rest === '') return href
-  return `${href}${href.includes('?') ? '&' : '?'}${rest}`
-}

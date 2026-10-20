@@ -111,27 +111,39 @@ describe('drinks index page', () => {
     assert.match(await response.text(), /<form action="\/drinks" method="get"/)
   })
 
-  it('redirects a malformed or unknown id to the same search without it', async (t) => {
-    mockKuroco(t)
-    const response = await get('/en/drinks?drink=99999&drink=2&taste=02&taste=11&taste=11&page=2')
-
-    assert.equal(response.status, 302)
-    assert.equal(response.headers.get('Location'), '/en/drinks?drink=2&taste=11&page=2')
-  })
-
-  it('keeps the parameters the page does not read across that redirect', async (t) => {
-    mockKuroco(t)
-    const response = await get('/drinks?utm_source=x&taste=abc&keyword=%E8%BE%9B')
-
-    assert.equal(response.status, 302)
-    assert.equal(response.headers.get('Location'), '/drinks?keyword=%E8%BE%9B&utm_source=x')
-  })
-
-  it('answers the redirected search with the page', async (t) => {
-    mockKuroco(t)
-    const response = await get('/drinks?drink=2&taste=11')
+  it('leaves malformed, repeated and unknown ids out of the search, without redirecting', async (t) => {
+    const fetch = mockKuroco(t)
+    const response = await get('/en/drinks?drink=99999&drink=2&taste=02&taste=11&taste=11')
+    const html = await response.text()
+    const searches = fetch.mock.calls
+      .map((c) => new URL(String(c.arguments[0])))
+      .filter((url) => url.pathname.endsWith('/drinks'))
+    const data = JSON.parse(
+      /<script type="application\/json" id="rmx-data">(.*?)<\/script>/.exec(html)![1]!
+    )
+    const [entry] = Object.values(data.h) as {
+      props: { conditions: { name: string; selected: string[] }[] }
+    }[]
+    const selected = Object.fromEntries(entry!.props.conditions.map((c) => [c.name, c.selected]))
 
     assert.equal(response.status, 200)
+    // The first search ran with 99999; the one shown is the second, without it.
+    assert.equal(searches.length, 2)
+    assert.equal(searches[1]!.searchParams.get('filter'), 'drink_category = "2"')
+    assert.deepEqual(searches[1]!.searchParams.getAll('tag_id'), ['11'])
+    assert.deepEqual(selected.drink, ['2'])
+    assert.deepEqual(selected.taste, ['11'])
+  })
+
+  it('searches once when every id is known', async (t) => {
+    const fetch = mockKuroco(t)
+    const response = await get('/drinks?drink=2&taste=11')
+    const searches = fetch.mock.calls.filter((c) =>
+      new URL(String(c.arguments[0])).pathname.endsWith('/drinks')
+    )
+
+    assert.equal(response.status, 200)
+    assert.equal(searches.length, 1)
   })
 
   it('answers with the API error when the conditions cannot be loaded', async (t) => {

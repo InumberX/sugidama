@@ -73,11 +73,18 @@ describe('drink page', () => {
     assert.match(html, /aria-label="2枚目の画像を表示"/)
   })
 
-  it('ships no JavaScript for a drink without images', async (t) => {
-    mockKuroco(t, { '/drinks/kubota': drinkDetailFixture() })
-    const html = await (await get('/drinks/kubota')).text()
+  it('ships no JavaScript for a drink with fewer than two images', async (t) => {
+    const one = drinkFixture({ main_visuals: kubota.main_visuals.slice(0, 1) })
+    mockKuroco(t, {
+      '/drinks/kubota': drinkDetailFixture(),
+      '/drinks/one': drinkDetailFixture(one),
+    })
+    const none = await (await get('/drinks/kubota')).text()
+    const single = await (await get('/drinks/one')).text()
 
-    assert.ok(!html.includes(CLIENT_RUNTIME_URL))
+    assert.ok(!none.includes(CLIENT_RUNTIME_URL))
+    assert.ok(!single.includes(CLIENT_RUNTIME_URL))
+    assert.match(single, /<img src="https:\/\/example\.com\/a\.webp" alt="瓶"/)
   })
 
   it('asks for drinks of the same category and the newest, four each', async (t) => {

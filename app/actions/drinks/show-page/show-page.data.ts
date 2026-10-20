@@ -7,8 +7,8 @@
 // streamed them and hid a row whose fetch failed, and a failed row is left out
 // here too, without failing the page.
 //
-// The newest drinks load beside the drink; the same-category row has to wait
-// for the drink to know its category.
+// Everything starts at once except the same-category row, which waits only
+// for the drink to name its category.
 import { apiErrorResponse } from '../../../data/api-client.ts'
 import { type DrinkTerms, getDrinkTerms } from '../../../data/drink-terms.ts'
 import { type Drink, getDrinkDetail, getDrinks } from '../../../data/drinks.ts'
@@ -46,35 +46,47 @@ const toRow = (
         .map((drink) => toDrinkCardProps({ drink, lang, ...terms, titleTag: 'h3' }))
     : []
 
+/** The category id a drink names, if it is one the API could have: a canonical positive integer. */
+const toCategoryId = (drink: Drink): number | undefined => {
+  const key = drink.drink_category ? drink.drink_category.key : ''
+  return /^[1-9]\d*$/.test(key) ? Number(key) : undefined
+}
+
 export const loadShowPage = async (
   lang: Lang,
   drinkId: string
 ): Promise<ShowPageData | Response> => {
-  const [detail, terms, latest] = await Promise.all([
-    getDrinkDetail(drinkId),
-    getDrinkTerms(lang),
-    getDrinks({ page: 1, pageSize: ROW_SIZE }),
-  ])
+  const termsRequest = getDrinkTerms(lang)
+  const latestRequest = getDrinks({ page: 1, pageSize: ROW_SIZE })
+  const detailRequest = getDrinkDetail(drinkId)
+  // The related row needs only the drink's category key, so it starts as soon
+  // as the drink arrives instead of waiting for the vocabularies too; the key
+  // is checked against the master once both are in.
+  const relatedRequest = detailRequest.then((detail) => {
+    const categoryId = detail.success && detail.data?.details && toCategoryId(detail.data.details)
+    return categoryId
+      ? getDrinks({ page: 1, pageSize: ROW_SIZE, drinkCategoryIds: [categoryId] })
+      : undefined
+  })
+
+  // A missing drink answers at once; the other requests are left to finish
+  // unread (none of them rejects).
+  const detail = await detailRequest
   if (!detail.success) return apiErrorResponse(detail)
   // An answer without a drink names none, whatever its status said.
   if (!detail.data?.details) return new Response('Not Found', { status: 404 })
+  const terms = await termsRequest
   if (!terms.success) return apiErrorResponse(terms)
 
   const drink = detail.data.details
   const category = findDrinkCategory(drink, terms.data.categories)
-  const related = category
-    ? toRow(
-        await getDrinks({ page: 1, pageSize: ROW_SIZE, drinkCategoryIds: [category.id] }),
-        lang,
-        terms.data
-      )
-    : []
+  const [related, latest] = await Promise.all([relatedRequest, latestRequest])
 
   return {
     ...terms.data,
     drink,
     category,
-    related,
+    related: category && related ? toRow(related, lang, terms.data) : [],
     latest: toRow(latest, lang, terms.data),
   }
 }

@@ -72,20 +72,22 @@ export const articleSliderMainImage_image: StyleRecipe = {
 }
 
 /**
- * The thumbnails and their buttons. Laid out but transparent until started, as
- * develop did, so the row already has its height when it appears; with
- * scripting off it is never shown, because nothing would make it work.
+ * The thumbnails and their buttons. Laid out but hidden until started, so the
+ * row already has its height when it appears — `visibility`, not develop's
+ * `opacity`, so the buttons that do nothing yet are not announced or
+ * clickable either. With scripting off it is never shown, because nothing
+ * would make it work.
  */
 export const articleSliderSub: StyleRecipe = {
   display: 'grid',
   gap: '16px',
   gridTemplateColumns: 'auto minmax(0, 1fr) auto',
-  opacity: 0,
+  visibility: 'hidden',
   [MEDIA_QUERY.NOT_SCRIPTING]: { display: 'none' },
 }
 
 export const articleSliderSub__started: StyleRecipe = {
-  opacity: 1,
+  visibility: 'visible',
 }
 
 export const articleSliderSubButton: StyleRecipe = {

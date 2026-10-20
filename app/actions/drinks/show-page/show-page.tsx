@@ -5,19 +5,17 @@ import { css, type Handle } from 'remix/component'
 import type { Term } from '../../../data/terms.types.ts'
 import { routes } from '../../../routes.ts'
 import { BaseButton } from '../../../ui/buttons/public/base-button/base-button.tsx'
-import type { ArticleCardProps } from '../../../ui/cards/article-card/article-card.types.ts'
 import { LayoutInner } from '../../../ui/layouts/layout-inner/layout-inner.tsx'
 import { LayoutPageWrapper } from '../../../ui/layouts/layout-page-wrapper/layout-page-wrapper.tsx'
 import { LayoutPublic } from '../../../ui/layouts/layout-public/layout-public.tsx'
 import { LayoutSection } from '../../../ui/layouts/layout-section/layout-section.tsx'
-import { ArticleCardList } from '../../../ui/lists/article-card-list/article-card-list.tsx'
 import { toDrinkTags } from '../../../utils/drink-card.ts'
 import { defineMessages, type Lang, toLangParam } from '../../../utils/i18n.ts'
 import { Document } from '../../document.tsx'
 import type { ArticleInfoItem } from './components/article-info/article-info.types.ts'
 import { BaseArticle } from './components/base-article/base-article.tsx'
 import type { BaseArticleProps } from './components/base-article/base-article.types.ts'
-import { SectionTitle } from './components/section-title/section-title.tsx'
+import { CardRow } from './components/card-row/card-row.tsx'
 import type { ShowPageData } from './show-page.data.ts'
 import * as styles from './show-page.styles.ts'
 
@@ -72,7 +70,8 @@ export function ShowPage(handle: Handle<ShowPageProps>) {
         lang={lang}
         url={url}
         meta={{ title: article.title, ogImage: drink.thumbnail ? drink.thumbnail.url : undefined }}
-        hasClientEntries={article.mainVisuals.length > 0}
+        // The slider does nothing for one image, so it ships no JavaScript then.
+        hasClientEntries={article.mainVisuals.length > 1}
       >
         <LayoutPublic lang={lang} url={url}>
           <LayoutPageWrapper isBottomNoSpace>
@@ -98,25 +97,6 @@ export function ShowPage(handle: Handle<ShowPageProps>) {
           </LayoutPageWrapper>
         </LayoutPublic>
       </Document>
-    )
-  }
-}
-
-/** A titled row of small cards; nothing at all when there are none. */
-function CardRow(handle: Handle<{ title: string; cards: ArticleCardProps[] }>) {
-  return () => {
-    const { title, cards } = handle.props
-    if (cards.length === 0) return null
-
-    return (
-      <LayoutSection>
-        <LayoutInner>
-          <div mix={css(styles.drinkRelated_container)}>
-            <SectionTitle title={title} />
-            <ArticleCardList items={cards} itemSize="small" />
-          </div>
-        </LayoutInner>
-      </LayoutSection>
     )
   }
 }

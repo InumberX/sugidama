@@ -79,6 +79,8 @@ export const ArticleSlider = clientEntry(
     // image twice.
     let items: Item[] = handle.props.slides.map((slide) => ({ ...slide, isCopy: false }))
     let isStarted = false
+    /** keen-slider could not start: the strip stays, and the thumbnails go. */
+    let isFailed = false
     let current = 0
     let main: KeenSliderInstance | undefined
     let thumbnails: KeenSliderInstance | undefined
@@ -105,6 +107,9 @@ export const ArticleSlider = clientEntry(
       current = initial
       await handle.update()
       if (signal.aborted) return
+      // keen-slider positions the slides with transforms from scroll position
+      // 0; a strip left scrolled would add its offset on top of them.
+      mainNode.scrollLeft = 0
 
       const thumbnailNode = node.querySelector<HTMLElement>('[data-slider="thumbnails"]')
       // The main slider is the one source of the current image; the
@@ -112,8 +117,10 @@ export const ArticleSlider = clientEntry(
       // `slideChanged`, but a move passes through every slide between, so
       // each slide passed sent the other slider back there and a jump of more
       // than one stopped short. Changes the thumbnails make while following
-      // are ignored; only the visitor dragging them moves the main slider.
+      // are ignored; only the visitor dragging them moves the main slider,
+      // and while they lead, the main slider does not send them back.
       let isFollowing = false
+      let isLeading = false
       const stopFollowing = () => {
         isFollowing = false
       }
@@ -123,9 +130,12 @@ export const ArticleSlider = clientEntry(
         loop: true,
         selector: children,
         slides: { perView: 1, spacing: 0 },
+        dragStarted: () => {
+          isLeading = false
+        },
         slideChanged: (slider) => {
           const { rel } = slider.track.details
-          if (thumbnails && thumbnails.track.details.rel !== rel) {
+          if (thumbnails && !isLeading && thumbnails.track.details.rel !== rel) {
             thumbnails.moveToIdx(rel)
             // After the call: redirecting a running animation stops it, which
             // fires `animationStopped` synchronously and would clear the flag.
@@ -142,9 +152,16 @@ export const ArticleSlider = clientEntry(
             slideChanged: (slider) => {
               if (!isFollowing) main?.moveToIdx(slider.track.details.rel)
             },
-            animationEnded: stopFollowing,
+            // A drag leads until the snap after it settles.
+            dragStarted: () => {
+              isFollowing = false
+              isLeading = true
+            },
+            animationEnded: () => {
+              isFollowing = false
+              isLeading = false
+            },
             animationStopped: stopFollowing,
-            dragStarted: stopFollowing,
           }) as KeenSliderInstance | undefined)
         : undefined
 
@@ -155,6 +172,7 @@ export const ArticleSlider = clientEntry(
         main = thumbnails = undefined
         items = slides.map((slide) => ({ ...slide, isCopy: false }))
         isStarted = false
+        isFailed = true
         void handle.update()
         return
       }
@@ -174,7 +192,10 @@ export const ArticleSlider = clientEntry(
 
     return () => {
       const { messages } = handle.props
-      const hasThumbnails = items.length >= 2
+      const hasThumbnails = items.length >= 2 && !isFailed
+      // `current` indexes the looped items; a copy stands for its original.
+      const count = handle.props.slides.length
+      const isCurrent = (i: number) => current % count === i % count
 
       return (
         <div mix={[css(styles.articleSlider), start]}>
@@ -232,13 +253,13 @@ export const ArticleSlider = clientEntry(
                     <button
                       type="button"
                       aria-label={item.thumbnailLabel}
-                      aria-current={current === i ? 'true' : undefined}
+                      aria-current={isCurrent(i) && !item.isCopy ? 'true' : undefined}
                       aria-hidden={item.isCopy ? 'true' : undefined}
                       tabIndex={item.isCopy || !isStarted ? -1 : undefined}
                       mix={[
                         css({
                           ...styles.articleSliderSubImage,
-                          ...(current === i ? styles.articleSliderSubImage__current : null),
+                          ...(isCurrent(i) ? styles.articleSliderSubImage__current : null),
                         }),
                         on('click', () => main?.moveToIdx(i)),
                       ]}

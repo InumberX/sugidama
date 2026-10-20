@@ -74,9 +74,15 @@ export const basePaginationLink__step: StyleRecipe = {
   },
 }
 
+/**
+ * Spread last, so its empty hover block replaces both the link's and the
+ * step's (a shallow spread swaps the whole at-rule object): a disabled step
+ * neither tints nor darkens on hover, as develop's `:not(disabled):hover` did.
+ */
 export const basePaginationLink__disabled: StyleRecipe = {
   cursor: 'not-allowed',
   opacity: 'var(--opacity-disabled)',
+  [MEDIA_QUERY.HOVER]: {},
 }
 
 export const basePaginationLink_icon: StyleRecipe = {

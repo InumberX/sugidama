@@ -79,4 +79,17 @@ describe('BasePagination', () => {
     assert.doesNotMatch(html, /aria-label="前へ"|aria-label="次へ"/)
     assert.equal(html.match(/<span aria-hidden="true"/g)?.length, 2)
   })
+
+  it('does not react to hover on a disabled step, as develop did', async () => {
+    const html = await render(1, 2)
+    const cssFor = (tag: RegExp) => {
+      const className = tag.exec(html)![1]!
+      return new RegExp(`<style data-rmx-style="${className}">([^<]*)</style>`).exec(html)![1]!
+    }
+    const disabled = cssFor(/<span aria-hidden="true" class="([^"]+)"/)
+    const next = cssFor(/<a href="\/drinks\?page=2" aria-label="次へ"[^>]*class="([^"]+)"/)
+
+    assert.doesNotMatch(disabled, /:hover/)
+    assert.match(next, /:hover/)
+  })
 })

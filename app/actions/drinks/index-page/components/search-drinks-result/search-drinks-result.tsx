@@ -17,7 +17,7 @@ export type SearchDrinksResultMessages = {
   noResultTitle: string
   noResultDescription: string
   errorTitle: string
-  errorMessageTitle: string
+  errorDescription: string
   paginationLabel: string
   prevPage: string
   nextPage: string
@@ -43,7 +43,9 @@ export function SearchDrinksResult(handle: Handle<SearchDrinksResultProps>) {
           <BaseAlert
             color="error"
             title={messages.errorTitle}
-            description={`${messages.errorMessageTitle}${result.message}`}
+            // A fixed message: the API's own words (its status text, a fetch
+            // error) say nothing a visitor can act on. develop showed them.
+            description={messages.errorDescription}
           />
         </div>
       )

@@ -6,6 +6,8 @@ import { routes } from '../routes.ts'
 import { DevUiPage } from './dev-ui-page/dev-ui-page.tsx'
 import { loadHomePage } from './home-page/home-page.data.ts'
 import { HomePage } from './home-page/home-page.tsx'
+import { robotsResponse } from './robots.ts'
+import { sitemapResponse } from './sitemap.ts'
 
 // Only the direct leaves of the root route map. A nested route map gets its own
 // controller and an explicit `router.map` line in app/router.ts.
@@ -21,6 +23,12 @@ export default createController(routes, {
       const data = await loadHomePage(context.lang)
       if (data instanceof Response) return data
       return context.render(<HomePage lang={context.lang} url={context.url} {...data} />)
+    },
+    robots() {
+      return robotsResponse()
+    },
+    sitemap() {
+      return sitemapResponse()
     },
     // The gallery is a development tool, so the route exists in every build but
     // only answers outside production. Keeping the 404 here rather than making

@@ -87,12 +87,23 @@ describe('apiClient', () => {
 })
 
 describe('apiErrorResponse', () => {
-  it("passes the API's status through, and makes a missing one a 500", async () => {
+  it("passes the API's 404 and 5xx through, and tells the visitor nothing of the API", async () => {
     const notFound = apiErrorResponse({ success: false, status: 404, message: 'Not Found' })
-    const unreachable = apiErrorResponse({ success: false, status: null, message: 'x' })
+    const down = apiErrorResponse({ success: false, status: 503, message: 'API error 503' })
 
     assert.equal(notFound.status, 404)
-    assert.equal(await notFound.text(), 'Not Found')
-    assert.equal(unreachable.status, 500)
+    assert.equal(await notFound.text(), '')
+    assert.equal(down.status, 503)
+  })
+
+  it('makes any other 4xx a 502 and no usable answer a 500', () => {
+    for (const status of [400, 401, 403, 429]) {
+      assert.equal(
+        apiErrorResponse({ success: false, status, message: 'x' }).status,
+        502,
+        String(status)
+      )
+    }
+    assert.equal(apiErrorResponse({ success: false, status: null, message: 'x' }).status, 500)
   })
 })

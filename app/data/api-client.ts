@@ -53,11 +53,17 @@ export const apiClient = async <T>(path: string): Promise<ApiResult<T>> => {
 }
 
 /**
- * The response an action returns for a failed call, as develop's loaders
- * threw it: the API's own status, or a 500 when nothing usable answered. Plain text
- * for now; the site's error page comes with step 9 of issue #115.
+ * The status a visitor gets for a failed call. The API's 404 is the page's
+ * 404 (the drink is not there); any other 4xx — a key it rejects, a limit it
+ * hit — is not the visitor's fault and becomes a 502; its 5xx passes through;
+ * no usable answer is a 500. develop passed every status through.
+ */
+export const toVisitorStatus = ({ status }: ApiError): number =>
+  status === null ? 500 : status === 404 || status >= 500 ? status : 502
+
+/**
+ * The response an action returns for a failed call. Plain text with no detail
+ * from the API — the error page middleware turns it into the site's page.
  */
 export const apiErrorResponse = (error: ApiError): Response =>
-  error.status === null
-    ? new Response('Internal server error. Please try again later.', { status: 500 })
-    : new Response(error.message, { status: error.status })
+  new Response(null, { status: toVisitorStatus(error) })

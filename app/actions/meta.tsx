@@ -7,13 +7,24 @@
 import type { RemixNode } from 'remix/component'
 
 import { IS_PRODUCTION, NO_INDEX, SITE_NAME, SITE_URL } from '../env.ts'
+import { defineMessages, type Lang } from '../utils/i18n.ts'
 
-// BASE_TITLE and BASE_DESCRIPTION are placeholders until feature/remix3-seo.
-// develop builds the base title as `${SITE_NAME} | ${BASE_TITLE_NOTE}`, with the
-// note and the description localized in app/locales/*/common.json; keep
-// SITE_NAME in it, since that is what marks staging as "Sugidama(Staging)".
-export const BASE_TITLE = SITE_NAME
-export const BASE_DESCRIPTION = 'Sugidama'
+// develop's SITE_INFO (app/config/consts.ts). The base title is
+// `${siteName} | ${titleNote}`, and SITE_NAME stays in it: it is what marks
+// staging as "Sugidama(Staging)".
+const SITE_INFO = defineMessages({
+  ja: {
+    titleNote: 'お酒の銘柄、製造元、味わいを紹介',
+    description:
+      'このサイトでは、管理人がこれまで飲んできた美味しいお酒を独断と偏見で記録しています。銘柄、製造元、味わいの特徴を紹介し、気になるお酒があれば販売サイトもご覧いただけます。',
+  },
+  en: {
+    titleNote: 'Brand, Manufacturer, and Taste of Sake',
+    description:
+      "This site is a personal archive of drinks I've enjoyed, with notes on makers, flavors, and where to buy them.",
+  },
+})
+
 export const DEFAULT_OG_IMAGE = '/assets/img/img-ogp.jpg'
 
 export type OgType = 'website' | 'article'
@@ -35,14 +46,18 @@ export type PageMeta = {
   siteName?: string
 }
 
-/** Resolves a path against `SITE_URL`; absolute inputs pass through unchanged. */
-export const absoluteUrl = (pathOrUrl: string): string => {
-  return /^https?:\/\//.test(pathOrUrl) ? pathOrUrl : `${SITE_URL}${pathOrUrl}`
-}
+/**
+ * Resolves a URL against `SITE_URL` the way a browser resolves an `href`: an
+ * absolute URL passes through, `//host/x` takes the site's scheme, and a path
+ * with or without its leading slash lands under the site. Prefixing the string,
+ * as before, made `https://site//host/x` and `https://sitex`.
+ */
+export const absoluteUrl = (pathOrUrl: string): string => new URL(pathOrUrl, `${SITE_URL}/`).href
 
-export const resolveTitle = (meta: PageMeta): string => {
+/** The page's title, or the site's base title; both name the site, overridden or not. */
+export const resolveTitle = (meta: PageMeta, lang: Lang): string => {
   const siteName = meta.siteName ?? SITE_NAME
-  return meta.title ? `${meta.title} | ${siteName}` : BASE_TITLE
+  return meta.title ? `${meta.title} | ${siteName}` : `${siteName} | ${SITE_INFO[lang].titleNote}`
 }
 
 /**
@@ -50,9 +65,9 @@ export const resolveTitle = (meta: PageMeta): string => {
  * `resolveTitle`, so it is deliberately absent here — two `<title>` elements
  * would otherwise be emitted.
  */
-export const renderMeta = (meta: PageMeta, url: URL): RemixNode => {
+export const renderMeta = (meta: PageMeta, url: URL, lang: Lang): RemixNode => {
   const {
-    description = BASE_DESCRIPTION,
+    description = SITE_INFO[lang].description,
     ogType = 'website',
     twitterCard = 'summary_large_image',
     robots,
@@ -61,9 +76,11 @@ export const renderMeta = (meta: PageMeta, url: URL): RemixNode => {
   } = meta
 
   const siteName = meta.siteName ?? SITE_NAME
-  const title = resolveTitle(meta)
-  const currentUrl = `${SITE_URL}${url.pathname}`
-  const canonicalUrl = meta.canonical ? absoluteUrl(meta.canonical) : currentUrl
+  const title = resolveTitle(meta, lang)
+  // The request's own path is appended, never resolved: `//evil.example/x`
+  // would otherwise resolve to another site. A page's canonical is the page's
+  // own value, so it is resolved like an href.
+  const canonicalUrl = meta.canonical ? absoluteUrl(meta.canonical) : `${SITE_URL}${url.pathname}`
   const ogImageUrl = absoluteUrl(meta.ogImage ?? DEFAULT_OG_IMAGE)
 
   // Anything but production is kept out of the index, matching generalview.
@@ -76,7 +93,9 @@ export const renderMeta = (meta: PageMeta, url: URL): RemixNode => {
 
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
-      <meta property="og:url" content={currentUrl} />
+      {/* develop's getMetadata: og:url is the canonical URL, so a share of a
+          duplicate URL credits the page it duplicates. */}
+      <meta property="og:url" content={canonicalUrl} />
       <meta property="og:site_name" content={siteName} />
       <meta property="og:image" content={ogImageUrl} />
       <meta property="og:type" content={ogType} />

@@ -18,6 +18,9 @@ export const routes = route({
     index: get('/(:lang/)drinks'),
     show: get('/(:lang/)drinks/:drinkId'),
   },
+  // Crawler files. Literal single segments, so they win over `/(:lang)`.
+  robots: get('/robots.txt'),
+  sitemap: get('/sitemap.xml'),
   // Development-only component gallery. Declared unconditionally so the route
   // map stays a stable type; the action returns 404 outside development.
   devUi: get('/dev/ui'),

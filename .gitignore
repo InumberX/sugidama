@@ -10,6 +10,7 @@ node_modules/
 # Local environment
 .env
 .env.*
+!.env.example
 .dev.vars
 
 # Wrangler state (wrangler dev) and `npm run bundle` output

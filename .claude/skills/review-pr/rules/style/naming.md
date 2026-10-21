@@ -16,7 +16,7 @@
 
 ## export
 
-- **名前付き export で統一する**。例外は `controller.tsx` の `export default createController(...)` だけ
+- **名前付き export で統一する**。例外は `controller.tsx` の `export default createController(...)` と、Workers のモジュール形式が求める `workers/app.ts` の `export default { fetch }` だけ
 - **`clientEntry` の部品は `export const Name = clientEntry(clientModuleUrl('…'), function Name(…) {…})`**。変数名と関数名を揃える
 
 ## Props 型
@@ -28,7 +28,8 @@
 ## Props の命名
 
 - **camelCase**
-- **boolean は `is*`**（`isDisabled`、`isLogoTitle`、`isWrap`）。HTML 属性に渡すものでも props 名は `is*` にし、内部で `disabled={isDisabled}` と展開する
+- **boolean は `is*`、何かを持つかどうかは `has*`**（`isDisabled`、`isLogoTitle`、`hasClientEntries`）。HTML 属性に渡すものでも props 名は `is*` にし、内部で `disabled={isDisabled}` と展開する
+- **ARIA 属性をそのまま渡す props は `aria*`**（`ariaExpanded`、`ariaCurrent`、`ariaHidden`）。属性との対応が名前でわかるようにする
 - **呼び出し側からのスタイルの上書きは `styleOverrides`**。`styles` は各ファイルの名前空間 import が使っているので、props に同じ名前を付けない
 - **スロットは `*Elm`**（`leftElm`、`rightElm`）。中身は `children`
 - **要素のタグ名を受け取る props は `*Tag`**（`titleTag`、`nonClickableTag`）
@@ -72,10 +73,10 @@
 - ❌ コンポーネントをアロー関数で定義、または `clientEntry` にアロー関数を渡す
 - ❌ ヘルパー関数を `function` 宣言で書く
 - ❌ `declare module` の外で `interface`
-- ❌ boolean の props に `is*` がない（`disabled`、`logoTitle`）
+- ❌ boolean の props に `is*` / `has*` がない（`disabled`、`logoTitle`）。ARIA 属性の `aria*` は除く
 - ❌ props に `styles` や `className` を足して上書きさせる（`styleOverrides` にする）
 - ❌ 要素の DOM イベントを `onClick` などの props で受ける（呼び出し側が `mix={on(...)}` を渡す）
 - ❌ レシピの区切りが BEM 本来のもの（要素に `__`）、または `style` 接頭辞
 - ❌ ルートエリアのディレクトリを URL のセグメントで命名する、ページのディレクトリに `-page` がない
 - ❌ `*.server.ts` / `*.client.ts` の接尾辞で実行環境を分けようとする
-- ❌ `controller.tsx` 以外で `export default`
+- ❌ `controller.tsx` と `workers/app.ts` 以外で `export default`

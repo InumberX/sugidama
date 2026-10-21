@@ -90,6 +90,8 @@ app/
   ui/                           複数のルートで使う UI
     styles/public/              トークン・ブレークポイント・クエリ定数
     types/                      型だけの DOM の語彙
+    contexts/                   プロバイダーとフック（CSP の nonce）
+    public/                     ハイドレートする部品も使う関数（clientModuleUrl）
     primitives/<category>/      見た目を持たない骨組み
     <category>/                 見た目を持つコンポーネント
   middleware/                   セキュリティヘッダー・CSP・言語・エラーページなど
@@ -119,7 +121,7 @@ wrangler.jsonc                  Worker の設定と環境ごとの vars
 - **ハイドレートは必要な部品だけ。** ページはサーバーで描画し、GET フォーム・`<details>`・scroll-snap などの HTML と CSS の機能で操作できるようにしています。JavaScript で動かすのは一覧の検索フォームと詳細のスライダーだけです。タブ・アコーディオンは `@remix-run/ui` を試したうえで手作りにしました。（**Browser JavaScript**・**The `app/ui/` layout**）
 - **環境ごとの値は `wrangler.jsonc` に置く。** `SITE_URL`・`API_URL` などは公開して問題ない値なのでリポジトリに置き、手元と CI のどちらからデプロイしても同じ Worker になるようにしています。Basic 認証などの秘密の値は Worker の secret にします。`BUILD_ID` と `DEPLOYED_AT` だけはデプロイごとに `scripts/deploy.sh` が付けます。（**Cloudflare Workers**）
 - **言語は URL の接頭辞で分ける。** i18next は使わず、各ページとコンポーネントが `defineMessages()` で自分の文言を持ちます。日本語の文言が型を決め、英語の抜けや綴り間違いは型エラーになります。（**Languages**）
-- **エラーはすべて同じページで返す。** ルートはエラーを素のテキストの応答で返し、`app/middleware/error-page.tsx` がそれをサイトの見た目のエラーページに置き換えます。Kuroco API の 404 は、そのページ自身が見つからないときだけ 404 にし、それ以外の 4xx は 502 にします。API の文言は訪問者に見せません。（**Error pages**・**Data**）
+- **エラーはすべて同じページで返す。** ルートはエラーを素のテキストの応答で返し、`app/middleware/error-page.tsx` がそれをサイトの見た目のエラーページに置き換えます。Kuroco API の 404 と 410 は、そのページ自身が見つからないときだけそのまま返し、それ以外の 4xx は 502 にします。5xx はそのまま、応答がなければ 500 です。API の文言は訪問者に見せません。（**Error pages**・**Data**）
 - **スタイルはレシピを 1 回の `css(...)` にまとめて上書きする。** `css(...)` ごとにできるレイヤーは最初に描画された順に並ぶため、ディスクリプタを重ねると優先順位が描画順で変わります。`.styles.ts` はプレーンなレシピを export し、呼び出し側は `styleOverrides` で上書きします。アプリ全体の上書きは `app.css` のカスケードレイヤーで行います。（**Rules that came from measurement, not taste**・**Global CSS**）
 - **セキュリティヘッダーと CSP をルーターで付ける。** ページごとに nonce を作って CSP に入れ、`cop()` で外部からの POST などを拒否します。セッションがないため CSRF トークンはまだ持ちません。（**Security**）
 

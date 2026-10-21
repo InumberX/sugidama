@@ -71,6 +71,7 @@ app/ui/
   styles/public/                      トークン・ブレークポイント・クエリ定数・ミックスイン
   types/                              型だけの DOM の語彙（dom.ts）
   contexts/                           プロバイダーとフック（csp-nonce）
+  public/                             ハイドレートする部品も使う共有の関数（client-module-url.ts）
   primitives/<category>/<component>/  見た目を持たない骨組み
   <category>/<component>/             見た目を持つコンポーネント
 ```

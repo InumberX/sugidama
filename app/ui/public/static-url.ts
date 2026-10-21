@@ -7,7 +7,7 @@
 //
 // The server cannot pass it in from app/env.ts, which is server-only, so the
 // value reaches each side its own way: app/router.ts sets it once at start-up,
-// and Document writes the same value into `<html data-static-query>`, which
+// and Document writes getStaticQuery() into `<html data-static-query>`, which
 // the browser reads.
 
 /** The `<html>` attribute that carries the query to the browser. */
@@ -23,7 +23,12 @@ export const setStaticQuery = (query: string): void => {
   staticQuery = query
 }
 
-const currentQuery = (): string => {
+/**
+ * The query staticUrl() uses: on the server, what app/router.ts set; in the
+ * browser, what Document wrote into `<html>`. Document writes this very value,
+ * so the two sides cannot disagree.
+ */
+export const getStaticQuery = (): string => {
   if (staticQuery !== undefined) return staticQuery
   if (typeof document === 'undefined') return ''
   // The browser reads it once; it is the same for the life of the page.
@@ -38,6 +43,6 @@ const currentQuery = (): string => {
  * path is returned as it is.
  */
 export const staticUrl = (path: StaticPath): string => {
-  const query = currentQuery()
+  const query = getStaticQuery()
   return query ? `${path}?${query}` : path
 }

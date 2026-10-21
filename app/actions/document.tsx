@@ -1,9 +1,10 @@
 import { type Handle, type RemixNode, unsafeHTML } from 'remix/component'
 
-import { CACHE_BUSTER, GOOGLE_ANALYTICS_ID } from '../env.ts'
+import { GOOGLE_ANALYTICS_ID } from '../env.ts'
 import { useCspNonce } from '../ui/contexts/csp-nonce/csp-nonce.tsx'
 import { LayoutWrapper } from '../ui/layouts/layout-wrapper/layout-wrapper.tsx'
 import { clientModuleUrl } from '../ui/public/client-module-url.ts'
+import { getStaticQuery, STATIC_QUERY_ATTRIBUTE, staticUrl } from '../ui/public/static-url.ts'
 import type { Lang } from '../utils/i18n.ts'
 import { type PageMeta, renderMeta, resolveTitle } from './meta.tsx'
 
@@ -57,9 +58,9 @@ export function Document(handle: Handle<DocumentProps>) {
     } = handle.props
 
     return (
-      // The cache buster for static images, read by staticUrl() in the browser
-      // (STATIC_QUERY_ATTRIBUTE); the server's own copy is set in app/router.ts.
-      <html lang={lang} data-static-query={CACHE_BUSTER}>
+      // The cache buster staticUrl() uses on the server (set in app/router.ts),
+      // handed to the browser, where staticUrl() reads it back.
+      <html lang={lang} {...{ [STATIC_QUERY_ATTRIBUTE]: getStaticQuery() }}>
         <head>
           <meta charSet="utf-8" />
           <meta
@@ -73,8 +74,8 @@ export function Document(handle: Handle<DocumentProps>) {
           <link rel="apple-touch-icon" href="/apple-icon.png" type="image/png" sizes="180x180" />
           {/* Declares the `@layer reset, lib, base, rmx, util` order before any
               css(...) rule lands. Root public/ URLs never change on their own,
-              hence the cache buster. */}
-          <link rel="stylesheet" href={`/static/css/app.css?${CACHE_BUSTER}`} />
+              hence the cache buster staticUrl() adds. */}
+          <link rel="stylesheet" href={staticUrl('/static/css/app.css')} />
           <title>{resolveTitle(meta, lang)}</title>
           {renderMeta(meta, url, lang)}
           <GoogleAnalytics id={analyticsId} nonce={nonce} />

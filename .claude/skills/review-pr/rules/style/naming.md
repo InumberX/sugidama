@@ -66,6 +66,8 @@
 - **モジュールの定数は SCREAMING_SNAKE_CASE**（`SITE_URL`、`MESSAGES`、`PAGE_TITLE`、`MEDIA_QUERY`）
 - **ページの文言は `MESSAGES = defineMessages({ ja: {…}, en: {…} })`**、読むときは `MESSAGES[lang]`。ページのタイトルは `PAGE_TITLE`。ただし、ヘッダーのメニューなど他の場所にも出る名前は `app/utils/page-names.ts` の `PAGE_NAMES[lang]` から読み、`PAGE_TITLE` を重ねて持たない（`CLAUDE.md`「Languages」「Page metadata」）
 
+`/dev/ui` のギャラリー（`app/actions/dev-ui-page/`）はテンプレートから移した見本で、`Block` の `grow` のようにこの規約に合わない名前がある。ここは対象外。
+
 ## アンチパターン（指摘対象）
 
 - ❌ コンポーネントのディレクトリやファイルが PascalCase（`BaseButton/index.tsx`）

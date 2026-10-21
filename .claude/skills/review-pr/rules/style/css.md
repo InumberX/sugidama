@@ -79,7 +79,7 @@ css({ ...styles.layoutInner, ...styles.layoutInnerSizes[size], ...styleOverrides
 | `getTransition([{ property }])` | トランジション |
 | `getTextGradation(color)` | 文字にグラデーション |
 
-`color.ts` の `getRgba`・`changeColorHexToRgb` は 16 進の値しか受け取れず、カスタムプロパティには使えない（呼び出し元はまだない）。コンポーネントのアルファ付きの色は、上のとおり `color-mix` で作る
+`color.ts` の `getRgba(rgb, alpha)` は `R, G, B` の 3 つの値を受け取る（`changeColorHexToRgb` で 16 進から作るか、3 つの値を持つカスタムプロパティを渡す）。今の `app.css` の色は 16 進で、3 つの値のカスタムプロパティがないため呼び出し元はない。アルファ付きの色は、上のとおり `color-mix` で作る
 
 - **単位のないプロパティには文字列を渡す**。Remix は知らないプロパティの数値に `px` を付ける（`WebkitLineClamp: 3` は `3px` になり無効）。出力された CSS で確かめる
 - `/dev/ui` のギャラリー（`app/actions/dev-ui-page/`）はテンプレートから移した見本で、色をリテラルで持つ。ここは対象外

@@ -156,15 +156,18 @@ export const ArticleSlider = clientEntry(
 ## 8. 文言
 
 ```ts
+// app/actions/drinks/show-page/show-page.tsx（抜粋）
 const MESSAGES = defineMessages({
-  ja: { title: 'お酒一覧', categoryTitle: (category: string) => `${category}のお酒` },
-  en: { title: 'Drinks', categoryTitle: (category: string) => `${category} drinks` },
+  ja: { relatedDrinks: (category: string) => `${category}のお酒`, latestDrinks: '新着のお酒' },
+  en: { relatedDrinks: (category: string) => `${category} Drinks`, latestDrinks: 'Latest Drinks' },
 })
 
-MESSAGES[lang].categoryTitle(category)
+const messages = MESSAGES[lang]
+messages.relatedDrinks(category.label)
 ```
 
 - 文言は使う部品の横に置く。日本語が型を決め、英語の抜けは型エラーになる
+- ヘッダーのメニューにも出るページ名（「お酒一覧」など）はここに書かず、`PAGE_NAMES[lang]` から読む
 
 ## 9. テスト
 
@@ -172,12 +175,14 @@ MESSAGES[lang].categoryTitle(category)
 import * as assert from 'remix/assert'
 import { describe, it } from 'remix/test'
 
-import { mockKuroco } from '../../../../test/kuroco.ts'
+import { drinkDetailFixture, drinkFixture, mockKuroco } from '../../../../test/kuroco.ts'
 import { router } from '../../../router.ts'
+
+const kubota = drinkFixture()
 
 describe('drinks.show', () => {
   it('renders a drink', async (t) => {
-    mockKuroco(t)
+    mockKuroco(t, { '/drinks/kubota': drinkDetailFixture(kubota) })
     const response = await router.fetch(new Request('http://localhost/drinks/kubota'))
     assert.equal(response.status, 200)
   })
@@ -185,4 +190,4 @@ describe('drinks.show', () => {
 ```
 
 - 対象の横に置き、`remix/test` と `remix/assert` の名前空間 import を使う
-- API を使うページは `mockKuroco(t)` を呼ぶ
+- API を使うページは `mockKuroco(t, …)` を呼ぶ。既定で答えるのは一覧・種類・タグだけで、お酒の詳細などはパスごとに渡す（知らないパスへの要求は例外になる）

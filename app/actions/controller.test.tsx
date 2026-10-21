@@ -56,15 +56,6 @@ describe('root controller', () => {
     assert.equal(response.headers.get('Location'), '/')
   })
 
-  it('moves the old /assets/img/ URLs to /static/img/ for good', async () => {
-    const response = await router.fetch(
-      new Request('http://localhost/assets/img/img-ogp.jpg?ver=old')
-    )
-
-    assert.equal(response.status, 301)
-    assert.equal(response.headers.get('Location'), '/static/img/img-ogp.jpg')
-  })
-
   it('serves the dev gallery outside production', async () => {
     const response = await router.fetch(new Request(`http://localhost${routes.devUi.href()}`))
 

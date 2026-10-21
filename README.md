@@ -65,7 +65,6 @@ npm test -- --only 'renders the home page'
 | `drinks.show` | GET | `/(:lang/)drinks/:drinkId` | `app/actions/drinks/controller.tsx` |
 | `robots` | GET | `/robots.txt` | `app/actions/controller.tsx` |
 | `sitemap` | GET | `/sitemap.xml` | `app/actions/controller.tsx` |
-| `legacyImage` | GET | `/assets/img/*path` | `app/actions/controller.tsx`（`/static/img/` への 301） |
 | `devUi` | GET | `/dev/ui` | `app/actions/controller.tsx`（本番では 404） |
 
 `(:lang)` は省略できる言語の区切りです。省略すると日本語、`en` で英語になります。`/ja/…` は接頭辞のない URL へリダイレクトし、それ以外の値は 404 です。
@@ -78,7 +77,7 @@ app/
   router.ts                     ミドルウェアの順序と router.map
   env.ts                        process.env を読む唯一のモジュール
   actions/
-    controller.tsx              ルート直下のアクション（home・robots・sitemap・legacyImage・devUi）
+    controller.tsx              ルート直下のアクション（home・robots・sitemap・devUi）
     document.tsx                共通の HTML の外枠
     meta.tsx                    サイト全体のメタデータの既定値
     error-page.tsx              エラーのときに表示するページ

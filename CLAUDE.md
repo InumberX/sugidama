@@ -65,7 +65,7 @@ Naming under `app/actions/` — **a bare directory is a route area, a `-page` di
 
 ```
 app/actions/
-  controller.tsx              direct leaves of the root map: home, robots, sitemap, legacyImage, devUi
+  controller.tsx              direct leaves of the root map: home, robots, sitemap, devUi
   document.tsx                the shared document shell
   meta.tsx                    site-wide metadata defaults
   robots.ts, sitemap.ts       the robots and sitemap actions' bodies (no page, so no -page directory)
@@ -346,8 +346,6 @@ There is no build, so nothing produces hashed filenames, and root `public/` URLs
 `?${CACHE_BUSTER}` (`app/env.ts`, from `BUILD_ID`) goes only on subresources a page loads while rendering and that must change in step with the deployed HTML — `app.css` and the images under `public/static/img/`. It rotates the URL on every deploy, which is the point for a stylesheet and the page's own images, and the wrong thing for anything whose URL is its identity (below).
 
 Images get it through `staticUrl('/static/img/…')` (`app/ui/public/static-url.ts`), never by appending `CACHE_BUSTER` by hand, because hydrated components (the icons in the search form and the slider) render image URLs in the browser too, and `app/env.ts` is server-only. The query must be the same on both sides — a different URL is a different `css(...)` class, and the browser would fetch the image again without the query (measured on `/dev/ui` in Chromium: every image request carries it). So `app/router.ts` sets the server's copy once with `setStaticQuery(CACHE_BUSTER)`, and `Document` writes the same value into `<html data-static-query>`, which `staticUrl()` reads in the browser. Call it while rendering, never at module load: modules load before `app/router.ts` has set the query, which is why `SvgIcon`'s masks come from `getSvgIconMask(variant)` rather than a recipe per variant. A component rendered on its own in a test gets no query, so assertions on an image URL allow an optional one. `CACHE_BUSTER` URL-encodes `BUILD_ID`, and the mask URLs are quoted, so a build id with a space or `)` cannot break the CSS.
-
-The images lived in `public/assets/img/` until the move to `public/static/img/`; the `legacyImage` route answers the old URLs with a 301 to the new ones, so OGP cards already shared with the old image URL keep working.
 
 Not every file takes the query:
 

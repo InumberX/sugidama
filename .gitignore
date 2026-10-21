@@ -7,11 +7,15 @@ node_modules/
 # TypeScript (tsc -b)
 *.tsbuildinfo
 
+# remix test --coverage
+.coverage/
+
 # Local environment
 .env
 .env.*
-!.env.example
 .dev.vars
+.dev.vars.*
+!.dev.vars.example
 
 # Wrangler state (wrangler dev) and `npm run bundle` output
 .wrangler

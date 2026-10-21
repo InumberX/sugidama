@@ -12,7 +12,7 @@
   - `common/` と `layouts/` 配下は `Layout*`（`LayoutHeader`、`LayoutInner`）
   - その他の `ui/` は機能を表す名前（`BaseButton`、`ArticleCard`、`SvgIcon`）
 - **参考資料は `Example*`**（`ExampleCopyButton`）。表示する側（`/dev/ui`）が所有し、`app/ui/` には置かない
-- **同じファイル内のサブコンポーネントは親の名前を接頭辞にする**（`ArticleCard` 内の `ArticleCardTitle`）
+- **同じファイル内の、export しない補助の部品は短い名前でよい**（`article-card.tsx` の `CardLink`）。export するなら、他の部品と区別できる名前にする
 
 ## export
 
@@ -64,7 +64,7 @@
 
 - **変数・関数は camelCase**、boolean の変数も `is*` / `has*`（`hasClientEntries`）
 - **モジュールの定数は SCREAMING_SNAKE_CASE**（`SITE_URL`、`MESSAGES`、`PAGE_TITLE`、`MEDIA_QUERY`）
-- **ページの文言は `MESSAGES = defineMessages({ ja: {…}, en: {…} })`**、読むときは `MESSAGES[lang]`。ページのタイトルは `PAGE_TITLE`（`CLAUDE.md`「Languages」「Page metadata」）
+- **ページの文言は `MESSAGES = defineMessages({ ja: {…}, en: {…} })`**、読むときは `MESSAGES[lang]`。ページのタイトルは `PAGE_TITLE`。ただし、ヘッダーのメニューなど他の場所にも出る名前は `app/utils/page-names.ts` の `PAGE_NAMES[lang]` から読み、`PAGE_TITLE` を重ねて持たない（`CLAUDE.md`「Languages」「Page metadata」）
 
 ## アンチパターン（指摘対象）
 

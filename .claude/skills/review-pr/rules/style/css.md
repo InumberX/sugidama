@@ -66,7 +66,7 @@ css({ ...styles.layoutInner, ...styles.layoutInnerSizes[size], ...styleOverrides
 
 ## トークンとミックスイン
 
-- **色・不透明度・レイアウトの寸法・`z-index` は `app.css` のカスタムプロパティを `var()` で参照する**（`var(--color-font-primary)`、`var(--opacity-hover)`、`var(--layout-inner-padding-sm)`）。色をリテラルで書かない。アルファ付きは `color-mix(in srgb, var(--color-…) 40%, transparent)` のようにカスタムプロパティから作る
+- **色・不透明度・レイアウトの寸法・ページ全体の重なり順は `app.css` のカスタムプロパティを `var()` で参照する**（`var(--color-font-primary)`、`var(--opacity-hover)`、`var(--layout-inner-padding-sm)`、`var(--z-index-header-wrapper)`）。部品の中だけの重なり（`zIndex: 1`、`-1`）は数値でよい。色をリテラルで書かない。アルファ付きは `color-mix(in srgb, var(--color-…) 40%, transparent)` のようにカスタムプロパティから作る
 - **文字の大きさと太さは `app/ui/styles/public/tokens.ts` のプリセットをスプレッドする**（`...fontMediumBold`）
 - **ミックスイン**（`app/ui/styles/public/mixins.ts`・`color.ts`）
 

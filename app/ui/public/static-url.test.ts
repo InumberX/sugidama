@@ -21,7 +21,7 @@ describe('staticUrl', () => {
     assert.ok(html.includes(`<html lang="ja" ${STATIC_QUERY_ATTRIBUTE}="${CACHE_BUSTER}"`))
     assert.ok(html.includes(`/static/img/img-logo.webp?${CACHE_BUSTER}`))
     assert.ok(html.includes(`/static/img/img-category-sake.webp?${CACHE_BUSTER}`))
-    assert.ok(html.includes(`url(/static/img/icon-home.svg?${CACHE_BUSTER})`))
+    assert.ok(html.includes(`url("/static/img/icon-home.svg?${CACHE_BUSTER}")`))
     // The OGP image keeps a stable URL (CLAUDE.md, Caching).
     assert.match(html, /<meta property="og:image" content="[^"?]*\/static\/img\/img-ogp\.jpg"/)
   })

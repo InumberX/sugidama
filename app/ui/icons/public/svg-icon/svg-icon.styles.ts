@@ -48,6 +48,6 @@ export const svgIconFiles: Record<SvgIconVariant, string> = {
  * has set the query — and not when this module loads.
  */
 export const getSvgIconMask = (variant: SvgIconVariant): StyleRecipe => {
-  const url = `url(${staticUrl(`/static/img/icon-${svgIconFiles[variant]}.svg`)})`
+  const url = `url("${staticUrl(`/static/img/icon-${svgIconFiles[variant]}.svg`)}")`
   return { maskImage: url, WebkitMaskImage: url }
 }

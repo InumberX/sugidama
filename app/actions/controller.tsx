@@ -2,6 +2,7 @@ import { createController } from 'remix/router'
 
 import { IS_PRODUCTION } from '../env.ts'
 import { lang } from '../middleware/lang.ts'
+import { localRedirect } from '../middleware/local-redirect.ts'
 import { routes } from '../routes.ts'
 import { DevUiPage } from './dev-ui-page/dev-ui-page.tsx'
 import { loadHomePage } from './home-page/home-page.data.ts'
@@ -29,6 +30,12 @@ export default createController(routes, {
     },
     sitemap() {
       return sitemapResponse()
+    },
+    // A permanent move, so crawlers that cached an OGP card by its old image
+    // URL follow it and update. The old URLs' query string is dropped.
+    legacyImage(context) {
+      const path = context.params.path.split('/').map(encodeURIComponent).join('/')
+      return localRedirect(context.url, `/static/img/${path}`, 301)
     },
     // The gallery is a development tool, so the route exists in every build but
     // only answers outside production. Keeping the 404 here rather than making

@@ -23,11 +23,13 @@ export const setStaticQuery = (query: string): void => {
   staticQuery = query
 }
 
-const currentQuery = (): string =>
-  staticQuery ??
-  (typeof document === 'undefined'
-    ? ''
-    : (document.documentElement.getAttribute(STATIC_QUERY_ATTRIBUTE) ?? ''))
+const currentQuery = (): string => {
+  if (staticQuery !== undefined) return staticQuery
+  if (typeof document === 'undefined') return ''
+  // The browser reads it once; it is the same for the life of the page.
+  staticQuery = document.documentElement.getAttribute(STATIC_QUERY_ATTRIBUTE) ?? ''
+  return staticQuery
+}
 
 /**
  * `/static/img/x.webp` with the cache buster: `/static/img/x.webp?ver=<BUILD_ID>`.

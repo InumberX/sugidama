@@ -76,4 +76,4 @@ export const GOOGLE_ANALYTICS_ID = process.env.GOOGLE_ANALYTICS_ID || ''
  *
  *   `/static/css/app.css?${CACHE_BUSTER}`  ->  `/static/css/app.css?${string}`
  */
-export const CACHE_BUSTER = `ver=${BUILD_ID}`
+export const CACHE_BUSTER = `ver=${encodeURIComponent(BUILD_ID)}`

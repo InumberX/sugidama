@@ -12,9 +12,9 @@ describe('SvgIcon', () => {
     const html = await renderToString(<SvgIcon variant="home" />)
 
     // The cache buster is there once app/router.ts has set it; static-url.test.ts covers it.
-    assert.match(html, /[^-]mask-image: url\(\/static\/img\/icon-home\.svg(?:\?[^)]*)?\)/)
+    assert.match(html, /[^-]mask-image: url\("\/static\/img\/icon-home\.svg(?:\?[^"]*)?"\)/)
     // The prefixed form for Chrome before 120 and Safari before 15.4.
-    assert.match(html, /-webkit-mask-image: url\(\/static\/img\/icon-home\.svg(?:\?[^)]*)?\)/)
+    assert.match(html, /-webkit-mask-image: url\("\/static\/img\/icon-home\.svg(?:\?[^"]*)?"\)/)
     assert.match(html, /-webkit-mask-size: contain/)
     assert.match(html, /background-color: var\(--color-util-black\)/)
   })
@@ -22,7 +22,7 @@ describe('SvgIcon', () => {
   it('has a file in public/ for every variant', () => {
     for (const variant of Object.keys(styles.svgIconFiles) as SvgIconVariant[]) {
       const recipe = styles.getSvgIconMask(variant)
-      const path = /url\((\/static\/img\/[^)?]+)/.exec(String(recipe.maskImage))?.[1]
+      const path = /url\("(\/static\/img\/[^"?]+)/.exec(String(recipe.maskImage))?.[1]
       assert.ok(path, variant)
       assert.ok(existsSync(new URL(`../../../../../public${path}`, import.meta.url)), path)
     }

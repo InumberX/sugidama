@@ -21,6 +21,10 @@ export const routes = route({
   // Crawler files. Literal single segments, so they win over `/(:lang)`.
   robots: get('/robots.txt'),
   sitemap: get('/sitemap.xml'),
+  // Images moved from public/assets/img/ to public/static/img/; the old URLs
+  // (OGP cards already shared, outside links) redirect rather than 404. A
+  // wildcard, because a `:variable` stops at the `.` before the extension.
+  legacyImage: get('/assets/img/*path'),
   // Development-only component gallery. Declared unconditionally so the route
   // map stays a stable type; the action returns 404 outside development.
   devUi: get('/dev/ui'),

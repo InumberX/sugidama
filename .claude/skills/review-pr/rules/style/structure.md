@@ -1,218 +1,125 @@
 # ディレクトリ構造規約
 
-`app/` 配下のファイル配置に関するルール。新規ファイルが正しい場所に置かれているかをレビューする。
+ファイルの配置とルート・ハイドレーション・テストの約束ごと。新しいファイルが正しい場所にあるかをレビューする。根拠は `AGENTS.md` と `CLAUDE.md` の該当する節。
 
 ## トップレベル構成
 
 ```
 app/
-├── assets/                # 静的アセット（画像など）
-├── components/            # React コンポーネント（3 階層）
-│   ├── primitives/        # 最小単位の建材（PrimitiveButton 等）
-│   ├── ui/                # 再利用される汎用 UI（カテゴリ分割）
-│   └── common/            # サイト全体のレイアウト系（Layout* 等）
-├── config/                # 設定値（env, paths, consts）
-├── hooks/                 # カスタムフック
-├── locales/               # i18n 辞書（ja / en）
-├── providers/             # React Context / Provider
-├── routes/                # React Router v7 ルート（flatRoutes 規約）
-├── server/                # サーバーサイド専用モジュール（*.server.ts）
-│   └── api/               # Kuroco CMS への API 呼び出し
-├── styles/                # 共通スタイル（CSS 変数、mixin、layer）
-│   ├── mixins/            # 関数（getClampPx 等）
-│   └── variables/         # createGlobalTheme / globalLayer 等の定義
-├── types/                 # TypeScript 型定義
-│   └── api/               # quicktype で生成した API レスポンス型
-├── utils/                 # 純粋なユーティリティ関数
-├── entry.client.tsx       # クライアントエントリ
-├── entry.server.tsx       # サーバーエントリ（SSR）
-├── i18n.ts                # i18n 設定（クライアント）
-├── i18next.server.ts      # i18n 設定（サーバー）
-├── root.tsx               # アプリのルート
-├── root.css.ts            # ルートのスタイル
-└── routes.ts              # flatRoutes 設定
+├── routes.ts          # ルート定義。app の他のモジュールを import しない
+├── router.ts          # ミドルウェアの順序、AppContext、router.map
+├── env.ts             # process.env を読む唯一のモジュール
+├── actions/           # ルートが所有するもの（controller・ページ・その部品）
+├── ui/                # 複数のルートエリアが使う UI
+├── middleware/        # リクエストの流れに関わるもの（ヘッダー・CSP・言語・エラーページ）
+├── data/              # Kuroco API のクライアントとリソース
+└── utils/             # どの層にも属さない純粋な関数（最後の手段）
+workers/               # Worker のエントリー（app.ts）と前段（handler.ts）
+scripts/               # build-client.ts・deploy.sh
+public/                # ASSETS がそのまま配信する静的ファイル
+test/                  # 共有のフィクスチャとヘルパー（kuroco.ts）
 ```
 
-> ルート Worker は `workers/app.ts`、設定は `wrangler.jsonc`。新規 Cloudflare バインディングや Workers Secret を増やしたら `workers/handler.ts` の `WorkerEnv` 型も手動で更新が必要（`CLAUDE.md` 参照）。
+- **`app/lib/`・`app/components/`・`app/controllers/` を作らない**（`AGENTS.md`「Build-Out Notes」）
+- **`app/` 直下はアプリに 1 つしかない契約だけ**（`routes.ts`・`router.ts`・`env.ts`）
+- **`process.env` を読むのは `app/env.ts` だけ**。テストも含め、他は解決済みの定数を import する
+- **Worker の `env` 引数から読むバインディングや secret を足したら、`workers/handler.ts` の `WorkerEnv` を手で更新する**。`app/env.ts` に変数を足したら、`wrangler.jsonc` の両環境の `vars` と `.dev.vars.example` にも足す（`workers/wrangler.test.ts` が検査する）。秘密の値は `vars` に入れない
 
-## components の 3 階層
+## 置き場所の優先順位
 
-| 置き場 | 用途 | 例 | 使うべきレイヤー |
-|---|---|---|---|
-| `components/primitives/` | HTML 要素を最小限ラップした建材。他のコンポーネントから組み合わせて使う基礎部品 | `PrimitiveButton` | `cssLayerComponentUiPrimitive` |
-| `components/ui/` | **複数箇所で再利用される汎用 UI**。カテゴリ別ディレクトリで分類 | `buttons/BaseButton`、`cards/ArticleCard`、`lists/ArticleCardList` | `cssLayerComponentUiLow` / `Middle` / `High`（依存関係に応じて） |
-| `components/common/` | サイト全体のレイアウト・レイヤーに関わる **アプリ固有・基本 1 度しか使わない** コンポーネント | `LayoutHeader`、`LayoutFooter`、`LayoutPortal` | `cssLayerComponentCommon` |
+複数の場所に置けるときは上から順に決める（`AGENTS.md`「Placement Precedence」）。
 
-判断基準:
-- 「HTML 要素を最小限ラップして、他の UI から組み合わせて使う」なら `primitives/`
-- 「カードや一覧などで何度も再利用する」なら `ui/<category>/`
-- 「サイト全体で 1 つだけ使う・ページ毎に再利用しない」なら `common/`（多くは `Layout*` プレフィックス）
+1. 1 つのルートのものは、そのルートの近く（`app/actions/<route-key>/…`）
+2. 複数のルートエリアが使う UI は `app/ui/`
+3. リクエストの流れに関わるものは `app/middleware/`
+4. API・データは `app/data/`
+5. どれにも当てはまらない純粋な関数だけ `app/utils/<topic>.ts`。`app/actions/` や描画の API を import しない
 
-## ui/ 配下のカテゴリ分割
+**ルートが所有する UI を `app/ui/` に置かない。** 2 つ目のルートエリアが必要としたときに移す。
 
-UI コンポーネントは以下のカテゴリのいずれかに配置する。新規カテゴリを追加する場合は、本ファイルに追記する。
+## ルートとアクション
 
-```
-app/components/ui/
-├── alerts/        # 通知・アラート
-├── articles/      # 記事表示系
-├── buttons/       # ボタン
-├── cards/         # カード
-├── forms/         # フォーム部品
-├── icons/         # アイコン（SvgIcon）
-├── layouts/       # レイアウトユーティリティ（LayoutInner、LayoutSection、LayoutPageWrapper 等）
-├── lists/         # リスト・一覧
-├── paginations/   # ページネーション
-├── skeletons/     # ローディング表示
-├── tags/          # タグ
-├── transitions/   # トランジション
-└── typographies/  # テキスト・タイポグラフィ
-```
+- **`app/routes.ts` にルートを先に足す**。メソッドを明示し（`get`・`post`・`form`・`resources`）、素の文字列パターンは使わない。パターンはリテラルのまま書く
+- **公開ページのパターンには省略できる言語の区切りを付ける**（`/(:lang)`、`/(:lang/)drinks`）。言語つきのルートを持つ controller には `middleware: [lang()]` が要る
+- **内部の URL はすべて `routes.<name>.href(...)` で組み立てる**。クエリも `href(params, { searchParams })` で渡す。日本語のリンクには `toLangParam(lang)` を使い、`/ja` を付けない
+- **ルートマップ直下のリーフは `app/actions/controller.tsx`**。ネストしたマップは `app/actions/<route-key>/controller.tsx` と、`app/router.ts` の `router.map(routes.<key>, controller)` の行を持つ
+- **ルートの葉を `app/router.ts` に直接登録しない**
 
-カテゴリ名は **複数形 kebab-case**（`button/` ではなく `buttons/`）。
-
-## primitives/ 配下のカテゴリ分割
+### `app/actions/` の中
 
 ```
-app/components/primitives/
-├── buttons/       # PrimitiveButton
-└── skeletons/     # PrimitiveSkeleton 等
+app/actions/
+  controller.tsx
+  <route-key>/                 ルートエリア（controller.tsx を持つ）
+    controller.tsx
+    <key>-page/                ページ
+      <key>-page.tsx
+      <key>-page.data.ts       ページを描く前のデータ読み込み（必要なとき）
+      <key>-page.styles.ts / .types.ts / .test.tsx
+      components/<name>/<name>.tsx          ページの部品
+      public/components/<name>/<name>.tsx   ハイドレートする部品
 ```
 
-`primitives/` も `ui/` と同様に複数形 kebab-case のカテゴリ配下に配置する。
+- **素のディレクトリはルートエリア、`-page` 付きはページ**。名前はルートマップのキーで、URL のセグメントではない
+- **データの読み込みは `<key>-page.data.ts` の 1 つの非同期関数**。ページの props か、代わりに返す `Response` を返す。ページのコンポーネントは props だけで描く
+- **エラーは素のテキストか空の `Response` で返す**（`new Response(null, { status })`）。見た目は `app/middleware/error-page.tsx` が付ける。API の失敗は `apiErrorResponse()` を通す
 
-## コンポーネントディレクトリの構造
-
-各コンポーネントはディレクトリ単位で完結させる:
+## `app/ui/` の中
 
 ```
-app/components/ui/buttons/BaseButton/
-├── index.tsx              # メインのコンポーネント実装（必須・named export）
-└── style.css.ts           # Vanilla Extract スタイル（必須・スタイルなしの場合は空でも作成）
+app/ui/
+  styles/public/                      トークン・ブレークポイント・クエリ定数・ミックスイン
+  types/                              型だけの DOM の語彙（dom.ts）
+  contexts/                           プロバイダーとフック（csp-nonce）
+  primitives/<category>/<component>/  見た目を持たない骨組み
+  <category>/<component>/             見た目を持つコンポーネント
 ```
 
-派生:
-- 子コンポーネントを切り出す場合は同 `index.tsx` 内にローカル定義（`ArticleCard` 内の `ArticleCardTitle` 等）か、独立したコンポーネントとして別ディレクトリに切る
-- 型定義をエクスポートする場合は `index.tsx` 内で `export type <Component>Props` を行う
+- **`primitives/` はデザインの判断を持たない**。要素の選択・アクセシビリティ属性・UA のリセットだけで、`color` と `font` は `inherit`。トークンを import しない
+- **`<category>/` がデザインを決めて primitive に渡す**（`buttons/public/base-button/` → `primitives/buttons/public/primitive-button/`）
+- **`layouts/` は構造だけのラッパー**。寸法は `app.css` の `--layout-*` に置く
+- **`common/` はヘッダー・フッター**
+- **`app/ui/styles/` からコンポーネントを import しない**
+- **カテゴリのディレクトリは最初の部品ができたときに作る**。空のディレクトリを先に作らない
 
-## 関連レイヤーの配置
+## コンポーネントのディレクトリ
 
-| ロジック種別 | 置き場 | 命名 |
+| ファイル | 中身 | ハイドレートするとき `public/` の外に置けるか |
 |---|---|---|
-| API 呼び出し（Kuroco CMS） | `app/server/api/<resource>.server.ts` | kebab-case 可、`.server.ts` 必須 |
-| API レスポンス型（生成） | `app/types/api/...` | quicktype で生成 |
-| カスタムフック | `app/hooks/use<Name>.ts` | **camelCase**、`use` プレフィックス |
-| 純粋関数ユーティリティ | `app/utils/<name>.ts` | 短い名前は素朴に、複合語は kebab-case でも camelCase でも既存例あり |
-| サーバー専用ユーティリティ | `app/utils/<name>.server.ts` | `.server.ts` サフィックス必須 |
-| クライアント専用ユーティリティ | `app/utils/<name>.client.ts` | `.client.ts` サフィックス必須 |
-| 設定値 | `app/config/<topic>.ts` | camelCase（`env.ts`、`paths.ts`、`consts.ts`） |
-| Provider | `app/providers/<Name>Provider.tsx` または ディレクトリ | PascalCase + Provider サフィックス |
-| 型定義 | `app/types/<name>.d.ts` | 短い英単語（`event.d.ts`、`html.d.ts`） |
+| `<name>.tsx` | コンポーネント | 置けない |
+| `<name>.types.ts` | 型だけ | 置ける（ブラウザ向けの出力から消える） |
+| `<name>.styles.ts` | レシピ | 置けない |
+| `<name>.test.tsx` | テスト | 対象外 |
 
-## Vanilla Extract レイヤー定数の対応
+## ハイドレーションと `public/`
 
-`style.css.ts` を書くとき、ファイルの配置に応じた `@layer` を選ぶ:
+- **ハイドレートするのはブラウザが本当に必要な部品だけ**。まず HTML（GET フォーム、`<details>`、scroll-snap、`popover`）で動くかを考える（`CLAUDE.md`「Browser JavaScript」）
+- **ハイドレートする部品が実行時に使うものは、すべて `public/` の内側に置く**。値の import が外に出ると `npm run build-client` が `IMPORT_NOT_ALLOWED` で失敗する。型だけの import は消えるので対象外
+- **クライアントエントリーは `clientEntry(clientModuleUrl('app/…/x.tsx'), function Name(…) {…})`**。`import.meta.url` は wrangler が 1 ファイルに束ねるため使えない。テストで `rmx-data` の URL が自分のファイルを指すことを確かめる
+- **クライアントエントリーを描くページは `Document` に `hasClientEntries` を渡す**
+- **ハイドレート前に訪問者が変えられる状態（チェック、開閉）は、setup で DOM から読む**
+- **`<script>` を書くなら `nonce={useCspNonce(handle)}` を付ける**。付けないと CSP に止められる
+- **新しいパッケージをブラウザで使うなら `scripts/build-client.ts` の `allowPackages` に足す**
+- **部品の置き場は、ハイドレートする部品が初めて必要としたときに `public/` へ移す**（`buttons/public/`、`icons/public/`）。先回りして移さない
 
-| ファイルパス | 使用するレイヤー定数 |
-|---|---|
-| `app/components/primitives/**/style.css.ts` | `cssLayerComponentUiPrimitive` |
-| `app/components/ui/**/style.css.ts`（シンプル） | `cssLayerComponentUiLow` |
-| `app/components/ui/**/style.css.ts`（lists・複合 cards 等） | `cssLayerComponentUiMiddle` |
-| `app/components/ui/layouts/**/style.css.ts` | `cssLayerComponentUiHigh` |
-| `app/components/common/**/style.css.ts` | `cssLayerComponentCommon` |
-| `app/routes/**/style.css.ts` | `cssLayerComponentPage` |
+## テスト
 
-詳細は `rules/style/css.md` の「カスケードレイヤー」を参照。
-
-## 名前付きエクスポート
-
-各コンポーネントの `index.tsx` から名前付きエクスポートを行い、外部からは以下のように参照する:
-
-```ts
-import { BaseButton } from '~/components/ui/buttons/BaseButton'
-import { PrimitiveButton, type PrimitiveButtonProps } from '~/components/primitives/buttons/PrimitiveButton'
-```
-
-`index.tsx` に `export default` は使わない（既存コードはコンポーネントを名前付きエクスポート）。
-
-### 例外: React Router v7 のルートエントリ
-
-`app/routes/**/route.tsx` は React Router の規約により**ページコンポーネントを `export default` する**。`meta`・`loader`・`action` 等の標準エクスポートは名前付き。指摘対象から除外する:
-
-```tsx
-// app/routes/($lang)._public._layout._index/route.tsx
-export const meta: MetaFunction = ...
-export async function loader(args: Route.LoaderArgs) { ... }
-export default function PageSG10_100({ loaderData }: Route.ComponentProps) { ... }
-```
-
-`app/entry.client.tsx`、`app/entry.server.tsx`、`app/root.tsx` も React Router の慣例で `export default` を使う。
-
-## ルートファイルの配置（React Router v7 / flatRoutes）
-
-`app/routes.ts` で `flatRoutes()` を使った file-based routing。ディレクトリ名がそのままルートになる:
-
-| パターン | 意味 |
-|---|---|
-| `($lang)` | optional な language param（`/`、`/en/...`） |
-| `_public` | public ルートグループ（パスに含まれない） |
-| `_layout` | レイアウトラッパー（パスに含まれない） |
-| `_index` | index ルート |
-| `$drinkId` | dynamic セグメント |
-
-例:
-- `($lang)._public._layout._index/route.tsx` → `/`、`/en/`
-- `($lang)._public._layout.drinks._index/route.tsx` → `/drinks`、`/en/drinks`
-- `($lang)._public._layout.drinks.$drinkId._index/route.tsx` → `/drinks/:drinkId`
-
-新規ルートを追加する際は、ディレクトリ命名がこのパターンに沿っているか確認する。
-
-## サーバー / クライアント分離
-
-- **`*.server.ts` / `*.server.tsx`**: サーバーでしか実行しないモジュール（API 呼び出し、CSP、CSRF、Worker 設定）
-- **`*.client.ts` / `*.client.tsx`**: クライアントでしか実行しないモジュール（GA、ブラウザ API 専用）
-- **`app/server/` 配下**: 全てサーバー専用扱い
-
-ブラウザ専用 API（`window`、`document`）を `*.server.ts` の外で参照する場合、ガードや動的 import を使う。
-
-## パスエイリアス
-
-`tsconfig.json` の `paths` で定義されているのは **次の 2 つのみ**:
-
-| エイリアス | 解決先 | 用途 |
-|---|---|---|
-| `~/*` | `./app/*` | アプリケーションコード全般（コンポーネント・hooks・utils・types・config 等） |
-| `~/+types/*` | `./.react-router/types/app/+types/*` | **React Router v7 が自動生成するルート型の参照専用**。`app/utils/meta.ts` 等で `import type { Route } from '~/+types/root'` のように使用 |
-
-`~/+types/*` は React Router の typegen で生成される型ファイル（`Route.LoaderArgs`、`Route.ComponentProps`、`Route.MetaArgs` 等）を参照するための専用エイリアス。手書きする型を `~/+types/` 配下に置いてはいけない。生成系なので `.react-router/` ディレクトリを git にコミットしない（gitignore 済み）。
-
-```ts
-// Good — 通常のアプリケーションコード
-import { BaseButton } from '~/components/ui/buttons/BaseButton'
-
-// Good — React Router 生成型の参照（ルートファイルや、ルート型を扱う共通 utility 内）
-import type { Route } from '~/+types/root'
-import type { Route } from './+types/route'  // ルートファイル内では相対パスが慣例
-
-// Bad — 未定義のエイリアスを使用
-import { BaseButton } from '@/components/ui/buttons/BaseButton'
-import { BaseButton } from '@components/buttons/BaseButton'
-import { BaseButton } from '#components/buttons/BaseButton'
-```
+- **テストは対象の横に置く**（`<name>.test.tsx`、`app/middleware/*.test.ts`）。ルート直下の `test/` は共有のフィクスチャだけ
+- **`remix/test` と `import * as assert from 'remix/assert'` を使う**。`node:test` は失敗しても全体が成功になる（lint でも検出）
+- **API を使うページを描くテストは `mockKuroco(t, …)` を呼ぶ**。呼ばないと本物の API に通信する
+- **ルートの振る舞いは `router.fetch(new Request(...))` の `Response` で確かめる**。部品は `renderToString`
 
 ## アンチパターン（指摘対象）
 
-- ❌ 1 度しか使わないアプリ固有コンポーネントを `ui/` に置く（→ `common/` へ）
-- ❌ 再利用される汎用コンポーネントを `common/` に置く（→ `ui/<category>/` へ）
-- ❌ HTML 要素を最小限ラップした建材を `ui/` に置く（→ `primitives/` へ）
-- ❌ `ui/` や `primitives/` 直下にコンポーネントディレクトリを置く（→ 必ずカテゴリ配下に）
-- ❌ カテゴリディレクトリが単数形（`button/`、`card/`） や PascalCase（`Buttons/`）
-- ❌ コンポーネントエントリが `index.tsx` 以外（`BaseButton.tsx`、`Component.tsx`）
-- ❌ コンポーネントスタイルが `style.css.ts` 以外（`BaseButton.css.ts`、`styles.css.ts`、`index.module.css`）
-- ❌ hook ファイルが kebab-case（→ `useXxx.ts` の camelCase）
-- ❌ サーバー専用モジュールに `.server.ts` サフィックスがない
-- ❌ クライアント専用モジュールに `.client.ts` サフィックスがない
-- ❌ `~/` / `~/+types/` 以外のプレフィックスを使ったパスエイリアス（`@/`、`@components/`、`#/` 等）の使用
-- ❌ `export default` でのコンポーネントエクスポート（`route.tsx`・`entry.*`・`root.tsx` は除く）
-- ❌ ルートファイルが flatRoutes 規約から外れている
-- ❌ Vanilla Extract のレイヤー指定が配置場所と合っていない（`components/primitives/` で `cssLayerComponentCommon` を使う等）
+- ❌ `app/lib/`・`app/components/`・`app/controllers/` の新設、`app/` 直下への 1 つの機能のためのファイル
+- ❌ 1 つのルートでしか使わない部品を `app/ui/` に置く
+- ❌ `app/env.ts` 以外で `process.env` を読む
+- ❌ `routes.ts` に素の文字列パターン、または `routes.ts` から app のモジュールを import する
+- ❌ 内部リンクを文字列で書く、日本語のリンクに `/ja` を付ける、末尾に `/` を付ける
+- ❌ ネストしたルートマップに `router.map` の行や controller がない、言語つきの controller に `lang()` がない
+- ❌ ページのコンポーネントの中で API を呼ぶ（`<key>-page.data.ts` に置く）
+- ❌ エラーを HTML で組み立てて返す、API のエラーの文言を訪問者に見せる
+- ❌ `primitives/` が色・文字サイズ・トークンを持つ
+- ❌ ハイドレートする部品が `public/` の外の値を import する、`clientEntry` に `import.meta.url` を渡す
+- ❌ nonce のない `<script>`
+- ❌ Node 専用の API（`node:fs`、`remix/middleware/static`、アセットサーバー）を Worker のコードで使う

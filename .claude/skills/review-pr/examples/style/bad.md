@@ -1,508 +1,213 @@
 # Bad 例（アンチパターン）
 
-レビューで指摘すべき典型例と、対応する Good への修正方針。
+指摘の対象になる書き方と、その直し方。どれも `rules/style/*.md` のアンチパターンの具体例。
 
-## 1. ❌ コンポーネントディレクトリ命名
-
-```
-# Bad
-app/components/ui/button/base-button/index.tsx
-app/components/ui/Buttons/BaseButton/index.tsx
-app/components/ui/buttons/baseButton/index.tsx
-app/components/ui/BaseButton/index.tsx          # ui/ 直下にカテゴリなし
-```
-
-**問題**: カテゴリが単数形 / PascalCase、コンポーネントが kebab-case / camelCase、ui/ 直下に置いている。
+## 1. ❌ ディレクトリとファイルの名前
 
 ```
+# Bad — React Router 版の名残
+app/ui/buttons/BaseButton/index.tsx
+app/ui/buttons/BaseButton/style.css.ts
+
 # Good
-app/components/ui/buttons/BaseButton/index.tsx
+app/ui/buttons/public/base-button/base-button.tsx
+app/ui/buttons/public/base-button/base-button.styles.ts
 ```
 
-参照: `rules/style/structure.md` ui/ 配下のカテゴリ分割
-
-## 2. ❌ コンポーネントエントリ／スタイルファイル名
-
-```
-# Bad
-app/components/ui/buttons/BaseButton/BaseButton.tsx
-app/components/ui/buttons/BaseButton/Component.tsx
-app/components/ui/buttons/BaseButton/index.module.css   # CSS Modules ではない
-app/components/ui/buttons/BaseButton/styles.css.ts
-```
-
-```
-# Good
-app/components/ui/buttons/BaseButton/index.tsx
-app/components/ui/buttons/BaseButton/style.css.ts
-```
-
-参照: `rules/style/structure.md` コンポーネントディレクトリの構造
-
-## 3. ❌ Props 型の命名
+## 2. ❌ コンポーネントの書き方が React のまま
 
 ```tsx
-// Bad
-export type ButtonProps = { /* ... */ }       // コンポーネント名と乖離
-export interface BaseButtonProps { /* ... */ } // interface
-```
+// Bad — 引数で props を受け取る・フックで状態を持つ
+export const Counter = ({ initial }: CounterProps) => {
+  const [count, setCount] = useState(initial)
+  return <button onClick={() => setCount(count + 1)}>{count}</button>
+}
 
-**問題**: 1 つ目は `BaseButton` というコンポーネント名と一致しない。2 つ目は `interface`（本プロジェクトは `type` で統一）。
-
-```tsx
-// Good
-export type BaseButtonProps = { /* ... */ }
-```
-
-参照: `rules/style/naming.md` Props 型
-
-## 4. ❌ boolean Props に `is*` がない
-
-```tsx
-// Bad
-type Props = {
-  disabled?: boolean
-  logoTitle?: boolean
-  external?: boolean
+// Good — function 宣言、setup の変数、handle.update()
+export function Counter(handle: Handle<CounterProps>) {
+  let count = handle.props.initial
+  return () => (
+    <button mix={on('click', () => { count += 1; handle.update() })}>{count}</button>
+  )
 }
 ```
 
+## 3. ❌ ディスクリプタを export する・重ねて上書きする
+
+```ts
+// Bad — base-button.styles.ts
+export const baseButton = css({ display: 'inline-flex' })
+```
+
+```tsx
+// Bad — 優先順位が描画順で変わる
+<button mix={[css(styles.baseButton), css(styleOverrides)]} />
+```
+
+```ts
+// Good
+export const baseButton: StyleRecipe = { display: 'inline-flex' }
+```
+
 ```tsx
 // Good
-type Props = {
-  isDisabled?: boolean
-  isLogoTitle?: boolean
-  isExternal?: boolean
-}
-
-// 内部で HTML 属性に渡すときに展開
-<button disabled={isDisabled} />
+<button mix={css({ ...styles.baseButton, ...styleOverrides })} />
 ```
 
-参照: `rules/style/naming.md` Props の命名
-
-## 5. ❌ Vanilla Extract のエクスポート命名
+## 4. ❌ 浅いスプレッドで消える宣言
 
 ```ts
-// Bad — PascalCase は CSS Modules 風で本プロジェクトの慣例外
-export const BaseButton = style({ /* ... */ })
-export const BaseButton__text = style({ /* ... */ })
+// Bad — 後ろの [MEDIA_QUERY.SM] が前のブロックを丸ごと置き換え、paddingInline が消える
+export const card: StyleRecipe = { [MEDIA_QUERY.SM]: { paddingInline: '16px', gap: '8px' } }
+export const card__wide: StyleRecipe = { [MEDIA_QUERY.SM]: { gap: '16px' } }
 
-// Bad — Element に __ を 2 つ使う（Modifier と区別がつかない）
-export const baseButton__text = style({ /* ... */ })
-export const baseButton__container = style({ /* ... */ })
-
-// Bad — Modifier に _ を 1 つ使う（Element と区別がつかない）
-export const baseButton_disabled = style({ /* ... */ })
-export const baseButton_large = style({ /* ... */ })
-
-// Bad — Modifier を独立ブロックにする
-export const baseButtonRightArrow = style({ /* ... */ })
-export const baseButtonDisabled = style({ /* ... */ })
+// Good — 残したい宣言も書き直す
+export const card__wide: StyleRecipe = { [MEDIA_QUERY.SM]: { paddingInline: '16px', gap: '16px' } }
 ```
 
-```ts
-// Good
-export const baseButton = style({ /* ... */ })           // ベース block
-export const baseButton_text = style({ /* ... */ })       // Element（_ 1つ）
-export const baseButton_container = style({ /* ... */ })  // Element
-export const baseButton__disabled = style({ /* ... */ })  // Modifier（__ 2つ）
-export const baseButton__large = style({ /* ... */ })     // Modifier
-export const baseButton__contained = style({ /* ... */ }) // Modifier
-```
-
-参照: `rules/style/css.md` エクスポート命名
-
-## 6. ❌ `@layer` の指定漏れ・誤り
-
-```ts
-// Bad — レイヤー指定なしの裸 style
-export const baseButton = style({
-  display: 'inline-flex',
-  alignItems: 'center',
-})
-```
-
-```ts
-// Bad — 配置場所と合わないレイヤー
-// app/components/ui/buttons/BaseButton/style.css.ts に Common を使うのは誤り
-export const baseButton = style({
-  '@layer': {
-    [cssLayerComponentCommon]: { /* ... */ },
-  },
-})
-```
-
-```ts
-// Bad — primitives/ 配下なのに UiLow を使う
-// app/components/primitives/buttons/PrimitiveButton/style.css.ts
-export const primitiveButton = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: { /* ... */ },
-  },
-})
-```
-
-```ts
-// Good
-import { cssLayerComponentUiLow } from '~/styles/variables/layers.css'
-
-export const baseButton = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: {
-      display: 'inline-flex',
-      alignItems: 'center',
-    },
-  },
-})
-```
-
-定義済みレイヤー定数: `cssLayerReset`、`cssLayerComponentUiPrimitive`、`cssLayerComponentUiLow`、`cssLayerComponentUiMiddle`、`cssLayerComponentUiHigh`、`cssLayerComponentCommon`、`cssLayerComponentPage`、`cssLayerUtils`
-
-参照: `rules/style/css.md` カスケードレイヤー
-
-## 7. ❌ 物理プロパティの直書き
+## 5. ❌ レシピの命名
 
 ```ts
 // Bad
-export const baseButton = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: {
-      width: '100%',
-      height: 48,
-      paddingTop: 12,
-      paddingBottom: 12,
-      paddingLeft: 16,
-      paddingRight: 16,
-      marginTop: 8,
-      marginLeft: 16,
-      top: 0,
-      left: 0,
-      borderLeft: '1px solid',
-    },
-  },
-})
-```
+export const styleArticleCard = { … }        // style 接頭辞
+export const articleCard__title = { … }      // 要素に __
+export const articleCard_title_text = { … }  // 要素の要素
 
-```ts
 // Good
-export const baseButton = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: {
-      inlineSize: '100%',
-      blockSize: 48,
-      paddingBlock: 12,
-      paddingInline: 16,
-      marginBlockStart: 8,
-      marginInlineStart: 16,
-      insetBlockStart: 0,
-      insetInlineStart: 0,
-      borderInlineStart: '1px solid',
-    },
-  },
-})
+export const articleCard = { … }
+export const articleCard_title = { … }
+export const articleCardTitle_text = { … }   // 別のブロック名にする
 ```
 
-参照: `rules/style/css.md` 論理プロパティ
-
-## 8. ❌ リテラル値の直書き
+## 6. ❌ メディアクエリ・ホバー
 
 ```ts
 // Bad
-export const baseButton = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: {
-      color: '#fff',
-      backgroundColor: '#a2beed',
-      fontWeight: 700,
-      fontSize: 16,
-      opacity: 0.4,
-    },
-  },
-})
-```
+'@media (min-width: 768px)': { … }
+'@media (max-width: 767px)': { … }
+'&:hover': { opacity: 0.7 }
+const mq = (bp: number) => `@media (width >= ${bp}px)`   // string を返す関数は計算キーにできない
 
-```ts
 // Good
-import { cssVariables } from '~/styles/variables/cssVariables.css'
-import { fontMediumBold } from '~/styles/variables/font.css'
-
-export const baseButton = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: {
-      ...fontMediumBold,
-      color: cssVariables.color.font.light.hex,
-      backgroundColor: cssVariables.color.background.primary.hex,
-      opacity: cssVariables.opacity.disabled,
-    },
-  },
-})
+[MEDIA_QUERY.MD]: { … }
+[MEDIA_QUERY_REVERSE.MD]: { … }
+[MEDIA_QUERY.HOVER]: { '&:hover': { opacity: 'var(--opacity-hover)' } }
 ```
 
-参照: `rules/style/css.md` CSS 変数 / Mixin
-
-## 9. ❌ ホバーが `getMediaQuery('hover')` 外
-
-```ts
-// Bad — タッチデバイスで誤発火
-export const baseButton = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: {
-      selectors: {
-        '&:hover': {
-          opacity: 0.6,
-        },
-      },
-    },
-  },
-})
-```
-
-```ts
-// Good
-import { getMediaQuery } from '~/styles/mixins/mediaQuery.css'
-
-export const baseButton = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: {
-      '@media': {
-        [getMediaQuery('hover')]: {
-          selectors: {
-            '&:hover': {
-              opacity: 0.6,
-            },
-          },
-        },
-      },
-    },
-  },
-})
-```
-
-参照: `rules/style/css.md` ホバーは `getMediaQuery('hover')` でラップ
-
-## 10. ❌ メディアクエリの直書き
+## 7. ❌ 物理プロパティ・リテラルの値
 
 ```ts
 // Bad
-'@media': {
-  '(any-hover: hover)': {
-    selectors: { '&:hover': { /* ... */ } },
-  },
-  '(min-width: 768px)': {
-    fontSize: 18,
-  },
-}
+{ width: '100%', marginLeft: 'auto', color: '#2f3a3a', fontSize: '14px', WebkitLineClamp: 3 }
+
+// Good
+{ inlineSize: '100%', marginInlineStart: 'auto', color: 'var(--color-font-base)',
+  ...fontMedium, ...getLineClamp(3) }
 ```
+
+## 8. ❌ primitive にデザインを持たせる
 
 ```ts
-// Good
-import { getMediaQuery } from '~/styles/mixins/mediaQuery.css'
+// Bad — primitive-button.styles.ts
+export const primitiveButton: StyleRecipe = { color: 'var(--color-font-primary)', borderRadius: '8px' }
 
-'@media': {
-  [getMediaQuery('hover')]: {
-    selectors: { '&:hover': { /* ... */ } },
-  },
-  [getMediaQuery('md')]: {  // BREAKPOINTS のキーで指定
-    fontSize: 18,
-  },
-}
+// Good — primitive はリセットだけ。色や角丸は base-button 側が styleOverrides で渡す
+export const primitiveButton: StyleRecipe = { color: 'inherit', font: 'inherit' }
 ```
 
-参照: `rules/style/css.md` メディアクエリ
+## 9. ❌ ルートとリンク
 
-## 11. ❌ `clsx` の使用
-
-```tsx
-// Bad — 既存コードに合わない
-import clsx from 'clsx'
-
-className={clsx(
-  styles.baseButton,
-  isDisabled && styles.baseButton__disabled,
-  className,
-)}
+```ts
+// Bad
+home: '/',                         // メソッドがない（POST や DELETE にも応答する）
+drinks: get(`/${DRINKS}`),         // パターンがリテラルでない
 ```
-
-```tsx
-// Good — 既存パターン
-className={[
-  styles.baseButton,
-  isDisabled && styles.baseButton__disabled,
-  className,
-]
-  .filter(Boolean)
-  .join(' ')}
-```
-
-参照: `rules/style/css.md` TS 側でのクラス結合
-
-## 12. ❌ ファイル命名
-
-```
-# Bad — hook が kebab-case / PascalCase
-app/hooks/use-pagination-scroll.ts
-app/hooks/UsePaginationScroll.ts
-
-# Bad — サーバー専用なのに .server.ts サフィックスがない
-app/server/api/drinks.ts
-
-# Bad — クライアント専用なのに .client.ts サフィックスがない
-app/utils/gtags.ts
-```
-
-```
-# Good
-app/hooks/usePaginationScroll.ts
-app/server/api/drinks.server.ts
-app/utils/gtags.client.ts
-```
-
-参照: `rules/style/naming.md` ファイル / ディレクトリ命名、`rules/style/structure.md` サーバー / クライアント分離
-
-## 13. ❌ 配置場所の取り違え
-
-```
-# Bad — 1度しか使わないレイアウト系を ui/ へ
-app/components/ui/layouts/SiteHeader/
-
-# Bad — 再利用するボタンを common/ へ
-app/components/common/PrimaryButton/
-
-# Bad — HTML 要素を最小限ラップした建材を ui/ へ
-app/components/ui/buttons/PrimitiveButton/
-```
-
-```
-# Good
-app/components/common/LayoutHeader/                    # 1度しか使わない→ common
-app/components/ui/buttons/BaseButton/                  # 再利用→ ui/<category>/
-app/components/primitives/buttons/PrimitiveButton/     # 建材→ primitives/<category>/
-```
-
-参照: `rules/style/structure.md` components の 3 階層
-
-## 14. ❌ コンポーネントの `export default`
 
 ```tsx
 // Bad
-const BaseButton = (props: BaseButtonProps) => { /* ... */ }
-export default BaseButton
-```
+<a href={`/en/drinks/${id}`}>…</a>
+<a href="/ja/drinks/">…</a>        // /ja と末尾の / は付けない
 
-```tsx
 // Good
-export const BaseButton = ({ /* ... */ }: BaseButtonProps) => { /* ... */ }
+<a href={routes.drinks.show.href({ lang: toLangParam(lang), drinkId: id })}>…</a>
 ```
 
-ただし以下は React Router v7 の規約により `export default` が **必須**。指摘対象外:
+## 10. ❌ 置き場所
 
-- `app/routes/**/route.tsx` のページコンポーネント
-- `app/entry.client.tsx`、`app/entry.server.tsx`、`app/root.tsx`
+```
+# Bad — 一覧ページだけが使うページネーションを app/ui/ へ
+app/ui/paginations/base-pagination/
 
-参照: `rules/style/structure.md` 名前付きエクスポート
+# Good — 2 つ目のルートエリアが使うまではページの近く
+app/actions/drinks/index-page/components/base-pagination/
 
-## 15. ❌ パスエイリアスの誤用
-
-```tsx
-// Bad — このプロジェクトには存在しないプレフィックスのエイリアス
-import { BaseButton } from '@/components/ui/buttons/BaseButton'
-import { BaseButton } from '@components/buttons/BaseButton'
-import { BaseButton } from '#components/buttons/BaseButton'
-
-// Bad — 相対パスで深く辿る
-import { BaseButton } from '../../../components/ui/buttons/BaseButton'
+# Bad — 新しい「何でも置き場」
+app/lib/  app/components/  app/controllers/  app/helpers.ts
 ```
 
-```tsx
-// Good — アプリケーションコードは `~/` を使う
-import { BaseButton } from '~/components/ui/buttons/BaseButton'
-
-// Good — React Router 生成型は `~/+types/` を使う（tsconfig.json paths に定義された専用エイリアス）
-import type { Route } from '~/+types/root'
-```
-
-参照: `rules/style/structure.md` パスエイリアス
-
-## 16. ❌ 共通型を再定義
+## 11. ❌ ページのコンポーネントで API を呼ぶ・エラーを HTML で返す
 
 ```tsx
-// Bad — 既に EventTypes['onClickButton'] に定義されているものを毎回書く
-type Props = {
-  onClick?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void
+// Bad
+async show(context) {
+  const result = await getDrinkDetail(context.params.drinkId)
+  if (!result.success) return context.render(<p>{result.message}</p>, { status: result.status })
+  // …
 }
+
+// Good — 読み込みは show-page.data.ts、失敗は素の Response
+const data = await loadShowPage(context.lang, context.params.drinkId)
+if (data instanceof Response) return data
 ```
 
+## 12. ❌ ハイドレーション
+
 ```tsx
+// Bad — import.meta.url は束ねると使えない。アロー関数はエクスポート名がない
+export const SearchForm = clientEntry(import.meta.url, (handle: Handle<Props>) => () => …)
+
+// Bad — public/ の外の値を import している（build-client が IMPORT_NOT_ALLOWED で失敗）
+// app/actions/drinks/index-page/public/components/search-form/search-form.tsx
+import { MESSAGES } from '../../../index-page.tsx'
+
 // Good
-import type { EventTypes } from '~/types/event'
-
-type Props = {
-  onClick?: EventTypes['onClickButton']
-}
+export const SearchForm = clientEntry(
+  clientModuleUrl('app/actions/drinks/index-page/public/components/search-form/search-form.tsx'),
+  function SearchForm(handle: Handle<SearchFormProps>) { … }
+)
 ```
 
 ```tsx
-// Bad — HTML 属性型を独自に定義
-type Props = {
-  target?: '_self' | '_blank' | '_parent' | '_top'
-  buttonType?: 'button' | 'submit' | 'reset'
-}
-```
+// Bad — nonce がないと CSP に止められる
+<script>{inline}</script>
 
-```tsx
 // Good
-import type { AnchorTarget, ButtonType } from '~/types/html'
-
-type Props = {
-  target?: AnchorTarget
-  buttonType?: ButtonType
-}
+<script nonce={nonce}>{inline}</script>   // nonce は setup で useCspNonce(handle)
 ```
 
-参照: `rules/style/naming.md` 型 / 列挙
+## 13. ❌ 環境変数とテスト
 
-## 17. ❌ ハンドラ Props の命名
+```ts
+// Bad — app/env.ts 以外で process.env を読む
+const apiUrl = process.env.API_URL
 
-```tsx
-// Bad — Props 名が handle*
-type Props = {
-  handleChangePage: (newPage: number) => void
-  handleClick: () => void
-}
+// Good
+import { API_URL } from '../env.ts'
 ```
 
-```tsx
-// Good — Props は on*、ローカル関数が handle*
-type Props = {
-  onChangePage: (newPage: number) => void
-  onClick: () => void
-}
+```ts
+// Bad — 失敗しても npm test が成功になる（lint でも検出）
+import { describe, it } from 'node:test'
 
-// 呼び出し側でローカル関数を handle* で書いて渡す
-const handleChangePage = (page: number) => { /* ... */ }
-<BasePagination onChangePage={handleChangePage} />
+// Bad — API を使うページなのに mockKuroco がなく、本物の API に通信する
+it('renders the list', async () => {
+  const response = await router.fetch(new Request('http://localhost/drinks'))
+})
+
+// Good
+import { describe, it } from 'remix/test'
+it('renders the list', async (t) => {
+  mockKuroco(t)
+  const response = await router.fetch(new Request('http://localhost/drinks'))
+})
 ```
-
-参照: `rules/style/naming.md` 変数 / 関数
-
-## 18. ❌ ルート規約から外れたファイル配置
-
-```
-# Bad — ルートファイル名が route.tsx ではない
-app/routes/($lang)._public._layout._index/index.tsx
-app/routes/($lang)._public._layout._index/page.tsx
-
-# Bad — flatRoutes 規約に従わないディレクトリ名
-app/routes/home/index.tsx
-app/routes/drinks/[id].tsx
-```
-
-```
-# Good
-app/routes/($lang)._public._layout._index/route.tsx
-app/routes/($lang)._public._layout.drinks._index/route.tsx
-app/routes/($lang)._public._layout.drinks.$drinkId._index/route.tsx
-```
-
-参照: `rules/style/structure.md` ルートファイルの配置

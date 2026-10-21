@@ -1,332 +1,112 @@
-# CSS規約（Vanilla Extract）
+# CSS 規約（Remix の `css(...)` とスタイルのレシピ）
 
-`*.css.ts` ファイル（Vanilla Extract）に対する規約。`oxlint`/`oxfmt` で機械的に検出できないルール（とくにエクスポート命名と `@layer` 配置）を中心に列挙する。
+コンポーネントのスタイルは `<name>.styles.ts` のプレーンなレシピ（`StyleRecipe`）で書き、`mix={css(...)}` で要素に付ける。グローバルな CSS は `public/static/css/app.css` だけ。根拠は `CLAUDE.md` の「Rules that came from measurement, not taste」と「Global CSS」。
 
-## エクスポート命名（camelCase + BEM 風ハイブリッド）
+## レシピを export する
 
-本プロジェクトは **Vanilla Extract** で `style({...})` の戻り値を `export const` するため、JS 識別子の制約から **クラス名は camelCase**。ただし内部に **BEM 風の構造** を持たせている。
+`.styles.ts` は `css(...)` のディスクリプタではなく、プレーンなオブジェクトを export する。ディスクリプタはスプレッドできないので、export すると呼び出し側から上書きの手段を奪う。`app/actions/` の中の `.styles.ts` も同じ。
 
-| 役割 | 形式 | 例 |
-|---|---|---|
-| ベースブロック | **camelCase**（コンポーネント名と一致、先頭小文字） | `baseButton`、`articleCard`、`layoutHeader`、`primitiveButton` |
-| 要素（Element） | `block_camelCase`（**シングルアンダースコア**） | `baseButton_text`、`baseButton_container`、`articleCardTitle_text`、`layoutHeader_wrapper` |
-| 修飾子（Modifier） | `block__camelCase`（**ダブルアンダースコア**） | `baseButton__disabled`、`baseButton__large`、`baseButton__contained`、`baseButton__primary`、`layoutHeaderBar__top` |
-| サブブロック | 別の camelCase ブロック（独立した塊） | `articleCardTitle`、`articleCardThumbnail`、`articleCardTags`、`layoutHeaderMenuGlobal`、`layoutHeaderLogo` |
-| サブブロックの要素 | `subBlock_camelCase` | `articleCardThumbnail_image`、`layoutHeaderLogo_title`、`layoutHeaderMenuGlobal_navigation` |
+```ts
+// Good — app/ui/layouts/layout-inner/layout-inner.styles.ts
+import type { StyleRecipe } from '../../styles/public/mixins.ts'
 
-> **注意**: 既存コードの中には `articleCardTitle_text` のように「サブブロック + 要素」を 1 階層で書く例が多い。**「Element の Element」を書きたくなったらサブブロックに切る**のが本プロジェクトの判断軸。
-
-### サブブロックを切る目安
-
-ひとつのコンポーネント内で論理的に独立したまとまりがある場合は、`block_sub_xxx` のような深いネストにせず、**新しい camelCase ブロックに分ける**。例えば `ArticleCard` 内のタイトル、説明、サムネイル、タグはそれぞれ独立したサブブロック（`articleCardTitle`、`articleCardDescription`、`articleCardThumbnail`、`articleCardTags`）として記述する。
-
-判断基準:
-- 「Element の Element」を書きたくなったら、サブブロックに切る合図
-- そのまとまりが他のコンポーネントから視覚的に独立した塊として見えるか
-
-### Modifier の使い方
-
-修飾子は **ベースクラスと組み合わせて指定**する。Vanilla Extract ではテンプレートリテラルで参照する:
-
-```tsx
-// Good — TS 側でコンポーネント内のローカル変数として組み合わせ
-import * as styles from './style.css'
-
-export const BaseButton = ({ isDisabled, size = 'medium', variant = 'contained', ...props }: BaseButtonProps) => {
-  const baseButtonClassName = useMemo(() => {
-    return [
-      styles.baseButton,
-      isDisabled && styles.baseButton__disabled,
-      styles[`baseButton__${size}`],
-      styles[`baseButton__${variant}`],
-    ]
-      .filter(Boolean)
-      .join(' ')
-  }, [isDisabled, size, variant])
-
-  return <PrimitiveButton {...props} className={baseButtonClassName} isDisabled={isDisabled} />
+export const layoutInner: StyleRecipe = {
+  marginInline: 'auto',
+  paddingInline: 'var(--layout-inner-padding-xs)',
+  inlineSize: '100%',
+  [MEDIA_QUERY.SM]: { paddingInline: 'var(--layout-inner-padding-sm)' },
 }
 ```
 
-> ローカル変数名は `<componentName>ClassName` で揃えるのが既存パターン（例: `baseButtonClassName`、`primitiveButtonClassName`）。Vanilla Extract のスタイル export 名（`baseButton`）と同名にしない。
+## 名前空間で import し、1 回の `css(...)` にまとめる
 
 ```ts
-// Good — Modifier の有無で挙動が変わる場合は CSS 側でセレクタ結合
-export const baseButton__primary = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: {
-      selectors: {
-        [`&${baseButton__contained}`]: {
-          backgroundColor: 'transparent',
-          color: cssVariables.color.font.light.hex,
-        },
-      },
-    },
-  },
-})
+import * as styles from './layout-inner.styles.ts'
+
+css(styles.layoutInner)                                             // 1 つだけなら直接渡す
+css({ ...styles.layoutInner, ...styles.layoutInnerSizes[size], ...styleOverrides })  // 上書きはスプレッド
 ```
 
-## カスケードレイヤー（@layer）
+- **上書きのためにディスクリプタを重ねない**（`mix={[css(base), css(override)]}`）。`css(...)` はそれぞれ `@layer rmx.<hash>` を作り、その順序は配列の位置ではなく**最初に描画された順**で決まる。別の場所で先に描画されると優先順位が逆転する
+- **`mix` の配列は振る舞い（`on('click', …)`）と、リセットが触れないプロパティのスタイルだけ**
+- **呼び出し側の上書きは `styleOverrides` で受け取り、スプレッドの最後近くに置く**。ただし、呼び出し側に消されては困るもの（`PrimitiveButton` の無効化の見た目）はその後ろに置く
+- **スプレッドは浅い**。`[MEDIA_QUERY.SM]` や `'&::before'` を持つレシピを後ろに置くと、前のブロックは**マージではなく置き換え**になる。残したい宣言はすべて書き直す（`base-button.styles.ts` がグラデーションを色のレシピだけに持つ理由）
+- **1 つしか使わない短いスタイルはインラインでよい**。再利用するか、コンポーネントが読みにくくなったら `.styles.ts` に移す
 
-`app/styles/variables/layers.css.ts` で **`globalLayer({ parent: ... }, name)` によるネスト層** として定義されている。`utils` を最上位として、その内側に `componentPage` → `componentCommon` → `componentUiHigh` → `componentUiMiddle` → `componentUiLow` → `componentUiPrimitive` → `reset` が順にネストされる:
+## 命名（BEM 風）
 
-```
-@layer utils {
-  @layer componentPage {
-    @layer componentCommon {
-      @layer componentUiHigh {
-        @layer componentUiMiddle {
-          @layer componentUiLow {
-            @layer componentUiPrimitive {
-              @layer reset { ... }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-```
+- `block`、`block_element`（要素は `_` 1 つ）、`block__modifier`（修飾子は `__` 2 つ）。BEM 本来とは逆
+- `style` 接頭辞を付けない（`styles.styleLayoutInner` は重複）
+- **要素の要素は作らない**。入れ子のまとまりには別のブロック名を付ける（`mainVisual_titleImage` ではなく `mainVisualTitle_image`）。1 つの `.styles.ts` に複数のブロックがあってよい
+- **バリアントは名前を持つ修飾子の定数を作り、対応表（`layoutInnerSizes`）はそれを指す**
 
-レビュー実務上は **「ファイルの配置場所と一致するレイヤー定数を使うこと」** だけを確認すれば足りる。具体的な cascade 優先順位の機微（ネスト層同士の比較ルール）に踏み込んだ指摘はせず、配置と定数の不一致のみを Must とする。
+## メディアクエリ・コンテナクエリ
 
-エクスポート定数:
+- **`MEDIA_QUERY.*`・`MEDIA_QUERY_REVERSE.*`・`MEDIA_QUERY_BETWEEN.*`・`CONTAINER_QUERY*.*` の定数を計算キーに使う**（`app/ui/styles/public/media-query.ts`）。`@media (min-width: 768px)` を直書きしない
+- **クエリを返す関数を作らない**。`string` を返すと計算キーがリテラル型でなくなり、`CSSProps` と型が衝突する
+- **ホバーは `[MEDIA_QUERY.HOVER]: { '&:hover': {…} }`**。タッチ端末でホバーが残らないようにする
+- **JavaScript なしで見せるものは `MEDIA_QUERY.NOT_SCRIPTING`**
+- **上限は排他的**（`width < 768px`）。`max-width: 767px` のような `- 1` の値を書かない
+- `CONTAINER_QUERY.*` は名前のないコンテナを指し、最も近い `container-type` の祖先に効く
 
-| 定数 | 用途 |
-|---|---|
-| `cssLayerReset` | リセット CSS |
-| `cssLayerComponentUiPrimitive` | `app/components/primitives/` 配下 |
-| `cssLayerComponentUiLow` | `app/components/ui/` 配下のシンプルな UI（buttons、tags、icons、typographies、簡素な cards） |
-| `cssLayerComponentUiMiddle` | `app/components/ui/` 配下で他の low コンポーネントを使う中位レイヤー（lists、複合的な cards、forms 等） |
-| `cssLayerComponentUiHigh` | `app/components/ui/` 配下の高位コンポーネント（layouts 等、上位構造を提供するもの） |
-| `cssLayerComponentCommon` | `app/components/common/` 配下（`LayoutHeader`、`LayoutFooter`、`LayoutPortal`） |
-| `cssLayerComponentPage` | `app/routes/**/style.css.ts`（ページ固有スタイル） |
-| `cssLayerUtils` | 補助的な utility |
+## 論理プロパティ
 
-### コンポーネントの `style.css.ts` は **必ず `@layer` で囲む**
-
-Vanilla Extract では `style({ '@layer': { [layerVar]: { ...rules } } })` の形で書く:
-
-```ts
-// Good — 必ず @layer で囲む
-export const baseButton = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: {
-      display: 'inline-flex',
-      alignItems: 'center',
-    },
-  },
-})
-```
-
-```ts
-// Bad — レイヤー指定なしの裸ルール
-export const baseButton = style({
-  display: 'inline-flex',
-  alignItems: 'center',
-})
-```
-
-```ts
-// Bad — 配置場所と合わないレイヤー
-// app/components/ui/buttons/BaseButton/style.css.ts に componentCommon を使うのは誤り
-export const baseButton = style({
-  '@layer': {
-    [cssLayerComponentCommon]: { ... },
-  },
-})
-```
-
-## 論理プロパティ（Logical Properties）の徹底
-
-本プロジェクトは将来的なロケール拡張・縦書き対応を見据え、**物理プロパティではなく論理プロパティを使う**。
+物理プロパティではなく論理プロパティを使う（既存のレシピはほぼすべて論理プロパティ）。
 
 | 物理（NG） | 論理（OK） |
 |---|---|
-| `width` | `inlineSize` |
-| `height` | `blockSize` |
+| `width` / `height` | `inlineSize` / `blockSize` |
 | `paddingTop` / `paddingBottom` | `paddingBlock` / `paddingBlockStart` / `paddingBlockEnd` |
 | `paddingLeft` / `paddingRight` | `paddingInline` / `paddingInlineStart` / `paddingInlineEnd` |
-| `marginTop` / `marginBottom` | `marginBlock` / `marginBlockStart` / `marginBlockEnd` |
-| `marginLeft` / `marginRight` | `marginInline` / `marginInlineStart` / `marginInlineEnd` |
-| `top` / `bottom` | `insetBlockStart` / `insetBlockEnd` |
-| `left` / `right` | `insetInlineStart` / `insetInlineEnd` |
-| `borderTop` / `borderBottom` | `borderBlock` / `borderBlockStart` / `borderBlockEnd` |
-| `borderLeft` / `borderRight` | `borderInline` / `borderInlineStart` / `borderInlineEnd` |
+| `marginTop` / `marginLeft` など | `marginBlock*` / `marginInline*` |
+| `top` / `left` など | `insetBlockStart` / `insetInlineStart` など |
+| `borderTop` / `borderLeft` など | `borderBlock*` / `borderInline*` |
 
-例外: `transform`、`backgroundPosition`、`gridTemplateAreas` 等は物理座標が前提。`textAlign: 'start' / 'end'` は論理側を使う（`left` / `right` を避ける）。
+例外: `transform`、`backgroundPosition` など物理座標が前提のもの。`textAlign` は `start` / `end`。
 
-## CSS 変数 / Mixin
+## トークンとミックスイン
 
-### 色・フォント・余白のリテラル直書きは避ける
+- **色・不透明度・レイアウトの寸法・`z-index` は `app.css` のカスタムプロパティを `var()` で参照する**（`var(--color-font-primary)`、`var(--opacity-hover)`、`var(--layout-inner-padding-sm)`）。色をリテラルで書かない。アルファ付きは `color-mix(in srgb, var(--color-…) 40%, transparent)` のようにカスタムプロパティから作る
+- **文字の大きさと太さは `app/ui/styles/public/tokens.ts` のプリセットをスプレッドする**（`...fontMediumBold`）
+- **ミックスイン**（`app/ui/styles/public/mixins.ts`・`color.ts`）
 
-CSS 変数は `app/styles/variables/cssVariables.css.ts` で `createGlobalTheme` 経由で定義され、`cssVariables.*` で参照できる:
+| 関数 | 用途 |
+|---|---|
+| `getClampPx(min, max)` | 流体の px 値（`gap`、`paddingInline`） |
+| `getClampRem(min, max)` | 流体の rem 値（`fontSize`） |
+| `getFontSize(px)` | 固定の px を rem に |
+| `getLineClamp(n)` | n 行で切る |
+| `getTransition([{ property }])` | トランジション |
+| `getTextGradation(color)` | 文字にグラデーション |
 
-```ts
-// Good
-import { cssVariables } from '~/styles/variables/cssVariables.css'
+- **単位のないプロパティには文字列を渡す**。Remix は知らないプロパティの数値に `px` を付ける（`WebkitLineClamp: 3` は `3px` になり無効）。出力された CSS で確かめる
+- `/dev/ui` のギャラリー（`app/actions/dev-ui-page/`）はテンプレートから移した見本で、色をリテラルで持つ。ここは対象外
 
-export const baseButton = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: {
-      color: cssVariables.color.font.light.hex,
-      backgroundColor: cssVariables.color.background.primary.hex,
-      fontWeight: cssVariables.font.weight.bold,
-      opacity: cssVariables.opacity.disabled,
-    },
-  },
-})
-```
+## `primitives/` のスタイル
 
-```ts
-// Bad — リテラル色や 700 などのマジックナンバーをコンポーネントから直接記述
-export const baseButton = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: {
-      color: '#fff',
-      backgroundColor: '#a2beed',
-      fontWeight: 700,
-      opacity: 0.4,
-    },
-  },
-})
-```
+`primitives/` は UA のリセットと状態（無効化など）だけを持ち、`color` と `font` は `inherit`。色・文字の大きさ・余白・角丸・モーションは `<category>/` 側が `styleOverrides` で渡す。
 
-利用可能なトークン（`cssVariables.*`）:
-- `color.font.*`、`color.background.*`、`color.border.*`、`color.util.*`、`color.skeleton.*` — 各キーは `{ hex, rgb }` を持つオブジェクト。色は `cssVariables.color.font.base.hex`、アルファ付きは `getRgba(cssVariables.color.font.base.rgb, 0.4)` のように参照する
-- `color.gradation.*` — **例外**。`hex`/`rgb` を持たず、`linear-gradient()` 等にそのまま埋め込める CSS グラデーション文字列（例: `cssVariables.color.gradation.primary`）。`background: linear-gradient(90deg, ${cssVariables.color.gradation.primary})` のように使う
-- `font.family.main`、`font.weight.{medium,bold}`
-- `opacity.{hover,disabled}`
-- `layout.inner.{width,padding,maxWidth}`
-- `scale.hover`
-- `zIndex.header.{wrapper,global,bar}`
-- `leadingTrim`
+## グローバル CSS（`public/static/css/app.css`）
 
-### 共通フォントプリセットを使う
-
-`app/styles/variables/font.css.ts` に `StyleRule` として用意されたプリセットをスプレッドで適用する:
-
-```ts
-import { fontMediumBold, fontLargeBold, fontCaption } from '~/styles/variables/font.css'
-
-export const articleCardTitle_text = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: {
-      ...fontMediumBold,
-      // 個別調整があれば続けて記述
-    },
-  },
-})
-```
-
-利用可能なプリセット: `fontHeading1`〜`fontHeading4`、`fontMaximumBold`、`fontLarge` / `fontLargeBold`、`fontMedium` / `fontMediumBold`、`fontSmall` / `fontSmallBold`、`fontCaption` / `fontCaptionBold`、`fontMinimum` / `fontMinimumBold`。
-
-### Mixin 関数
-
-`app/styles/mixins/` の関数を活用する:
-
-| Mixin | 出典 | 用途 |
-|---|---|---|
-| `getClampPx(min, max)` | `mixins/size.css` | 流体型の px 値（`paddingInline`、`gap` 等） |
-| `getClampRem(min, max)` | `mixins/size.css` | 流体型の rem 値（`fontSize` 等） |
-| `getFontSize(px)` | `mixins/font.css` | 固定 px → rem 換算 |
-| `getLineClamp(n)` | `mixins/font.css` | n 行クランプ |
-| `getMediaQuery('hover' \| 'print' \| 'not-scripting' \| breakpointKey)` | `mixins/mediaQuery.css` | カスタムメディアクエリ生成 |
-| `getMediaQueryReverse(breakpointKey)` | `mixins/mediaQuery.css` | 逆方向のメディアクエリ |
-| `getContainerQuery(breakpointKey)` / `getContainerQueryReverse` | `mixins/mediaQuery.css` | コンテナクエリ |
-| `getTransition([{ property: '...' }])` | `mixins/transition.css` | トランジション生成 |
-| `getRgba(rgbColor, alpha)` | `mixins/color.css` | `cssVariables.color.*.rgb` を `rgba()` でアルファ付き色に変換 |
-| `getTextGradation(color)` | `mixins/color.css` | テキストにグラデーションを適用する `StyleRule`（`background-clip: text` ほか） |
-
-固定ピクセル値の `fontSize: 16` 直書きが見えたら、`fontMediumBold` 等のプリセットや `getClampRem` で置き換えられないか確認する。アルファ付きの色や `rgba(0, 0, 0, 0.4)` の直書きが見えたら、`cssVariables.color.*.rgb` + `getRgba` の組み合わせに置き換えられないか確認する。
-
-## メディアクエリ
-
-`getMediaQuery()` を経由して書く:
-
-```ts
-// Good
-'@media': {
-  [getMediaQuery('hover')]: {
-    selectors: {
-      '&:hover': { ... },
-    },
-  },
-}
-```
-
-`@media (any-hover: hover)` を直書きしない。
-
-## ホバーは `getMediaQuery('hover')` でラップ
-
-タッチデバイスでのホバー誤発火を防ぐため、`:hover` は必ず `getMediaQuery('hover')` 経由のメディアクエリ内に書く。
-
-```ts
-// Good
-export const baseButton__contained = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: {
-      '@media': {
-        [getMediaQuery('hover')]: {
-          selectors: {
-            '&:hover:before': {
-              opacity: 0,
-            },
-          },
-        },
-      },
-    },
-  },
-})
-```
-
-```ts
-// Bad — タッチデバイスで誤発火
-export const baseButton__contained = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: {
-      selectors: {
-        '&:hover:before': {
-          opacity: 0,
-        },
-      },
-    },
-  },
-})
-```
-
-## TS 側でのクラス結合
-
-`clsx` は使わず、配列 + `filter(Boolean).join(' ')` で結合するのが既存パターン:
-
-```tsx
-// Good — 既存スタイル
-const baseButtonClassName = useMemo(() => {
-  return [
-    styles.baseButton,
-    isDisabled && styles.baseButton__disabled,
-    className,
-    styles[`baseButton__${size}`],
-    styles[`baseButton__${variant}`],
-  ].filter(Boolean).join(' ')
-}, [isDisabled, className, size, variant])
-```
-
-- ベース・要素は `styles.baseButton`（プロパティアクセス）
-- 動的 Modifier は `styles[\`baseButton__${size}\`]`（テンプレートリテラルキー）
-- `isDisabled && styles.baseButton__disabled` で条件付き結合
+- **レイヤーの順序は `@layer reset, lib, base, rmx, util;` の 1 行で宣言する**。新しいレイヤーもここに書く。書かないと最後尾、つまり最も強いレイヤーになる
+- **カスタムプロパティはレイヤーの中に置く**。外に置くと `util` からも上書きできない
+- **アプリ全体の上書きは `util` レイヤー**。`!important` は `[hidden]` のように理由があるものだけ
+- **PostCSS の構文（`@mixin`、`@custom-media`、`@media (--name)`）は使えない**。そのまま配信され、黙って無効になる
+- **ヘッダーのコメントに `<style` の文字列を書かない**。`stylelint --fix` が `\3c style` に書き換える
+- 第三者の CSS は `@import url('…') layer(lib)` で取り込む
 
 ## アンチパターン（指摘対象）
 
-- ❌ エクスポート名が PascalCase（`.BaseButton` のような CSS Modules 風命名）→ `baseButton`
-- ❌ Element を ` __` 2 つで区切る（`baseButton__text`）→ Modifier と区別がつかなくなる。Element は `_` 1 つ
-- ❌ Modifier を `_` 1 つで書く（`baseButton_disabled`）や 別ブロックとして書く（`baseButtonDisabled`）→ `__camelCase`
-- ❌ `@layer` で囲まれていない裸の `style({...})`
-- ❌ 配置と合わないレイヤー（`primitives/` で `cssLayerComponentUiLow` を使う等）
-- ❌ 物理プロパティ（`width`、`paddingLeft`、`marginTop`、`top`、`left`）の使用
-- ❌ リテラルカラー（`#fff`、`rgb(255, 0, 0)`）の直書き → `cssVariables.color.*.hex` を使う
-- ❌ マジックナンバーの font-weight（`fontWeight: 700`）→ `cssVariables.font.weight.bold`
-- ❌ 固定 `fontSize: 16` 直書き → `fontMediumBold` 等のプリセット、または `getClampRem`／`getFontSize`
-- ❌ `:hover` が `getMediaQuery('hover')` 外にある
-- ❌ `@media (any-hover: hover)` の直書き（`getMediaQuery('hover')` を使う）
-- ❌ `clsx` の使用（既存は配列 + `filter(Boolean).join(' ')`）
+- ❌ `.styles.ts` が `css(...)` のディスクリプタを export する
+- ❌ `mix={[css(base), css(override)]}` で上書きする
+- ❌ `styleOverrides` を受け取らず、インラインの `style` 属性で上書きさせる
+- ❌ 名前空間 import をせず、レシピを個別に名前で import する
+- ❌ 要素に `__`、修飾子に `_`、`style` 接頭辞、要素の要素（`block_element_child`）
+- ❌ メディアクエリの直書き、クエリを返す関数、`- 1` の上限
+- ❌ `[MEDIA_QUERY.HOVER]` の外の `'&:hover'`
+- ❌ 物理プロパティ（`width`、`marginLeft`、`top`）
+- ❌ 色のリテラル、文字サイズの数値の直書き（`/dev/ui` の見本を除く）
+- ❌ 単位のないプロパティに数値を渡す
+- ❌ `primitives/` が色やトークンを持つ
+- ❌ `app.css` で未宣言のレイヤー、レイヤーの外のカスタムプロパティ、PostCSS の構文
+- ❌ Vanilla Extract の名残（`style()`、`@layer` キー、`cssVariables`、`clsx`）

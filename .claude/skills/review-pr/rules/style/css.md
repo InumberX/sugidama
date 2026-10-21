@@ -67,7 +67,7 @@ css({ ...styles.layoutInner, ...styles.layoutInnerSizes[size], ...styleOverrides
 ## トークンとミックスイン
 
 - **色・不透明度・レイアウトの寸法・ページ全体の重なり順は `app.css` のカスタムプロパティを `var()` で参照する**（`var(--color-font-primary)`、`var(--opacity-hover)`、`var(--layout-inner-padding-sm)`、`var(--z-index-header-wrapper)`）。部品の中だけの重なり（`zIndex: 1`、`-1`）は数値でよい。色をリテラルで書かない。アルファ付きは `color-mix(in srgb, var(--color-…) 40%, transparent)` のようにカスタムプロパティから作る
-- **文字の大きさと太さは `app/ui/styles/public/tokens.ts` のプリセットをスプレッドする**（`...fontMediumBold`）
+- **文字の大きさと太さは `app/ui/styles/public/tokens.ts` のプリセットをスプレッドする**（`...fontMediumBold`）。プリセットにない固定の大きさは `getFontSize(px)` で rem にし、太さは `var(--font-weight-*)` を使う（入力欄の `getFontSize(16)` は、iOS がフォーカス時に拡大しないための 16px）
 - **ミックスイン**（`app/ui/styles/public/mixins.ts`・`color.ts`）
 
 | 関数 | 用途 |
@@ -107,7 +107,7 @@ css({ ...styles.layoutInner, ...styles.layoutInnerSizes[size], ...styleOverrides
 - ❌ メディアクエリの直書き、クエリを返す関数、`- 1` の上限
 - ❌ `[MEDIA_QUERY.HOVER]` の外の `'&:hover'`
 - ❌ 物理プロパティ（`width`、`marginLeft`、`top`）
-- ❌ 色のリテラル、文字サイズの数値の直書き（`/dev/ui` の見本を除く）
+- ❌ 色のリテラル、文字サイズを px や数値で直書き（`getFontSize` を通す。`/dev/ui` の見本を除く）
 - ❌ 単位のないプロパティに数値を渡す
 - ❌ `primitives/` が色やトークンを持つ
 - ❌ `app.css` で未宣言のレイヤー、レイヤーの外のカスタムプロパティ、PostCSS の構文

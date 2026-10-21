@@ -17,7 +17,7 @@
 
 ## 必要環境
 
-Node.js **24.3.0 以上**（`.node-version` と `volta` は 24.16.0 に固定）。`remix test` と `remix` CLI は `module.registerHooks` で TypeScript を読み込むため、これより古い Node では動きません。
+Node.js **24.3.0 以上**（`.node-version` と `volta` は 24.16.0 に固定）。`remix test`・`remix` CLI・`npm run build-client` は `module.registerHooks` で TypeScript を読み込むため、これより古い Node では動きません。wrangler は `npm run dev` とデプロイの前に `build-client` を実行するので、開発サーバーとデプロイも止まります。
 
 ## セットアップ
 
@@ -80,7 +80,7 @@ app/
     controller.tsx              ルート直下のアクション（home・robots・sitemap・devUi）
     document.tsx                共通の HTML の外枠
     meta.tsx                    サイト全体のメタデータの既定値
-    error-page.tsx              すべてのエラーで表示するページ
+    error-page.tsx              エラーのときに表示するページ
     robots.ts, sitemap.ts       robots.txt と sitemap.xml の本体
     home-page/                  ページ（ルートキー + `-page`）
     drinks/                     ルートエリア（controller.tsx を持つ）
@@ -121,7 +121,7 @@ wrangler.jsonc                  Worker の設定と環境ごとの vars
 - **ハイドレートは必要な部品だけ。** ページはサーバーで描画し、GET フォーム・`<details>`・scroll-snap などの HTML と CSS の機能で操作できるようにしています。JavaScript で動かすのは一覧の検索フォームと詳細のスライダーだけです。タブ・アコーディオンは `@remix-run/ui` を試したうえで手作りにしました。（**Browser JavaScript**・**The `app/ui/` layout**）
 - **環境ごとの値は `wrangler.jsonc` に置く。** `SITE_URL`・`API_URL` などは公開して問題ない値なのでリポジトリに置き、手元と CI のどちらからデプロイしても同じ Worker になるようにしています。Basic 認証などの秘密の値は Worker の secret にします。`BUILD_ID` と `DEPLOYED_AT` だけはデプロイごとに `scripts/deploy.sh` が付けます。（**Cloudflare Workers**）
 - **言語は URL の接頭辞で分ける。** i18next は使わず、各ページとコンポーネントが `defineMessages()` で自分の文言を持ちます。日本語の文言が型を決め、英語の抜けや綴り間違いは型エラーになります。（**Languages**）
-- **エラーはすべて同じページで返す。** ルートはエラーを素のテキストの応答で返し、`app/middleware/error-page.tsx` がそれをサイトの見た目のエラーページに置き換えます。Kuroco API の 404 と 410 は、そのページ自身が見つからないときだけそのまま返し、それ以外の 4xx は 502 にします。5xx はそのまま、応答がなければ 500 です。API の文言は訪問者に見せません。（**Error pages**・**Data**）
+- **エラーは同じ見た目のページで返す。** ルートはエラーを素のテキストの応答で返し、`app/middleware/error-page.tsx` がそれをサイトの見た目のエラーページに置き換えます。例外として、描画の前に失敗したもの（`cop()` の 403、例外による 500）、ファイルへの要求の 404、独自の形式を持つ応答（sitemap の XML）は、素のまま返します。Kuroco API の 404 と 410 は、そのページ自身が見つからないときだけそのまま返し、それ以外の 4xx は 502 にします。5xx はそのまま、応答がなければ 500 です。API の文言は訪問者に見せません。（**Error pages**・**Data**）
 - **スタイルはレシピを 1 回の `css(...)` にまとめて上書きする。** `css(...)` ごとにできるレイヤーは最初に描画された順に並ぶため、ディスクリプタを重ねると優先順位が描画順で変わります。`.styles.ts` はプレーンなレシピを export し、呼び出し側は `styleOverrides` で上書きします。アプリ全体の上書きは `app.css` のカスケードレイヤーで行います。（**Rules that came from measurement, not taste**・**Global CSS**）
 - **セキュリティヘッダーと CSP をルーターで付ける。** ページごとに nonce を作って CSP に入れ、`cop()` で外部からの POST などを拒否します。セッションがないため CSRF トークンはまだ持ちません。（**Security**）
 
@@ -134,7 +134,7 @@ npm run deploy-development   # dev-sugidama
 npm run deploy-production    # sugidama
 ```
 
-`scripts/deploy.sh` は、コミットしていない変更や Git 管理外のファイルがあると止まります。`BUILD_ID` に入るコミットと、実際に出ていくファイルを一致させるためです。
+`scripts/deploy.sh` は、コミットしていない変更や Git 管理外のファイルがあると止まります。`BUILD_ID` に入るコミットと、実際に出ていくファイルを一致させるためです。`public/` に Git が無視しているファイル（macOS の `.DS_Store` など）がある場合も止まります。wrangler は `public/` を丸ごとアップロードするためです。`git status` には出ないファイルなので、止まったときはスクリプトが表示するファイルを消してください（`public/client/` は対象外）。
 
 ## トラブルシューティング
 

@@ -127,14 +127,21 @@ export default createController(routes.drinks, {
 ```ts
 // app/actions/drinks/show-page/show-page.data.ts
 export const loadShowPage = async (lang: Lang, drinkId: string): Promise<ShowPageData | Response> => {
-  const detail = await getDrinkDetail(drinkId)
+  // 互いに待つ必要のない要求は先にすべて始め、必要な順に待つ
+  const termsRequest = getDrinkTerms(lang)
+  const latestRequest = getDrinks({ page: 1, pageSize: ROW_SIZE })
+  const detailRequest = getDrinkDetail(drinkId)
+
+  const detail = await detailRequest
   if (!detail.success) return apiErrorResponse(detail, { notFound: true })
+  const terms = await termsRequest
+  if (!terms.success) return apiErrorResponse(terms)
   // …
 }
 ```
 
 - ルートエリアの controller に `lang()`、`app/router.ts` に `router.map(routes.drinks, drinksController)`
-- データは `show-page.data.ts` で読み、失敗は素の `Response` で返す。見た目はエラーページのミドルウェアが付ける
+- データは `show-page.data.ts` で読み、互いに依存しない API の要求は並行して始める。失敗は素の `Response` で返す。見た目はエラーページのミドルウェアが付ける
 - ページのコンポーネントは props だけで描く
 
 ## 7. ハイドレートする部品

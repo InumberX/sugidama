@@ -5,7 +5,9 @@ description: Review a pull request against this project's style, naming, and str
 
 # review-pr
 
-このプロジェクト固有のレビュー観点を集約したスキル。`app/` 配下の React Router v7 + Vanilla Extract + TypeScript コードに対する規約準拠をレビューする。
+このプロジェクト固有のレビュー観点を集約したスキル。`app/`・`workers/`・`scripts/` 配下の Remix 3 + Cloudflare Workers + TypeScript のコードが、規約に従っているかをレビューする。
+
+規約の本文と理由は `CLAUDE.md` にある。`rules/` はそこからレビューで確かめる点を抜き出したもので、両者が食い違ったら `CLAUDE.md` が正しい。そのときはルールファイルの更新も指摘する。
 
 ## いつ発動するか
 
@@ -15,7 +17,7 @@ description: Review a pull request against this project's style, naming, and str
 - 「スタイルだけ見て」「命名だけチェックして」など特定観点のレビューを依頼された
 - PR の差分（`git diff`、GitHub の PR、ステージング済みの変更）に対する品質評価を求められた
 
-機械的に検出できる項目（フォーマット、未使用変数、`any` 禁止、フック依存配列、import 順序など）は `npm run lint`・`npm run format`・`npm run typecheck` に任せ、本スキルは**人間の判断が必要なルール**にフォーカスする。
+機械的に検出できる項目（フォーマット、未使用変数、`any`、import 順序、`node:test` の使用など）は `npm run format`・`npm run lint`・`npm run typecheck`・`npm run stylelint` に任せる。本スキルは**人間の判断が必要なルール**にフォーカスする。
 
 ## レビュー手順
 
@@ -23,8 +25,8 @@ description: Review a pull request against this project's style, naming, and str
 
 優先順位:
 
-1. ユーザーが PR 番号や URL を指定 → `gh pr view <番号>` / `gh pr diff <番号>` で取得
-2. ブランチが develop から派生している → `git diff develop...HEAD --stat` と `git diff develop...HEAD` で差分把握
+1. ユーザーが PR 番号や URL を指定 → `gh pr view <番号>` / `gh pr diff <番号>` で取得する（`gh` が使えない環境では GitHub の MCP ツールで PR の差分を読む）
+2. ブランチがある → PR のマージ先（移行中は `feature/remix3`、移行後は `develop`）との差分を `git diff <base>...HEAD --stat` と `git diff <base>...HEAD` で把握する
 3. 作業ツリーに未コミット変更がある → `git status` と `git diff`
 
 ### 2. 観点の選択
@@ -36,8 +38,8 @@ description: Review a pull request against this project's style, naming, and str
 | 「PR レビュー」「全体レビュー」「コードレビュー」 | `rules/**/*.md` 全て |
 | 「スタイル」「命名」「CSS」「構造」関連 | `rules/style/*.md` |
 | 「命名だけ」 | `rules/style/naming.md` |
-| 「CSS だけ」「クラス名だけ」「Vanilla Extract」 | `rules/style/css.md` |
-| 「ディレクトリ構造」「ファイル配置」 | `rules/style/structure.md` |
+| 「CSS だけ」「スタイルのレシピ」「`css(...)`」 | `rules/style/css.md` |
+| 「ディレクトリ構造」「ファイル配置」「ルート」「ハイドレーション」 | `rules/style/structure.md` |
 
 将来 `rules/a11y/`・`rules/performance/`・`rules/i18n/` 等が追加されたら、同様のマッピングを拡張する。
 
@@ -45,7 +47,12 @@ description: Review a pull request against this project's style, naming, and str
 
 選択したルールファイルを実際に読み、差分の各ファイルに対してルール違反を検出する。**ルールを推測で適用せず、必ずファイルから引用して根拠を示す。**
 
-判断に迷ったら `examples/style/good.md`・`examples/style/bad.md` を参照する。既存コード（例: `app/components/ui/buttons/BaseButton/`、`app/components/ui/cards/ArticleCard/`、`app/components/common/LayoutHeader/`）も参考にする。
+判断に迷ったら `examples/style/good.md`・`examples/style/bad.md` を参照する。既存コードも参考にする。対になる実例は次のとおり。
+
+- 見た目を持たない骨組みと、見た目を持つ部品: `app/ui/primitives/buttons/public/primitive-button/` と `app/ui/buttons/public/base-button/`
+- ページとそのデータ読み込み: `app/actions/drinks/show-page/`（`show-page.tsx`・`show-page.data.ts`）
+- ハイドレートする部品: `app/actions/drinks/show-page/public/components/article-slider/`
+- 複数のブロックを持つ `.styles.ts`: `app/ui/common/layout-header/layout-header.styles.ts`
 
 ### 4. 出力フォーマット
 
@@ -56,23 +63,19 @@ description: Review a pull request against this project's style, naming, and str
 
 ### 🔴 Must（規約違反・修正必須）
 
-- **`app/components/ui/buttons/NewButton/style.css.ts:12`**
-  Element に `__`（2 つ）を使っており Modifier と区別がつきません。本プロジェクトでは Element は `_`（1 つ）、Modifier は `__`（2 つ）で使い分けます。また `@layer` で囲まれていません（参考: `rules/style/css.md` エクスポート命名・カスケードレイヤー、既存の `BaseButton/style.css.ts`）。
+- **`app/ui/buttons/public/new-button/new-button.styles.ts:12`**
+  `css(...)` のディスクリプタを export しています。ディスクリプタはスプレッドできないため、呼び出し側が `styleOverrides` で上書きできなくなります。プレーンなレシピを export してください（参考: `rules/style/css.md`「レシピを export する」、`CLAUDE.md`「Style recipes live in `<name>.styles.ts`」）。
   ```ts
-  // Bad — @layer なし、Element に __ 2 つ
-  export const newButton__text = style({ display: 'block' })
-  // Good — @layer で囲み、Element は _ 1 つ
-  export const newButton_text = style({
-    '@layer': {
-      [cssLayerComponentUiLow]: { display: 'block' },
-    },
-  })
+  // Bad
+  export const newButton = css({ display: 'inline-flex' })
+  // Good
+  export const newButton: StyleRecipe = { display: 'inline-flex' }
   ```
 
 ### 🟡 Should（推奨される改善）
 
-- **`app/components/ui/buttons/NewButton/index.tsx:14`**
-  boolean Props は `is*` プレフィックスで揃えると既存と一貫します（参考: `rules/style/naming.md`）。
+- **`app/ui/buttons/public/new-button/new-button.types.ts:5`**
+  boolean の props は `is*` で揃えると既存と一貫します（参考: `rules/style/naming.md`）。
   - `disabled` → `isDisabled`
 
 ### 🟢 Nit（任意の好み）
@@ -81,8 +84,8 @@ description: Review a pull request against this project's style, naming, and str
 
 ### ✅ 良かった点
 
-- ディレクトリ構造が `components/ui/<category>/PascalCase/index.tsx` パターンに正しく従っている
-- `style.css.ts` 内で全てのスタイルが `@layer` で囲まれている
+- コンポーネントのディレクトリが `<name>.tsx`・`.types.ts`・`.styles.ts`・`.test.tsx` に分かれている
+- 内部リンクをすべて `routes.<name>.href(...)` で組み立てている
 - ...
 ````
 
@@ -92,7 +95,7 @@ description: Review a pull request against this project's style, naming, and str
 - 「規約違反」と「好みの差」を明確に分ける（Must / Should / Nit）
 - 参照したルールファイルとセクションを必ず引用する
 - ファイルが大量にある PR では、まず観点別の集計（「naming 違反 N 件、css 違反 M 件」）を提示してから個別指摘に入る
-- Vanilla Extract 特有の指摘（`@layer` 漏れ、`cssVariables` 未使用、mixin 未使用など）は CSS Modules を意識したコメントにならないよう注意
+- Remix のコンポーネントは React ではない。フック・依存配列・暗黙の再描画を前提にした指摘をしない（`CLAUDE.md`「Code Conventions」）
 
 ## 拡張ガイド（将来の作業者向け）
 
@@ -102,4 +105,4 @@ description: Review a pull request against this project's style, naming, and str
 2. `examples/<category>/good.md`・`bad.md` を追加
 3. 本ファイルの「観点の選択」テーブルに行を追加
 
-ルールファイルを増やしすぎる前に、既存ファイルへの追記で済まないか検討する。
+ルールファイルを増やしすぎる前に、既存ファイルへの追記で済まないか検討する。規約そのものを追加・変更するときは、先に `CLAUDE.md` を更新する。

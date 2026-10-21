@@ -15,7 +15,7 @@ describe('drinks controller', () => {
 
     assert.equal(href, '/drinks')
     assert.equal(response.status, 200)
-    assert.match(html, /<html lang="ja">/)
+    assert.match(html, /<html lang="ja"[ >]/)
     assert.match(html, /<h1[^>]*><span[^>]*>お酒一覧<\/span><\/h1>/)
   })
 
@@ -26,7 +26,7 @@ describe('drinks controller', () => {
     const html = await response.text()
 
     assert.equal(href, '/en/drinks')
-    assert.match(html, /<html lang="en">/)
+    assert.match(html, /<html lang="en"[ >]/)
     assert.match(html, /<title>Drinks/)
     // The language switch leads back to the Japanese page.
     assert.match(html, /<a href="\/drinks"[^>]*><span[^>]*>JA<\/span>/)
@@ -48,6 +48,6 @@ describe('drinks controller', () => {
 
     assert.equal(href, '/en/drinks/kubota')
     assert.equal(response.status, 200)
-    assert.match(await response.text(), /<html lang="en">/)
+    assert.match(await response.text(), /<html lang="en"[ >]/)
   })
 })

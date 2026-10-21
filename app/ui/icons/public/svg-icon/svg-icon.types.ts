@@ -2,7 +2,7 @@ import type { MixInput } from 'remix/component'
 
 import type { StyleRecipe } from '../../../styles/public/mixins.ts'
 
-/** One per file in public/assets/img/icon-*.svg. */
+/** One per file in public/static/img/icon-*.svg. */
 export type SvgIconVariant =
   | 'home'
   | 'search'

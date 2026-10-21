@@ -243,9 +243,9 @@ Drive route behavior with `router.fetch(new Request(...))` and assert on the `Re
 ```
 public/
   favicon.ico, apple-icon.png
-  assets/img/         images, served as-is
   static/
     css/app.css       cascade layer order, reset, tokens
+    img/              images, served as-is
 ```
 
 `public/static/css/app.css` owns the layer order:
@@ -343,7 +343,11 @@ Node comes from `.node-version` via `actions/setup-node`'s `node-version-file`, 
 
 There is no build, so nothing produces hashed filenames, and root `public/` URLs are fixed. Cache headers for those files come from the Workers static-asset defaults (revalidation with ETag).
 
-`?${CACHE_BUSTER}` (`app/env.ts`, from `BUILD_ID`) goes only on subresources a page loads while rendering and that must change in step with the deployed HTML — today that is `app.css`. It rotates the URL on every deploy, which is the point for a stylesheet and the wrong thing for anything whose URL is its identity:
+`?${CACHE_BUSTER}` (`app/env.ts`, from `BUILD_ID`) goes only on subresources a page loads while rendering and that must change in step with the deployed HTML — `app.css` and the images under `public/static/img/`. It rotates the URL on every deploy, which is the point for a stylesheet and the page's own images, and the wrong thing for anything whose URL is its identity (below).
+
+Images get it through `staticUrl('/static/img/…')` (`app/ui/public/static-url.ts`), never by appending `CACHE_BUSTER` by hand, because hydrated components (the icons in the search form and the slider) render image URLs in the browser too, and `app/env.ts` is server-only. The query must be the same on both sides — a different URL is a different `css(...)` class, and the browser would fetch the image again without the query (measured on `/dev/ui` in Chromium: every image request carries it). So `app/router.ts` sets the server's copy once with `setStaticQuery(CACHE_BUSTER)`, and `Document` writes the same value into `<html data-static-query>`, which `staticUrl()` reads in the browser. Call it while rendering, never at module load: modules load before `app/router.ts` has set the query, which is why `SvgIcon`'s masks come from `getSvgIconMask(variant)` rather than a recipe per variant. A component rendered on its own in a test gets no query, so assertions on an image URL allow an optional one.
+
+Not every file takes the query:
 
 - **OGP images** (`DEFAULT_OG_IMAGE`, per-page `ogImage`). SNS crawlers cache the card by image URL, so a per-deploy query would make every deploy look like a new image and split the cached card. To change an OGP image, give the file a new name.
 - **favicon / apple-touch-icon.** Fetched directly by the browser and the OS outside the page's cache, and expected at a stable URL.

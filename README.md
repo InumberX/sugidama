@@ -105,6 +105,7 @@ scripts/
   deploy.sh                     デプロイ（BUILD_ID と DEPLOYED_AT を付ける）
 public/                         ASSETS バインディングがそのまま配信するファイル
   static/css/app.css            カスケードレイヤーの順序・リセット・トークン
+  static/img/                   画像（`staticUrl()` でキャッシュバスターを付ける。OGP 画像は除く）
   client/                       build-client の出力（Git 管理外）
 test/kuroco.ts                  テスト用の API のフィクスチャとモック
 wrangler.jsonc                  Worker の設定と環境ごとの vars

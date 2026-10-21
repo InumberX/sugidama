@@ -10,6 +10,7 @@ import { LayoutPublic } from '../../ui/layouts/layout-public/layout-public.tsx'
 import { LayoutSection } from '../../ui/layouts/layout-section/layout-section.tsx'
 import { ArticleCardList } from '../../ui/lists/article-card-list/article-card-list.tsx'
 import { PrimitiveButton } from '../../ui/primitives/buttons/public/primitive-button/primitive-button.tsx'
+import { staticUrl } from '../../ui/public/static-url.ts'
 import { PageTitle } from '../../ui/typographies/page-title/page-title.tsx'
 import { ReplaceNewLineText } from '../../ui/typographies/replace-new-line-text/replace-new-line-text.tsx'
 import { SEARCH_DRINKS_CONDITION_KEY, toDrinkSearchHref } from '../../utils/drink-search.ts'
@@ -43,7 +44,7 @@ const MESSAGES = defineMessages({
 })
 
 /** The site-name logo is the page's `<h1>`; its intrinsic size reserves the space. */
-const TITLE_LOGO = { src: '/assets/img/img-logo-site-name.svg', width: 480, height: 99 }
+const TITLE_LOGO = { path: '/static/img/img-logo-site-name.svg', width: 480, height: 99 } as const
 
 // The home page has no page title of its own: `Document` gets no `meta.title`
 // and uses the site's base title, as develop did.
@@ -64,7 +65,7 @@ export function HomePage(handle: Handle<HomePageProps>) {
                   <div mix={css(styles.homeTitle_container)}>
                     <h1 mix={css(styles.homeTitleLogo)}>
                       <img
-                        src={TITLE_LOGO.src}
+                        src={staticUrl(TITLE_LOGO.path)}
                         alt={SITE_NAME}
                         width={TITLE_LOGO.width}
                         height={TITLE_LOGO.height}
@@ -122,7 +123,9 @@ export function HomePage(handle: Handle<HomePageProps>) {
                               <div mix={css(styles.homeSearchCategoryListLink_container)}>
                                 <figure mix={css(styles.homeSearchCategoryListLinkThumbnail)}>
                                   <img
-                                    src={`/assets/img/img-category-${category.slug}.webp`}
+                                    src={staticUrl(
+                                      `/static/img/img-category-${category.slug}.webp`
+                                    )}
                                     alt=""
                                     mix={css(styles.homeSearchCategoryListLinkThumbnail_image)}
                                   />

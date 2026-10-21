@@ -5,7 +5,7 @@ export type DrinkCategoryItem = {
   order: string
   name: string
   name_en: string
-  /** Names the category's image: public/assets/img/img-category-<slug>.webp */
+  /** Names the category's image: public/static/img/img-category-<slug>.webp */
   slug: string
 }
 

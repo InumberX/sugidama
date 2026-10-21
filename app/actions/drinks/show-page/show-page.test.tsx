@@ -75,7 +75,7 @@ describe('drink page', () => {
     mockKuroco(t, { '/drinks/kubota': drinkDetailFixture(kubota) })
     const html = await (await get('/en/drinks/kubota')).text()
 
-    assert.match(html, /<html lang="en">/)
+    assert.match(html, /<html lang="en"[ >]/)
     assert.match(html, /<h1[^>]*><span[^>]*>Kubota<\/span><\/h1>/)
     assert.match(html, /<dt[^>]*>Manufacturer<\/dt><dd[^>]*>Asahi Shuzo<\/dd>/)
     assert.match(html, /href="https:\/\/a\.example\/en"/)

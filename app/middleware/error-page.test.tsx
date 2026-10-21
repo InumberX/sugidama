@@ -32,7 +32,7 @@ describe('errorPage()', () => {
   it('speaks the language of the path', async () => {
     const html = await (await fetchPath('/en/nope/x')).text()
 
-    assert.match(html, /<html lang="en">/)
+    assert.match(html, /<html lang="en"[ >]/)
     assert.match(titleOf(html), /^Page not found/)
     assert.match(html, /<a href="\/en"[^>]*>.*Back to Home/s)
   })

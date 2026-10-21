@@ -43,7 +43,7 @@ describe('ArticleCompactCard', () => {
     assert.match(html, /<article data-article-compact-card=""/)
     assert.match(html, /<h3 data-article-compact-card-link=""[^>]*><a href="\/drinks\/a"/)
     assert.equal([...html.matchAll(/href="\/drinks\/a"/g)].length, 3)
-    assert.match(html, /<img src="\/assets\/img\/img-empty-16-9\.avif" alt=""/)
+    assert.match(html, /<img src="\/static\/img\/img-empty-16-9\.avif(?:\?[^"]*)?" alt=""/)
   })
 
   it("trims the title's padding next to a description and above tags", async () => {

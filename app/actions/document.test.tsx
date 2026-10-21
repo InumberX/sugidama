@@ -66,6 +66,6 @@ describe('GoogleAnalytics', () => {
   it('declares the page language on <html>', async () => {
     const html = await renderToString(<Document lang="en" url={new URL('http://localhost/en')} />)
 
-    assert.match(html, /<html lang="en">/)
+    assert.match(html, /<html lang="en"[ >]/)
   })
 })

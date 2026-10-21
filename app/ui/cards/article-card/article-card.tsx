@@ -3,6 +3,7 @@ import { css, type Handle, type RemixNode } from 'remix/component'
 
 import { BaseTagList } from '../../lists/base-tag-list/base-tag-list.tsx'
 import { PrimitiveButton } from '../../primitives/buttons/public/primitive-button/primitive-button.tsx'
+import { staticUrl } from '../../public/static-url.ts'
 import type { StyleRecipe } from '../../styles/public/mixins.ts'
 import * as styles from './article-card.styles.ts'
 import type { ArticleCardProps } from './article-card.types.ts'
@@ -10,7 +11,7 @@ import type { ArticleCardProps } from './article-card.types.ts'
 export type * from './article-card.types.ts'
 
 /** Shown when a drink has no thumbnail. */
-const EMPTY_THUMBNAIL = '/assets/img/img-empty-16-9.avif'
+const EMPTY_THUMBNAIL = '/static/img/img-empty-16-9.avif'
 
 /**
  * A drink card. As in develop, the title, the description and the thumbnail are three
@@ -60,7 +61,7 @@ export function ArticleCard(handle: Handle<ArticleCardProps>) {
           <CardLink url={url} styleOverrides={styles.articleCardThumbnail_container} isRedundant>
             <span mix={css(styles.articleCardThumbnail_contents)}>
               <img
-                src={thumbnail?.src ?? EMPTY_THUMBNAIL}
+                src={thumbnail?.src ?? staticUrl(EMPTY_THUMBNAIL)}
                 alt={thumbnail?.alt ?? ''}
                 mix={css(styles.articleCardThumbnail_image)}
               />

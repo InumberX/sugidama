@@ -57,7 +57,9 @@ export function Document(handle: Handle<DocumentProps>) {
     } = handle.props
 
     return (
-      <html lang={lang}>
+      // The cache buster for static images, read by staticUrl() in the browser
+      // (STATIC_QUERY_ATTRIBUTE); the server's own copy is set in app/router.ts.
+      <html lang={lang} data-static-query={CACHE_BUSTER}>
         <head>
           <meta charSet="utf-8" />
           <meta

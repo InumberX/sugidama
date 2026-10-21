@@ -15,7 +15,7 @@ export function SvgIcon(handle: Handle<SvgIconProps>) {
   return () => {
     const { variant, title, styleOverrides, mix } = handle.props
     const hostStyle: MixInput<HTMLElement> = [
-      css({ ...styles.svgIcon, ...styles.svgIconVariants[variant], ...styleOverrides }),
+      css({ ...styles.svgIcon, ...styles.getSvgIconMask(variant), ...styleOverrides }),
       mix,
     ]
 

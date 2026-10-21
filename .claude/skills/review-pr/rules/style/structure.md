@@ -100,6 +100,7 @@ app/ui/
 - **クライアントエントリーを描くページは `Document` に `hasClientEntries` を渡す**
 - **ハイドレート前に訪問者が変えられる状態（チェック、開閉）は、setup で DOM から読む**
 - **`<script>` を書くなら `nonce={useCspNonce(handle)}` を付ける**。付けないと CSP に止められる
+- **`public/static/img/` の画像の URL は `staticUrl('/static/img/…')` で作る**（キャッシュバスターが付く）。描画中に呼び、モジュールの読み込み時に計算しない。OGP 画像・favicon は除く（`CLAUDE.md`「Caching」）
 - **新しいパッケージをブラウザで使うなら `scripts/build-client.ts` の `allowPackages` に足す**
 - **部品の置き場は、ハイドレートする部品が初めて必要としたときに `public/` へ移す**（`buttons/public/`、`icons/public/`）。先回りして移さない
 
@@ -123,4 +124,5 @@ app/ui/
 - ❌ `primitives/` が色・文字サイズ・トークンを持つ
 - ❌ ハイドレートする部品が `public/` の外の値を import する、`clientEntry` に `import.meta.url` を渡す
 - ❌ nonce のない `<script>`
+- ❌ 画像の URL を文字列で書く、`CACHE_BUSTER` を手で付ける、`staticUrl()` をモジュールの読み込み時に呼ぶ
 - ❌ Node 専用の API（`node:fs`、`remix/middleware/static`、アセットサーバー）を Worker のコードで使う

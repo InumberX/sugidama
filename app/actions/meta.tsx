@@ -25,7 +25,12 @@ const SITE_INFO = defineMessages({
   },
 })
 
-export const DEFAULT_OG_IMAGE = '/assets/img/img-ogp.jpg'
+/**
+ * No cache buster, unlike the other static images: SNS crawlers cache the card
+ * by image URL, so a per-deploy query would split it on every deploy. To change
+ * the image, give the file a new name (CLAUDE.md, Caching).
+ */
+export const DEFAULT_OG_IMAGE = '/static/img/img-ogp.jpg'
 
 export type OgType = 'website' | 'article'
 export type TwitterCard = 'summary_large_image' | 'summary' | 'player' | 'app'

@@ -2,11 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Migration status
+## Background
 
-Sugidama is being migrated from React Router v8 to Remix 3 on the `feature/remix3` integration branch. The plan, branch rules and progress live in issue #115. Work happens on `feature/remix3-<task>` branches that merge into `feature/remix3`; only the finished migration goes to `develop` (which deploys to staging).
+Sugidama was migrated from React Router v8 to Remix 3 and released on 2026-10-21 (`v2026.10.21-1`); the plan, the decisions and the review history are in issue #115. Work now happens on feature branches that merge into `develop` (deployed to staging); the release PR takes `develop` to `main` (production).
 
-The React Router app no longer exists on this branch. When porting a page, read the original from `develop` (`git show origin/develop:app/routes/...`) rather than reconstructing it. The structure and conventions here follow [`inumberx/remix-template`](https://github.com/InumberX/remix-template); where this file and the template disagree, the difference is because this app runs on Cloudflare Workers.
+**Where this file or a code comment compares with "develop", it means the React Router app as it was before the migration** — `Ported from develop: …`, "as develop did", "develop's header" and so on; where it names the branch (CI, deploys), it means the branch. It is commit `3878093`, the last `develop` before the Remix 3 merge: read the original with `git show 3878093:app/routes/...` rather than reconstructing it. The structure and conventions here follow [`inumberx/remix-template`](https://github.com/InumberX/remix-template); where this file and the template disagree, the difference is because this app runs on Cloudflare Workers.
 
 ## Read First
 

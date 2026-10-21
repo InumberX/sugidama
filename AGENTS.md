@@ -1,6 +1,6 @@
 # Remix 3 Agent Guide
 
-Sugidama is a Remix 3 app on Cloudflare Workers, built from `inumberx/remix-template`. The migration from React Router is tracked in issue #115. Use these conventions when continuing to build it out.
+Sugidama is a Remix 3 app on Cloudflare Workers, built from `inumberx/remix-template`. It was migrated from React Router in issue #115; "develop" in comments means that React Router app (commit `3878093`, see CLAUDE.md). Use these conventions when continuing to build it out.
 
 ## Commands
 

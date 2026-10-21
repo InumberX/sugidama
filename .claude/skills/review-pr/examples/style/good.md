@@ -1,381 +1,200 @@
 # Good 例（推奨パターン）
 
-レビュー時の正解例。**多くは既存コード（`BaseButton`、`PrimitiveButton`、`ArticleCard`、`LayoutHeader` 等）からの抜粋**だが、一部はルール説明のために簡略化した擬似コード例を含む（特にハンドラ命名の `SomeComponent` 例など、実コードの構造そのままではないもの）。各セクションに対応する実ファイルがある場合はパスをコメントで明示しているので、そちらも併せて参照すること。
+既存のコードから取った、規約どおりの書き方。コードは要点だけに縮めている。全体は各ファイルを読む。
 
-## 1. コンポーネントディレクトリ構造
+## 1. コンポーネントのディレクトリ
 
 ```
-app/components/ui/buttons/BaseButton/
-├── index.tsx              # 必須・named export
-└── style.css.ts           # 必須・Vanilla Extract
+app/ui/buttons/public/base-button/
+  base-button.tsx          コンポーネント
+  base-button.types.ts     型だけ（BaseButtonProps）
+  base-button.styles.ts    レシピ
+  base-button.test.tsx     テスト
 ```
 
-- `primitives/<category>/PascalCase/`、`ui/<category>/PascalCase/`、`common/PascalCase/` のいずれかに配置
-- カテゴリは複数形 kebab-case（`buttons/`、`cards/`、`paginations/`）
-- コンポーネントは PascalCase（`BaseButton/`、`ArticleCard/`）
-- エントリは `index.tsx` 固定
-- スタイルは `style.css.ts` 固定（`*.module.css` ではない）
+`public/` の中にあるのは、ハイドレートする部品（一覧の検索フォーム）が使うため。
 
-## 2. コンポーネント実装（命名・Props・Type）
+## 2. コンポーネントの実装
 
 ```tsx
-// app/components/ui/buttons/BaseButton/index.tsx
-import { type ReactNode, useMemo } from 'react'
+// app/ui/buttons/public/base-button/base-button.tsx
+import { css, type Handle } from 'remix/component'
 
-import * as styles from './style.css'
+import { PrimitiveButton } from '../../../primitives/buttons/public/primitive-button/primitive-button.tsx'
+import * as styles from './base-button.styles.ts'
+import type { BaseButtonProps } from './base-button.types.ts'
 
-import { PrimitiveButton, type PrimitiveButtonProps } from '~/components/primitives/buttons/PrimitiveButton'
+export type * from './base-button.types.ts'
 
-export type BaseButtonProps = PrimitiveButtonProps & {
-  size?: 'large' | 'medium' | 'small'
-  variant?: 'contained' | 'outlined'
-  color?: 'primary'
-  leftElm?: ReactNode
-  rightElm?: ReactNode
-  children?: ReactNode
-}
+export function BaseButton(handle: Handle<BaseButtonProps>) {
+  return () => {
+    const { size = 'medium', variant = 'contained', color = 'primary', leftElm, rightElm,
+      styleOverrides, children, ...forwarded } = handle.props
 
-export const BaseButton = ({
-  isDisabled,
-  className,
-  children,
-  leftElm,
-  rightElm,
-  size = 'medium',
-  variant = 'contained',
-  color = 'primary',
-  ...props
-}: BaseButtonProps) => {
-  const baseButtonClassName = useMemo(() => {
-    return [
-      styles.baseButton,
-      isDisabled && styles.baseButton__disabled,
-      className,
-      styles[`baseButton__${size}`],
-      styles[`baseButton__${variant}`],
-      styles[`baseButton__${color}`],
-    ]
-      .filter(Boolean)
-      .join(' ')
-  }, [isDisabled, className, size, variant, color])
-
-  return (
-    <PrimitiveButton {...props} className={baseButtonClassName} isDisabled={isDisabled}>
-      <span className={styles.baseButton_container}>
-        {leftElm}
-        <span className={styles.baseButton_text}>{children}</span>
-        {rightElm}
-      </span>
-    </PrimitiveButton>
-  )
-}
-```
-
-ポイント:
-- `export type BaseButtonProps`（コンポーネント名 + `Props`）
-- `type` を使う（`interface` ではない）
-- 共通 Props は `PrimitiveButtonProps` を交差型で再利用
-- boolean Props に `is*` プレフィックス: `isDisabled`
-- ReactNode スロットに `*Elm` サフィックス: `leftElm`、`rightElm`
-- 名前付きエクスポート（`export default` ではない）
-- インポート順序: 外部 → 同階層スタイル → プロジェクト内（`~/`）
-
-## 3. ローカル Props 型（同一ファイル内のみで使う）
-
-```tsx
-// app/components/common/LayoutHeader/index.tsx
-type Props = {
-  className?: string
-  isLogoTitle?: boolean
-  lang: string
-}
-
-export const LayoutHeader = ({ className, isLogoTitle, lang }: Props) => {
-  // ...
-}
-```
-
-ポイント:
-- 1 ファイル内でしか使わない Props は `type Props = { ... }` で OK（export 不要）
-- boolean Props は `is*`（`isLogoTitle`）
-
-## 4. PrimitiveButton（共通型の活用）
-
-```tsx
-// app/components/primitives/buttons/PrimitiveButton/index.tsx
-import { type AriaRole, type AriaAttributes, type ReactNode, useMemo } from 'react'
-import { Link } from 'react-router'
-
-import * as styles from './style.css'
-
-import type { EventTypes } from '~/types/event'
-import type { ButtonType, AnchorTarget, AnchorRel } from '~/types/html'
-
-export type PrimitiveButtonProps = {
-  url?: string
-  target?: AnchorTarget
-  rel?: AnchorRel
-  buttonType?: ButtonType
-  isDisabled?: boolean
-  className?: string
-  children?: ReactNode
-  onClick?: EventTypes['onClickButton']
-  // ...
-}
-```
-
-ポイント:
-- 共通イベント型を `~/types/event` の `EventTypes` から取得（独自に書かない）
-- 共通 HTML 属性型を `~/types/html` から取得（`AnchorTarget`、`AnchorRel`、`ButtonType`）
-
-## 5. Vanilla Extract（camelCase + BEM 風 + @layer）
-
-```ts
-// app/components/ui/buttons/BaseButton/style.css.ts
-import { style } from '@vanilla-extract/css'
-
-import { getMediaQuery } from '~/styles/mixins/mediaQuery.css'
-import { getClampPx } from '~/styles/mixins/size.css'
-import { getTransition } from '~/styles/mixins/transition.css'
-import { cssVariables } from '~/styles/variables/cssVariables.css'
-import { fontLargeBold, fontMediumBold, fontSmallBold } from '~/styles/variables/font.css'
-import { cssLayerComponentUiLow } from '~/styles/variables/layers.css'
-
-// Modifier（block + __ + modifier）
-export const baseButton__disabled = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: {
-      cursor: 'not-allowed',
-      opacity: cssVariables.opacity.disabled,
-      pointerEvents: 'none',
-    },
-  },
-})
-
-export const baseButton__medium = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: {
-      ...fontMediumBold,
-      paddingBlock: 14,
-      paddingInline: getClampPx(20, 48),
-    },
-  },
-})
-
-export const baseButton__contained = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: {
-      borderBlock: 'none',
-      borderInline: 'none',
-
-      '@media': {
-        [getMediaQuery('hover')]: {
-          selectors: {
-            '&:hover:before': {
-              opacity: 0,
-            },
-          },
-        },
-      },
-    },
-  },
-})
-
-// ベース block
-export const baseButton = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: {
-      alignItems: 'center',
-      blockSize: 'auto',
-      borderRadius: 'calc(infinity * 1px)',
-      display: 'inline-flex',
-      inlineSize: 'auto',
-      justifyContent: 'center',
-      position: 'relative',
-      textAlign: 'start',
-    },
-  },
-})
-
-// Element（block + _ + element）
-export const baseButton_container = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: {
-      alignItems: 'center',
-      display: 'flex',
-      justifyContent: 'center',
-      position: 'relative',
-      zIndex: 3,
-    },
-  },
-})
-
-export const baseButton_text = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: {
-      display: 'block',
-    },
-  },
-})
-```
-
-ポイント:
-- 全て `@layer` で囲む（配置場所に応じたレイヤー定数を使う）
-- ベース block: camelCase（`baseButton`）
-- Element: シングルアンダースコア（`baseButton_text`、`baseButton_container`）
-- Modifier: ダブルアンダースコア（`baseButton__disabled`、`baseButton__medium`、`baseButton__contained`）
-- 論理プロパティ（`blockSize`、`inlineSize`、`paddingBlock`、`paddingInline`、`borderBlock`、`borderInline`、`textAlign: 'start'`）
-- カラーは `cssVariables.color.*.hex` 経由
-- フォントは `fontMediumBold` 等のプリセットをスプレッド
-- 流体型値は `getClampPx` / `getClampRem` で
-- `:hover` は `getMediaQuery('hover')` 内
-- インポートは外部 → 同階層 → `~/` の順
-
-## 6. サブブロックの切り出し
-
-`ArticleCard` は内部に複数の独立した塊（タイトル、説明、サムネイル、タグ）を持つため、サブブロックとして別の camelCase ブロックに分けている:
-
-```ts
-// app/components/ui/cards/ArticleCard/style.css.ts
-export const articleCard = style({ /* メイン */ })
-
-// 独立した塊はサブブロックに
-export const articleCardTitle = style({ /* ... */ })
-export const articleCardTitle_text = style({ /* ... */ })
-
-export const articleCardDescription = style({ /* ... */ })
-export const articleCardDescription_container = style({ /* ... */ })
-export const articleCardDescription_text = style({ /* ... */ })
-
-export const articleCardTags = style({ /* ... */ })
-
-export const articleCardThumbnail = style({ /* ... */ })
-export const articleCardThumbnail_container = style({ /* ... */ })
-export const articleCardThumbnail_contents = style({ /* ... */ })
-export const articleCardThumbnail_image = style({ /* ... */ })
-```
-
-「Element の Element」を書きたくなったら、サブブロックに分割する合図。
-
-## 7. Modifier の TS 側での扱い
-
-```tsx
-const baseButtonClassName = useMemo(() => {
-  return [
-    styles.baseButton,
-    isDisabled && styles.baseButton__disabled,
-    className,
-    styles[`baseButton__${size}`],
-    styles[`baseButton__${variant}`],
-  ]
-    .filter(Boolean)
-    .join(' ')
-}, [isDisabled, className, size, variant])
-```
-
-- ベースクラスは `styles.baseButton`（プロパティアクセス）
-- 動的 Modifier は `styles[\`baseButton__${size}\`]`（テンプレートリテラルキー）
-- 配列 + `filter(Boolean).join(' ')` で結合（`clsx` は使わない）
-
-## 8. ホバー処理（CSS 側で `articleCard_clickable` を使った例）
-
-```ts
-export const articleCardTitle_text = style({
-  '@layer': {
-    [cssLayerComponentUiLow]: {
-      // ...
-      transition: getTransition([{ property: 'color' }]),
-
-      '@media': {
-        [getMediaQuery('hover')]: {
-          selectors: {
-            [`&:where(${articleCard}:has(${articleCard_clickable}:hover) &)`]: {
-              color: cssVariables.color.font.primary.hex,
-            },
-          },
-        },
-      },
-    },
-  },
-})
-```
-
-`getMediaQuery('hover')` で囲み、Vanilla Extract の `selectors` でテンプレートリテラルから他クラス参照を組み立てる。
-
-## 9. ハンドラ命名（on* / handle*）
-
-```tsx
-// Props 名は on*
-type Props = {
-  onChangePage: (newPage: number) => void
-}
-
-export const SomeComponent = ({ onChangePage }: Props) => {
-  // 渡すローカル関数は handle*
-  const handleClickItem = (page: number) => {
-    onChangePage(page)
+    return (
+      <PrimitiveButton
+        {...forwarded}
+        styleOverrides={{
+          ...styles.baseButton,
+          ...styles.baseButtonSizes[size],
+          ...styles.baseButtonVariants[variant],
+          ...styles.baseButtonColors[color][variant],
+          ...(forwarded.isDisabled ? styles.baseButton__disabled : null),
+          ...styleOverrides,
+        }}
+      >
+        <span mix={css(styles.baseButton_container)}>
+          {leftElm}
+          <span mix={css(styles.baseButton_text)}>{children}</span>
+          {rightElm}
+        </span>
+      </PrimitiveButton>
+    )
   }
-
-  return <button onClick={() => handleClickItem(1)}>...</button>
 }
 ```
 
-## 10. ファイル / ディレクトリ命名
+- `function` 宣言で、`handle.props` から読む。状態は setup の変数に置き、変えたら `handle.update()` を呼ぶ
+- 名前空間 import の `styles`、上書きは `styleOverrides`、スロットは `leftElm` / `rightElm`
+- レシピを 1 回の `css(...)` にスプレッドしている（ここでは primitive がその `css(...)` を呼ぶ）
+- 見た目を決めるのはこの層で、要素の選択とアクセシビリティは `PrimitiveButton` に任せる
 
-```
-app/hooks/usePaginationScroll.ts          # camelCase + use プレフィックス
-app/utils/article.ts                      # 単語1つは素朴に
-app/utils/date.ts
-app/utils/scroll.ts
-app/utils/custom-error-message.ts         # 複合語は kebab-case でも OK
-app/utils/loader-guards.server.ts         # サーバー専用は .server.ts
-app/utils/gtags.client.ts                 # クライアント専用は .client.ts
-app/server/api/drinks.server.ts           # API 呼び出し
-app/types/event.d.ts                      # 共通型
-app/types/html.d.ts
-app/config/env.ts
-app/config/paths.ts
-app/config/consts.ts
-```
+## 3. レシピ
 
-## 11. 共通コンポーネント vs UI コンポーネント vs Primitives
+```ts
+// app/ui/layouts/layout-inner/layout-inner.styles.ts
+import { MEDIA_QUERY } from '../../styles/public/media-query.ts'
+import type { StyleRecipe } from '../../styles/public/mixins.ts'
 
-```
-app/components/primitives/buttons/PrimitiveButton/   # HTML をラップした建材
+export const layoutInner: StyleRecipe = {
+  marginInline: 'auto',
+  paddingInline: 'var(--layout-inner-padding-xs)',
+  inlineSize: '100%',
+  [MEDIA_QUERY.SM]: { paddingInline: 'var(--layout-inner-padding-sm)' },
+  [MEDIA_QUERY.MD]: { paddingInline: 'var(--layout-inner-padding-md)' },
+}
 
-app/components/common/LayoutHeader/                  # サイト全体で1つ→ common
-app/components/common/LayoutFooter/
-app/components/common/LayoutPortal/
+export const layoutInner__large: StyleRecipe = {
+  maxInlineSize: 'var(--layout-inner-max-width-large)',
+}
 
-app/components/ui/buttons/BaseButton/                # 再利用→ ui/<category>
-app/components/ui/buttons/SvgIconCircleButton/
-app/components/ui/buttons/TextButton/
-app/components/ui/cards/ArticleCard/
-app/components/ui/cards/ArticleCompactCard/
-app/components/ui/paginations/BasePagination/
+export const layoutInnerSizes = { large: layoutInner__large, /* … */ }
 ```
 
-## 12. ルートファイル（React Router v7）
+- プレーンなレシピを export する
+- 論理プロパティ、`MEDIA_QUERY` の定数、`app.css` のカスタムプロパティ
+- 修飾子は名前を持つ定数で、対応表（`layoutInnerSizes`）はそれを指す
+
+## 4. ホバー
+
+```ts
+[MEDIA_QUERY.HOVER]: { '&:hover': { color: 'var(--color-font-primary)' } },
+```
+
+## 5. ルートとリンク
+
+```ts
+// app/routes.ts
+drinks: {
+  index: get('/(:lang/)drinks'),
+  show: get('/(:lang/)drinks/:drinkId'),
+},
+```
 
 ```tsx
-// app/routes/($lang)._public._layout._index/route.tsx
-import type { Route } from './+types/route'
-import * as styles from './style.css'
+<BaseButton url={routes.drinks.index.href({ lang: toLangParam(lang) })}>…</BaseButton>
+```
 
-export const meta: MetaFunction = (args) => getMetadata({ args })
+- メソッドを明示し、パターンはリテラルのまま。公開ページには省略できる言語の区切り
+- リンクは `href()` から作り、日本語では `toLangParam` が `/ja` を落とす
 
-export async function loader(args: Route.LoaderArgs) {
-  // ...
-}
+## 6. controller・データの読み込み・ページ
 
-export default function PageSG10_100({ loaderData }: Route.ComponentProps) {
-  // ...
+```tsx
+// app/actions/drinks/controller.tsx
+export default createController(routes.drinks, {
+  middleware: [lang()],
+  actions: {
+    async show(context) {
+      const data = await loadShowPage(context.lang, context.params.drinkId)
+      if (data instanceof Response) return data
+      return context.render(<ShowPage lang={context.lang} url={context.url} {...data} />)
+    },
+  },
+})
+```
+
+```ts
+// app/actions/drinks/show-page/show-page.data.ts
+export const loadShowPage = async (lang: Lang, drinkId: string): Promise<ShowPageData | Response> => {
+  // 互いに待つ必要のない要求は先にすべて始め、必要な順に待つ
+  const termsRequest = getDrinkTerms(lang)
+  const latestRequest = getDrinks({ page: 1, pageSize: ROW_SIZE })
+  const detailRequest = getDrinkDetail(drinkId)
+
+  const detail = await detailRequest
+  if (!detail.success) return apiErrorResponse(detail, { notFound: true })
+  const terms = await termsRequest
+  if (!terms.success) return apiErrorResponse(terms)
+  // …
 }
 ```
 
-ポイント:
-- ディレクトリ名は flatRoutes 規約（`($lang)._public._layout._index/`）
-- エントリは `route.tsx`
-- 型は `./+types/route` から取得（`Route.LoaderArgs`、`Route.ComponentProps`）
-- ページコンポーネントは `export default`（ルート規約のため例外的に許可）
-- ページコンポーネントの関数名は PascalCase（既存例: `PageSG10_100`）
+- ルートエリアの controller に `lang()`、`app/router.ts` に `router.map(routes.drinks, drinksController)`
+- データは `show-page.data.ts` で読み、互いに依存しない API の要求は並行して始める。失敗は素の `Response` で返す。見た目はエラーページのミドルウェアが付ける
+- ページのコンポーネントは props だけで描く
+
+## 7. ハイドレートする部品
+
+```tsx
+// app/actions/drinks/show-page/public/components/article-slider/article-slider.tsx
+export const ArticleSlider = clientEntry(
+  clientModuleUrl('app/actions/drinks/show-page/public/components/article-slider/article-slider.tsx'),
+  function ArticleSlider(handle: Handle<ArticleSliderProps>) {
+    // …
+  }
+)
+```
+
+- ページの `public/components/` の中にあり、実行時の依存もすべて `public/` の内側
+- `clientModuleUrl` で自分のファイルを指し、名前付き関数を渡す
+- ページは `Document` に `hasClientEntries` を渡す。テストで `rmx-data` の URL を確かめる
+
+## 8. 文言
+
+```ts
+// app/actions/drinks/show-page/show-page.tsx（抜粋）
+const MESSAGES = defineMessages({
+  ja: { relatedDrinks: (category: string) => `${category}のお酒`, latestDrinks: '新着のお酒' },
+  en: { relatedDrinks: (category: string) => `${category} Drinks`, latestDrinks: 'Latest Drinks' },
+})
+
+const messages = MESSAGES[lang]
+messages.relatedDrinks(category.label)
+```
+
+- 文言は使う部品の横に置く。日本語が型を決め、英語の抜けは型エラーになる
+- ヘッダーのメニューにも出るページ名（「お酒一覧」など）はここに書かず、`PAGE_NAMES[lang]` から読む
+
+## 9. テスト
+
+```ts
+import * as assert from 'remix/assert'
+import { describe, it } from 'remix/test'
+
+import { drinkDetailFixture, drinkFixture, mockKuroco } from '../../../../test/kuroco.ts'
+import { router } from '../../../router.ts'
+
+const kubota = drinkFixture()
+
+describe('drinks.show', () => {
+  it('renders a drink', async (t) => {
+    mockKuroco(t, { '/drinks/kubota': drinkDetailFixture(kubota) })
+    const response = await router.fetch(new Request('http://localhost/drinks/kubota'))
+    assert.equal(response.status, 200)
+  })
+})
+```
+
+- 対象の横に置き、`remix/test` と `remix/assert` の名前空間 import を使う
+- API を使うページは `mockKuroco(t, …)` を呼ぶ。既定で答えるのは一覧・種類・タグだけで、お酒の詳細などはパスごとに渡す（知らないパスへの要求は例外になる）

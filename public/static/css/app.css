@@ -1,0 +1,661 @@
+/*
+ * App-owned cascade layers.
+ *
+ * This file must be served verbatim, so it lives in the root `public/`
+ * directory, which the Workers `ASSETS` binding serves byte for byte. (The
+ * Remix asset server's CSS compiler would rewrite the `@layer` statements.)
+ *
+ * The order declaration has to be registered before any `css(...)` rule.
+ * Remix appends its `style` tags (`data-rmx-style`) at the END of `<head>`, so
+ * a <link> written in app/actions/document.tsx is always parsed first.
+ *
+ * Weakest to strongest:
+ *   reset  user-agent normalization: ress 6.0.0, verbatim. Keep it that way so
+ *          an update is a straight copy; app-specific fixes go in `base`.
+ *   lib    third-party stylesheets — pull them in with
+ *          `@import url('...') layer(lib);` so the app can override them
+ *   base   app-wide defaults and design tokens
+ *   rmx    every `css(...)` rule Remix generates (REMIX_UI_STYLE_LAYER)
+ *   util   utility classes; the only layer that outranks component styles
+ *
+ * Every layer used anywhere must be named here. A layer that is not
+ * pre-declared takes its position from first appearance, which puts it LAST —
+ * an unlisted `@layer` block would silently outrank every component rule.
+ * Blocks below are kept in the same order as this statement.
+ */
+@layer reset, lib, base, rmx, util;
+
+@layer reset {
+  html {
+    box-sizing: border-box;
+    -moz-tab-size: 4;
+    tab-size: 4;
+    -webkit-text-size-adjust: 100%;
+    word-break: normal;
+  }
+
+  *,
+  ::after,
+  ::before {
+    background-repeat: no-repeat;
+    box-sizing: inherit;
+  }
+
+  ::after,
+  ::before {
+    text-decoration: inherit;
+    vertical-align: inherit;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  hr {
+    color: inherit;
+    height: 0;
+    overflow: visible;
+  }
+
+  details,
+  main {
+    display: block;
+  }
+
+  summary {
+    display: list-item;
+  }
+
+  small {
+    font-size: 80%;
+  }
+
+  [hidden] {
+    display: none;
+  }
+
+  abbr[title] {
+    border-bottom: none;
+    text-decoration: underline;
+    text-decoration: underline dotted;
+  }
+
+  a {
+    background-color: transparent;
+  }
+
+  a:active,
+  a:hover {
+    outline-width: 0;
+  }
+
+  code,
+  kbd,
+  pre,
+  samp {
+    font-family: monospace, monospace;
+  }
+
+  pre {
+    font-size: 1em;
+  }
+
+  b,
+  strong {
+    font-weight: bolder;
+  }
+
+  sub,
+  sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+  }
+
+  sub {
+    bottom: -0.25em;
+  }
+
+  sup {
+    top: -0.5em;
+  }
+
+  table {
+    border-color: inherit;
+    text-indent: 0;
+  }
+
+  iframe {
+    border-style: none;
+  }
+
+  input {
+    border-radius: 0;
+  }
+
+  [type='number']::-webkit-inner-spin-button,
+  [type='number']::-webkit-outer-spin-button {
+    height: auto;
+  }
+
+  [type='search'] {
+    -webkit-appearance: textfield;
+    outline-offset: -2px;
+  }
+
+  [type='search']::-webkit-search-decoration {
+    -webkit-appearance: none;
+  }
+
+  textarea {
+    overflow: auto;
+    resize: vertical;
+  }
+
+  button,
+  input,
+  optgroup,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  optgroup {
+    font-weight: bold;
+  }
+
+  button {
+    overflow: visible;
+  }
+
+  button,
+  select {
+    text-transform: none;
+  }
+
+  [role='button'],
+  [type='button'],
+  [type='reset'],
+  [type='submit'],
+  button {
+    cursor: pointer;
+  }
+
+  [type='button']::-moz-focus-inner,
+  [type='reset']::-moz-focus-inner,
+  [type='submit']::-moz-focus-inner,
+  button::-moz-focus-inner {
+    border-style: none;
+    padding: 0;
+  }
+
+  [type='button']::-moz-focus-inner,
+  [type='reset']::-moz-focus-inner,
+  [type='submit']::-moz-focus-inner,
+  button:-moz-focusring {
+    outline: 1px dotted ButtonText;
+  }
+
+  [type='reset'],
+  [type='submit'],
+  button,
+  html [type='button'] {
+    -webkit-appearance: button;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    background-color: transparent;
+    border-style: none;
+  }
+
+  a:focus,
+  button:focus,
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline-width: 0;
+  }
+
+  select {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+  }
+
+  select::-ms-expand {
+    display: none;
+  }
+
+  select::-ms-value {
+    color: currentColor;
+  }
+
+  legend {
+    border: 0;
+    color: inherit;
+    display: table;
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  ::-webkit-file-upload-button {
+    -webkit-appearance: button;
+    color: inherit;
+    font: inherit;
+  }
+
+  [disabled] {
+    cursor: default;
+  }
+
+  img {
+    border-style: none;
+  }
+
+  progress {
+    vertical-align: baseline;
+  }
+
+  [aria-busy='true'] {
+    cursor: progress;
+  }
+
+  [aria-controls] {
+    cursor: pointer;
+  }
+
+  [aria-disabled='true'] {
+    cursor: default;
+  }
+}
+
+/*
+ * base — defaults and design tokens every component rule may override.
+ *
+ * Custom properties MUST sit inside a layer. Declarations written outside any
+ * `@layer` belong to an implicit final layer that outranks every named one, so
+ * an unlayered `:root { --x }` could not be overridden from `util` at all.
+ */
+@layer base {
+  :root {
+    /* Font — develop's app/styles/variables/cssVariables.css.ts */
+    --font-family-main:
+      '游ゴシック Medium', 'Yu Gothic', YuGothic, YuGothicMedium, 'Hiragino Kaku Gothic ProN', Meiryo,
+      sans-serif;
+    --font-weight-medium: 500;
+    --font-weight-bold: 700;
+
+    /* Color: text */
+    --color-font-base: #2c2c2c;
+    --color-font-light: #fff;
+    --color-font-primary: #a2beed;
+    --color-font-primary-dark: #76a3ed;
+    --color-font-sub: #bebebe;
+    --color-font-sub-dark: #858585;
+    --color-font-mark: #fff;
+    --color-font-placeholder: #bebebe;
+    --color-font-error: #f44336;
+    --color-font-required: #d42020;
+
+    /* Color: background */
+    --color-background-body: #efefef;
+    --color-background-light: #fff;
+    --color-background-primary: #a2beed;
+    --color-background-primary-light: #dfe7f4;
+    --color-background-sub: #bebebe;
+    --color-background-sub-dark: #858585;
+    --color-background-sub-light: #efefef;
+    --color-background-mark: #000;
+    --color-background-success: #35c379;
+    --color-background-success-light: #e3f9ed;
+    --color-background-error: #f44336;
+    --color-background-error-light: #f7e3e1;
+
+    /* Color: border */
+    --color-border-primary: #a2beed;
+    --color-border-sub: #bebebe;
+    --color-border-sub-dark: #858585;
+    --color-border-error: #f44336;
+
+    /* Color: gradation stops, for linear-gradient(<angle>, var(--color-gradation-primary)) */
+    --color-gradation-primary: oklch(80.6% 0.071 260.6deg) 0, oklch(87.7% 0.084 336.7deg) 100%;
+    --color-gradation-primary-dark: oklch(76.3% 0.11 260.1deg) 0, oklch(80.7% 0.153 338.2deg) 100%;
+
+    /* Color: misc */
+    --color-util-black: #000;
+    --color-skeleton-sub: #e7e7e7;
+
+    /* Opacity, scale, leading trim */
+    --opacity-hover: 0.6;
+    --opacity-disabled: 0.4;
+    --scale-hover: 1.16;
+    --leading-trim: calc((1em - 1lh) / 2);
+
+    /* Stacking */
+    --z-index-header-wrapper: 10000;
+    --z-index-header-global: 10100;
+    --z-index-header-bar: 10200;
+
+    /* Layout — consumed by app/ui/layouts/* */
+    --layout-inner-width-large: 1400px;
+    --layout-inner-padding-xs: 4vi;
+    --layout-inner-padding-sm: 4.6vi;
+    --layout-inner-padding-md: 32px;
+    --layout-header-height: 64px;
+    --layout-header-space: 16px;
+    --layout-main-gutter: 16px;
+
+    /*
+     * The inner column's cap, padding included — develop's
+     * layout.inner.maxWidth.large. Resolved here on :root, so retune it by
+     * overriding this property (or its inputs on :root); setting only an
+     * input on a subtree does not recompute it there.
+     */
+    --layout-inner-max-width-large: calc(
+      var(--layout-inner-width-large) + (var(--layout-inner-padding-md) * 2)
+    );
+  }
+
+  * {
+    box-sizing: border-box;
+    min-inline-size: 1px;
+
+    &::before,
+    &::after {
+      box-sizing: border-box;
+      min-inline-size: 1px;
+    }
+  }
+
+  html {
+    background: var(--color-background-body);
+    block-size: 100%;
+    color: var(--color-font-base);
+    inline-size: 100%;
+    line-height: 1;
+  }
+
+  body {
+    font-family: var(--font-family-main);
+    font-weight: var(--font-weight-medium);
+    inline-size: 100%;
+    -webkit-line-break: strict;
+    line-break: strict;
+    line-height: 1.6;
+    overflow: clip auto;
+    -webkit-overflow-wrap: anywhere;
+    overflow-wrap: anywhere;
+    text-size-adjust: 100%;
+    vertical-align: baseline;
+    -webkit-word-break: normal;
+    word-break: normal;
+  }
+
+  ul,
+  ol {
+    list-style: none;
+  }
+
+  audio,
+  canvas,
+  progress,
+  video {
+    display: inline-block;
+    vertical-align: baseline;
+  }
+
+  audio:not([controls]) {
+    block-size: 0;
+    display: none;
+  }
+
+  /*
+   * Two rules, both needed:
+   *
+   * - `[hidden]` hides here again, with `!important`, not only in ress's
+   *   `reset` layer: any later layer that sets `display` — a `base` element
+   *   rule (`label`, `video`, …) or a `css(...)` recipe in `rmx`
+   *   (`inline-flex` on every button, `flex` on the layouts) — would
+   *   otherwise outrank ress and show a hidden element. An important
+   *   declaration beats every normal one whatever its layer, so this one rule
+   *   covers them all; ress itself stays verbatim.
+   * - `until-found` is excluded, and `revert` rolls it back past the author
+   *   layers to the user agent: ress hides every `[hidden]`, and excluding it
+   *   here alone could not undo that. The user agent keeps it rendered
+   *   (hidden by content-visibility instead) so find-in-page can reveal it.
+   *   The `i` flag matches the browser: an enumerated attribute's value is
+   *   ASCII case-insensitive, so `hidden="Until-Found"` is until-found too.
+   */
+  [hidden]:not([hidden='until-found' i]) {
+    display: none !important;
+  }
+
+  [hidden='until-found' i] {
+    display: revert;
+  }
+
+  a {
+    color: var(--color-font-primary);
+    cursor: pointer;
+    text-decoration: none;
+    transition:
+      0.3s color,
+      0.3s opacity,
+      0.3s background-color,
+      0.3s border-color;
+
+    &:link,
+    &:visited {
+      color: var(--color-font-primary);
+      text-decoration: none;
+    }
+
+    @media (any-hover: hover) {
+      &:hover,
+      &:active {
+        color: var(--color-font-primary-dark);
+        text-decoration: underline;
+      }
+    }
+  }
+
+  /*
+   * ress removes the focus outline from links, buttons and form controls
+   * (`:focus { outline-width: 0 }`) without putting anything back, which left
+   * keyboard users with no visible focus — develop only ever removed it from
+   * inputs. `:focus-visible` brings it back for keyboard navigation without
+   * showing it on every mouse click. A component may restyle it in `rmx`.
+   *
+   * The base text color, not the brand blue: #76a3ed reaches only about
+   * 2.5:1 against the white sheet and 2.2:1 against the body, under the 3:1
+   * a focus indicator needs (WCAG 1.4.11). #2c2c2c is above 12:1 on both.
+   */
+  :focus-visible {
+    outline: 2px solid var(--color-font-base);
+    outline-offset: 2px;
+  }
+
+  i,
+  em,
+  address {
+    font-style: normal;
+  }
+
+  b,
+  strong,
+  em {
+    font-weight: var(--font-weight-bold);
+  }
+
+  dfn {
+    font-style: italic;
+  }
+
+  mark {
+    background-color: var(--color-background-mark);
+    color: var(--color-font-mark);
+  }
+
+  small {
+    font-size: 100%;
+  }
+
+  img {
+    block-size: auto;
+    border-block: none;
+    border-inline: none;
+    max-inline-size: 100%;
+    vertical-align: top;
+  }
+
+  svg {
+    overflow: hidden;
+  }
+
+  hr {
+    block-size: 0;
+    box-sizing: content-box;
+  }
+
+  pre {
+    overflow: auto;
+  }
+
+  code,
+  kbd,
+  pre,
+  samp {
+    font-family: var(--font-family-main);
+
+    /* getFontSize(10) — 10px at the default 16px root */
+    font-size: 0.625rem;
+  }
+
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+
+  body,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  dl,
+  dt,
+  dd,
+  p,
+  blockquote,
+  ul,
+  ol,
+  li {
+    /* getClampRem(14, 16) — fluid between the 360px and 1400px viewports */
+    font-size: clamp(0.875rem, 0.8317rem + 0.1923vi, 1rem);
+  }
+
+  [role='tabpanel']:target {
+    display: revert;
+  }
+
+  /* Forms — develop's "Reset:Form" block, minus what ress already does */
+  fieldset {
+    border: none;
+  }
+
+  label {
+    cursor: pointer;
+    display: block;
+  }
+
+  button,
+  input,
+  optgroup,
+  select,
+  textarea {
+    color: var(--color-font-base);
+    font-family: var(--font-family-main);
+
+    /* getFontSize(16): below 16px, iOS Safari zooms into a focused field */
+    font-size: 1rem;
+    font-weight: var(--font-weight-medium);
+    line-height: 1.6;
+  }
+
+  /*
+   * After the shared rule, not before it as in develop: at equal specificity
+   * the later rule wins, so develop's bold group labels came out medium.
+   */
+  optgroup {
+    font-weight: var(--font-weight-bold);
+  }
+
+  input:is(
+      [type='text'],
+      [type='tel'],
+      [type='email'],
+      [type='date'],
+      [type='month'],
+      [type='search'],
+      [type='password'],
+      [type='reset'],
+      [type='number']
+    ),
+  select,
+  textarea {
+    appearance: none;
+  }
+
+  input[type='number'] {
+    appearance: textfield;
+  }
+
+  /* `appearance: textfield` alone leaves the spin buttons in some WebKit builds */
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+
+  /* `appearance: none` takes the native arrow, so the pointer is the remaining cue */
+  select {
+    cursor: pointer;
+  }
+
+  textarea {
+    field-sizing: content;
+    resize: vertical;
+  }
+
+  :is(button, input, select, textarea):disabled {
+    cursor: not-allowed;
+  }
+
+  /*
+   * develop's forms rely on this: `readonly` has no native effect on a
+   * checkbox, a radio or a select (develop sets it on all of them), so
+   * blocking the pointer is what keeps them from changing. The cost, also
+   * develop's, is that a readonly text field cannot be clicked into to
+   * select its value; revisit with the forms in step 7.
+   */
+  :is(input, select, textarea)[readonly] {
+    pointer-events: none;
+  }
+
+  ::placeholder {
+    color: var(--color-font-placeholder);
+  }
+
+  :is(input, textarea):focus::placeholder {
+    color: transparent;
+  }
+}
+
+@layer util {
+  /* utility classes. Beats `rmx`, so keep it for deliberate overrides. */
+}

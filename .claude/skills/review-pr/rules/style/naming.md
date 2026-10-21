@@ -1,112 +1,84 @@
-# 命名規約（TypeScript / React）
+# 命名規約（TypeScript / Remix 3）
 
-`app/` 配下のフロントエンドコードに適用する命名ルール。oxlint・oxfmt で機械的に検出できないものを中心に列挙する。
+`app/`・`workers/`・`scripts/` のコードに適用する命名ルール。oxlint・oxfmt で機械的に検出できないものを中心に挙げる。根拠は `CLAUDE.md` の該当する節。
 
 ## コンポーネント
 
-- **コンポーネント名は PascalCase**（例: `BaseButton`、`ArticleCard`、`LayoutHeader`、`PrimitiveButton`）
-- **エクスポート名とディレクトリ名を一致させる**（`buttons/BaseButton/index.tsx` → `export const BaseButton`）
-- **`common/` 配下のレイアウト系には `Layout` プレフィックスを付ける**（`LayoutHeader`、`LayoutFooter`、`LayoutPortal`）
-- **`primitives/` 配下には `Primitive` プレフィックスを付ける**（`PrimitiveButton`）
-- **`ui/` 配下では機能ベースの命名**（`BaseButton`、`SvgIconCircleButton`、`ArticleCard`、`SvgIcon`、`BasePagination`）
-- **同じファイル内のサブコンポーネントは親コンポーネント名をプレフィックスに付けて衝突を避ける**（`ArticleCard` 内の `ArticleCardTitle`、`ArticleCardThumbnail` 等）
+- **コンポーネント名は PascalCase、ディレクトリとファイルは kebab-case**（`BaseButton` → `base-button/base-button.tsx`）。エクスポート名とディレクトリ名は同じ語にする
+- **コンポーネントは `function` 宣言、それ以外の関数は `const` のアロー関数**（`CLAUDE.md`「Code Conventions」）。`<X />` として使うものだけがコンポーネントで、`RemixNode` を返すだけのヘルパー（`renderMeta()`）は `const`
+- **`clientEntry(...)` には名前付き関数を渡す**。`clientEntry` はエクスポート名を関数名から読む。アロー関数だと描画時に例外になるが、typecheck・lint・テストは通ってしまう
+- **層ごとの接頭辞**
+  - `primitives/` 配下は `Primitive*`（`PrimitiveButton`）
+  - `common/` と `layouts/` 配下は `Layout*`（`LayoutHeader`、`LayoutInner`）
+  - その他の `ui/` は機能を表す名前（`BaseButton`、`ArticleCard`、`SvgIcon`）
+- **参考資料は `Example*`**（`ExampleCopyButton`）。表示する側（`/dev/ui`）が所有し、`app/ui/` には置かない
+- **同じファイル内の、export しない補助の部品は短い名前でよい**（`article-card.tsx` の `CardLink`）。export するなら、他の部品と区別できる名前にする
+
+## export
+
+- **名前付き export で統一する**。例外は `controller.tsx` の `export default createController(...)` と、Workers のモジュール形式が求める `workers/app.ts` の `export default { fetch }` だけ
+- **`clientEntry` の部品は `export const Name = clientEntry(clientModuleUrl('…'), function Name(…) {…})`**。変数名と関数名を揃える
 
 ## Props 型
 
-既存コードには 2 つの命名パターンが共存しており、**Props 型を export するか否かで使い分ける**:
-
-- **export して他ファイルから参照する場合**: **`<ComponentName>Props`** で命名し `export type` する
-  - 例: `export type BaseButtonProps`、`export type ArticleCardProps`、`export type PrimitiveButtonProps`
-  - 主に `components/primitives/`・`components/ui/` 配下の汎用部品で、他のコンポーネントやページから利用する型
-- **同一ファイル内でのみ使用するローカル Props 型**: **`type Props = { ... }`** で OK（export しない）
-  - 例: `app/components/common/LayoutHeader/index.tsx`、ルートモジュール内の小さなサブコンポーネント等
-  - ファイル内で 1 度しか使わない Props 型をわざわざ `<ComponentName>Props` 命名する必要はない
-- **同ファイル内にサブ型がある場合は短い型名で OK**（例: `ArticleCard/index.tsx` 内の `TitleProps`・`DescriptionProps`・`ThumbnailProps`）。サブ型は非 export でよい
-- **`type` を使う**（`interface` ではなく `type`。`typescript/no-explicit-any` で `any` も禁止）
+- **`<ComponentName>Props` で `<name>.types.ts` に置き、`export type`**。コンポーネントは `export type * from './<name>.types.ts'` で再 export する（`app/ui/layouts/layout-inner/layout-inner.tsx`）
+- **ファイル内でしか使わない小さな型は `type Props` でよい**（export しない）
+- **`type` を使い、`interface` は `declare module` の中だけ**。モジュール拡張には宣言のマージが必要で、`interface` にしかない（`app/router.ts` の `RouterTypes`）
 
 ## Props の命名
 
-- **camelCase で統一**
-- **boolean Props は `is*` プレフィックスを付ける**
-  - 例: `isDisabled`、`isLogoTitle`、`isExternal`、`isInternalLink`
-  - HTML 属性として直接渡すもの（`disabled` 属性など）であっても、Props 名としては `isDisabled` を使い、内部で `disabled={isDisabled}` と展開する
-- **イベントハンドラ Props は `on*`**（例: `onClick`、`onChange`、`onChangePage`）
-- **ReactNode を受け取るスロット系は `*Elm` サフィックス**（例: `leftElm`、`rightElm`）。`children` は React の慣例どおり `children` のまま
-- **HTML 要素タグ名を受ける Props は `*Tag`**（例: `titleTag?: keyof JSX.IntrinsicElements`、`articleTag?: keyof JSX.IntrinsicElements`）
-- **共通イベント型は `~/types/event` の `EventTypes` から取得**（例: `onClick?: EventTypes['onClickButton']`）
-- **共通 HTML 属性型は `~/types/html` から取得**（例: `target?: AnchorTarget`、`rel?: AnchorRel`、`buttonType?: ButtonType`）
+- **camelCase**
+- **boolean は `is*`、何かを持つかどうかは `has*`**（`isDisabled`、`isLogoTitle`、`hasClientEntries`）。HTML 属性に渡すものでも props 名は `is*` にし、内部で `disabled={isDisabled}` と展開する
+- **ARIA 属性をそのまま渡す props は `aria*`**（`ariaExpanded`、`ariaCurrent`、`ariaHidden`）。属性との対応が名前でわかるようにする
+- **呼び出し側からのスタイルの上書きは `styleOverrides`**。`styles` は各ファイルの名前空間 import が使っているので、props に同じ名前を付けない
+- **スロットは `*Elm`**（`leftElm`、`rightElm`）。中身は `children`
+- **要素のタグ名を受け取る props は `*Tag`**（`titleTag`、`nonClickableTag`）
+- **DOM のイベントは `mix` で付ける**。ボタンのクリックなどは呼び出し側が `mix={on('click', …)}` を渡し、`onClick` のような props を足さない。コンポーネントは `mix` の中身を見られないので、要素の種類（`<a>`・`<button>`）は `url`・`buttonType`・`nonClickableTag` のどれを渡すかで決める（`CLAUDE.md`「What separates the two tiers」）
+- **部品が自分の状態の変化を親に伝えるコールバックは `on*`**（`InputCheckbox` の `onToggle(value, checked)`）。親と同じクライアントエントリーの内側でだけ使える。`clientEntry` の props は直列化できる値に限られ、関数を渡すと型エラーになる
+
+## スタイルのレシピ
+
+- **BEM 風。ただし区切りは `_` が要素、`__` が修飾子**（`baseButton_text`、`primitiveButton__disabled`）。BEM 本来とは逆で、JavaScript の識別子に `-` を使えないため
+- **`style` 接頭辞を付けない**。名前空間 import（`styles.layoutInner`）が担う
+- **バリアントの対応表は `<block><Variants>` の複数形**（`baseButtonSizes`、`layoutInnerSizes`）。各値は名前を持つ修飾子の定数を指す
+- 詳細は `rules/style/css.md`
 
 ## ファイル / ディレクトリ命名
 
 | 種別 | 形式 | 例 |
 |---|---|---|
-| コンポーネントディレクトリ | PascalCase | `BaseButton/`、`ArticleCard/`、`LayoutHeader/` |
-| コンポーネントエントリファイル | `index.tsx` 固定 | `BaseButton/index.tsx` |
-| コンポーネントスタイル | `style.css.ts` 固定（Vanilla Extract） | `BaseButton/style.css.ts` |
-| UI カテゴリディレクトリ | 複数形 kebab-case | `buttons/`、`cards/`、`lists/`、`paginations/`、`typographies/` |
-| カスタムフック | `useXxx.ts`（**camelCase**、`use` プレフィックス） | `usePaginationScroll.ts` |
-| utils 関数ファイル | 単語 1 つなら短い名前、複合語は kebab-case で OK | `article.ts`、`date.ts`、`scroll.ts`、`custom-error-message.ts`、`loader-guards.server.ts` |
-| 型定義（.d.ts） | 短い英単語 | `event.d.ts`、`html.d.ts`、`paths.d.ts` |
-| 環境別エントリ | `*.server.ts` / `*.client.ts` | `gtags.client.ts`、`csp.server.ts`、`worker-fetch.server.ts` |
-| ルートディレクトリ | React Router v7 の flatRoutes 規約 | `($lang)._public._layout._index/`、`($lang)._public._layout.drinks.$drinkId/` |
-| ルートエントリ | `route.tsx` 固定 | `($lang)._public._layout._index/route.tsx` |
+| コンポーネントのディレクトリ | kebab-case | `base-button/`、`article-card/` |
+| コンポーネント本体 | `<name>.tsx`（`index.tsx` は使わない） | `base-button/base-button.tsx` |
+| 型 | `<name>.types.ts`（`.tsx` にしない。実行時のものを入れない） | `base-button.types.ts` |
+| スタイルのレシピ | `<name>.styles.ts` | `base-button.styles.ts` |
+| テスト | `<name>.test.tsx` / `<name>.test.ts` | `base-button.test.tsx` |
+| UI のカテゴリ | 複数形の kebab-case | `buttons/`、`cards/`、`lists/` |
+| ルートエリア | ルートマップのキー（URL のセグメントではない） | `drinks/` |
+| ページ | ルートキー + `-page` | `index-page/`、`show-page/`、`home-page/` |
+| ページのデータ読み込み | `<name>-page.data.ts` | `show-page/show-page.data.ts` |
+| ミドルウェア・データ・utils | kebab-case の 1 ファイル | `trailing-slash.ts`、`drink-card.ts` |
 
-> **注意**: `hooks/` のファイルは **camelCase**（`usePaginationScroll.ts`）であり、kebab-case ではない。新規 hook を `use-xxx.ts` で書いていたら指摘対象。
+`*.server.ts` / `*.client.ts` のような環境の接尾辞は使わない。ブラウザに出せるかどうかは `public/` の内側か外側かで決まる（`rules/style/structure.md`）。
 
-## 変数 / 関数
+## 変数 / 定数
 
-- **変数・関数は camelCase**
-- **定数（コンパイル時固定値、env 由来）は SCREAMING_SNAKE_CASE**
-  - 例: `CACHE_BUSTER`、`SITE_URL`、`SITE_NAME`、`API_URL`、`LANG`、`PAGES`、`SEARCH_DRINKS_CONDITION_KEY`（`~/config/env`、`~/config/consts`、`~/config/paths` 参照）
-- **boolean ローカル変数も `is*` を推奨**（`isExternal`、`isInternalLink`、`isClickable`）
-- **イベントハンドラの命名**:
-  - **コンポーネント内のローカル関数は `handle*`**（例: `handleChangePage`、`handleClickYear`）
-  - **コールバック Props は `on*`**（例: `onClick`、`onChange`、`onChangePage`）
+- **変数・関数は camelCase**、boolean の変数も `is*` / `has*`（`hasClientEntries`）
+- **モジュールの定数は SCREAMING_SNAKE_CASE**（`SITE_URL`、`MESSAGES`、`PAGE_TITLE`、`MEDIA_QUERY`）
+- **ページの文言は `MESSAGES = defineMessages({ ja: {…}, en: {…} })`**、読むときは `MESSAGES[lang]`。ページのタイトルは `PAGE_TITLE`。ただし、ヘッダーのメニューなど他の場所にも出る名前は `app/utils/page-names.ts` の `PAGE_NAMES[lang]` から読み、`PAGE_TITLE` を重ねて持たない（`CLAUDE.md`「Languages」「Page metadata」）
 
-  使用例: `<BasePagination onChangePage={handleChangePage} />` — Props 名は `on*`、渡すローカル関数は `handle*`
-
-## 型 / 列挙
-
-- **型エイリアスは PascalCase**（例: `EventTypes`、`ButtonType`、`AnchorTarget`、`AnchorRel`）
-- **共通型は `~/types/` 配下に集約**してインポートして使う（`~/types/event`、`~/types/html`）
-- **API レスポンス型は `~/types/api/` 配下**（quicktype で生成）
-- **Props 型をローカルファイル内で定義する場合と、共通型を再利用する場合を意識的に分ける**（汎用属性は共通型から）
-
-## ルートファイルの export
-
-React Router v7 のファイル規約により、**ルートエントリ（`route.tsx`）はコンポーネントを `export default` する**。これは指摘対象外。
-
-```tsx
-// app/routes/($lang)._public._layout._index/route.tsx
-export const meta: MetaFunction = ...
-export async function loader(args: Route.LoaderArgs) { ... }
-export default function PageSG10_100({ loaderData }: Route.ComponentProps) { ... }
-```
-
-ルート関数名は **`Page<画面ID>`** または機能を表す PascalCase（既存例: `PageSG10_100`）。
-
-## インポート順序
-
-oxfmt の `sortImports` で自動整形される領域だが、レビュー時に違反が混入していないかは見る価値がある。`.oxfmtrc.json` で定義されているグループ順:
-
-1. 外部パッケージ（`react`、`react-router`、`@vanilla-extract/css` 等）と builtin
-2. 空行
-3. 親・兄弟・index（`./style.css`、`./+types/route` 等）
-4. 空行
-5. プロジェクト内モジュール（`~/components/...`、`~/types/...`、`~/config/...`、`~/server/...`、`~/utils/...`、`~/styles/...`）
-
-oxfmt の `internalPrefix` は `["~/"]` のみで、import グルーピングの観点では `~/` プレフィックスを内部モジュールとして扱う。`tsconfig.json` の `paths` には他に `~/+types/*`（React Router 生成型用、`./.react-router/types/app/+types/*`）が定義されているが、これは `~/` の特殊サブパスとして扱われるため `internalPrefix` の対象に含まれている。**`@/` などの未定義プレフィックスが出現したら誤り**（詳細は `rules/style/structure.md` パスエイリアスを参照）。
+`/dev/ui` のギャラリー（`app/actions/dev-ui-page/`）はテンプレートから移した見本で、`Block` の `grow` のようにこの規約に合わない名前がある。ここは対象外。
 
 ## アンチパターン（指摘対象）
 
-- ❌ コンポーネント名が camelCase / kebab-case（`baseButton` / `base-button`）
-- ❌ export する Props 型名がコンポーネント名と乖離している（`export type ButtonProps` for `BaseButton` 等。ローカル `type Props` は対象外）
-- ❌ `interface` で Props を定義（`type` で統一）
-- ❌ boolean Props に `is*` がない（`disabled`、`logoTitle` のまま）
-- ❌ コンポーネントディレクトリが kebab-case（`base-button/`）
-- ❌ hook ファイルが kebab-case / PascalCase（`use-pagination-scroll.ts` / `UsePaginationScroll.ts` ではなく `usePaginationScroll.ts`）
-- ❌ HTML 属性そのままの名前を Props に使う（`disabled` → `isDisabled` に揃える）
-- ❌ コールバック Props 名が `handle*`（→ `on*` に揃える。ローカル関数側は `handle*` のままで OK）
-- ❌ `~/` / `~/+types/` 以外のプレフィックス（`@/` 等）を使ったパスエイリアス（`tsconfig.json` で定義されているのはこの 2 つのみ）
-- ❌ `route.tsx` 以外のコンポーネントで `export default` を使う（名前付きエクスポートで統一）
-- ❌ 共通型を再定義（`onClick: (e: React.MouseEvent...) => void` を毎回書かず `EventTypes['onClickButton']` を使う）
+- ❌ コンポーネントのディレクトリやファイルが PascalCase（`BaseButton/index.tsx`）
+- ❌ `index.tsx`、または `style.css.ts`（Vanilla Extract の名残）
+- ❌ コンポーネントをアロー関数で定義、または `clientEntry` にアロー関数を渡す
+- ❌ ヘルパー関数を `function` 宣言で書く
+- ❌ `declare module` の外で `interface`
+- ❌ boolean の props に `is*` / `has*` がない（`disabled`、`logoTitle`）。ARIA 属性の `aria*` は除く
+- ❌ props に `styles` や `className` を足して上書きさせる（`styleOverrides` にする）
+- ❌ 要素の DOM イベントを `onClick` などの props で受ける（呼び出し側が `mix={on(...)}` を渡す）
+- ❌ レシピの区切りが BEM 本来のもの（要素に `__`）、または `style` 接頭辞
+- ❌ ルートエリアのディレクトリを URL のセグメントで命名する、ページのディレクトリに `-page` がない
+- ❌ `*.server.ts` / `*.client.ts` の接尾辞で実行環境を分けようとする
+- ❌ `controller.tsx` と `workers/app.ts` 以外で `export default`

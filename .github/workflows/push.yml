@@ -21,7 +21,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '24.x'
+          node-version-file: '.node-version'
 
       - name: Get npm cache directory path
         id: npm-cache-dir-path
@@ -46,7 +46,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '24.x'
+          node-version-file: '.node-version'
 
       - name: Cache dependencies
         uses: actions/cache@v4
@@ -58,6 +58,7 @@ jobs:
 
       - run: npm ci
       - run: npm run format
+      - run: npm run stylelint
       - run: npm run lint
       - run: npm run typecheck
 
@@ -70,7 +71,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '24.x'
+          node-version-file: '.node-version'
 
       - name: Cache dependencies
         uses: actions/cache@v4
@@ -83,16 +84,22 @@ jobs:
       - run: npm ci
       - run: npm run test
 
+  # Remix 3 にビルドステップは無いため、旧 build ジョブに代えて
+  # ルート契約の読み込み(routes)と Worker のバンドル(bundle)を確認する。
+  # bundle は本番と同じ scripts/deploy.sh を `--dry-run` 付きで両環境に対して
+  # 実行し、デプロイせずにバンドルの成否とサイズを確かめる。Node 専用 API が
+  # 混入した場合も、deploy.sh 自体が壊れた場合も、develop / main に入る前に
+  # ここで落ちる。
   build:
     runs-on: ubuntu-latest
-    needs: [setup, lint]
+    needs: [setup, lint, test]
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '24.x'
+          node-version-file: '.node-version'
 
       - name: Cache dependencies
         uses: actions/cache@v4
@@ -103,5 +110,9 @@ jobs:
             ${{ env.cache-version }}-${{ runner.os }}-npm-
 
       - run: npm ci
-      - name: Build
-        run: npm run build
+      - name: Check route contract
+        run: npm run routes
+      - name: Bundle the Worker through scripts/deploy.sh
+        run: |
+          sh scripts/deploy.sh development --dry-run --outdir=tmp/worker-development
+          sh scripts/deploy.sh production --dry-run --outdir=tmp/worker-production

@@ -72,7 +72,7 @@ describe('home page', () => {
         ['/drinks?drink=2', '日本酒'],
       ]
     )
-    assert.match(html, /src="\/assets\/img\/img-category-beer\.webp"/)
+    assert.match(html, /src="\/static\/img\/img-category-beer\.webp\?ver=[^"]+"/)
   })
 
   it('renders in English under /en, links included', async (t) => {

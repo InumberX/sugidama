@@ -4,6 +4,7 @@ import { css, type Handle, type RemixNode } from 'remix/component'
 
 import { BaseTagList } from '../../../../ui/lists/base-tag-list/base-tag-list.tsx'
 import { PrimitiveButton } from '../../../../ui/primitives/buttons/public/primitive-button/primitive-button.tsx'
+import { staticUrl } from '../../../../ui/public/static-url.ts'
 import type { StyleRecipe } from '../../../../ui/styles/public/mixins.ts'
 import * as styles from './article-compact-card.styles.ts'
 import type { ArticleCompactCardProps } from './article-compact-card.types.ts'
@@ -11,7 +12,7 @@ import type { ArticleCompactCardProps } from './article-compact-card.types.ts'
 export type * from './article-compact-card.types.ts'
 
 /** Shown when a drink has no thumbnail. */
-const EMPTY_THUMBNAIL = '/assets/img/img-empty-16-9.avif'
+const EMPTY_THUMBNAIL = '/static/img/img-empty-16-9.avif'
 
 /** A drink as a row: the thumbnail on the left, the date, title and tags beside it. */
 export function ArticleCompactCard(handle: Handle<ArticleCompactCardProps>) {
@@ -70,7 +71,7 @@ export function ArticleCompactCard(handle: Handle<ArticleCompactCardProps>) {
           >
             <span mix={css(styles.articleCompactCardThumbnail_contents)}>
               <img
-                src={thumbnail?.src ?? EMPTY_THUMBNAIL}
+                src={thumbnail?.src ?? staticUrl(EMPTY_THUMBNAIL)}
                 alt={thumbnail?.alt ?? ''}
                 mix={css(styles.articleCompactCardThumbnail_image)}
               />

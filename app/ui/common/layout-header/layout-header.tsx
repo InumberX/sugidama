@@ -7,6 +7,7 @@ import { PAGE_NAMES } from '../../../utils/page-names.ts'
 import { SvgIcon, type SvgIconVariant } from '../../icons/public/svg-icon/svg-icon.tsx'
 import { LayoutInner } from '../../layouts/layout-inner/layout-inner.tsx'
 import { PrimitiveButton } from '../../primitives/buttons/public/primitive-button/primitive-button.tsx'
+import { staticUrl } from '../../public/static-url.ts'
 import * as styles from './layout-header.styles.ts'
 import type { LayoutHeaderProps } from './layout-header.types.ts'
 
@@ -16,7 +17,7 @@ export type * from './layout-header.types.ts'
 const LANG_LABELS = { ja: 'JA', en: 'EN' } as const
 
 /** The logo's intrinsic size, so it reserves its space before it loads. */
-const LOGO = { src: '/assets/img/img-logo.webp', alt: 'Sugidama', width: 160, height: 41 }
+const LOGO = { path: '/static/img/img-logo.webp', alt: 'Sugidama', width: 160, height: 41 } as const
 
 export function LayoutHeader(handle: Handle<LayoutHeaderProps>) {
   return () => {
@@ -51,7 +52,7 @@ export function LayoutHeader(handle: Handle<LayoutHeaderProps>) {
                     styleOverrides={styles.layoutHeaderLogo_link}
                   >
                     <img
-                      src={LOGO.src}
+                      src={staticUrl(LOGO.path)}
                       alt={LOGO.alt}
                       width={LOGO.width}
                       height={LOGO.height}

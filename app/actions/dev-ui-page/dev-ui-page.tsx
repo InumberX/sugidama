@@ -20,6 +20,7 @@ import { LayoutWrapper } from '../../ui/layouts/layout-wrapper/layout-wrapper.ts
 import { ArticleCardList } from '../../ui/lists/article-card-list/article-card-list.tsx'
 import { BaseTagList } from '../../ui/lists/base-tag-list/base-tag-list.tsx'
 import { PrimitiveButton } from '../../ui/primitives/buttons/public/primitive-button/primitive-button.tsx'
+import { staticUrl } from '../../ui/public/static-url.ts'
 import { BaseTag } from '../../ui/tags/base-tag/base-tag.tsx'
 import { PageTitle } from '../../ui/typographies/page-title/page-title.tsx'
 import { ReplaceNewLineText } from '../../ui/typographies/replace-new-line-text/replace-new-line-text.tsx'
@@ -34,7 +35,7 @@ import { ExampleCopyButton } from './public/components/example-copy-button/examp
 
 const PAGE_TITLE = 'UI ギャラリー'
 
-const SVG_ICON_VARIANTS = Object.keys(svgIconStyles.svgIconVariants) as SvgIconVariant[]
+const SVG_ICON_VARIANTS = Object.keys(svgIconStyles.svgIconFiles) as SvgIconVariant[]
 
 /** Sample tags: a category and a tag, both linking to a filtered list. */
 const EXAMPLE_TAGS = [
@@ -42,8 +43,12 @@ const EXAMPLE_TAGS = [
   { url: routes.drinks.index.href(null, { searchParams: { tag: 1 } }), children: 'すっきり' },
 ]
 
-/** Sample cards: with and without a thumbnail, a long title, and one without a link. */
-const EXAMPLE_CARDS = [
+/**
+ * Sample cards: with and without a thumbnail, a long title, and one without a
+ * link. A function, so the thumbnail's staticUrl() runs while rendering, after
+ * app/router.ts has set the cache buster.
+ */
+const getExampleCards = () => [
   {
     url: routes.drinks.index.href(),
     title: { text: 'サムネイルなし（空の 16:9 画像）' },
@@ -56,7 +61,7 @@ const EXAMPLE_CARDS = [
       text: 'タイトルが長い場合は 3 行で省略される。タイトルが長い場合は 3 行で省略される。タイトルが長い場合は 3 行で省略される。',
     },
     description: { text: '2024/02/02' },
-    thumbnail: { src: '/assets/img/img-category-sake.webp', alt: '日本酒' },
+    thumbnail: { src: staticUrl('/static/img/img-category-sake.webp'), alt: '日本酒' },
   },
   {
     title: { text: 'url なし（リンクにならない）' },
@@ -67,6 +72,7 @@ const EXAMPLE_CARDS = [
 export function DevUiPage(handle: Handle<{ lang: Lang; url: URL }>) {
   return () => {
     const { lang, url } = handle.props
+    const exampleCards = getExampleCards()
 
     return (
       <Document
@@ -312,18 +318,18 @@ export function DevUiPage(handle: Handle<{ lang: Lang; url: URL }>) {
           >
             <Specimen label="ArticleCard（単体）">
               <Stage>
-                <ArticleCard {...EXAMPLE_CARDS[0]} articleTag="div" />
+                <ArticleCard {...exampleCards[0]} articleTag="div" />
               </Stage>
             </Specimen>
             <Specimen label="ArticleCardList itemSize=medium（既定）">
               <Stage>
-                <ArticleCardList items={EXAMPLE_CARDS} />
+                <ArticleCardList items={exampleCards} />
               </Stage>
             </Specimen>
             <Specimen label="ArticleCardList itemSize=small / twoColumns">
               <Stage>
-                <ArticleCardList items={EXAMPLE_CARDS} itemSize="small" />
-                <ArticleCardList items={EXAMPLE_CARDS.slice(0, 2)} itemSize="twoColumns" />
+                <ArticleCardList items={exampleCards} itemSize="small" />
+                <ArticleCardList items={exampleCards.slice(0, 2)} itemSize="twoColumns" />
               </Stage>
             </Specimen>
           </Section>

@@ -30,7 +30,7 @@ describe('root controller', () => {
     )
 
     assert.equal(response.status, 200)
-    assert.match(await response.text(), /<html lang="en">/)
+    assert.match(await response.text(), /<html lang="en"[ >]/)
   })
 
   it('renders the home page in Japanese without a prefix', async (t) => {
@@ -39,7 +39,7 @@ describe('root controller', () => {
     const response = await router.fetch(new Request(`http://localhost${href}`))
 
     assert.equal(href, '/')
-    assert.match(await response.text(), /<html lang="ja">/)
+    assert.match(await response.text(), /<html lang="ja"[ >]/)
   })
 
   it('redirects a trailing slash before the language is resolved', async () => {
@@ -62,7 +62,7 @@ describe('root controller', () => {
     assert.equal(response.status, 200)
     const html = await response.text()
     assert.match(html, /UI ギャラリー/)
-    assert.match(html, /<html lang="ja">/)
+    assert.match(html, /<html lang="ja"[ >]/)
   })
 
   it('answers 404 for an unmapped path', async () => {

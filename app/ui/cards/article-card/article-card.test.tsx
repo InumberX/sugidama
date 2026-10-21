@@ -71,7 +71,7 @@ describe('ArticleCard', () => {
   it('falls back to the empty thumbnail', async () => {
     const html = await renderToString(<ArticleCard url="/x" title={{ text: 'A' }} />)
 
-    assert.match(html, /<img src="\/assets\/img\/img-empty-16-9\.avif" alt=""/)
+    assert.match(html, /<img src="\/static\/img\/img-empty-16-9\.avif(?:\?[^"]*)?" alt=""/)
   })
 
   it('renders tags outlined unless they say otherwise, outside the card links', async () => {

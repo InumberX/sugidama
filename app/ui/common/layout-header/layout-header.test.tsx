@@ -13,7 +13,7 @@ describe('LayoutHeader', () => {
 
     assert.match(
       ja,
-      /<a href="\/"[^>]*><img src="\/assets\/img\/img-logo\.webp" alt="Sugidama" width="160" height="41"/
+      /<a href="\/"[^>]*><img src="\/static\/img\/img-logo\.webp(?:\?[^"]*)?" alt="Sugidama" width="160" height="41"/
     )
     assert.match(ja, /<a href="\/drinks"[^>]*>.*お酒一覧<\/span><\/a>/)
     assert.match(ja, /ホーム/)

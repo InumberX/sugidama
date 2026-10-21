@@ -3,11 +3,13 @@ import { createRouter, type MiddlewareContext } from 'remix/router'
 
 import controller from './actions/controller.tsx'
 import drinksController from './actions/drinks/controller.tsx'
+import { CACHE_BUSTER } from './env.ts'
 import { renderWithCsp } from './middleware/csp.tsx'
 import { errorPage } from './middleware/error-page.tsx'
 import { securityHeaders } from './middleware/security-headers.ts'
 import { trailingSlash } from './middleware/trailing-slash.ts'
 import { routes } from './routes.ts'
+import { setStaticQuery } from './ui/public/static-url.ts'
 
 // - securityHeaders() first, so its headers also land on cop()'s 403 and on the
 //   500 it turns a thrown error into.
@@ -23,6 +25,10 @@ import { routes } from './routes.ts'
 // - errorPage() last, inside the renderer: it turns every plain-text error
 //   below it into the site's error page, which then gets its CSP on the way
 //   out through renderWithCsp().
+// Static image URLs carry the same per-deploy query as app.css; Document
+// hands it to the browser through `<html data-static-query>`.
+setStaticQuery(CACHE_BUSTER)
+
 const securityHeadersMiddleware = securityHeaders()
 const copMiddleware = cop()
 const trailingSlashMiddleware = trailingSlash()

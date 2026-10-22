@@ -139,21 +139,6 @@ npm run deploy-production    # sugidama
 
 ## トラブルシューティング
 
-### `npm run dev` が `.wrangler/deploy/config.json` のエラーで止まる
-
-```
-✘ [ERROR] There is a deploy configuration at ".wrangler/deploy/config.json".
-  But the redirected configuration path it points to, "build/server/wrangler.json", does not exist.
-```
-
-React Router 版（`develop`）のビルドが残したファイルです。`@cloudflare/vite-plugin` はビルドのたびにこのファイルを書き出し、wrangler に `build/server/wrangler.json` を使うよう指示します。Remix 3 版にはそのビルドがないため止まります。削除すれば起動します。
-
-```sh
-rm -rf .wrangler/deploy
-```
-
-移行が `develop` に入るまでは、`develop` でビルドするたびに作り直されます。React Router 版のビルド結果（`build/`・`.react-router/`）も同じ理由で残りますが、`.gitignore` の対象なので消さなくてもかまいません。
-
 ### 新しく作ったモジュールが `wrangler dev` で 404 になる
 
 `wrangler dev` は `public/` を起動時に一度だけ読みます。開発中に `build-client` が新しいファイルを書き出した場合（新しいモジュールや、新しく import したパッケージ）は、`npm run dev` を再起動してください。既存のファイルの変更はそのまま反映されます。

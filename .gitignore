@@ -24,12 +24,6 @@ tmp/
 # scripts/build-client.ts output, rebuilt by wrangler before dev and deploy
 /public/client
 
-# React Router build output that develop still produces until the migration
-# lands there; ignored so a checkout that switches branches stays clean (and
-# scripts/deploy.sh does not refuse it as untracked). Remove these lines then.
-/build
-.react-router
-
 # OS
 .DS_Store
 Thumbs.db

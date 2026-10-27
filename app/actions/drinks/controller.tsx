@@ -4,6 +4,7 @@ import { toVisitorStatus } from '../../data/api-client.ts'
 import { lang } from '../../middleware/lang.ts'
 import { routes } from '../../routes.ts'
 import { parseDrinkSearch } from '../../utils/drink-search.ts'
+import { HTTP_STATUS } from '../../utils/http-status.ts'
 import { loadIndexPage } from './index-page/index-page.data.ts'
 import { IndexPage } from './index-page/index-page.tsx'
 import { loadShowPage } from './show-page/show-page.data.ts'
@@ -18,7 +19,7 @@ export default createController(routes.drinks, {
       const search = parseDrinkSearch(context.url.searchParams)
       // A page that is not a positive integer, or a keyword longer than any
       // form submits, names no page of results.
-      if (search === null) return new Response('Not Found', { status: 404 })
+      if (search === null) return new Response('Not Found', { status: HTTP_STATUS.NOT_FOUND })
 
       const data = await loadIndexPage(context.lang, search)
       if (data instanceof Response) return data
@@ -30,9 +31,9 @@ export default createController(routes.drinks, {
       // answers it with an empty list), so a 404 there stays the API's fault.
       const isPastLastPage = data.result.success
         ? data.search.page > data.result.totalPage
-        : data.search.page > 1 && data.result.status === 404
+        : data.search.page > 1 && data.result.status === HTTP_STATUS.NOT_FOUND
       if (isPastLastPage) {
-        return new Response('Not Found', { status: 404 })
+        return new Response('Not Found', { status: HTTP_STATUS.NOT_FOUND })
       }
       // A failed search still renders the form, with an error status so the
       // error page is not cached or indexed as the page's content, by the same

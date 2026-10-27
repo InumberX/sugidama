@@ -1,4 +1,5 @@
 // Ported from develop: app/server/api/drinks.server.ts
+import { HTTP_STATUS } from '../utils/http-status.ts'
 import { apiClient, type ApiResult } from './api-client.ts'
 import type { Drink, DrinkDetail, Drinks } from './drinks.types.ts'
 
@@ -59,13 +60,15 @@ const isDrinkId = (id: string): boolean => id !== '' && id !== '.' && id !== '..
  */
 export const getDrinkDetail = async (id: string): Promise<ApiResult<DrinkDetail>> => {
   if (!isDrinkId(id)) {
-    return { success: false, status: 404, message: 'Not Found' }
+    return { success: false, status: HTTP_STATUS.NOT_FOUND, message: 'Not Found' }
   }
   const result = await apiClient<{ details?: unknown }>(`/drinks/${encodeURIComponent(id)}`)
   if (!result.success) return result
   // An answer without a drink names none, whatever its status said: no
   // details at all, or an empty object or array where the drink should be.
-  if (!isDrink(result.data.details)) return { success: false, status: 404, message: 'Not Found' }
+  if (!isDrink(result.data.details)) {
+    return { success: false, status: HTTP_STATUS.NOT_FOUND, message: 'Not Found' }
+  }
   return result as ApiResult<DrinkDetail>
 }
 

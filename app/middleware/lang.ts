@@ -4,6 +4,7 @@
 // not a page.
 import { createContextKey, type Middleware } from 'remix/router'
 
+import { HTTP_STATUS } from '../utils/http-status.ts'
 import { DEFAULT_LANG, isLang, type Lang } from '../utils/i18n.ts'
 import { localRedirect } from './local-redirect.ts'
 
@@ -37,7 +38,10 @@ export const lang = (): Middleware<{ key: typeof LangKey; value: Lang; property:
     const [, rawSegment = '', rest = ''] = /^\/([^/]*)(.*)$/.exec(context.url.pathname) ?? []
     // 302 for GET/HEAD, as develop did; 307 otherwise, so a future POST under a
     // prefix keeps its method and body instead of turning into a GET.
-    const status = context.method === 'GET' || context.method === 'HEAD' ? 302 : 307
+    const status =
+      context.method === 'GET' || context.method === 'HEAD'
+        ? HTTP_STATUS.FOUND
+        : HTTP_STATUS.TEMPORARY_REDIRECT
 
     if (param === DEFAULT_LANG) {
       return localRedirect(context.url, `${rest || '/'}${context.url.search}`, status)
@@ -49,6 +53,6 @@ export const lang = (): Middleware<{ key: typeof LangKey; value: Lang; property:
       context.set(LangKey, param, { property: 'lang' })
       return next()
     }
-    return new Response('Not Found', { status: 404 })
+    return new Response('Not Found', { status: HTTP_STATUS.NOT_FOUND })
   }
 }

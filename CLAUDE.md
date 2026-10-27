@@ -398,12 +398,13 @@ The pieces that must stay in sync:
 - **`app/ui/`** — shared cross-route UI, organized by category (see "The `app/ui/` layout").
 - **`app/middleware/`** — request-lifecycle middleware (`security-headers.ts`, `csp.tsx`, see **Security**; `lang.ts`, `trailing-slash.ts`, `local-redirect.ts`, see **Languages**; `error-page.tsx`, see **Error pages**).
 - **`app/data/`** — the Kuroco API client and its resources (see **Data**).
-- **`app/utils/i18n.ts`** — the language list and the message helper (see **Languages**); `app/utils/page-names.ts` — page names shown in more than one place (see **Page metadata**); `drink-card.ts`, `drink-search.ts`, `date.ts` — see **Data**.
+- **`app/utils/i18n.ts`** — the language list and the message helper (see **Languages**); `app/utils/page-names.ts` — page names shown in more than one place (see **Page metadata**); `drink-card.ts`, `drink-search.ts`, `date.ts` — see **Data**. `app/utils/http-status.ts` — `HTTP_STATUS`, the statuses the app answers with or reads from the API.
 - **`workers/`** — the Worker entry and its env type (see **Cloudflare Workers**).
 
 ## Code Conventions
 
 - TypeScript imports carry their real extension (`./routes.ts`, `./home-page.tsx`) — `allowImportingTsExtensions` plus `verbatimModuleSyntax` are on. Wrangler's esbuild resolves them as written. There is no `~/` alias.
+- **Write an HTTP status as `HTTP_STATUS.<NAME>`** (`app/utils/http-status.ts`), never a bare number, so a call site says what the status means. Add a name there when a new status is needed. Tests keep the number: they assert the status a client actually receives.
 - **Functions are `const` arrows; components are `function` declarations.** A component is anything used as `<X />` — a helper that merely returns a `RemixNode` (`renderMeta()`) stays a `const`. Three reasons for the exception: it is the form Remix's own docs and the skill use, so pasted examples fit; hoisting lets a file lead with its main component and put sub-components after it; and `clientEntry` reads the function's name to know which export to hydrate.
 - **Types are `type`, except inside `declare module`.** Module augmentation needs declaration merging, which only `interface` has — `app/router.ts` publishes `AppContext` through `interface RouterTypes`, and turning it into a `type` deletes `context.render` from every controller.
 - JSX compiles through `jsxImportSource: "remix/component"`. **Remix components are not React**: write `function Name(handle: Handle<Props>) { return () => <jsx/> }`, read props from `handle.props`, keep state in setup-scope variables, and call `handle.update()` explicitly to re-render. There are no hooks and no implicit rerendering.

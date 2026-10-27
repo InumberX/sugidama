@@ -67,6 +67,9 @@ describe('drinks index page', () => {
   })
 
   it('answers a page past the last one with a 404, but not the first page of no results', async (t) => {
+    // Kuroco answers a pageID past the last with a 404 (the next test); this
+    // covers the guard for a search that succeeds with fewer pages than asked
+    // for, in case the API ever answers that way.
     const many = Array.from({ length: 12 }, (_, i) => drinkFixture({ topics_id: i, slug: `d${i}` }))
     mockKuroco(t, { '/drinks': { ...drinksFixture(many), pageInfo: { totalCnt: 24 } } })
 

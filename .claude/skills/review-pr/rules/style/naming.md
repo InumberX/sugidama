@@ -64,6 +64,7 @@
 
 - **変数・関数は camelCase**、boolean の変数も `is*` / `has*`（`hasClientEntries`）
 - **モジュールの定数は SCREAMING_SNAKE_CASE**（`SITE_URL`、`MESSAGES`、`PAGE_TITLE`、`MEDIA_QUERY`）
+- **HTTP のステータスは `HTTP_STATUS.<NAME>`**（`app/utils/http-status.ts`）。数値をそのまま書かない。新しいステータスが要るときはそこに名前を足す。テストは数値のままでよい（クライアントが実際に受け取るステータスを確かめるため。`CLAUDE.md`「Code Conventions」）
 - **ページの文言は `MESSAGES = defineMessages({ ja: {…}, en: {…} })`**、読むときは `MESSAGES[lang]`。ページのタイトルは `PAGE_TITLE`。ただし、ヘッダーのメニューなど他の場所にも出る名前は `app/utils/page-names.ts` の `PAGE_NAMES[lang]` から読み、`PAGE_TITLE` を重ねて持たない（`CLAUDE.md`「Languages」「Page metadata」）
 
 `/dev/ui` のギャラリー（`app/actions/dev-ui-page/`）はテンプレートから移した見本で、`Block` の `grow` のようにこの規約に合わない名前がある。ここは対象外。
@@ -82,3 +83,4 @@
 - ❌ ルートエリアのディレクトリを URL のセグメントで命名する、ページのディレクトリに `-page` がない
 - ❌ `*.server.ts` / `*.client.ts` の接尾辞で実行環境を分けようとする
 - ❌ `controller.tsx` と `workers/app.ts` 以外で `export default`
+- ❌ テスト以外で HTTP のステータスを数値のまま書く（`{ status: 404 }` → `{ status: HTTP_STATUS.NOT_FOUND }`）

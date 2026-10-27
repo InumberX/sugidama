@@ -12,6 +12,7 @@ import { LayoutPageWrapper } from '../ui/layouts/layout-page-wrapper/layout-page
 import { LayoutPublic } from '../ui/layouts/layout-public/layout-public.tsx'
 import { PageTitle } from '../ui/typographies/page-title/page-title.tsx'
 import { ReplaceNewLineText } from '../ui/typographies/replace-new-line-text/replace-new-line-text.tsx'
+import { HTTP_STATUS } from '../utils/http-status.ts'
 import { defineMessages, type Lang, toLangParam } from '../utils/i18n.ts'
 import { Document } from './document.tsx'
 import * as styles from './error-page.styles.ts'
@@ -46,7 +47,8 @@ const MESSAGES = defineMessages({
  * to a page that exists, say) is a request the page refused, and a 5xx is
  * ours — "try again later" is only true of that one.
  */
-const isNotFound = (status: number) => status === 404 || status === 410
+const isNotFound = (status: number) =>
+  status === HTTP_STATUS.NOT_FOUND || status === HTTP_STATUS.GONE
 
 export function ErrorPage(handle: Handle<ErrorPageProps>) {
   return () => {
@@ -56,7 +58,7 @@ export function ErrorPage(handle: Handle<ErrorPageProps>) {
     const title = notFound ? messages.notFoundTitle : messages.errorTitle
     const description = notFound
       ? messages.notFoundDescription
-      : status >= 500
+      : status >= HTTP_STATUS.INTERNAL_SERVER_ERROR
         ? messages.errorDescription
         : messages.rejectedDescription
     const homeHref = routes.home.href({ lang: toLangParam(lang) })

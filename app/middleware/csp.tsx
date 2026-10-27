@@ -7,7 +7,7 @@
 // reads the nonce back through component context (app/ui/contexts/csp-nonce/)
 // for the scripts it writes itself. Styles stay on `'unsafe-inline'` until Remix stamps its own tags —
 // https://github.com/remix-run/remix/pull/11926 adds a `nonce` option to
-// `renderToStream()` for exactly that (tracked in issue #115).
+// `renderToStream()` for exactly that (tracked in issue #133).
 //
 // Frames are not covered yet: `render()` resolves a `<Frame src>` through an
 // internal `router.fetch`, which would mint a second nonce that the outer page's

@@ -26,7 +26,7 @@ description: Review a pull request against this project's style, naming, and str
 優先順位:
 
 1. ユーザーが PR 番号や URL を指定 → `gh pr view <番号>` / `gh pr diff <番号>` で取得する（`gh` が使えない環境では GitHub の MCP ツールで PR の差分を読む）
-2. ブランチがある → PR のマージ先（移行中は `feature/remix3`、移行後は `develop`）との差分を `git diff <base>...HEAD --stat` と `git diff <base>...HEAD` で把握する
+2. ブランチがある → PR のマージ先（通常は `develop`）との差分を `git diff <base>...HEAD --stat` と `git diff <base>...HEAD` で把握する
 3. 作業ツリーに未コミット変更がある → `git status` と `git diff`
 
 ### 2. 観点の選択

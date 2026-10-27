@@ -3,6 +3,7 @@
 // The one place the app talks to the Kuroco API. Every call resolves to a
 // result instead of throwing, so an action decides what a failure means.
 import { API_URL } from '../env.ts'
+import { HTTP_STATUS } from '../utils/http-status.ts'
 
 type ApiSuccess<T> = { success: true; data: T }
 
@@ -73,13 +74,13 @@ export const toVisitorStatus = (
   { status }: Pick<ApiError, 'status'>,
   { notFound = false }: VisitorStatusOptions = {}
 ): number => {
-  if (status === null) return 500
+  if (status === null) return HTTP_STATUS.INTERNAL_SERVER_ERROR
   // A lookup by the URL's own id: an id the API no longer has (410) is a
   // missing page too, and stays a 410 so crawlers drop it. A 400 is not: it
   // can as well be the API's own fault (a key, a changed rule), and as a 404
   // it would drop every drink at once.
-  if (notFound && (status === 404 || status === 410)) return status
-  return status >= 500 ? status : 502
+  if (notFound && (status === HTTP_STATUS.NOT_FOUND || status === HTTP_STATUS.GONE)) return status
+  return status >= HTTP_STATUS.INTERNAL_SERVER_ERROR ? status : HTTP_STATUS.BAD_GATEWAY
 }
 
 /**

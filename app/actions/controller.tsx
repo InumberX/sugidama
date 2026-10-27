@@ -3,6 +3,7 @@ import { createController } from 'remix/router'
 import { IS_PRODUCTION } from '../env.ts'
 import { lang } from '../middleware/lang.ts'
 import { routes } from '../routes.ts'
+import { HTTP_STATUS } from '../utils/http-status.ts'
 import { DevUiPage } from './dev-ui-page/dev-ui-page.tsx'
 import { loadHomePage } from './home-page/home-page.data.ts'
 import { HomePage } from './home-page/home-page.tsx'
@@ -34,7 +35,7 @@ export default createController(routes, {
     // only answers outside production. Keeping the 404 here rather than making
     // the route map conditional keeps `typeof routes` stable.
     devUi(context) {
-      if (IS_PRODUCTION) return new Response('Not Found', { status: 404 })
+      if (IS_PRODUCTION) return new Response('Not Found', { status: HTTP_STATUS.NOT_FOUND })
       return context.render(<DevUiPage lang={context.lang} url={context.url} />)
     },
   },

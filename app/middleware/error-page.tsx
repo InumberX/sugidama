@@ -12,6 +12,7 @@ import { Renderer, type RenderFunction } from 'remix/middleware/render'
 import type { Middleware } from 'remix/router'
 
 import { ErrorPage } from '../actions/error-page.tsx'
+import { HTTP_STATUS } from '../utils/http-status.ts'
 import { DEFAULT_LANG, isLang, type Lang } from '../utils/i18n.ts'
 import { appendHeader, mediaTypeOf } from './with-headers.ts'
 
@@ -60,7 +61,7 @@ const acceptsHtml = (request: Request): boolean =>
 
 export const errorPage = (): Middleware => async (context, next) => {
   const response = await next()
-  if (response.status < 400 || !isPlain(response)) return response
+  if (response.status < HTTP_STATUS.BAD_REQUEST || !isPlain(response)) return response
   // For a file, the answer depends on `Accept`; say so to any cache between.
   const isFile = isFileRequest(context.url)
   if (isFile && !acceptsHtml(context.request)) {

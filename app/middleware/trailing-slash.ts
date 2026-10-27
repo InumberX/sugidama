@@ -4,6 +4,7 @@
 // page one canonical URL.
 import type { Middleware } from 'remix/router'
 
+import { HTTP_STATUS } from '../utils/http-status.ts'
 import { localRedirect } from './local-redirect.ts'
 
 /**
@@ -15,7 +16,11 @@ import { localRedirect } from './local-redirect.ts'
 export const trailingSlash = (): Middleware => (context, next) => {
   const { pathname, search } = context.url
   if (pathname.length > 1 && pathname.endsWith('/')) {
-    return localRedirect(context.url, `${pathname.replace(/\/+$/, '')}${search}`, 308)
+    return localRedirect(
+      context.url,
+      `${pathname.replace(/\/+$/, '')}${search}`,
+      HTTP_STATUS.PERMANENT_REDIRECT
+    )
   }
   return next()
 }

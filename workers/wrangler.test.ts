@@ -15,6 +15,8 @@ type RawEnvironment = {
   name?: string
   define?: Record<string, string>
   vars?: Record<string, unknown>
+  assets?: { directory?: string; binding?: string; run_worker_first?: unknown }
+  placement?: { mode?: string }
 }
 
 // Resolved from this file, so the suite also runs from a directory other than
@@ -91,6 +93,26 @@ describe('wrangler.jsonc', () => {
       })
     })
   }
+
+  it('places only production with Smart Placement', () => {
+    assert.equal(environments.production?.placement?.mode, 'smart')
+    // Staging's assets go through the Worker for Basic auth, and a placed
+    // Worker would make every asset request detour to it (wrangler warns).
+    assert.equal(environments.development?.placement, undefined)
+    assert.equal(rawConfig.placement, undefined)
+  })
+
+  it('routes only staging assets through the Worker, for Basic auth', () => {
+    // An environment's `assets` replaces the top level's whole, so staging
+    // must repeat the directory and the binding the Worker reads.
+    assert.deepEqual(environments.development?.assets, {
+      ...rawConfig.assets,
+      run_worker_first: true,
+    })
+    // Production inherits the top level, which serves assets from the edge.
+    assert.equal(environments.production?.assets, undefined)
+    assert.equal(rawConfig.assets?.run_worker_first, false)
+  })
 
   it('defaults the local API to the staging endpoint', () => {
     // app/env.ts writes the URL again as its local default; this keeps the two

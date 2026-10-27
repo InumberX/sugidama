@@ -24,10 +24,11 @@
     // `build/client` to point at.
     "directory": "./public",
     "binding": "ASSETS",
-    // Route every request through the Worker first so the Basic-auth gate in
-    // workers/handler.ts also covers static assets (CSS/images). Without this,
-    // matching files in public/ are served before the Worker runs.
-    "run_worker_first": true,
+    // Matching files in public/ are served from the edge before the Worker
+    // runs. Only staging has Basic auth, so only `env.development` routes them
+    // through the Worker; with Smart Placement the Worker may run far from the
+    // visitor, and production's assets would pay for the detour.
+    "run_worker_first": false,
   },
   "observability": {
     "enabled": true,
@@ -48,9 +49,27 @@
   // `vars` are public — this repository is, and the dashboard shows them in plain
   // text. Only values a visitor can already see belong here. Credentials are
   // Worker secrets (`wrangler secret put`), never vars; see CLAUDE.md.
+  //
+  // Smart Placement runs the production Worker near the Kuroco API rather than
+  // near each visitor. Run from every data center, a Worker spreads its
+  // requests over Kuroco's CDN, which likely made more of them miss its cache
+  // (see CLAUDE.md, Cloudflare Workers). Staging leaves it off: its assets go
+  // through the Worker for Basic auth, which wrangler warns would slow them
+  // down once placed, and its traffic is too small for Smart Placement to move
+  // it anyway.
+  //
+  // An environment's `assets` replaces the top level's whole, so staging
+  // repeats `directory` and `binding`.
   "env": {
     "development": {
       "name": "dev-sugidama",
+      "assets": {
+        "directory": "./public",
+        "binding": "ASSETS",
+        // Route every request through the Worker first so the Basic-auth gate
+        // in workers/handler.ts also covers static assets (CSS/images).
+        "run_worker_first": true,
+      },
       "define": { "process.env.NODE_ENV": "\"production\"" },
       "vars": {
         "SITE_URL": "https://dev-sugidama.afterworks.jp",
@@ -62,6 +81,7 @@
     },
     "production": {
       "name": "sugidama",
+      "placement": { "mode": "smart" },
       "define": { "process.env.NODE_ENV": "\"production\"" },
       "vars": {
         "SITE_URL": "https://sugidama.afterworks.jp",

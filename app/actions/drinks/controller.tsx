@@ -24,13 +24,20 @@ export default createController(routes.drinks, {
       if (data instanceof Response) return data
       // Past the last page there is nothing to show and no pagination to lead
       // back, so it is a 404 too rather than an empty page a crawler can index.
-      if (data.result.success && data.search.page > data.result.totalPage) {
+      // Kuroco itself answers a pageID past the last with a 404 ("pageID is too
+      // big.", measured on staging), so the search fails rather than coming back
+      // empty; the first page is never past the last (a search with no results
+      // answers it with an empty list), so a 404 there stays the API's fault.
+      const isPastLastPage = data.result.success
+        ? data.search.page > data.result.totalPage
+        : data.search.page > 1 && data.result.status === 404
+      if (isPastLastPage) {
         return new Response('Not Found', { status: 404 })
       }
       // A failed search still renders the form, with an error status so the
       // error page is not cached or indexed as the page's content, by the same
       // rule as every other API failure (`toVisitorStatus()`): a search that
-      // fails names no missing page, so even its 404 is a 502.
+      // fails names no missing page, so even its 404 on the first page is a 502.
       const init = data.result.success ? undefined : { status: toVisitorStatus(data.result) }
       return context.render(<IndexPage lang={context.lang} url={context.url} {...data} />, init)
     },

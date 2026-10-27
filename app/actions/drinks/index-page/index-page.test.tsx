@@ -74,6 +74,29 @@ describe('drinks index page', () => {
     assert.equal((await get('/drinks?page=3')).status, 404)
   })
 
+  it('answers a page past the last one with a 404 when Kuroco says so with its own 404', async (t) => {
+    // What Kuroco answers a pageID past the last (measured on staging).
+    const pageIdTooBig = () =>
+      Response.json(
+        { errors: [{ code: 'not_found', message: 'pageID is too big.' }] },
+        { status: 404 }
+      )
+    mockKuroco(t, { '/drinks': pageIdTooBig() })
+    t.mock.method(console, 'error', () => {})
+
+    assert.equal((await get('/drinks?page=999')).status, 404)
+    assert.equal((await get('/drinks?keyword=none&page=2')).status, 404)
+  })
+
+  it('answers the API 404 on the first page with a 502, as the endpoint is what is missing', async (t) => {
+    // The first page is never past the last: a search with no results answers
+    // it with an empty list (measured on staging), so a 404 there is the API's.
+    mockKuroco(t, { '/drinks': new Response('gone', { status: 404 }) })
+    t.mock.method(console, 'error', () => {})
+
+    assert.equal((await get('/drinks')).status, 502)
+  })
+
   it('says so when nothing matches', async (t) => {
     mockKuroco(t, { '/drinks': drinksFixture([]) })
     const html = await (await get('/drinks?keyword=none')).text()

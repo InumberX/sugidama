@@ -337,7 +337,7 @@ Workers cannot compile modules per request the way the template's asset server d
 
 The `lint` job runs `format`, `stylelint`, `lint`, `typecheck` in that order.
 
-The release PR is opened with a GitHub App token (a PR opened with `GITHUB_TOKEN` triggers no CI), so the repository needs the App's id in the `GHA_APP_ID` variable and its private key in the `GHA_PRIVATE_PEM` secret.
+The release PR is opened with `GITHUB_TOKEN`, so it triggers no `pull_request` workflow; that is fine while CI runs on `push` (the release PR's head is `develop`, whose push already ran it). Switch to a GitHub App token before adding a `pull_request` workflow.
 
 Remix 3 has no build step, so the `build` job checks the two things a build used to: `npm run routes` (`remix routes --table` loads `app/routes.ts` and every controller it names) and `npm run bundle` (`wrangler deploy --dry-run` bundles the Worker without deploying, so a Node-only import or a size regression fails here).
 

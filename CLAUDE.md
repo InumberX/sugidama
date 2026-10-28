@@ -331,7 +331,6 @@ Workers cannot compile modules per request the way the template's asset server d
 | --- | --- | --- |
 | `push.yml` | push to any branch | `setup` -> (`lint` / `test`) -> `build` |
 | `deploy.yml` | push to `develop` / `main` | `lint` / `test` -> `npm run deploy-development` / `deploy-production` |
-| `automation-pr-label.yml` | PR opened | labels `enhancement` / `bug` from the branch prefix |
 | `automation-release-pr.yml` | push to `develop` | opens the `develop` -> `main` release PR and keeps its body listing the unreleased PRs and their authors |
 | `automation-release-note.yml` | push to `main` | cuts a `v{YYYY.MM.DD}-{n}` tag and uses the release PR's body as the release note |
 
@@ -339,7 +338,7 @@ The `lint` job runs `format`, `stylelint`, `lint`, `typecheck` in that order.
 
 `.github/dependabot.yml` opens one weekly pull request (Mondays, 06:00 JST) that raises every GitHub Action to its newest major. npm dependencies are not covered.
 
-The release PR is opened with `GITHUB_TOKEN`, so it triggers no `pull_request` workflow; that is fine while CI runs on `push` (the release PR's head is `develop`, whose push already ran it). Switch to a GitHub App token before adding a `pull_request` workflow.
+The release PR is opened with `GITHUB_TOKEN`, so any `pull_request` workflow it starts waits for a manual approval; that is fine while CI runs on `push` (the release PR's head is `develop`, whose push already ran it). Switch to a GitHub App token before adding a `pull_request` workflow.
 
 Remix 3 has no build step, so the `build` job checks the two things a build used to: `npm run routes` (`remix routes --table` loads `app/routes.ts` and every controller it names) and `npm run bundle` (`wrangler deploy --dry-run` bundles the Worker without deploying, so a Node-only import or a size regression fails here).
 

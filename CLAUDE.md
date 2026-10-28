@@ -332,10 +332,12 @@ Workers cannot compile modules per request the way the template's asset server d
 | `push.yml` | push to any branch | `setup` -> (`lint` / `test`) -> `build` |
 | `deploy.yml` | push to `develop` / `main` | `lint` / `test` -> `npm run deploy-development` / `deploy-production` |
 | `automation-pr-label.yml` | PR opened | labels `enhancement` / `bug` from the branch prefix |
-| `automation-release-pr.yml` | push to `develop` | opens the `develop` -> `main` release PR |
-| `automation-release-note.yml` | push to `main` | cuts a `v{YYYY.MM.DD}-{n}` tag and generates the release note |
+| `automation-release-pr.yml` | push to `develop` | opens the `develop` -> `main` release PR and keeps its body listing the unreleased PRs and their authors |
+| `automation-release-note.yml` | push to `main` | cuts a `v{YYYY.MM.DD}-{n}` tag and uses the release PR's body as the release note |
 
 The `lint` job runs `format`, `stylelint`, `lint`, `typecheck` in that order.
+
+The release PR is opened with a GitHub App token (a PR opened with `GITHUB_TOKEN` triggers no CI), so the repository needs the App's id in the `GHA_APP_ID` variable and its private key in the `GHA_PRIVATE_PEM` secret.
 
 Remix 3 has no build step, so the `build` job checks the two things a build used to: `npm run routes` (`remix routes --table` loads `app/routes.ts` and every controller it names) and `npm run bundle` (`wrangler deploy --dry-run` bundles the Worker without deploying, so a Node-only import or a size regression fails here).
 

@@ -336,7 +336,7 @@ Workers cannot compile modules per request the way the template's asset server d
 
 The `lint` job runs `format`, `stylelint`, `lint`, `typecheck` in that order.
 
-`.github/dependabot.yml` opens one weekly pull request (Mondays, 06:00 JST) that raises every GitHub Action to its newest major. npm dependencies are not covered.
+`.github/dependabot.yml` opens one weekly pull request (Fridays, 06:00 JST) that raises every GitHub Action to its newest major. npm dependencies are not covered.
 
 The release PR is opened with `GITHUB_TOKEN`, so any `pull_request` workflow it starts waits for a manual approval; that is fine while CI runs on `push` (the release PR's head is `develop`, whose push already ran it). Switch to a GitHub App token before adding a `pull_request` workflow.
 

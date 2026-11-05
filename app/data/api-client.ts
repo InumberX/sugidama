@@ -54,8 +54,8 @@ export const toCacheUrl = (apiUrl: URL): string =>
 type ApiCache = Pick<Cache, 'match' | 'put'>
 
 /**
- * The Workers cache of the data center the request runs in. Absent under
- * Node (tests), so every call there asks the API.
+ * The Workers cache of the data center the request runs in. `wrangler dev`
+ * has one too; Node (the tests) has none, so every call there asks the API.
  */
 const getApiCache = (): ApiCache | undefined =>
   (globalThis as { caches?: { default?: ApiCache } }).caches?.default

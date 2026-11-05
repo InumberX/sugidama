@@ -94,10 +94,10 @@ describe('wrangler.jsonc', () => {
     })
   }
 
-  it('places only production with Smart Placement', () => {
-    assert.equal(environments.production?.placement?.mode, 'smart')
-    // Staging's assets go through the Worker for Basic auth, and a placed
-    // Worker would make every asset request detour to it (wrangler warns).
+  it('places no Worker with Smart Placement', () => {
+    // Tried on production: Kuroco's usage did not fall, and its pages got
+    // slower from Japan, where most visitors are (see CLAUDE.md).
+    assert.equal(environments.production?.placement, undefined)
     assert.equal(environments.development?.placement, undefined)
     assert.equal(rawConfig.placement, undefined)
   })

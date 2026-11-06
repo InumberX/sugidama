@@ -15,6 +15,15 @@
 
 コードの規約と、それぞれの判断の詳しい理由は `CLAUDE.md` にまとまっています。この README は全体像と、判断の要点だけを載せています。
 
+## 構成図
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/architecture-dark.png">
+  <img alt="Sugidama の構成図" src="docs/architecture.png">
+</picture>
+
+リクエストは Worker（staging だけ Basic 認証あり）から Remix 3 のルーターに渡り、コントローラーがサーバーで描画します。Kuroco の応答は Workers キャッシュに 5 分保持します。本番では、`public/` にある静的ファイルを Worker を通さずエッジから返します。
+
 ## 必要環境
 
 Node.js **24.3.0 以上**（`.node-version` と `volta` は 24.16.0 に固定）。`remix test`・`remix` CLI・`npm run build-client` は `module.registerHooks` で TypeScript を読み込むため、これより古い Node では動きません。wrangler は `npm run dev` とデプロイの前に `build-client` を実行するので、開発サーバーとデプロイも止まります。

@@ -1,30 +1,21 @@
-// Content-Security-Policy with a per-request nonce.
+// Content-Security-Policy with a per-request nonce, on Remix's own `csp()`.
 //
-// This predates the nonce support Remix 3.2.0 added: `csp()` from
-// `remix/middleware/csp`, whose nonce `render()` stamps on the
+// `csp()` establishes the nonce and sends the policy; `render()`, which runs
+// inside it, stamps that nonce on everything the renderer writes itself — the
 // `<style data-rmx-style>` tags `css(...)` emits, the import map and the
-// preloads. Moving to it is issue #133. Until then `renderWithCsp()` installs the
-// standard renderer, wraps every page it renders in `CspNonceProvider`, and
-// `Document` reads the nonce back through component context
-// (app/ui/contexts/csp-nonce/) for the scripts it writes itself. The renderer
-// never sees the nonce, so styles stay on `'unsafe-inline'`.
-//
-// Frames are not covered yet: `render()` resolves a `<Frame src>` through an
-// internal `router.fetch`, which would mint a second nonce that the outer page's
-// header does not list. Nothing renders a Frame today; with `csp()`, `render()`
-// makes frames reuse the document's nonce, so solve this with #133 first.
+// preloads — so `style-src` needs no `'unsafe-inline'`. A server-rendered
+// `<Frame src>` resolves through an internal request that inherits the same
+// nonce. For the scripts `Document` writes itself, `renderWithCsp()` also wraps
+// every page in `CspNonceProvider`, and components read the nonce back through
+// component context (app/ui/contexts/csp-nonce/): a component has no request
+// context of its own to call `getCspNonce()` with.
+import { csp, type CspNonce, getCspNonce } from 'remix/middleware/csp'
 import { render, Renderer, type RenderFunction, type RenderOptions } from 'remix/middleware/render'
 import type { Middleware } from 'remix/router'
 
 import { API_URL } from '../env.ts'
 import { CspNonceProvider } from '../ui/contexts/csp-nonce/csp-nonce.tsx'
-import { mediaTypeOf, withHeaders } from './with-headers.ts'
-
-/** 128 random bits, base64 — the size the CSP spec recommends at minimum. */
-export const createNonce = (): string => {
-  const bytes = crypto.getRandomValues(new Uint8Array(16))
-  return btoa(String.fromCharCode(...bytes))
-}
+import { mediaTypeOf } from './with-headers.ts'
 
 const NONCE_PLACEHOLDER = '{{nonce}}'
 
@@ -48,8 +39,9 @@ const DIRECTIVES: Record<string, string[]> = {
     "'strict-dynamic'",
     'https://www.googletagmanager.com',
   ],
-  // `'unsafe-inline'` because Remix's own <style> tags carry no nonce yet.
-  'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+  // The nonce covers the <style> tags render() writes; nothing renders a
+  // `style` attribute, which no nonce can cover.
+  'style-src': ["'self'", `'nonce-${NONCE_PLACEHOLDER}'`, 'https://fonts.googleapis.com'],
   'font-src': ["'self'", 'https://fonts.gstatic.com'],
   'img-src': [
     "'self'",
@@ -78,7 +70,7 @@ const DIRECTIVES: Record<string, string[]> = {
 
 // Everything but the nonce is fixed for the life of the Worker, so the policy
 // is joined once and only the nonce is substituted per request — every
-// occurrence, since style-src will take it too once remix#11926 ships.
+// occurrence, since script-src and style-src both carry it.
 const POLICY_TEMPLATE = Object.entries(DIRECTIVES)
   .map(([name, sources]) => `${name} ${sources.join(' ')}`)
   .join('; ')
@@ -95,14 +87,20 @@ export const buildCspDirective = (nonce: string): string =>
 const isHtml = (response: Response): boolean => mediaTypeOf(response) === 'text/html'
 
 /**
- * `render()` plus the CSP: installs the standard renderer, then replaces it with
- * one that wraps every page in `CspNonceProvider`, and sends the matching
- * Content-Security-Policy header on HTML responses. Built on `render()` rather
- * than placed after it, so there is no middleware order to get wrong.
- *
  * Only `text/html` without a policy of its own gets the nonce policy: a nonce
- * means nothing on a 404 in plain text or a redirect, and a route that sets
- * its own CSP keeps it. Everything else gets securityHeaders()'s fallback.
+ * means nothing on a 404 in plain text or a redirect, and a route that sets its
+ * own CSP keeps it alone — `csp()` would otherwise add its policy beside the
+ * route's, and the browser enforces both. Everything else gets
+ * securityHeaders()'s fallback.
+ */
+export const takesNoncePolicy = (response: Response): boolean =>
+  isHtml(response) && !response.headers.has('Content-Security-Policy')
+
+/**
+ * `csp()` and `render()` as one middleware, so `render()` always runs inside
+ * the `csp()` whose nonce it stamps — there is no middleware order to get
+ * wrong. The renderer is then replaced with one that wraps every page in
+ * `CspNonceProvider`, for the scripts `Document` writes itself.
  *
  * Unlike develop it is sent in development too: without Vite's HMR there is no
  * inline script the policy would have to exempt, so a violation shows up under
@@ -110,27 +108,32 @@ const isHtml = (response: Response): boolean => mediaTypeOf(response) === 'text/
  */
 export const renderWithCsp = (
   options?: RenderOptions
-): Middleware<{ key: typeof Renderer; value: RenderFunction; property: 'render' }> => {
+): Middleware<
+  readonly [
+    { key: typeof CspNonce; value: string },
+    { key: typeof Renderer; value: RenderFunction; property: 'render' },
+  ]
+> => {
+  const cspMiddleware = csp({
+    policy: ({ nonce }) => buildCspDirective(nonce),
+    filter: takesNoncePolicy,
+  })
   const renderMiddleware = render(options)
 
   return (context, next) =>
-    renderMiddleware(context, async () => {
-      // Created on first use — a page render or the HTML header — so a
-      // redirect or a plain-text 404 never pays for one.
-      let nonce: string | undefined
-      const getNonce = () => (nonce ??= createNonce())
-
-      // AnyRenderer is all the key's type says; render() above is what put a
-      // RenderFunction there, so the cast restates what this function owns.
-      const renderPage = context.get(Renderer) as RenderFunction
-      const renderWithNonce: RenderFunction = (node, init) =>
-        renderPage(<CspNonceProvider nonce={getNonce()}>{node}</CspNonceProvider>, init)
-      // Same key and property as render() used, so this replaces the renderer
-      // rather than adding a second one; `context.render` now returns this.
-      context.set(Renderer, renderWithNonce, { property: 'render' })
-
-      const response = await next()
-      if (!isHtml(response) || response.headers.has('Content-Security-Policy')) return response
-      return withHeaders(response, { 'Content-Security-Policy': buildCspDirective(getNonce()) })
-    })
+    cspMiddleware(context, async () =>
+      renderMiddleware(context, async () => {
+        // csp() above established it; render() read the same one.
+        const nonce = getCspNonce(context)
+        // AnyRenderer is all the key's type says; render() above is what put a
+        // RenderFunction there, so the cast restates what this function owns.
+        const renderPage = context.get(Renderer) as RenderFunction
+        const renderWithNonce: RenderFunction = (node, init) =>
+          renderPage(<CspNonceProvider nonce={nonce}>{node}</CspNonceProvider>, init)
+        // Same key and property as render() used, so this replaces the renderer
+        // rather than adding a second one; `context.render` now returns this.
+        context.set(Renderer, renderWithNonce, { property: 'render' })
+        return next()
+      })
+    )
 }

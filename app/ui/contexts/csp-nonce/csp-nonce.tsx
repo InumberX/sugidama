@@ -5,7 +5,7 @@
 // hydrates, so it can move into a `public/` directory on its own).
 import type { Handle, RemixNode } from 'remix/component'
 
-type CspNonceContext = { nonce: string }
+type CspNonceContext = { nonce: string | undefined }
 
 /**
  * Makes the request's nonce available to every component below it, so a page
@@ -13,7 +13,7 @@ type CspNonceContext = { nonce: string }
  * rendered page in it; read it with `useCspNonce(handle)`.
  */
 export function CspNonceProvider(
-  handle: Handle<{ nonce: string; children?: RemixNode }, CspNonceContext>
+  handle: Handle<{ nonce: string | undefined; children?: RemixNode }, CspNonceContext>
 ) {
   handle.context.set({ nonce: handle.props.nonce })
   return () => handle.props.children

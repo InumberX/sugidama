@@ -93,7 +93,7 @@ const isHtml = (response: Response): boolean => mediaTypeOf(response) === 'text/
  * route's, and the browser enforces both. Everything else gets
  * securityHeaders()'s fallback.
  */
-export const takesNoncePolicy = (response: Response): boolean =>
+const takesNoncePolicy = (response: Response): boolean =>
   isHtml(response) && !response.headers.has('Content-Security-Policy')
 
 /**
@@ -123,8 +123,11 @@ export const renderWithCsp = (
   return (context, next) =>
     cspMiddleware(context, async () =>
       renderMiddleware(context, async () => {
-        // csp() above established it; render() read the same one.
+        // csp() above established it, and render() read the same one, so a
+        // missing nonce is a wiring bug: fail loudly rather than ship scripts
+        // the policy blocks.
         const nonce = getCspNonce(context)
+        if (nonce === undefined) throw new Error('renderWithCsp(): csp() set no nonce')
         // AnyRenderer is all the key's type says; render() above is what put a
         // RenderFunction there, so the cast restates what this function owns.
         const renderPage = context.get(Renderer) as RenderFunction

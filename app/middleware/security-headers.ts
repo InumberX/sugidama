@@ -26,7 +26,7 @@ const PRODUCTION_ONLY = {
 /**
  * The policy for any response that does not carry one — cop()'s 403, the 500
  * below, a plain-text 404, a redirect. Nothing in those may load or frame
- * anything. HTML pages get renderWithCsp()'s nonce policy instead.
+ * anything. HTML pages get renderWithCsp()'s nonce policy (Remix's `csp()`) instead.
  */
 export const FALLBACK_CSP = "default-src 'none'; frame-ancestors 'none'"
 

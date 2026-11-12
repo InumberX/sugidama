@@ -1,18 +1,18 @@
 // Content-Security-Policy with a per-request nonce.
 //
-// Remix 3.0.0 has no nonce option of its own: neither `render()` nor
-// `renderToStream()` accepts one, and the `<style data-rmx-style>` tags that
-// `css(...)` emits cannot carry one. So `renderWithCsp()` installs the standard
-// renderer, wraps every page it renders in `CspNonceProvider`, and `Document`
-// reads the nonce back through component context (app/ui/contexts/csp-nonce/)
-// for the scripts it writes itself. Styles stay on `'unsafe-inline'` until Remix stamps its own tags —
-// https://github.com/remix-run/remix/pull/11926 adds a `nonce` option to
-// `renderToStream()` for exactly that (tracked in issue #133).
+// This predates the nonce support Remix 3.2.0 added: `csp()` from
+// `remix/middleware/csp`, whose nonce `render()` stamps on the
+// `<style data-rmx-style>` tags `css(...)` emits, the import map and the
+// preloads. Moving to it is issue #133. Until then `renderWithCsp()` installs the
+// standard renderer, wraps every page it renders in `CspNonceProvider`, and
+// `Document` reads the nonce back through component context
+// (app/ui/contexts/csp-nonce/) for the scripts it writes itself. The renderer
+// never sees the nonce, so styles stay on `'unsafe-inline'`.
 //
 // Frames are not covered yet: `render()` resolves a `<Frame src>` through an
 // internal `router.fetch`, which would mint a second nonce that the outer page's
-// header does not list. Nothing renders a Frame today; #11926 also makes frames
-// reuse the document's nonce, so revisit this when either changes.
+// header does not list. Nothing renders a Frame today; with `csp()`, `render()`
+// makes frames reuse the document's nonce, so solve this with #133 first.
 import { render, Renderer, type RenderFunction, type RenderOptions } from 'remix/middleware/render'
 import type { Middleware } from 'remix/router'
 

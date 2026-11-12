@@ -6,7 +6,7 @@
 
 - [DeepWiki のプロジェクトドキュメント](https://deepwiki.com/InumberX/sugidama)
 
-[Remix 3](https://remix.run)（`3.0.0`）で作り、Cloudflare Workers で動かしています。構成は [`inumberx/remix-template`](https://github.com/InumberX/remix-template) に従い、テンプレートと違うところは Workers で動かすための差分です。React Router からの移行の計画と経過は issue #115 にあります。
+[Remix 3](https://remix.run)（`3.2.0`）で作り、Cloudflare Workers で動かしています。構成は [`inumberx/remix-template`](https://github.com/InumberX/remix-template) に従い、テンプレートと違うところは Workers で動かすための差分です。React Router からの移行の計画と経過は issue #115 にあります。
 
 - **ローカルでも本番と同じランタイムで動かします。** 開発サーバーは `wrangler dev`（workerd）で、Node のサーバーはありません。
 - **サーバーのビルドはありません。** Worker は wrangler が TypeScript のまま束ねます。ブラウザ向けのモジュールだけを `scripts/build-client.ts` が事前にコンパイルします。

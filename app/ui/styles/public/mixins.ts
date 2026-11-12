@@ -80,8 +80,9 @@ export const getLineClamp = (maxLine: number): StyleRecipe => {
     display: '-webkit-box',
     WebkitBoxOrient: 'vertical',
     overflow: 'hidden',
-    // A string: Remix appends `px` to a unitless number here (`3px`), which is
-    // invalid for this property and silently drops the clamp.
+    // A string: up to 3.1.0 Remix appended `px` to a number here (`3px`), which
+    // is invalid for this property and silently drops the clamp. 3.2.0 keeps the
+    // number bare, and a string is emitted as written either way.
     WebkitLineClamp: String(maxLine),
   }
 }

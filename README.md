@@ -26,7 +26,7 @@
 
 ## 必要環境
 
-Node.js **24.3.0 以上**（`.node-version` と `volta` は 24.16.0 に固定）。`remix test`・`remix` CLI・`npm run build-client` は `module.registerHooks` で TypeScript を読み込むため、これより古い Node では動きません。wrangler は `npm run dev` とデプロイの前に `build-client` を実行するので、開発サーバーとデプロイも止まります。
+Node.js **26.0.0 以上**（`.node-version` は 26.13.0 に固定）。`remix test`・`remix` CLI・`npm run build-client` は `module.registerHooks` で TypeScript を読み込むため、24.3.0 より古い Node では動きません。wrangler は `npm run dev` とデプロイの前に `build-client` を実行するので、開発サーバーとデプロイも止まります。
 
 ## セットアップ
 
@@ -154,7 +154,7 @@ npm run deploy-production    # sugidama
 
 ### `does not provide an export named 'registerHooks'` で失敗する
 
-Node が古いです。`node -v` が `.node-version`（24.16.0）と一致するか確認してください。
+Node が古いです。`node -v` が `.node-version`（26.13.0）と一致するか確認してください。
 
 ## API の型
 

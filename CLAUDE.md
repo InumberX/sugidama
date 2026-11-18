@@ -48,7 +48,7 @@ Kuroco's answers are cached locally too, as on a deployed Worker (see **Kuroco a
 
 Local secrets and variables go in `.dev.vars` (see `.dev.vars.example`); `wrangler dev` exposes them through `process.env`, the same as `vars` and secrets on a deployed Worker. Every variable has a local default in `app/env.ts`, so `.dev.vars` is optional.
 
-**Node version.** `.node-version` pins 24.16.0 (the same as `volta` in `package.json`) and `package.json` requires `>=24.3.0`, because `remix test` and the `remix` CLI load TypeScript through `module.registerHooks`. On an older runtime they fail with `does not provide an export named 'registerHooks'`. `oxlint`, `oxfmt`, `tsc` and `wrangler` work regardless.
+**Node version.** `.node-version` pins 26.13.0 and `package.json` requires `>=26.0.0`. The hard floor is 24.3.0, because `remix test` and the `remix` CLI load TypeScript through `module.registerHooks`. On an older runtime they fail with `does not provide an export named 'registerHooks'`. `oxlint`, `oxfmt`, `tsc` and `wrangler` work regardless.
 
 **Write tests with `remix/test`, never `node:test`.** The `test` script is `NODE_ENV=test remix test` — the runner only *defaults* `NODE_ENV` (`??=`), so without the prefix a shell or image that exports `NODE_ENV=production` would run the suite as production — and it discovers `**/*.test.{ts,tsx}` for its server runner. Import `describe`/`it` from `remix/test` and pair them with `import * as assert from 'remix/assert'` (the namespace import is what carries `assert.match`; the *named* `assert` export is only the bare callable). Mocks come from the test context — `t.mock.fn()`, `t.mock.method(console, 'error', () => {})` — and are restored when the test ends (`workers/handler.test.ts` is the worked example).
 

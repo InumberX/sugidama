@@ -24,11 +24,6 @@ export const getDrinks = ({
   drinkCategoryIds,
 }: GetDrinksOptions = {}): Promise<ApiResult<Drinks>> => {
   const filter: string[] = []
-  const searchParams = new URLSearchParams({
-    cnt: String(pageSize),
-    pageID: String(page),
-    order_query: orderQuery,
-  })
 
   if (keyword) {
     // Kuroco's filter syntax quotes strings with `"`; escape it and `\`.
@@ -41,11 +36,13 @@ export const getDrinks = ({
     filter.push(drinkCategoryIds.length > 1 ? `(${categories})` : categories)
   }
 
-  for (const tag of tags ?? []) searchParams.append('tag_id', String(tag))
-
-  if (filter.length > 0) searchParams.set('filter', filter.join(' AND '))
-
-  return apiClient<Drinks>(`/drinks?${searchParams.toString()}`)
+  return apiClient<Drinks>('/drinks', {
+    cnt: pageSize,
+    pageID: page,
+    order_query: orderQuery,
+    tag_id: tags,
+    filter: filter.length > 0 ? filter.join(' AND ') : undefined,
+  })
 }
 
 /** Whether an id can name a drink's page: a dot segment would climb out of `/drinks/`. */

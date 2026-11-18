@@ -1,12 +1,12 @@
 import * as assert from 'remix/assert'
-import type { Handle } from 'remix/component'
+import { css, Frame, type Handle } from 'remix/component'
 import { createRouter } from 'remix/router'
 import { describe, it } from 'remix/test'
 
 import { Document } from '../actions/document.tsx'
 import { API_URL } from '../env.ts'
 import { useCspNonce } from '../ui/contexts/csp-nonce/csp-nonce.tsx'
-import { buildCspDirective, createNonce, renderWithCsp } from './csp.tsx'
+import { buildCspDirective, renderWithCsp } from './csp.tsx'
 
 // Prints the nonce it receives through component context, so a test can compare
 // it with the one in the header.
@@ -31,15 +31,6 @@ const nonceFromHeader = (response: Response): string | undefined =>
 const nonceFromBody = async (response: Response): Promise<string | undefined> =>
   (await response.text()).match(/<p id="nonce">([^<]*)<\/p>/)?.[1]
 
-describe('createNonce', () => {
-  it('returns 128 random bits as base64, different every time', () => {
-    const a = createNonce()
-    const b = createNonce()
-    assert.equal(atob(a).length, 16)
-    assert.notEqual(a, b)
-  })
-})
-
 describe('buildCspDirective', () => {
   const policy = buildCspDirective('test-nonce')
 
@@ -51,10 +42,16 @@ describe('buildCspDirective', () => {
     assert.doesNotMatch(policy.match(/script-src[^;]*/)?.[0] ?? '', /'unsafe-inline'/)
   })
 
+  it('allows styles by the nonce instead of unsafe-inline', () => {
+    const styleSrc = policy.match(/style-src[^;]*/)?.[0] ?? ''
+    assert.match(styleSrc, /'nonce-test-nonce'/)
+    assert.doesNotMatch(styleSrc, /'unsafe-inline'/)
+  })
+
   it('substitutes only the nonce into an otherwise fixed policy', () => {
     assert.equal(
-      buildCspDirective('a').replace("'nonce-a'", ''),
-      buildCspDirective('b').replace("'nonce-b'", '')
+      buildCspDirective('a').replaceAll("'nonce-a'", ''),
+      buildCspDirective('b').replaceAll("'nonce-b'", '')
     )
   })
 
@@ -140,6 +137,40 @@ describe('renderWithCsp()', () => {
 
     assert.ok(nonce)
     assert.deepEqual(scriptNonces, [nonce, nonce])
+  })
+
+  it('puts the header nonce on the style tags css() emits', async () => {
+    const router = createRouter({ middleware: [renderWithCsp()] })
+    router.get('/', (context) => context.render(<p mix={css({ color: 'red' })}>x</p>))
+    const response = await router.fetch(new Request('http://localhost/'))
+    const nonce = nonceFromHeader(response)
+    const styleTags = [...(await response.text()).matchAll(/<style[^>]*>/g)].map(([tag]) => tag)
+
+    assert.ok(nonce)
+    assert.ok(styleTags.length > 0, 'the page has a style tag')
+    // A base64 nonce can hold `+` and `/`, so compare text, not a pattern.
+    for (const tag of styleTags) assert.ok(tag.includes(` nonce="${nonce}"`), tag)
+  })
+
+  it('renders a server-side Frame under the document nonce', async () => {
+    const router = createRouter({ middleware: [renderWithCsp()] })
+    router.get('/', (context) => context.render(<Frame src="/frame" />))
+    router.get('/frame', (context) =>
+      context.render(
+        <div mix={css({ color: 'blue' })}>
+          <NonceProbe />
+        </div>
+      )
+    )
+    const response = await router.fetch(new Request('http://localhost/'))
+    const nonce = nonceFromHeader(response)
+    const html = await response.text()
+
+    assert.ok(nonce)
+    assert.ok(html.includes(`<p id="nonce">${nonce}</p>`), 'the frame reads the same nonce')
+    for (const [tag] of html.matchAll(/<style[^>]*>/g)) {
+      assert.ok(tag.includes(` nonce="${nonce}"`), tag)
+    }
   })
 
   it('uses a fresh nonce for every request', async () => {

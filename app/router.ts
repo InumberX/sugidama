@@ -18,7 +18,8 @@ import { setStaticQuery } from './ui/public/static-url.ts'
 //   arrive, add session() and then csrf() after it (see CLAUDE.md).
 // - trailingSlash() redirects `/en/` to `/en` before matching: route patterns
 //   are exact, and develop answered both.
-// - renderWithCsp() is render() plus a per-request CSP nonce. No `assets`
+// - renderWithCsp() is csp() with render() inside it, so the renderer stamps
+//   the request's nonce on everything it writes. No `assets`
 //   option: client entries name their own public URLs (`clientModuleUrl()`),
 //   and there is no asset server on Workers. Static files never reach this
 //   router — the Worker hands GET/HEAD to the `ASSETS` binding first.

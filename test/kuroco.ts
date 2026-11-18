@@ -127,3 +127,25 @@ export const mockKuroco = (t: TestContext, overrides: Record<string, KurocoAnswe
     return Response.json(answer)
   })
 }
+
+/**
+ * Installs a Workers-style `caches.default` for this test, backed by a Map, and
+ * removes it when the test ends (Node has no `caches`). Returns the store, keyed
+ * by cache URL, and the mocks whose `calls` record each `match` and `put`.
+ */
+export const mockApiCache = (t: TestContext) => {
+  const store = new Map<string, { body: string; headers: Headers }>()
+  const match = t.mock.fn(async (key: RequestInfo | URL) => {
+    const entry = store.get(String(key))
+    return entry ? new Response(entry.body, { headers: entry.headers }) : undefined
+  })
+  const put = t.mock.fn(async (key: RequestInfo | URL, response: Response) => {
+    store.set(String(key), { body: await response.text(), headers: response.headers })
+  })
+  const global = globalThis as { caches?: unknown }
+  global.caches = { default: { match, put } }
+  t.after(() => {
+    delete global.caches
+  })
+  return { store, match, put }
+}

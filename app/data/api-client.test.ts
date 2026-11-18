@@ -1,13 +1,20 @@
 import * as assert from 'remix/assert'
 import { describe, it } from 'remix/test'
 
-import { API_URL } from '../env.ts'
-import { apiClient, apiErrorResponse } from './api-client.ts'
+import { mockApiCache } from '../../test/kuroco.ts'
+import { API_URL, CACHE_BUSTER, SITE_URL } from '../env.ts'
+import {
+  API_CACHE_MAX_AGE_SECONDS,
+  apiClient,
+  apiErrorResponse,
+  toApiUrl,
+  toCacheUrl,
+} from './api-client.ts'
 
 describe('apiClient', () => {
-  it('GETs the path under API_URL, uncached, and parses the JSON', async (t) => {
+  it('GETs the endpoint under API_URL with its params, past any HTTP cache, and parses the JSON', async (t) => {
     const fetch = t.mock.method(globalThis, 'fetch', async () => Response.json({ ok: 1 }))
-    const result = await apiClient<{ ok: number }>('/drinks?cnt=1')
+    const result = await apiClient<{ ok: number }>('/drinks', { cnt: 1 })
 
     assert.deepEqual(result, { success: true, data: { ok: 1 } })
     const [url, init] = fetch.mock.calls[0]?.arguments ?? []
@@ -83,6 +90,115 @@ describe('apiClient', () => {
       assert.deepEqual(result, { success: false, status: null, message: 'JSON parse error' })
       if (!result.success) assert.equal(apiErrorResponse(result).status, 500)
     }
+  })
+})
+
+describe('toApiUrl', () => {
+  it('puts the params in the query in their order, repeating an array and leaving out undefined', () => {
+    const url = toApiUrl('/drinks', {
+      cnt: 12,
+      pageID: 2,
+      tag_id: ['11', 21],
+      filter: undefined,
+      keyword: 'a b&c',
+    })
+
+    assert.equal(
+      String(url),
+      `${API_URL}/drinks?cnt=12&pageID=2&tag_id=11&tag_id=21&keyword=a+b%26c`
+    )
+  })
+
+  it('adds no query without params', () => {
+    assert.equal(String(toApiUrl('/tags/taste')), `${API_URL}/tags/taste`)
+  })
+})
+
+describe('toCacheUrl', () => {
+  it("keys the API's own path and query under the site and the deploy's cache buster", () => {
+    const apiUrl = toApiUrl('/drinks', { cnt: 12, tag_id: [11, 21] })
+
+    assert.equal(
+      toCacheUrl(apiUrl),
+      `${new URL(SITE_URL).origin}/__cache/${CACHE_BUSTER}${apiUrl.pathname}?cnt=12&tag_id=11&tag_id=21`
+    )
+  })
+})
+
+describe('apiClient with the Workers cache', () => {
+  it('stores a successful answer for the max age and answers the next call from it', async (t) => {
+    const cache = mockApiCache(t)
+    const fetch = t.mock.method(globalThis, 'fetch', async () => Response.json({ ok: 1 }))
+
+    const first = await apiClient<{ ok: number }>('/drinks', { cnt: 1 })
+    const second = await apiClient<{ ok: number }>('/drinks', { cnt: 1 })
+
+    assert.deepEqual(first, { success: true, data: { ok: 1 } })
+    assert.deepEqual(second, first)
+    assert.equal(fetch.mock.calls.length, 1)
+    const key = toCacheUrl(toApiUrl('/drinks', { cnt: 1 }))
+    assert.deepEqual([...cache.store.keys()], [key])
+    assert.equal(
+      cache.store.get(key)?.headers.get('Cache-Control'),
+      `max-age=${API_CACHE_MAX_AGE_SECONDS}`
+    )
+  })
+
+  it('keeps answers to different params apart', async (t) => {
+    mockApiCache(t)
+    let n = 0
+    const fetch = t.mock.method(globalThis, 'fetch', async () => Response.json({ n: ++n }))
+
+    const page1 = await apiClient('/drinks', { pageID: 1 })
+    const page2 = await apiClient('/drinks', { pageID: 2 })
+
+    assert.deepEqual(page1, { success: true, data: { n: 1 } })
+    assert.deepEqual(page2, { success: true, data: { n: 2 } })
+    assert.equal(fetch.mock.calls.length, 2)
+  })
+
+  it('never stores an error status, a network failure or a body that is not JSON', async (t) => {
+    t.mock.method(console, 'error', () => {})
+    const cache = mockApiCache(t)
+    const answers = [
+      async () => new Response(null, { status: 503 }),
+      async () => {
+        throw new TypeError('fetch failed')
+      },
+      async () => new Response('<html>'),
+    ]
+    for (const answer of answers) {
+      t.mock.method(globalThis, 'fetch', answer)
+      const result = await apiClient('/x')
+      assert.equal(result.success, false)
+    }
+
+    assert.equal(cache.put.mock.calls.length, 0)
+  })
+
+  it('asks the API when the stored answer cannot be read, and still answers when storing fails', async (t) => {
+    t.mock.method(console, 'error', () => {})
+    const cache = mockApiCache(t)
+    cache.store.set(toCacheUrl(toApiUrl('/x')), { body: '<broken', headers: new Headers() })
+    const failingPut = t.mock.fn(async () => {
+      throw new Error('cache full')
+    })
+    ;(globalThis as { caches?: unknown }).caches = {
+      default: { match: cache.match, put: failingPut },
+    }
+    const fetch = t.mock.method(globalThis, 'fetch', async () => Response.json({ ok: 1 }))
+
+    assert.deepEqual(await apiClient('/x'), { success: true, data: { ok: 1 } })
+    assert.equal(fetch.mock.calls.length, 1)
+    assert.equal(failingPut.mock.calls.length, 1)
+  })
+
+  it('asks the API every time where there is no Workers cache', async (t) => {
+    const fetch = t.mock.method(globalThis, 'fetch', async () => Response.json({ ok: 1 }))
+    await apiClient('/x')
+    await apiClient('/x')
+
+    assert.equal(fetch.mock.calls.length, 2)
   })
 })
 

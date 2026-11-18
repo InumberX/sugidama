@@ -26,8 +26,7 @@
     "binding": "ASSETS",
     // Matching files in public/ are served from the edge before the Worker
     // runs. Only staging has Basic auth, so only `env.development` routes them
-    // through the Worker; with Smart Placement the Worker may run far from the
-    // visitor, and production's assets would pay for the detour.
+    // through the Worker; production's assets need no Worker in their way.
     "run_worker_first": false,
   },
   "observability": {
@@ -50,13 +49,9 @@
   // text. Only values a visitor can already see belong here. Credentials are
   // Worker secrets (`wrangler secret put`), never vars; see CLAUDE.md.
   //
-  // Smart Placement runs the production Worker near the Kuroco API rather than
-  // near each visitor. Run from every data center, a Worker spreads its
-  // requests over Kuroco's CDN, which likely made more of them miss its cache
-  // (see CLAUDE.md, Cloudflare Workers). Staging leaves it off: its assets go
-  // through the Worker for Basic auth, which wrangler warns would slow them
-  // down once placed, and its traffic is too small for Smart Placement to move
-  // it anyway.
+  // No environment uses Smart Placement: it was tried on production and did
+  // not lower Kuroco's usage (see CLAUDE.md, Cloudflare Workers). The Worker
+  // keeps Kuroco's answers in the Workers cache instead (app/data/api-client.ts).
   //
   // An environment's `assets` replaces the top level's whole, so staging
   // repeats `directory` and `binding`.
@@ -81,7 +76,6 @@
     },
     "production": {
       "name": "sugidama",
-      "placement": { "mode": "smart" },
       "define": { "process.env.NODE_ENV": "\"production\"" },
       "vars": {
         "SITE_URL": "https://sugidama.afterworks.jp",

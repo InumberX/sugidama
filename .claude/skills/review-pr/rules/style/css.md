@@ -81,7 +81,7 @@ css({ ...styles.layoutInner, ...styles.layoutInnerSizes[size], ...styleOverrides
 
 `color.ts` の `getRgba(rgb, alpha)` は `R, G, B` の 3 つの値を受け取る（`changeColorHexToRgb` で 16 進から作るか、3 つの値を持つカスタムプロパティを渡す）。今の `app.css` の色は 16 進で、3 つの値のカスタムプロパティがないため呼び出し元はない。アルファ付きの色は、上のとおり `color-mix` で作る
 
-- **単位のないプロパティには文字列を渡す**。Remix は知らないプロパティの数値に `px` を付ける（`WebkitLineClamp: 3` は `3px` になり無効）。出力された CSS で確かめる
+- **単位のないプロパティは出力された CSS で確かめる**。Remix は単位なしだと知らないプロパティの数値に `px` を付ける（3.1.0 までは `WebkitLineClamp: 3` が `3px` になり無効だった。3.2.0 は `3` のまま出す）。確かめていないプロパティには文字列を渡す
 - `/dev/ui` のギャラリー（`app/actions/dev-ui-page/`）はテンプレートから移した見本で、色をリテラルで持つ。ここは対象外
 
 ## `primitives/` のスタイル

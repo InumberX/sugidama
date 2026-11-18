@@ -6,7 +6,7 @@
 
 - [DeepWiki のプロジェクトドキュメント](https://deepwiki.com/InumberX/sugidama)
 
-[Remix 3](https://remix.run)（`3.0.0`）で作り、Cloudflare Workers で動かしています。構成は [`inumberx/remix-template`](https://github.com/InumberX/remix-template) に従い、テンプレートと違うところは Workers で動かすための差分です。React Router からの移行の計画と経過は issue #115 にあります。
+[Remix 3](https://remix.run)（`3.2.0`）で作り、Cloudflare Workers で動かしています。構成は [`inumberx/remix-template`](https://github.com/InumberX/remix-template) に従い、テンプレートと違うところは Workers で動かすための差分です。React Router からの移行の計画と経過は issue #115 にあります。
 
 - **ローカルでも本番と同じランタイムで動かします。** 開発サーバーは `wrangler dev`（workerd）で、Node のサーバーはありません。
 - **サーバーのビルドはありません。** Worker は wrangler が TypeScript のまま束ねます。ブラウザ向けのモジュールだけを `scripts/build-client.ts` が事前にコンパイルします。
@@ -14,6 +14,15 @@
 - **`/dev/ui` はコンポーネントギャラリーです。** 本番と同じ `context.render()` で描画するので、見本と本番の表示がずれません。
 
 コードの規約と、それぞれの判断の詳しい理由は `CLAUDE.md` にまとまっています。この README は全体像と、判断の要点だけを載せています。
+
+## 構成図
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/architecture-dark.png">
+  <img alt="Sugidama の構成図" src="docs/architecture.png">
+</picture>
+
+リクエストは Worker（staging だけ Basic 認証あり）から Remix 3 のルーターに渡り、コントローラーがサーバーで描画します。Kuroco の応答は Workers キャッシュに 5 分保持します。本番では、`public/` にある静的ファイルを Worker を通さずエッジから返します。
 
 ## 必要環境
 

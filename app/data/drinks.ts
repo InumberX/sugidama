@@ -24,7 +24,7 @@ export type GetDrinksOptions = {
  * `filter_lang` names. Each must be in the endpoint's
  * `filter_request_allow_list`.
  */
-export const KEYWORD_FIELDS = ['subject', 'contents', 'manufacturer', 'comment'] as const
+const KEYWORD_FIELDS = ['subject', 'contents', 'manufacturer', 'comment'] as const
 
 /** The drink list, newest first by default; every condition narrows it further. */
 export const getDrinks = ({
@@ -67,11 +67,11 @@ const isDrinkId = (id: string): boolean => id !== '' && id !== '.' && id !== '..
 
 /**
  * One drink in one language, by its slug or its topics_id — whichever the
- * route carried; a drink without that language is a 404. The
- * id comes from the URL, so it is encoded: a `/` or `?` in it must not reach
- * another endpoint or add a query. A dot segment survives encoding (`fetch`
- * resolves `..` and `%2E%2E` alike) and would climb out of `/drinks/`, so it
- * names no drink and is answered as a 404 without asking the API.
+ * route carried; a drink without that language is a 404. The id comes from
+ * the URL, so it is encoded: a `/` or `?` in it must not reach another
+ * endpoint or add a query. A dot segment survives encoding (`fetch` resolves
+ * `..` and `%2E%2E` alike) and would climb out of `/drinks/`, so it names no
+ * drink and is answered as a 404 without asking the API.
  */
 export const getDrinkDetail = async (id: string, lang: Lang): Promise<ApiResult<DrinkDetail>> => {
   if (!isDrinkId(id)) {

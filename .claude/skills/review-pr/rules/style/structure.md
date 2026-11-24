@@ -109,6 +109,7 @@ app/ui/
 - **テストは対象の横に置く**（`<name>.test.tsx`、`app/middleware/*.test.ts`）。ルート直下の `test/` は共有のフィクスチャだけ
 - **`remix/test` と `import * as assert from 'remix/assert'` を使う**。`node:test` は失敗しても全体が成功になる（lint でも検出）
 - **API を使うページを描くテストは `mockKuroco(t, …)` を呼ぶ**。呼ばないと本物の API に通信する
+- **Kuroco へのリクエストには必ず `_lang` を付ける**（日本語でも `_lang=ja`）。`mockKuroco` は `_lang` の無いリクエストを失敗させる。言語ごとに答えを分けるときは `byLang({ ja, en })`、英語のフィクスチャは `…EnFixture` を使う（`CLAUDE.md`「Data」「Tests」）
 - **ルートの振る舞いは `router.fetch(new Request(...))` の `Response` で確かめる**。部品は `renderToString`
 
 ## アンチパターン（指摘対象）
@@ -120,6 +121,7 @@ app/ui/
 - ❌ 内部リンクを文字列で書く、日本語のリンクに `/ja` を付ける、末尾に `/` を付ける
 - ❌ ネストしたルートマップに `router.map` の行や controller がない、言語つきの controller に `lang()` がない
 - ❌ ページのコンポーネントの中で API を呼ぶ（`<key>-page.data.ts` に置く）
+- ❌ Kuroco への取得に `_lang` を付けない、取得した後で `lang === 'en' ? x_en : x` と言語を選ぶ
 - ❌ エラーを HTML で組み立てて返す、API のエラーの文言を訪問者に見せる
 - ❌ `primitives/` が色・文字サイズ・トークンを持つ
 - ❌ ハイドレートする部品が `public/` の外の値を import する、`clientEntry` に `import.meta.url` を渡す

@@ -22,7 +22,7 @@ export type HomePageData = {
 export const loadHomePage = async (lang: Lang): Promise<HomePageData | Response> => {
   const [terms, drinksResult] = await Promise.all([
     getDrinkTerms(lang),
-    getDrinks({ page: 1, pageSize: NEW_ARRIVALS_TOTAL }),
+    getDrinks({ lang, page: 1, pageSize: NEW_ARRIVALS_TOTAL }),
   ])
 
   if (!terms.success) return apiErrorResponse(terms)

@@ -26,8 +26,24 @@ describe('drinks index page', () => {
     assert.equal(response.status, 200)
     assert.equal(params.get('pageID'), '3')
     assert.equal(params.get('cnt'), '12')
-    assert.equal(params.get('filter'), 'keyword contains "辛" AND drink_category = "2"')
+    assert.match(
+      params.get('filter') ?? '',
+      /^\(subject contains "辛" OR .*\) AND drink_category = "2"$/
+    )
+    assert.equal(params.get('_lang'), 'ja')
+    assert.equal(params.get('filter_lang'), 'ja')
     assert.deepEqual(params.getAll('tag_id'), ['11', '21'])
+  })
+
+  it('searches the English text under /en', async (t) => {
+    const fetch = mockKuroco(t)
+    const response = await get('/en/drinks?keyword=dry')
+    const params = drinksRequest(fetch)
+
+    assert.equal(response.status, 200)
+    assert.match(params.get('filter') ?? '', /^\(subject contains "dry" OR /)
+    assert.equal(params.get('_lang'), 'en')
+    assert.equal(params.get('filter_lang'), 'en')
   })
 
   it('answers an invalid page with a 404', async (t) => {

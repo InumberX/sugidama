@@ -3,8 +3,8 @@
 export type DrinkCategoryItem = {
   id: string
   order: string
+  /** In the language asked for (`_lang`). */
   name: string
-  name_en: string
   /** Names the category's image: public/static/img/img-category-<slug>.webp */
   slug: string
 }

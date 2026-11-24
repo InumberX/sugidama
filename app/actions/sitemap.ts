@@ -1,11 +1,13 @@
 // Ported from develop: app/routes/sitemap[.]xml._index and app/utils/sitemap.server.ts
 //
 // The `sitemap` action's body: the home page and the list in both languages,
-// then every drink in both. `<lastmod>` is the deploy time (`DEPLOYED_AT`),
+// then every drink in each language it has: a drink without an English
+// version is a 404 under /en, so each language's drinks come from a list
+// asked for in that language. `<lastmod>` is the deploy time (`DEPLOYED_AT`),
 // which stands in for develop's Vite build time, and is left out where there
 // is no deploy to date (wrangler dev, tests) rather than invented.
 import { toVisitorStatus } from '../data/api-client.ts'
-import { getDrinks } from '../data/drinks.ts'
+import { type Drink, getDrinks } from '../data/drinks.ts'
 import { DEPLOYED_AT, SITE_URL } from '../env.ts'
 import { routes } from '../routes.ts'
 import { toDrinkHref } from '../utils/drink-card.ts'
@@ -55,10 +57,14 @@ const XML_HEADERS = { 'Content-Type': 'application/xml; charset=UTF-8' }
  * get its status, not an HTML page.
  */
 export const sitemapResponse = async (): Promise<Response> => {
-  // develop's `pageSize: -1`: every drink in one request.
-  const drinks = await getDrinks({ page: 1, pageSize: -1 })
-  if (!drinks.success) {
-    return new Response(null, { status: toVisitorStatus(drinks), headers: XML_HEADERS })
+  // develop's `pageSize: -1`: every drink in one request, once per language.
+  const results = await Promise.all(LANGS.map((lang) => getDrinks({ lang, page: 1, pageSize: -1 })))
+  const drinkLists: Drink[][] = []
+  for (const result of results) {
+    if (!result.success) {
+      return new Response(null, { status: toVisitorStatus(result), headers: XML_HEADERS })
+    }
+    drinkLists.push(result.data.list)
   }
 
   const pages = LANGS.flatMap((lang): SitemapEntry[] => {
@@ -68,8 +74,8 @@ export const sitemapResponse = async (): Promise<Response> => {
       { path: routes.drinks.index.href(langParam), priority: 0.5, changefreq: 'weekly' },
     ]
   })
-  const drinkPages = drinks.data.list.flatMap((drink) =>
-    LANGS.map((lang): SitemapEntry => ({
+  const drinkPages = LANGS.flatMap((lang, i) =>
+    drinkLists[i]!.map((drink): SitemapEntry => ({
       path: toDrinkHref(drink, lang),
       priority: 0.5,
       changefreq: 'weekly',

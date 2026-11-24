@@ -35,8 +35,9 @@ const toKnownSearch = (search: DrinkSearch, terms: DrinkTerms): DrinkSearch => {
   return known
 }
 
-const searchDrinks = (search: DrinkSearch) =>
+const searchDrinks = (lang: Lang, search: DrinkSearch) =>
   getDrinks({
+    lang,
     page: search.page,
     pageSize: DRINKS_PAGE_SIZE,
     keyword: search.keyword || undefined,
@@ -52,7 +53,7 @@ export const loadIndexPage = async (
   if (!terms.success) return apiErrorResponse(terms)
 
   const search = toKnownSearch(requested, terms.data)
-  const drinks = await searchDrinks(search)
+  const drinks = await searchDrinks(lang, search)
 
   const { categories, tagGroups } = terms.data
   const result: DrinkSearchResult = drinks.success

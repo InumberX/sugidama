@@ -119,14 +119,9 @@ const toArticleProps = ({
   category: Term | undefined
   messages: Messages
 }): BaseArticleProps => {
-  const en = lang === 'en'
-  const manufacturer = en ? drink.manufacturer_en : drink.manufacturer
-  const comment = en ? drink.comment_en : drink.comment
+  const { manufacturer, comment } = drink
   const links = (drink.links ?? [])
-    .map((link) => ({
-      text: en ? link.link_text_en : link.link_text,
-      url: en ? link.link_url_en : link.link_url,
-    }))
+    .map((link) => ({ text: link.link_text, url: link.link_url }))
     .filter((link) => link.text && link.url)
   const info: ArticleInfoItem[] = [
     ...(category ? [{ title: messages.category, text: category.label }] : []),
@@ -138,7 +133,7 @@ const toArticleProps = ({
   ]
 
   return {
-    title: en ? drink.subject_en : drink.subject,
+    title: drink.subject,
     // A row saved without an image is left out rather than drawn empty.
     mainVisuals: (drink.main_visuals ?? [])
       .flatMap((visual) =>
@@ -146,7 +141,7 @@ const toArticleProps = ({
           ? [
               {
                 src: visual.main_visual_image.url,
-                alt: (en ? visual.main_visual_title_en : visual.main_visual_title) ?? '',
+                alt: visual.main_visual_title ?? '',
               },
             ]
           : []

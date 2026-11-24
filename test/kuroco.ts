@@ -2,62 +2,90 @@
 // the network: `mockKuroco(t)` replaces the global `fetch` for one test (the
 // test context restores it), answering each endpoint with the fixtures below
 // unless an override says otherwise.
+//
+// Kuroco keeps each language as a version of the same record, under the same
+// field names, and answers the one `_lang` asks for. So each fixture comes in
+// Japanese and, where a test needs it, English (`…EnFixture`), and the default
+// answers pick one by the request's `_lang`.
 import type { TestContext } from 'remix/test'
 
 import type { DrinkCategories } from '../app/data/drink-categories.types.ts'
 import type { Drink, DrinkDetail, Drinks } from '../app/data/drinks.types.ts'
 import type { Tags } from '../app/data/tags.types.ts'
 import { API_URL } from '../app/env.ts'
+import { LANGS, type Lang } from '../app/utils/i18n.ts'
 
 export const drinkCategoriesFixture: DrinkCategories = {
   errors: [],
   messages: [],
   // Out of order on purpose: the master's `order` decides.
   list: [
-    { id: '2', order: '2', name: '日本酒', name_en: 'Sake', slug: 'sake' },
-    { id: '1', order: '1', name: 'ビール', name_en: 'Beer', slug: 'beer' },
-    { id: 'x', order: '3', name: '壊れた項目', name_en: 'Broken', slug: 'broken' },
+    { id: '2', order: '2', name: '日本酒', slug: 'sake' },
+    { id: '1', order: '1', name: 'ビール', slug: 'beer' },
+    { id: 'x', order: '3', name: '壊れた項目', slug: 'broken' },
   ],
 }
 
-const tagsOf = (id: number, ja: string, en: string): Tags => ({
+export const drinkCategoriesEnFixture: DrinkCategories = {
+  ...drinkCategoriesFixture,
+  list: [
+    { id: '2', order: '2', name: 'Sake', slug: 'sake' },
+    { id: '1', order: '1', name: 'Beer', slug: 'beer' },
+    { id: 'x', order: '3', name: 'Broken', slug: 'broken' },
+  ],
+}
+
+/** A tag group of one tag: its identifier is the same in every language, its display name is not. */
+const tagsOf = (id: number, tagName: string, label: string): Tags => ({
   errors: [],
   messages: [],
   list: [
     {
       tag_category_id: 1,
       tag_category_nm: 'category',
-      tags: { [String(id)]: { tag_id: id, tag_nm: ja, ext_col_01: en } },
+      tags: { [String(id)]: { tag_id: id, tag_nm: tagName, ext_col_01: label } },
     },
   ],
 })
 
-export const tasteTagsFixture = tagsOf(11, '辛口', 'Dry')
-export const drinkabilityTagsFixture = tagsOf(21, '飲みやすい', 'Easy')
+export const tasteTagsFixture = tagsOf(11, 'dry', '辛口')
+export const tasteTagsEnFixture = tagsOf(11, 'dry', 'Dry')
+export const drinkabilityTagsFixture = tagsOf(21, 'easy', '飲みやすい')
+export const drinkabilityTagsEnFixture = tagsOf(21, 'easy', 'Easy')
 
 export const drinkFixture = (overrides: Partial<Drink> = {}): Drink => ({
   topics_id: 100,
   slug: 'kubota',
   subject: '久保田',
-  subject_en: 'Kubota',
   inst_ymdhi: '2024-03-01T23:30:00+09:00',
   update_ymdhi: '2024-03-01T23:30:00+09:00',
   description: '',
-  description_en: '',
   contents: '',
-  contents_en: '',
   thumbnail: { id: 'img', url: 'https://example.com/kubota.webp', desc: '久保田の瓶', url_org: '' },
   main_visuals: [],
   manufacturer: '朝日酒造',
-  manufacturer_en: 'Asahi Shuzo',
   abv: 15,
   drink_category: { key: '2', label: '日本酒' },
-  tags: [{ tag_id: 11, tag_nm: '辛口' }],
+  tags: [{ tag_id: 11, tag_nm: 'dry' }],
   links: [],
   comment: '',
-  comment_en: '',
   ...overrides,
 })
+
+/** `drinkFixture`'s English version: the same drink, its text in English. */
+export const drinkEnFixture = (overrides: Partial<Drink> = {}): Drink =>
+  drinkFixture({
+    subject: 'Kubota',
+    thumbnail: {
+      id: 'img',
+      url: 'https://example.com/kubota.webp',
+      desc: 'A bottle of Kubota',
+      url_org: '',
+    },
+    manufacturer: 'Asahi Shuzo',
+    drink_category: { key: '2', label: 'Sake' },
+    ...overrides,
+  })
 
 export const drinksFixture = (list: Drink[]): Drinks => ({
   errors: [],
@@ -74,32 +102,43 @@ export const drinkDetailFixture = (drink: Drink = drinkFixture()): DrinkDetail =
 })
 
 /** Six drinks, newest first: two large cards and four compact ones on the home page. */
-export const newArrivalsFixture = drinksFixture(
-  Array.from({ length: 6 }, (_, i) =>
-    drinkFixture({
-      topics_id: 100 + i,
-      slug: `drink-${i}`,
-      subject: `お酒${i}`,
-      subject_en: `Drink ${i}`,
-    })
+const newArrivalsOf = (toDrink: typeof drinkFixture, subject: (i: number) => string): Drinks =>
+  drinksFixture(
+    Array.from({ length: 6 }, (_, i) =>
+      toDrink({ topics_id: 100 + i, slug: `drink-${i}`, subject: subject(i) })
+    )
   )
-)
+
+export const newArrivalsFixture = newArrivalsOf(drinkFixture, (i) => `お酒${i}`)
+export const newArrivalsEnFixture = newArrivalsOf(drinkEnFixture, (i) => `Drink ${i}`)
 
 /** What an endpoint answers: a body to send as JSON, a ready Response, or an Error to throw. */
 export type KurocoAnswer = unknown | Response | Error
 
-const DEFAULT_ANSWERS: Record<string, KurocoAnswer> = {
-  '/drinks': newArrivalsFixture,
-  '/masters/drink_category': drinkCategoriesFixture,
-  '/tags/taste': tasteTagsFixture,
-  '/tags/drinkability': drinkabilityTagsFixture,
+/** One answer per language, picked by the request's `_lang`; made with `byLang()`. */
+class LangAnswers {
+  constructor(readonly answers: Record<Lang, KurocoAnswer>) {}
 }
+
+/** An endpoint that answers each language differently. A plain answer is the same in both. */
+export const byLang = (answers: Record<Lang, KurocoAnswer>): LangAnswers => new LangAnswers(answers)
+
+const DEFAULT_ANSWERS: Record<string, KurocoAnswer> = {
+  '/drinks': byLang({ ja: newArrivalsFixture, en: newArrivalsEnFixture }),
+  '/masters/drink_category': byLang({ ja: drinkCategoriesFixture, en: drinkCategoriesEnFixture }),
+  '/tags/taste': byLang({ ja: tasteTagsFixture, en: tasteTagsEnFixture }),
+  '/tags/drinkability': byLang({ ja: drinkabilityTagsFixture, en: drinkabilityTagsEnFixture }),
+}
+
+const isLang = (value: string | null): value is Lang => LANGS.some((lang) => lang === value)
 
 /**
  * Replaces `fetch` for this test. Endpoints are matched exactly, as the path
  * under `API_URL`, so a new endpoint that merely ends the same way fails as
- * unmocked instead of getting the wrong fixture. Returns the mock, whose
- * `calls` record each requested URL.
+ * unmocked instead of getting the wrong fixture. A request without a `_lang`
+ * fails too: Kuroco would pick its language from `Accept-Language`, and the
+ * Workers cache would keep that answer for the other language. Returns the
+ * mock, whose `calls` record each requested URL.
  */
 const API_BASE_PATH = new URL(API_URL).pathname
 
@@ -112,8 +151,11 @@ export const mockKuroco = (t: TestContext, overrides: Record<string, KurocoAnswe
       ? url.pathname.slice(API_BASE_PATH.length)
       : url.pathname
     if (!Object.hasOwn(answers, path)) throw new Error(`unmocked Kuroco request: ${url}`)
+    const lang = url.searchParams.get('_lang')
+    if (!isLang(lang)) throw new Error(`Kuroco request without a known _lang: ${url}`)
 
-    const answer = answers[path]
+    const entry = answers[path]
+    const answer = entry instanceof LangAnswers ? entry.answers[lang] : entry
     if (answer instanceof Error) throw answer
     // A fresh Response rather than `answer.clone()`: a clone tees the body, and
     // cancelling one branch of a tee waits for the other, so the API client's

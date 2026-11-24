@@ -1,7 +1,7 @@
 import * as assert from 'remix/assert'
 import { describe, it } from 'remix/test'
 
-import { drinkFixture } from '../../test/kuroco.ts'
+import { drinkEnFixture, drinkFixture } from '../../test/kuroco.ts'
 import { toDrinkCardProps } from './drink-card.ts'
 
 const categories = [
@@ -96,7 +96,7 @@ describe('toDrinkCardProps', () => {
   })
 
   it('uses the English title, date and URLs in English', () => {
-    const card = toDrinkCardProps({ drink: drinkFixture(), lang: 'en', categories, tagGroups })
+    const card = toDrinkCardProps({ drink: drinkEnFixture(), lang: 'en', categories, tagGroups })
 
     assert.equal(card.url, '/en/drinks/kubota')
     assert.equal(card.title.text, 'Kubota')

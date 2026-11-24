@@ -2,9 +2,9 @@
 
 export type TagItem = {
   tag_id: number
-  /** The Japanese label. */
+  /** An identifier shaped like a slug (`slightly_funky`), the same in every language: a tag name cannot hold a space. */
   tag_nm: string
-  /** The English label. */
+  /** The display name, in the language asked for (`_lang`); the identifier stands in when it is empty. */
   ext_col_01: string
 }
 

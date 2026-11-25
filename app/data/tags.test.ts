@@ -1,7 +1,12 @@
 import * as assert from 'remix/assert'
 import { describe, it } from 'remix/test'
 
-import { mockKuroco, tasteTagsEnFixture, tasteTagsFixture } from '../../test/kuroco.ts'
+import {
+  drinkabilityTagsEnFixture,
+  mockKuroco,
+  tasteTagsEnFixture,
+  tasteTagsFixture,
+} from '../../test/kuroco.ts'
 import { getDrinkabilityTags, getTasteTags, toTagTerms } from './tags.ts'
 
 describe('getTasteTags / getDrinkabilityTags', () => {
@@ -25,24 +30,30 @@ describe('toTagTerms', () => {
     )
   })
 
-  it('labels each tag with its display name, in the language it was asked for', () => {
+  it('labels each tag with its title, in the language it was asked for', () => {
     assert.deepEqual(toTagTerms(tasteTagsFixture.list), [{ id: 11, label: '辛口' }])
     assert.deepEqual(toTagTerms(tasteTagsEnFixture.list), [{ id: 11, label: 'Dry' }])
   })
 
-  it('falls back to the identifier when the display name is empty, blank or missing', () => {
+  it('labels a tag with its label instead, when it has one', () => {
+    assert.deepEqual(toTagTerms(drinkabilityTagsEnFixture.list), [
+      { id: 21, label: 'Easy to drink' },
+    ])
+  })
+
+  it('falls back to the title when the label is empty, blank or missing', () => {
     const [category] = tasteTagsFixture.list
-    // A missing display name (`null`) must not throw on trim().
+    // A missing label (`null`) must not throw on trim().
     for (const ext_col_01 of ['', ' \u3000\n', null]) {
-      const tags = { '11': { tag_id: 11, tag_nm: 'dry', ext_col_01 } }
-      assert.deepEqual(toTagTerms([{ ...category!, tags }]), [{ id: 11, label: 'dry' }])
+      const tags = { '11': { tag_id: 11, tag_nm: '辛口', ext_col_01 } }
+      assert.deepEqual(toTagTerms([{ ...category!, tags }]), [{ id: 11, label: '辛口' }])
     }
   })
 
-  it('shows the display name without the spaces around it', () => {
+  it('shows the label without the spaces around it', () => {
     const [category] = tasteTagsFixture.list
-    const tags = { '11': { tag_id: 11, tag_nm: 'dry', ext_col_01: ' 辛口 ' } }
+    const tags = { '11': { tag_id: 11, tag_nm: 'slightly_funky', ext_col_01: ' Slightly Funky ' } }
 
-    assert.deepEqual(toTagTerms([{ ...category!, tags }]), [{ id: 11, label: '辛口' }])
+    assert.deepEqual(toTagTerms([{ ...category!, tags }]), [{ id: 11, label: 'Slightly Funky' }])
   })
 })

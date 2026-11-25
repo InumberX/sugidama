@@ -35,8 +35,12 @@ export const drinkCategoriesEnFixture: DrinkCategories = {
   ],
 }
 
-/** A tag group of one tag: its identifier is the same in every language, its display name is not. */
-const tagsOf = (id: number, tagName: string, label: string): Tags => ({
+/**
+ * A tag group of one tag, as the tags are kept: the title (`tag_nm`) is the
+ * name shown, and a label (`ext_col_01`) is set only for a name a title cannot
+ * hold, such as one with a space.
+ */
+const tagsOf = (id: number, tagName: string, label = ''): Tags => ({
   errors: [],
   messages: [],
   list: [
@@ -48,10 +52,10 @@ const tagsOf = (id: number, tagName: string, label: string): Tags => ({
   ],
 })
 
-export const tasteTagsFixture = tagsOf(11, 'dry', '辛口')
-export const tasteTagsEnFixture = tagsOf(11, 'dry', 'Dry')
-export const drinkabilityTagsFixture = tagsOf(21, 'easy', '飲みやすい')
-export const drinkabilityTagsEnFixture = tagsOf(21, 'easy', 'Easy')
+export const tasteTagsFixture = tagsOf(11, '辛口')
+export const tasteTagsEnFixture = tagsOf(11, 'Dry')
+export const drinkabilityTagsFixture = tagsOf(21, '飲みやすい')
+export const drinkabilityTagsEnFixture = tagsOf(21, 'easy_to_drink', 'Easy to drink')
 
 export const drinkFixture = (overrides: Partial<Drink> = {}): Drink => ({
   topics_id: 100,
@@ -66,7 +70,7 @@ export const drinkFixture = (overrides: Partial<Drink> = {}): Drink => ({
   manufacturer: '朝日酒造',
   abv: 15,
   drink_category: { key: '2', label: '日本酒' },
-  tags: [{ tag_id: 11, tag_nm: 'dry' }],
+  tags: [{ tag_id: 11, tag_nm: '辛口' }],
   links: [],
   comment: '',
   ...overrides,

@@ -15,9 +15,8 @@ export const getDrinkabilityTags = (lang: Lang): Promise<ApiResult<Tags>> =>
   apiClient<Tags>('/tags/drinkability', { _lang: lang })
 
 /**
- * Every tag of every category, labelled with its display name, else its
- * identifier. A display name of only spaces counts as none, and so does a
- * missing one (`null`).
+ * Every tag of every category, named by its label, else its title. A label of
+ * only spaces counts as none, and so does a missing one (`null`).
  */
 export const toTagTerms = (categories: TagCategory[]): Term[] =>
   categories.flatMap((category) =>

@@ -2,10 +2,11 @@
 
 export type TagItem = {
   tag_id: number
-  /** An identifier shaped like a slug (`slightly_funky`), the same in every language: a tag name cannot hold a space. */
+  /** The title, in the language asked for (`_lang`): the name shown, unless the tag has a label. */
   tag_nm: string
   /**
-   * The display name, in the language asked for (`_lang`); the identifier
+   * The label, set only for a name the title cannot hold (a title cannot hold
+   * a space, so `Slightly Funky` is the label of `slightly_funky`). The title
    * stands in when it is empty or only spaces. Guarded as possibly missing.
    */
   ext_col_01: string | null

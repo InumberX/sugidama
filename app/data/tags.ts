@@ -14,11 +14,15 @@ export const getTasteTags = (lang: Lang): Promise<ApiResult<Tags>> =>
 export const getDrinkabilityTags = (lang: Lang): Promise<ApiResult<Tags>> =>
   apiClient<Tags>('/tags/drinkability', { _lang: lang })
 
-/** Every tag of every category, labelled with its display name, else its identifier. */
+/**
+ * Every tag of every category, labelled with its display name, else its
+ * identifier. A display name of only spaces counts as none; the API is
+ * untyped JSON, so a missing one (`null`) does too.
+ */
 export const toTagTerms = (categories: TagCategory[]): Term[] =>
   categories.flatMap((category) =>
     Object.values(category.tags ?? {}).map((tag) => ({
       id: tag.tag_id,
-      label: tag.ext_col_01 || tag.tag_nm,
+      label: tag.ext_col_01?.trim() || tag.tag_nm,
     }))
   )

@@ -32,8 +32,8 @@ describe('toTagTerms', () => {
 
   it('falls back to the identifier when the display name is empty, blank or missing', () => {
     const [category] = tasteTagsFixture.list
-    // The API is untyped JSON; a missing display name must not throw on trim().
-    for (const ext_col_01 of ['', ' \u3000\n', null as unknown as string]) {
+    // A missing display name (`null`) must not throw on trim().
+    for (const ext_col_01 of ['', ' \u3000\n', null]) {
       const tags = { '11': { tag_id: 11, tag_nm: 'dry', ext_col_01 } }
       assert.deepEqual(toTagTerms([{ ...category!, tags }]), [{ id: 11, label: 'dry' }])
     }

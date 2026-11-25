@@ -21,8 +21,7 @@ export type GetDrinksOptions = {
  * The fields a keyword is looked for in, ORed. Kuroco's `keyword` would be
  * shorter, but it searches the Japanese side whatever `filter_lang` says, and
  * answers a 500 when `filter_lang` is `en`; a named field searches the side
- * `filter_lang` names. Each must be in the endpoint's
- * `filter_request_allow_list`.
+ * `filter_lang` names. Each must be in the endpoint's `filter_request_allow_list`.
  */
 const KEYWORD_FIELDS = ['subject', 'contents', 'manufacturer', 'comment'] as const
 

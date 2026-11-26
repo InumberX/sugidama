@@ -7,16 +7,21 @@ import type { Term } from './terms.types.ts'
 
 export type * from './tags.types.ts'
 
-export const getTasteTags = (): Promise<ApiResult<Tags>> => apiClient<Tags>('/tags/taste')
+/** A tag group in one language; a tag without that language is left out. */
+export const getTasteTags = (lang: Lang): Promise<ApiResult<Tags>> =>
+  apiClient<Tags>('/tags/taste', { _lang: lang })
 
-export const getDrinkabilityTags = (): Promise<ApiResult<Tags>> =>
-  apiClient<Tags>('/tags/drinkability')
+export const getDrinkabilityTags = (lang: Lang): Promise<ApiResult<Tags>> =>
+  apiClient<Tags>('/tags/drinkability', { _lang: lang })
 
-/** Every tag of every category, in one language. */
-export const toTagTerms = (categories: TagCategory[], lang: Lang): Term[] =>
+/**
+ * Every tag of every category, named by its label, else its title. A label of
+ * only spaces counts as none, and so does a missing one (`null`).
+ */
+export const toTagTerms = (categories: TagCategory[]): Term[] =>
   categories.flatMap((category) =>
     Object.values(category.tags ?? {}).map((tag) => ({
       id: tag.tag_id,
-      label: lang === 'en' ? tag.ext_col_01 : tag.tag_nm,
+      label: tag.ext_col_01?.trim() || tag.tag_nm,
     }))
   )

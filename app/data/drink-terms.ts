@@ -29,9 +29,9 @@ export const toSearchVocabularies = ({ categories, tagGroups }: DrinkTerms): Tag
 /** Loads the three in parallel; the first failure, if any, is the result. */
 export const getDrinkTerms = async (lang: Lang): Promise<ApiResult<DrinkTerms>> => {
   const [categories, taste, drinkability] = await Promise.all([
-    getDrinkCategories(),
-    getTasteTags(),
-    getDrinkabilityTags(),
+    getDrinkCategories(lang),
+    getTasteTags(lang),
+    getDrinkabilityTags(lang),
   ])
 
   if (!categories.success) return categories
@@ -41,12 +41,12 @@ export const getDrinkTerms = async (lang: Lang): Promise<ApiResult<DrinkTerms>> 
   return {
     success: true,
     data: {
-      categories: toDrinkCategoryTerms(categories.data.list, lang),
+      categories: toDrinkCategoryTerms(categories.data.list),
       tagGroups: [
-        { name: SEARCH_DRINKS_CONDITION_KEY.TASTE, terms: toTagTerms(taste.data.list, lang) },
+        { name: SEARCH_DRINKS_CONDITION_KEY.TASTE, terms: toTagTerms(taste.data.list) },
         {
           name: SEARCH_DRINKS_CONDITION_KEY.DRINKABILITY,
-          terms: toTagTerms(drinkability.data.list, lang),
+          terms: toTagTerms(drinkability.data.list),
         },
       ],
     },

@@ -58,15 +58,15 @@ export const loadShowPage = async (
   drinkId: string
 ): Promise<ShowPageData | Response> => {
   const termsRequest = getDrinkTerms(lang)
-  const latestRequest = getDrinks({ page: 1, pageSize: ROW_SIZE })
-  const detailRequest = getDrinkDetail(drinkId)
+  const latestRequest = getDrinks({ lang, page: 1, pageSize: ROW_SIZE })
+  const detailRequest = getDrinkDetail(drinkId, lang)
   // The related row needs only the drink's category key, so it starts as soon
   // as the drink arrives instead of waiting for the vocabularies too; the key
   // is checked against the master once both are in.
   const relatedRequest = detailRequest.then((detail) => {
     const categoryId = detail.success && toCategoryId(detail.data.details)
     return categoryId
-      ? getDrinks({ page: 1, pageSize: ROW_SIZE, drinkCategoryIds: [categoryId] })
+      ? getDrinks({ lang, page: 1, pageSize: ROW_SIZE, drinkCategoryIds: [categoryId] })
       : undefined
   })
 

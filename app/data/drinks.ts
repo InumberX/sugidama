@@ -26,7 +26,13 @@ export type GetDrinksOptions = {
 const KEYWORD_FIELDS = ['subject', 'contents', 'manufacturer', 'comment'] as const
 
 /** The drink list, newest first by default; every condition narrows it further. */
-export const getDrinks = ({
+export const getDrinks = (options: GetDrinksOptions): Promise<ApiResult<Drinks>> =>
+  options.lang !== 'ja' && options.keyword && options.drinkCategoryIds?.length
+    ? searchByKeywordThenCategory(options)
+    : askKuroco(options)
+
+/** One page of the list, every condition in Kuroco's own filter. */
+const askKuroco = ({
   lang,
   page = 1,
   pageSize = 12,
@@ -59,6 +65,53 @@ export const getDrinks = ({
     // primary language, Japanese.
     filter_lang: filter.length > 0 ? lang : undefined,
   })
+}
+
+/** How many drinks a page of `searchByKeywordThenCategory()` asks Kuroco for at once. */
+const FETCH_ALL_PAGE_SIZE = 100
+
+/**
+ * A keyword and a category together, outside Japanese (issue #162). With
+ * `filter_lang` other than the primary language, Kuroco finds nothing when a
+ * text condition (`subject contains …`) is ANDed with an extension field
+ * (`drink_category = …`), though each alone finds the drink (measured on
+ * staging and production; `filter_lang=ja` is not affected). So Kuroco is
+ * asked for the keyword (and the tags) only, every page of it, and the
+ * category is matched here; the page asked for is then cut from what is left,
+ * with a `pageInfo` counted the same way, and a page past the last is a 404,
+ * as Kuroco answers one. The drinks are few, so this is usually one request.
+ */
+const searchByKeywordThenCategory = async ({
+  page = 1,
+  pageSize = 12,
+  drinkCategoryIds = [],
+  ...options
+}: GetDrinksOptions): Promise<ApiResult<Drinks>> => {
+  const first = await askKuroco({ ...options, page: 1, pageSize: FETCH_ALL_PAGE_SIZE })
+  if (!first.success) return first
+
+  const list = [...first.data.list]
+  for (let next = 2; next <= first.data.pageInfo.totalPageCnt; next++) {
+    const more = await askKuroco({ ...options, page: next, pageSize: FETCH_ALL_PAGE_SIZE })
+    if (!more.success) return more
+    list.push(...more.data.list)
+  }
+
+  const keys = new Set(drinkCategoryIds.map(String))
+  const matched = list.filter((drink) => drink.drink_category && keys.has(drink.drink_category.key))
+  const totalPageCnt = Math.max(1, Math.ceil(matched.length / pageSize))
+  if (page > totalPageCnt) {
+    return { success: false, status: HTTP_STATUS.NOT_FOUND, message: 'pageID is too big.' }
+  }
+
+  return {
+    success: true,
+    data: {
+      ...first.data,
+      list: matched.slice((page - 1) * pageSize, page * pageSize),
+      pageInfo: { totalCnt: matched.length, perPage: pageSize, totalPageCnt, pageNo: page },
+    },
+  }
 }
 
 /** Whether an id can name a drink's page: a dot segment would climb out of `/drinks/`. */

@@ -1,7 +1,7 @@
 import * as assert from 'remix/assert'
 import { describe, it } from 'remix/test'
 
-import { drinkFixture, drinksFixture, mockKuroco } from '../../../../test/kuroco.ts'
+import { drinkEnFixture, drinkFixture, drinksFixture, mockKuroco } from '../../../../test/kuroco.ts'
 import { router } from '../../../router.ts'
 import { CLIENT_RUNTIME_URL } from '../../document.tsx'
 
@@ -44,6 +44,28 @@ describe('drinks index page', () => {
     assert.match(params.get('filter') ?? '', /^\(subject contains "dry" OR /)
     assert.equal(params.get('_lang'), 'en')
     assert.equal(params.get('filter_lang'), 'en')
+  })
+
+  it('finds a drink by keyword and category together under /en (issue #162)', async (t) => {
+    const fetch = mockKuroco(t, {
+      '/drinks': drinksFixture([
+        drinkEnFixture({ topics_id: 1, subject: 'Dewazakura' }),
+        drinkEnFixture({
+          topics_id: 2,
+          subject: 'Dewazakura Beer',
+          drink_category: { key: '1', label: 'Beer' },
+        }),
+      ]),
+    })
+    const response = await get('/en/drinks?keyword=Dewazakura&drink=2')
+    const params = drinksRequest(fetch)
+    const html = await response.text()
+
+    assert.equal(response.status, 200)
+    assert.match(params.get('filter') ?? '', /^\(subject contains "Dewazakura" OR .*\)$/)
+    assert.equal(params.get('filter_lang'), 'en')
+    assert.ok(html.includes('>Dewazakura<'), 'the sake is listed')
+    assert.ok(!html.includes('Dewazakura Beer'), 'the beer is not')
   })
 
   it('answers an invalid page with a 404', async (t) => {

@@ -1,7 +1,7 @@
 import * as assert from 'remix/assert'
 import { describe, it } from 'remix/test'
 
-import { drinkDetailFixture, drinksFixture, mockKuroco } from '../../test/kuroco.ts'
+import { drinkDetailFixture, drinkEnFixture, drinksFixture, mockKuroco } from '../../test/kuroco.ts'
 import { getDrinkDetail, getDrinks } from './drinks.ts'
 
 const queryOf = async (
@@ -58,6 +58,94 @@ describe('getDrinks', () => {
       many.get('filter'),
       `${keywordFilter('x')} AND (drink_category = "1" OR drink_category = "2")`
     )
+  })
+
+  describe('a keyword and a category together, outside Japanese (issue #162)', () => {
+    // Kuroco finds nothing for a text condition ANDed with drink_category when
+    // filter_lang is en, so the category is matched here instead.
+    const sake = (id: number) => drinkEnFixture({ topics_id: id })
+    const beer = (id: number) =>
+      drinkEnFixture({ topics_id: id, drink_category: { key: '1', label: 'Beer' } })
+    const idsOf = (result: Awaited<ReturnType<typeof getDrinks>>) =>
+      result.success ? result.data.list.map((drink) => drink.topics_id) : result.status
+
+    it('asks Kuroco for the keyword only, and keeps the drinks of the categories', async (t) => {
+      const fetch = mockKuroco(t, { '/drinks': drinksFixture([sake(1), beer(2), sake(3)]) })
+      const result = await getDrinks({
+        lang: 'en',
+        keyword: 'x',
+        drinkCategoryIds: [2],
+        tags: [11],
+      })
+      const query = new URL(String(fetch.mock.calls[0]?.arguments[0])).searchParams
+
+      assert.equal(query.get('filter'), keywordFilter('x'))
+      assert.equal(query.get('filter_lang'), 'en')
+      assert.equal(query.get('cnt'), '100')
+      assert.equal(query.get('pageID'), '1')
+      assert.deepEqual(query.getAll('tag_id'), ['11'])
+      assert.deepEqual(idsOf(result), [1, 3])
+      assert.ok(result.success)
+      assert.deepEqual(result.data.pageInfo, {
+        totalCnt: 2,
+        perPage: 12,
+        totalPageCnt: 1,
+        pageNo: 1,
+      })
+    })
+
+    it('reads every page Kuroco has, then cuts the page asked for', async (t) => {
+      const fetch = mockKuroco(t, {
+        '/drinks': {
+          ...drinksFixture([sake(1), beer(2), sake(3)]),
+          pageInfo: { totalCnt: 6, perPage: 100, totalPageCnt: 2, pageNo: 1 },
+        },
+      })
+      const result = await getDrinks({
+        lang: 'en',
+        keyword: 'x',
+        drinkCategoryIds: [1, 2],
+        page: 2,
+        pageSize: 4,
+      })
+      const pages = fetch.mock.calls.map((call) =>
+        new URL(String(call.arguments[0])).searchParams.get('pageID')
+      )
+
+      assert.deepEqual(pages, ['1', '2'])
+      // The mock answers every page alike: six drinks, of which four are page 1.
+      assert.deepEqual(idsOf(result), [2, 3])
+      assert.ok(result.success)
+      assert.equal(result.data.pageInfo.totalCnt, 6)
+      assert.equal(result.data.pageInfo.totalPageCnt, 2)
+    })
+
+    it('answers a page past the last with a 404, as Kuroco would', async (t) => {
+      mockKuroco(t, { '/drinks': drinksFixture([beer(1)]) })
+
+      assert.deepEqual(
+        idsOf(await getDrinks({ lang: 'en', keyword: 'x', drinkCategoryIds: [2] })),
+        []
+      )
+      assert.equal(
+        idsOf(await getDrinks({ lang: 'en', keyword: 'x', drinkCategoryIds: [2], page: 2 })),
+        404
+      )
+    })
+
+    it("passes Kuroco's error on", async (t) => {
+      mockKuroco(t, { '/drinks': new Response('error', { status: 503 }) })
+
+      assert.equal(idsOf(await getDrinks({ lang: 'en', keyword: 'x', drinkCategoryIds: [2] })), 503)
+    })
+
+    it('leaves Japanese, and either condition alone, to Kuroco', async (t) => {
+      const ja = await queryOf(t, { keyword: 'x', drinkCategoryIds: [2] })
+      const category = await queryOf(t, { lang: 'en', drinkCategoryIds: [2] })
+
+      assert.equal(ja.get('filter'), `${keywordFilter('x')} AND drink_category = "2"`)
+      assert.equal(category.get('filter'), 'drink_category = "2"')
+    })
   })
 
   it('repeats tag_id for each tag', async (t) => {

@@ -15,7 +15,7 @@ export type GetDrinksOptions = {
   keyword?: string
   tags?: number[]
   drinkCategoryIds?: number[]
-  /** Drinks to leave out by topics_id, as Kuroco's `exclude_topics_id`: the page's own drink in its related row. */
+  /** Drinks to leave out by topics_id (Kuroco's `exclude_topics_id`). */
   excludeTopicsIds?: number[]
 }
 

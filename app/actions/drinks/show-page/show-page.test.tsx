@@ -163,7 +163,7 @@ describe('drink page', () => {
     assert.match(single, /<img src="https:\/\/example\.com\/a\.webp" alt="瓶"/)
   })
 
-  it('asks for drinks of the same category and the newest, four each', async (t) => {
+  it('asks for four of the same category, leaving the drink itself out, and the newest four', async (t) => {
     const fetch = mockKuroco(t, { '/drinks/kubota': drinkDetailFixture() })
     const html = await (await get('/drinks/kubota')).text()
     const rows = fetch.mock.calls

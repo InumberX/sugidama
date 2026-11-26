@@ -163,7 +163,7 @@ describe('drink page', () => {
     assert.match(single, /<img src="https:\/\/example\.com\/a\.webp" alt="瓶"/)
   })
 
-  it('asks for drinks of the same category and the newest, four each', async (t) => {
+  it('asks for four of the same category, leaving the drink itself out, and the newest four', async (t) => {
     const fetch = mockKuroco(t, { '/drinks/kubota': drinkDetailFixture() })
     const html = await (await get('/drinks/kubota')).text()
     const rows = fetch.mock.calls
@@ -171,10 +171,16 @@ describe('drink page', () => {
       .filter((url) => url.pathname.endsWith('/drinks'))
       .map((url) => url.searchParams)
 
-    assert.deepEqual(rows.map((query) => [query.get('cnt'), query.get('filter')]).sort(), [
-      ['4', null],
-      ['4', 'drink_category = "2"'],
-    ])
+    assert.deepEqual(
+      rows
+        .map((query) => [query.get('cnt'), query.get('filter'), query.getAll('exclude_topics_id')])
+        .sort(),
+      [
+        ['4', null, []],
+        // The same category's row leaves out the drink on the page (issue #134).
+        ['4', 'drink_category = "2"', ['100']],
+      ]
+    )
     assert.match(html, /日本酒のお酒<\/h2>/)
     assert.match(html, /新着のお酒<\/h2>/)
     assert.match(html, /<h3[^>]*>/)

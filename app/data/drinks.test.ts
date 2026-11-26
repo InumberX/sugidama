@@ -60,6 +60,13 @@ describe('getDrinks', () => {
     )
   })
 
+  it('leaves out drinks by topics_id only when asked', async (t) => {
+    assert.deepEqual((await queryOf(t)).getAll('exclude_topics_id'), [])
+    assert.deepEqual((await queryOf(t, { excludeTopicsIds: [100] })).getAll('exclude_topics_id'), [
+      '100',
+    ])
+  })
+
   it('repeats tag_id for each tag', async (t) => {
     const query = await queryOf(t, { tags: [11, 21] })
 

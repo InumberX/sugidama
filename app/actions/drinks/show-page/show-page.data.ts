@@ -1,11 +1,11 @@
 // Ported from develop: the loader of app/routes/($lang)._public._layout.drinks.$drinkId
 //
 // One drink, the vocabularies that name its category and tags, and two rows
-// of cards: drinks of the same category and the newest drinks. The drink and
-// the vocabularies are the page; a failure there ends the request with its
-// error response, as develop's loader threw it. The rows are extras: develop
-// streamed them and hid a row whose fetch failed, and a failed row is left out
-// here too, without failing the page.
+// of cards: other drinks of the same category and the newest drinks. The
+// drink and the vocabularies are the page; a failure there ends the request
+// with its error response, as develop's loader threw it. The rows are extras:
+// develop streamed them and hid a row whose fetch failed, and a failed row is
+// left out here too, without failing the page.
 //
 // Everything starts at once except the same-category row, which waits only
 // for the drink to name its category.
@@ -66,7 +66,17 @@ export const loadShowPage = async (
   const relatedRequest = detailRequest.then((detail) => {
     const categoryId = detail.success && toCategoryId(detail.data.details)
     return categoryId
-      ? getDrinks({ lang, page: 1, pageSize: ROW_SIZE, drinkCategoryIds: [categoryId] })
+      ? getDrinks({
+          lang,
+          page: 1,
+          pageSize: ROW_SIZE,
+          drinkCategoryIds: [categoryId],
+          // The drink on the page is not one of its own related drinks. Kuroco
+          // leaves it out, so the row is four long whenever the category has
+          // four others; the cost is a cache key per drink instead of per
+          // category, negligible with as few drinks as the site has.
+          excludeTopicsIds: [detail.data.details.topics_id],
+        })
       : undefined
   })
 

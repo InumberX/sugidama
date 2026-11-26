@@ -1,7 +1,13 @@
 import * as assert from 'remix/assert'
 import { describe, it } from 'remix/test'
 
-import { drinkDetailFixture, drinkFixture, mockKuroco } from '../../../../test/kuroco.ts'
+import {
+  byLang,
+  drinkDetailFixture,
+  drinkEnFixture,
+  drinkFixture,
+  mockKuroco,
+} from '../../../../test/kuroco.ts'
 import { router } from '../../../router.ts'
 import { CLIENT_RUNTIME_URL } from '../../document.tsx'
 
@@ -16,21 +22,27 @@ const image = (name: string) => ({
 
 const kubota = drinkFixture({
   main_visuals: [
-    { main_visual_image: image('a'), main_visual_title: '瓶', main_visual_title_en: 'Bottle' },
-    { main_visual_image: image('b'), main_visual_title: 'ラベル', main_visual_title_en: 'Label' },
+    { main_visual_image: image('a'), main_visual_title: '瓶' },
+    { main_visual_image: image('b'), main_visual_title: 'ラベル' },
   ],
   comment: '一行目\n二行目',
-  comment_en: 'Line one',
   links: [
-    {
-      link_text: '公式',
-      link_text_en: 'Official',
-      link_url: 'https://a.example/',
-      link_url_en: 'https://a.example/en',
-    },
-    { link_text: '', link_text_en: '', link_url: 'https://b.example/', link_url_en: '' },
+    { link_text: '公式', link_url: 'https://a.example/' },
+    { link_text: '', link_url: 'https://b.example/' },
   ],
 })
+
+/** The same drink's English version, as Kuroco answers it for `_lang=en`. */
+const kubotaEn = drinkEnFixture({
+  main_visuals: [
+    { main_visual_image: image('a'), main_visual_title: 'Bottle' },
+    { main_visual_image: image('b'), main_visual_title: 'Label' },
+  ],
+  comment: 'Line one',
+  links: [{ link_text: 'Official', link_url: 'https://a.example/en' }],
+})
+
+const kubotaAnswers = byLang({ ja: drinkDetailFixture(kubota), en: drinkDetailFixture(kubotaEn) })
 
 describe('drink page', () => {
   it('renders the drink with its facts, tags and meta', async (t) => {
@@ -49,6 +61,25 @@ describe('drink page', () => {
     assert.match(html, /href="https:\/\/a\.example\/"/)
     assert.doesNotMatch(html, /href="https:\/\/b\.example\/"/)
     assert.match(html, /href="\/drinks\?taste=11"/)
+  })
+
+  it('asks for every part of the page in its language', async (t) => {
+    const fetch = mockKuroco(t, { '/drinks/kubota': kubotaAnswers })
+    const langsOf = (from: number, to?: number) =>
+      new Set(
+        fetch.mock.calls
+          .slice(from, to)
+          .map((call) => new URL(String(call.arguments[0])).searchParams.get('_lang'))
+      )
+
+    await (await get('/drinks/kubota')).text()
+    const jaCalls = fetch.mock.calls.length
+    await (await get('/en/drinks/kubota')).text()
+
+    // The drink, the three vocabularies and the two rows.
+    assert.equal(jaCalls, 6)
+    assert.deepEqual(langsOf(0, jaCalls), new Set(['ja']))
+    assert.deepEqual(langsOf(jaCalls), new Set(['en']))
   })
 
   it('names the slug as canonical, whichever URL reached the drink', async (t) => {
@@ -72,7 +103,7 @@ describe('drink page', () => {
   })
 
   it('renders the English drink under /en', async (t) => {
-    mockKuroco(t, { '/drinks/kubota': drinkDetailFixture(kubota) })
+    mockKuroco(t, { '/drinks/kubota': kubotaAnswers })
     const html = await (await get('/en/drinks/kubota')).text()
 
     assert.match(html, /<html lang="en"[ >]/)
@@ -96,7 +127,7 @@ describe('drink page', () => {
   it('leaves out an image row without an image, and survives missing lists', async (t) => {
     const unfinished = drinkFixture({
       main_visuals: [
-        { main_visual_image: '', main_visual_title: '未設定', main_visual_title_en: '' },
+        { main_visual_image: '', main_visual_title: '未設定' },
         ...kubota.main_visuals!,
       ],
       links: null,

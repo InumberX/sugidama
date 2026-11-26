@@ -83,6 +83,11 @@ describe('home page', () => {
     assert.match(html, /<a href="\/en\/drinks\/drink-0"[^>]*>Drink 0<\/a>/)
     assert.match(html, /<a href="\/en\/drinks\?drink=1"/)
     assert.match(html, /March 1, 2024/)
+    // A card's category and tag come from the English versions of the master
+    // and the tag group: the master's name, the tag's display name (ext_col_01).
+    assert.match(html, /<a href="\/en\/drinks\?drink=2"[^>]*>.*?<span[^>]*>Sake<\/span>/s)
+    assert.match(html, /<a href="\/en\/drinks\?taste=11"[^>]*>.*?<span[^>]*>Dry<\/span>/s)
+    assert.doesNotMatch(html, />(辛口|日本酒)</)
   })
 
   it("passes the API's 5xx through, without the API's own words", async (t) => {

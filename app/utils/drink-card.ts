@@ -88,7 +88,7 @@ export const toDrinkCardProps = ({
   return {
     url: toDrinkHref(drink, lang),
     title: {
-      text: lang === 'en' ? drink.subject_en : drink.subject,
+      text: drink.subject,
       ...(titleTag && { titleTag }),
     },
     // No date, no row: an empty one would still be a focusable link.

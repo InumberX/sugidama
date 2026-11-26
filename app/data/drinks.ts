@@ -15,6 +15,8 @@ export type GetDrinksOptions = {
   keyword?: string
   tags?: number[]
   drinkCategoryIds?: number[]
+  /** Drinks to leave out by topics_id, as Kuroco's `exclude_topics_id`: the page's own drink in its related row. */
+  excludeTopicsIds?: number[]
 }
 
 /**
@@ -34,6 +36,7 @@ export const getDrinks = ({
   keyword,
   tags,
   drinkCategoryIds,
+  excludeTopicsIds,
 }: GetDrinksOptions): Promise<ApiResult<Drinks>> => {
   const filter: string[] = []
 
@@ -54,6 +57,7 @@ export const getDrinks = ({
     pageID: page,
     order_query: orderQuery,
     tag_id: tags,
+    exclude_topics_id: excludeTopicsIds,
     filter: filter.length > 0 ? filter.join(' AND ') : undefined,
     // Which language's fields the filter reads; Kuroco's default is the
     // primary language, Japanese.

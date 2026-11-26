@@ -1,7 +1,7 @@
 // Ported from develop: the loader of app/routes/($lang)._public._layout.drinks.$drinkId
 //
 // One drink, the vocabularies that name its category and tags, and two rows
-// of cards: drinks of the same category and the newest drinks. The drink and
+// of cards: other drinks of the same category and the newest drinks. The drink and
 // the vocabularies are the page; a failure there ends the request with its
 // error response, as develop's loader threw it. The rows are extras: develop
 // streamed them and hid a row whose fetch failed, and a failed row is left out
@@ -66,7 +66,14 @@ export const loadShowPage = async (
   const relatedRequest = detailRequest.then((detail) => {
     const categoryId = detail.success && toCategoryId(detail.data.details)
     return categoryId
-      ? getDrinks({ lang, page: 1, pageSize: ROW_SIZE, drinkCategoryIds: [categoryId] })
+      ? getDrinks({
+          lang,
+          page: 1,
+          pageSize: ROW_SIZE,
+          drinkCategoryIds: [categoryId],
+          // The drink on the page is not one of its own related drinks.
+          excludeTopicsIds: [detail.data.details.topics_id],
+        })
       : undefined
   })
 
